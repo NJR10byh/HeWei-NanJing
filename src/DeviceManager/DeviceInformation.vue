@@ -36,8 +36,7 @@
         tooltip-effect="dark"
         stripe
         class="man-table"
-        style="width: 100%"
-        max-height="400"
+        style="width: 100%;height:80%"
         @selection-change="handleDetailSelectionChange"
       >
         <el-table-column fixed type="expand">
@@ -85,22 +84,22 @@
           width="120"
         ></el-table-column>
         <el-table-column
-          prop="model"
+          prop="type"
           label="设备型号/规格"
           width="140"
         ></el-table-column>
         <el-table-column
-          prop="number"
+          prop="deviceNo"
           label="设备编号"
           width="130"
         ></el-table-column>
         <el-table-column
-          prop="keydevice"
+          prop="crux"
           label="是否为关键设备"
           width="150"
         ></el-table-column>
         <el-table-column
-          prop="kind"
+          prop="clazz"
           label="设备分类"
           width="120"
         ></el-table-column>
@@ -109,6 +108,14 @@
           label="维护保养标准编号"
           width="160"
         ></el-table-column>
+        <template v-for="(item, index) in tableHead">
+          <el-table-column
+            :prop="item.prop"
+            :label="item.lable"
+            :key="index"
+            :width="item.width"
+          ></el-table-column>
+        </template>
         <el-table-column fixed="right" prop="setting" label="操作" width="100">
           <template slot-scope="scope">
             <el-button
@@ -164,34 +171,34 @@
           </el-form-item>
           <el-form-item
             label="设备型号/规格: "
-            prop="model"
+            prop="type"
             :label-width="formLabelWidth"
           >
-            <el-input v-model="form.model" autocomplete="off"></el-input>
+            <el-input v-model="form.type" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item
             label="设备编号: "
-            prop="number"
+            prop="deviceNo"
             :label-width="formLabelWidth"
           >
-            <el-input v-model="form.number" autocomplete="off"></el-input>
+            <el-input v-model="form.deviceNo" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item
             label="是否为关键设备: "
-            prop="keydevice"
+            prop="crux"
             :label-width="formLabelWidth"
           >
-            <el-radio-group v-model="form.keydevice">
+            <el-radio-group v-model="form.crux">
               <el-radio label="Y">是</el-radio>
               <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item
             label="设备分类: "
-            prop="kind"
+            prop="clazz"
             :label-width="formLabelWidth"
           >
-            <el-select v-model="form.kind" placeholder="请选择设备类型">
+            <el-select v-model="form.clazz" placeholder="请选择设备类型">
               <el-option label="电器" value="电器"></el-option>
               <el-option label="机械" value="机械"></el-option>
               <el-option label="测量" value="测量"></el-option>
@@ -224,40 +231,43 @@
 </template>
 
 <script>
+// import axios from "axios";
 export default {
   name: "DeviceInformation",
   components: {},
   data() {
     return {
-      formInline: {
-        person: "",
-        model: "",
-      },
-      radiomodel: {
-        model: 1,
-      },
       //选择框
       checkedDetail: [],
+      // 可选表头数据
+      tableHead: [
+        {
+          prop: "test",
+          lable: "啦啦啦",
+          width: "100",
+        },
+      ],
       // 表格数据
       tableData: [
         {
           id: "1",
           name: "显示屏",
           brand: "小米",
-          model: "65寸",
-          number: "HW-NJ-E-001",
-          keydevice: "N",
-          kind: "电器",
+          type: "65寸",
+          deviceNo: "HW-NJ-E-001",
+          crux: "N",
+          clazz: "电器",
           fixnumber: "PM-E-001-D",
+          test: "aaa",
         },
         {
           id: "2",
           name: "笔记本电脑",
           brand: "Dell",
-          model: "灵越5000fit",
-          number: "HW-NJ-E-004",
-          keydevice: "N",
-          kind: "电器",
+          type: "灵越5000fit",
+          deviceNo: "HW-NJ-E-004",
+          crux: "N",
+          clazz: "电器",
           fixnumber: "无",
         },
       ],
@@ -275,10 +285,10 @@ export default {
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
         brand: [{ required: true, message: "请输入设备品牌", trigger: "blur" }],
-        model: [
+        type: [
           { required: true, message: "请输入设备型号/规格", trigger: "blur" },
         ],
-        number: [
+        deviceNo: [
           { required: true, message: "请输入设备编号", trigger: "blur" },
           {
             min: 5,
@@ -287,8 +297,8 @@ export default {
             trigger: "blur",
           },
         ],
-        keydevice: [{ required: true, message: "请选择", trigger: "change" }],
-        kind: [
+        crux: [{ required: true, message: "请选择", trigger: "change" }],
+        clazz: [
           { required: true, message: "请选择设备类型", trigger: "change" },
         ],
         fixnumber: [
@@ -302,7 +312,6 @@ export default {
       formLabelWidth: "140px",
     };
   },
-  computed: {},
   methods: {
     // 搜索
     //单选框选中数据
@@ -374,28 +383,55 @@ export default {
     submitForm(formName) {
       let idnum = this.tableData.length + 1;
       let obj = {};
+      let upobj = {};
       obj.id = idnum;
       obj.name = formName.name;
       obj.brand = formName.brand;
-      obj.model = formName.model;
-      obj.number = formName.number;
-      obj.keydevice = formName.keydevice;
-      obj.kind = formName.kind;
+      obj.type = formName.type;
+      obj.deviceNo = formName.deviceNo;
+      obj.crux = formName.crux;
+      obj.clazz = formName.clazz;
       obj.fixnumber = formName.fixnumber;
-      console.log(obj.type);
+      upobj.id = idnum;
+      upobj.name = formName.name;
+      upobj.brand = formName.brand;
+      upobj.type = formName.type;
+      upobj.deviceNo = formName.deviceNo;
+      upobj.crux = formName.crux;
+      if (formName.crux == "Y") {
+        upobj.crux = true;
+      } else if (formName.crux == "N") {
+        upobj.crux = false;
+      }
+      upobj.clazz = formName.clazz;
+      upobj.fixnumber = formName.fixnumber;
+      console.log(upobj);
       if (
         obj.name == undefined ||
         obj.brand == undefined ||
-        obj.model == undefined ||
-        obj.number == undefined ||
-        obj.keydevice == undefined ||
-        obj.kind == undefined ||
+        obj.type == undefined ||
+        obj.deviceNo == undefined ||
+        obj.crux == undefined ||
+        obj.clazz == undefined ||
         obj.fixnumber == undefined
       ) {
         this.$alert("请将信息填写完整", "提示", {
           confirmButtonText: "确定",
         });
       } else {
+        // let that = this;
+        // axios({
+        //   method: "POST",
+        //   url: "http://47.102.214.37:8080/device",
+        // })
+        //   .then((res) => {
+        //     console.log(res);
+        //     this.tableData.push(obj);
+        //   })
+        //   .catch((err) => {
+        //     console.log(err);
+        //     console.log("请求失败: " + err.status + "," + err.statusText);
+        //   });
         this.tableData.push(obj);
       }
     },
@@ -417,8 +453,20 @@ export default {
         });
     },
   },
-  created() {},
-  mounted() {},
+  created: function() {
+    console.log("Created");
+    // axios({
+    //   method: "GET",
+    //   url: "http://47.102.214.37:8080/device",
+    // })
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     console.log("请求失败: " + err.status + "," + err.statusText);
+    //   });
+  },
 };
 </script>
 <style lang="scss">
@@ -482,7 +530,7 @@ export default {
   }
 }
 .man-table {
-  height: calc(100% - 128px);
+  height: calc(100% - 120px);
   // border: 1px solid red;
   &::before {
     display: none;
