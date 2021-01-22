@@ -392,7 +392,7 @@ export default {
   }
   .el-main {
     background-color: #f8f8f8;
-    padding: 5px;
+    padding: 0;
     // border: 1px solid red;
   }
 }

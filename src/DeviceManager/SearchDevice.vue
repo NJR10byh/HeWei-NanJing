@@ -421,9 +421,9 @@ export default {
   .breadcrumb-top {
     height: 30px;
     line-height: 30px;
+    margin-top: 10px;
     overflow: hidden;
     font-size: 16px;
-    // border: 1px solid red;
     padding: 5px 10px;
     .el-breadcrumb__inner {
       font-weight: bold;
