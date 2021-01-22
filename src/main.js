@@ -10,6 +10,11 @@ import "./assets/css/element-variables.scss";
 // 导入字体图标
 import "./assets/fonts/iconfont.css";
 
+// 引入axios
+import axios from "axios";
+
+Vue.prototype.$http = axios;
+
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);

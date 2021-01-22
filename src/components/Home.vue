@@ -90,16 +90,21 @@ export default {
           children: [
             {
               id: 20,
+              authName: "新增设备",
+              path: "addDevice",
+            },
+            {
+              id: 21,
               authName: "设备信息",
               path: "deviceInformation",
             },
             {
-              id: 21,
+              id: 22,
               authName: "生成编码",
               path: "code",
             },
             {
-              id: 22,
+              id: 23,
               authName: "查询设备",
               path: "searchDevice",
             },
@@ -388,6 +393,7 @@ export default {
   .el-main {
     background-color: #f8f8f8;
     padding: 5px;
+    // border: 1px solid red;
   }
 }
 // 折叠后菜单栏
