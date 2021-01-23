@@ -111,16 +111,20 @@
         </template>
         <el-table-column prop="setting" label="操作" width="100">
           <template slot-scope="scope">
-            <el-button
-              class="edit-btn"
-              icon="iconfont icon-bianji"
-              @click="handleEdit(scope.$index, scope.row)"
-            ></el-button>
-            <el-button
-              class="del-btn"
-              icon="iconfont icon-shanchu"
-              @click="handleDelete(scope.$index, scope.row)"
-            ></el-button>
+            <el-tooltip content="修改" effect="light" :enterable="false">
+              <el-button
+                class="edit-btn"
+                icon="iconfont icon-bianji"
+                @click="handleEdit(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+            <el-tooltip content="删除" :enterable="false">
+              <el-button
+                class="del-btn"
+                icon="iconfont icon-shanchu"
+                @click="handleDelete(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -216,7 +220,23 @@ export default {
     },
     // 编辑
     handleEdit(index, row) {
-      console.log(index, row);
+      // console.log(index, row);
+      let obj = {};
+      obj.id = row.id;
+      obj.name = row.name;
+      obj.brand = row.brand;
+      obj.type = row.type;
+      obj.deviceNo = row.deviceNo;
+      obj.crux = row.crux;
+      obj.clazz = row.clazz;
+      console.log(obj);
+      // this.$router.path({
+      //   path: "/editDevice",
+      // });
+      this.$router.push({
+        path: "/editDevice",
+        query: obj,
+      });
     },
     // 删除单个行
     handleDelete(index) {
@@ -227,10 +247,8 @@ export default {
         type: "warning",
       })
         .then(() => {
-          // console.log(that.tableData[index]);
           let url =
             "http://47.102.214.37:8080/device/" + that.tableData[index].id;
-          // console.log(url);
           axios.delete(url).then((res) => {
             if (res.data.message == "ok") {
               this.refreshDevice();

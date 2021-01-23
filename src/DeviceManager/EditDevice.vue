@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="BreadCrumb">
       <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
-      <el-breadcrumb-item class="right">新增设备</el-breadcrumb-item>
+      <el-breadcrumb-item class="right">编辑设备</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="AddDeviceInfo">
       <div class="BaseInfo">
@@ -92,8 +92,8 @@
             </el-form-item>
           </el-form>
           <div class="submitbtn">
-            <el-button type="primary" @click="submitNewDevice(form)"
-              >保存并提交</el-button
+            <el-button type="primary" @click="submitEditDevice(form)"
+              >确认修改</el-button
             >
           </div>
         </div>
@@ -119,7 +119,14 @@ import axios from "axios";
 export default {
   data() {
     return {
-      form: {},
+      form: {
+        name: "",
+        brand: "",
+        type: "",
+        deviceNo: "",
+        crux: "",
+        clazz: "",
+      },
       formLabelWidth: "150px",
       rules: {
         name: [
@@ -169,7 +176,7 @@ export default {
   },
   methods: {
     // 提交新增设备
-    submitNewDevice(formData) {
+    submitEditDevice(formData) {
       console.log(formData);
       if (
         formData.name == undefined ||
@@ -190,7 +197,8 @@ export default {
           obj.crux = false;
         }
         axios
-          .post("http://47.102.214.37:8080/device", {
+          .put("http://47.102.214.37:8080/device", {
+            id: this.$route.query.id,
             name: formData.name,
             brand: formData.brand,
             type: formData.type,
@@ -199,11 +207,13 @@ export default {
             clazz: formData.clazz,
           })
           .then((res) => {
-            if (res.data.message == "ok") {
+            console.log(res);
+            if (res.status == 200) {
               this.$message({
-                message: "添加成功",
+                message: "修改成功",
                 type: "success",
               });
+              this.$router.push("/deviceInformation");
             }
           })
           .catch((err) => {
@@ -211,6 +221,16 @@ export default {
           });
       }
     },
+  },
+  created: function() {
+    console.log(this.$route.query);
+    let that = this;
+    that.form.name = this.$route.query.name;
+    that.form.brand = this.$route.query.brand;
+    that.form.type = this.$route.query.type;
+    that.form.deviceNo = this.$route.query.deviceNo;
+    that.form.crux = this.$route.query.crux;
+    that.form.clazz = this.$route.query.clazz;
   },
 };
 </script>

@@ -5,6 +5,7 @@ import Users from "@/Users/Users";
 /* 设备管理 */
 import AddDevice from "@/DeviceManager/AddDevice"; // 新增设备
 import DeviceInformation from "@/DeviceManager/DeviceInformation"; // 设备信息
+import EditDevice from "@/DeviceManager/EditDevice"; // 编辑设备
 import Code from "@/DeviceManager/Code"; // 生成编码
 import SearchDevice from "@/DeviceManager/SearchDevice"; // 设备查询
 /* 设备保养 */
@@ -37,6 +38,11 @@ const routes = [
       {
         path: "/deviceInformation",
         component: DeviceInformation,
+      },
+      // 编辑设备
+      {
+        path: "/editDevice",
+        component: EditDevice,
       },
       // 生成编码
       {
