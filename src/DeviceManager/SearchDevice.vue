@@ -1,54 +1,27 @@
 <template>
   <div class="main">
     <!-- 面包屑 -->
-    <el-breadcrumb class="breadcrumb-top" separator="/">
+    <el-breadcrumb class="breadcrumb-Top" separator="/">
       <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
       <el-breadcrumb-item class="active">查询设备</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-main class="main-con" style="width:100%">
+    <el-main class="main-con" style="width:100%;">
       <!-- 搜索 -->
       <div class="topsearch">
-        <div class="searchleft">
-          <el-input
-            v-model="formInline.person"
-            placeholder="请输入搜索人员"
-          ></el-input>
-        </div>
-        <div class="searchright">
-          搜索类别
-        </div>
-        <div class="select">
-          <template v-for="(item, index) in tableHead">
-            <el-dropdown :key="index">
-              <span class="el-dropdown-link">
-                {{ item.lable
-                }}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-checkbox
-                  :indeterminate="isIndeterminate"
-                  v-model="checkAll"
-                  @change="handleCheckAllChange"
-                  >全选</el-checkbox
-                >
-                <div style="margin: 15px 0;"></div>
-                <el-checkbox-group
-                  v-model="checkedCities"
-                  @change="handleCheckedCitiesChange"
-                >
-                  <el-checkbox
-                    v-for="city in cities"
-                    :label="city"
-                    :key="city"
-                    >{{ city }}</el-checkbox
-                  >
-                </el-checkbox-group>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
+        <div class="Cascader">
+          <el-cascader
+            placeholder="试试搜索：Apple"
+            :options="options"
+            :props="{ multiple: true }"
+            filterable
+            clearable
+            @change="change"
+          ></el-cascader>
         </div>
         <div class="searchbtn">
-          <el-button type="primary" icon="el-icon-search">搜索</el-button>
+          <el-button type="primary" icon="el-icon-search" @click="SearchDevice"
+            >搜索</el-button
+          >
         </div>
       </div>
       <!-- table -->
@@ -62,9 +35,9 @@
         height="calc(100% - 100px)"
         @selection-change="handleDetailSelectionChange"
       >
-        <el-table-column type="expand">
+        <el-table-column type="expand" width="25">
           <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
+            <el-form label-position="left" inline class="Demo-table-expand">
               关键信息:
               <el-form-item label="设备名称">
                 <span>{{ props.row.name }}</span>
@@ -90,12 +63,12 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column type="selection" width="40"></el-table-column>
+        <el-table-column type="selection" width="45"></el-table-column>
         <el-table-column prop="id" label="ID" width="40"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
-          width="120"
+          width="150"
         ></el-table-column>
         <el-table-column
           prop="brand"
@@ -137,16 +110,20 @@
         </template>
         <el-table-column prop="setting" label="操作" width="100">
           <template slot-scope="scope">
-            <el-button
-              class="edit-btn"
-              icon="iconfont icon-bianji"
-              @click="handleEdit(scope.$index, scope.row)"
-            ></el-button>
-            <el-button
-              class="del-btn"
-              icon="iconfont icon-shanchu"
-              @click="handleDelete(scope.$index, scope.row)"
-            ></el-button>
+            <el-tooltip content="修改" effect="light" :enterable="false">
+              <el-button
+                class="edit-btn"
+                icon="iconfont icon-bianji"
+                @click="handleEdit(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+            <el-tooltip content="删除" :enterable="false">
+              <el-button
+                class="del-btn"
+                icon="iconfont icon-shanchu"
+                @click="handleDelete(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -162,72 +139,12 @@
           :total="159"
         ></el-pagination>
       </div>
-      <!-- 新增弹窗 -->
-      <el-dialog
-        title="新增设备"
-        class="addDeviceDialog"
-        :visible.sync="dialogFormVisible"
-      >
-        <el-form :model="form" :rules="rules" ref="form">
-          <el-form-item
-            label="设备号: "
-            prop="deviceID"
-            :label-width="formLabelWidth"
-          >
-            <el-input
-              v-model="form.deviceID"
-              placeholder="请输入设备号"
-              autocomplete="off"
-            ></el-input>
-          </el-form-item>
-          <el-form-item
-            label="设备类型: "
-            prop="type"
-            :label-width="formLabelWidth"
-          >
-            <el-select v-model="form.type" placeholder="请选择">
-              <el-option label="类型一" value="类型一"></el-option>
-              <el-option label="类型二" value="类型二"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item
-            label="设备状态: "
-            prop="State"
-            :label-width="formLabelWidth"
-          >
-            <el-radio-group v-model="form.State">
-              <el-radio label="在线">在线</el-radio>
-              <el-radio label="离线">离线</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item
-            label="开始时间: "
-            prop="Begin"
-            :label-width="formLabelWidth"
-          >
-            <el-input v-model="form.Begin" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item
-            label="结束时间: "
-            prop="End"
-            :label-width="formLabelWidth"
-          >
-            <el-input v-model="form.End" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item :label-width="formLabelWidth">
-            <el-button class="sub-btn" type="primary" @click="submitForm(form)"
-              >保存并提交</el-button
-            >
-          </el-form-item>
-        </el-form>
-      </el-dialog>
     </el-main>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-const cityOptions = ["上海", "北京", "广州", "深圳"];
 export default {
   data() {
     return {
@@ -238,43 +155,165 @@ export default {
       radiomodel: {
         model: 1,
       },
-      // 下拉多选框
-      checkAll: false,
-      checkedCities: ["上海", "北京"],
-      cities: cityOptions,
-      isIndeterminate: true,
-      //选择框
+      // 级联选择
+      options: [
+        {
+          value: "name",
+          label: "设备名称",
+          children: [],
+        },
+        {
+          value: "brand",
+          label: "设备品牌",
+          children: [],
+        },
+        {
+          value: "type",
+          label: "设备型号/规格",
+          children: [],
+        },
+        {
+          value: "clazz",
+          label: "设备分类",
+          children: [],
+        },
+      ],
+      // 选择框
       checkedDetail: [],
       // 可选表头数据
       tableHead: [],
       // 表格数据
       tableData: [],
-      // 设备类型数据
-      selectData: [],
-      multipleSelection: [],
       // 分页
       currentPage4: 1,
-      // 弹窗
-      dialogFormVisible: false,
-      form: {},
-      rules: {
-        number: [
-          { required: true, message: "请输入工号", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
-        ],
-        name: [
-          { required: true, message: "请输入名字", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
-        ],
-        sex: [{ required: true, message: "请选择性别", trigger: "change" }],
-        type: [{ required: true, message: "请选择类型", trigger: "change" }],
-        places: [{ required: true, message: "请输入", trigger: "blur" }],
-      },
-      formLabelWidth: "100px",
     };
   },
   methods: {
-    // 搜索
+    // 搜索类别
+    change(res) {
+      let that = this;
+      console.log(res);
+      that.tableData = [];
+      for (var i = 0; i < res.length; i++) {
+        if (res[i][0] == "name") {
+          console.log(res[i][1]);
+          let url = "http://47.102.214.37:8080/device/query?name==" + res[i][1];
+          axios.get(url).then((res) => {
+            console.log(res.data.content[0]);
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
+              }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "Y";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "N";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
+            }
+          });
+        }
+        if (res[i][0] == "brand") {
+          console.log(res[i][1]);
+          let url =
+            "http://47.102.214.37:8080/device/query?brand==" + res[i][1];
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
+              }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "Y";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "N";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
+            }
+          });
+        }
+        if (res[i][0] == "type") {
+          console.log(res[i][1]);
+          let url = "http://47.102.214.37:8080/device/query?type==" + res[i][1];
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
+              }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "Y";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "N";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
+            }
+          });
+        }
+        if (res[i][0] == "clazz") {
+          console.log(res[i][1]);
+          let url =
+            "http://47.102.214.37:8080/device/query?clazz==" + res[i][1];
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
+              }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "Y";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "N";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
+            }
+          });
+        }
+      }
+    },
+    SearchDevice() {
+      console.log("aa");
+    },
     //单选框选中数据
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
@@ -285,13 +324,20 @@ export default {
     },
     // 删除单个行
     handleDelete(index) {
+      let that = this;
       this.$confirm("删除后无法更改, 是否确定?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          this.tableData.splice(index, 1);
+          let url =
+            "http://47.102.214.37:8080/device/" + that.tableData[index].id;
+          axios.delete(url).then((res) => {
+            if (res.data.message == "ok") {
+              this.refreshDevice();
+            }
+          });
         })
         .catch(() => {
           this.$message({
@@ -300,27 +346,34 @@ export default {
           });
         });
     },
-    //批量删除
+    // 批量删除
     delectAll() {
-      for (let i = 0; i < this.tableData.length; i++) {
-        const element = this.tableData[i];
-        element.id = i + 1;
-      }
+      let that = this;
       if (this.checkedDetail.length == 0) {
-        this.$alert("请先选择要删除的数据", "提示", {
+        that.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
-        this.$confirm("删除后无法更改, 是否确定?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        })
+        that
+          .$confirm("删除后无法更改, 是否确定?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          })
           .then(() => {
-            this.checkedDetail.forEach((element) => {
-              this.tableData.forEach((e, i) => {
+            that.checkedDetail.forEach((element) => {
+              that.tableData.forEach((e, i) => {
                 if (element.id == e.id) {
-                  this.tableData.splice(i, 1);
+                  console.log(that.tableData[i]);
+                  let url =
+                    "http://47.102.214.37:8080/device/" + that.tableData[i].id;
+                  // console.log(url);
+                  axios.delete(url).then((res) => {
+                    if (res.data.message == "ok") {
+                      // that.tableData.splice(i, 1);
+                      that.refreshDevice();
+                    }
+                  });
                 }
               });
             });
@@ -333,74 +386,84 @@ export default {
           });
       }
     },
-    // 下拉选择
-    handleCheckAllChange(val) {
-      this.checkedCities = val ? cityOptions : [];
-      this.isIndeterminate = false;
-    },
-    handleCheckedCitiesChange(value) {
-      let checkedCount = value.length;
-      this.checkAll = checkedCount === this.cities.length;
-      this.isIndeterminate =
-        checkedCount > 0 && checkedCount < this.cities.length;
-    },
     // 表格方法
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      console.log(val);
+      that.size = val;
+      let url =
+        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        for (var i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          obj["brand"] = res.data.content[i].brand;
+          obj.type = res.data.content[i].type;
+          obj.deviceNo = res.data.content[i].deviceNo;
+          if (res.data.content[i].extra.length != 0) {
+            for (var j = 0; j < res.data.content[i].extra.length; j++) {
+              obj[res.data.content[i].extra[j].field.id] =
+                res.data.content[i].extra[j].value;
+            }
+          }
+          if (res.data.content[i].crux == true) {
+            obj.crux = "Y";
+          } else if (res.data.content[i].crux == false) {
+            obj.crux = "N";
+          }
+          obj.clazz = res.data.content[i].clazz;
+          that.tableData.push(obj);
+        }
+      });
     },
+    // 页变化
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-    },
-    //新增人员
-    submitForm(formName) {
-      let idnum = this.tableData.length + 1;
-      let obj = {};
-      obj.id = idnum;
-      obj.deviceID = formName.deviceID;
-      obj.type = formName.type;
-      obj.State = formName.State;
-      obj.Begin = formName.Begin;
-      obj.End = formName.End;
-      //console.log(obj.type);
-      if (
-        obj.deviceID == undefined ||
-        obj.id == undefined ||
-        obj.type == undefined ||
-        obj.State == undefined ||
-        obj.Begin == undefined ||
-        obj.End == undefined
-      ) {
-        this.$alert("请将信息填写完整", "提示", {
-          confirmButtonText: "确定",
-        });
-      } else {
-        this.tableData.push(obj);
-      }
-    },
-    //清空List
-    Clear() {
-      this.$confirm("清空后无法恢复, 是否确定?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.tableData = undefined;
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+      let that = this;
+      that.page = val;
+      that.currentPage = val;
+      let url =
+        "http://47.102.214.37:8080/device?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        for (var i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          obj["brand"] = res.data.content[i].brand;
+          obj.type = res.data.content[i].type;
+          obj.deviceNo = res.data.content[i].deviceNo;
+          if (res.data.content[i].extra.length != 0) {
+            for (var j = 0; j < res.data.content[i].extra.length; j++) {
+              obj[res.data.content[i].extra[j].field.id] =
+                res.data.content[i].extra[j].value;
+            }
+          }
+          if (res.data.content[i].crux == true) {
+            obj.crux = "Y";
+          } else if (res.data.content[i].crux == false) {
+            obj.crux = "N";
+          }
+          obj.clazz = res.data.content[i].clazz;
+          that.tableData.push(obj);
+        }
+      });
     },
   },
   created() {
     let that = this;
-    console.log("Created");
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       for (var i = 0; i < res.data.length; i++) {
         let obj = {};
         obj.lable = res.data[i].name;
@@ -409,6 +472,58 @@ export default {
         that.tableHead.push(obj);
       }
     });
+    // 设备名称
+    axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
+      // console.log(res.data);
+      for (var i = 0; i < res.data.length; i++) {
+        // console.log(that.options[0]);
+        let obj = {};
+        obj.value = res.data[i];
+        obj.label = res.data[i];
+        that.options[0].children.push(obj);
+      }
+    });
+    // 设备品牌
+    axios.get("http://47.102.214.37:8080/device/keys/brand").then((res) => {
+      // console.log(res.data);
+      for (var i = 0; i < res.data.length; i++) {
+        let obj = {};
+        obj.value = res.data[i];
+        obj.label = res.data[i];
+        that.options[1].children.push(obj);
+      }
+    });
+    // 设备型号/规格
+    axios.get("http://47.102.214.37:8080/device/keys/type").then((res) => {
+      // console.log(res.data);
+      for (var i = 0; i < res.data.length; i++) {
+        let obj = {};
+        obj.value = res.data[i];
+        obj.label = res.data[i];
+        that.options[2].children.push(obj);
+      }
+    });
+    // // 设备编号
+    // axios.get("http://47.102.214.37:8080/device/keys/deviceNo").then((res) => {
+    //   console.log(res.data);
+    //   for (var i = 0; i < res.data.length; i++) {
+    //     let obj = {};
+    //     obj.value = res.data[i];
+    //     obj.label = res.data[i];
+    //     that.options[3].children.push(obj);
+    //   }
+    // });
+    // 设备分类
+    axios.get("http://47.102.214.37:8080/device/keys/clazz").then((res) => {
+      // console.log(res.data);
+      for (var i = 0; i < res.data.length; i++) {
+        let obj = {};
+        obj.value = res.data[i];
+        obj.label = res.data[i];
+        that.options[3].children.push(obj);
+      }
+    });
+    console.log("Created");
   },
 };
 </script>
@@ -418,13 +533,13 @@ export default {
 }
 .main {
   height: 100%;
-  .breadcrumb-top {
+  // border: 1px solid red;
+  .breadcrumb-Top {
     height: 30px;
     line-height: 30px;
-    margin-top: 10px;
     overflow: hidden;
     font-size: 16px;
-    padding: 5px 10px;
+    padding: 10px 10px 5px 10px;
     .el-breadcrumb__inner {
       font-weight: bold;
     }
@@ -441,48 +556,9 @@ export default {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    margin-left: 5px;
+    padding-bottom: 10px;
     // border: 1px solid red;
-    .searchleft {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      //   border: 1px solid red;
-      height: 40px;
-      .el-form-item {
-        margin-right: 0;
-      }
-      .el-input__inner {
-        width: 180px;
-        height: 35px;
-        background: #ffffff;
-        border: 1px solid #dddddd;
-        border-radius: 4px;
-        font-size: 14px;
-        &:focus {
-          border-color: #409eff;
-        }
-      }
-    }
-    .searchright {
-      border: 1px solid #6eb5fc;
-      border-radius: 5px;
-      background: #f8f8f8;
-      margin-left: 10px;
-      padding: 5px;
-      font-size: 13px;
-      color: #409eff;
-      font-weight: bold;
-    }
-    .select {
-      margin-left: 20px;
-      .el-dropdown-link {
-        cursor: pointer;
-        color: #409eff;
-      }
-      .el-icon-arrow-down {
-        font-size: 13px;
-      }
-    }
     .searchbtn {
       .el-button {
         width: 80px;
@@ -499,7 +575,6 @@ export default {
   }
 }
 .table {
-  height: calc(100% - 120px);
   &::before {
     display: none;
   }
@@ -512,18 +587,22 @@ export default {
       border-right: 1px solid #e9ecf2;
       &:first-child {
         border-right: none;
+      }
+      &:nth-child(2) {
+        // border: 1px solid red;
+        border-right: none;
         .cell {
           padding-right: 0;
         }
       }
-      &:nth-child(2) {
+      &:nth-child(3) {
         .cell {
           padding-left: 0;
         }
       }
       .cell {
         padding: 0 20px;
-        color: #282828;
+        font-size: 14px;
       }
     }
   }
@@ -541,15 +620,14 @@ export default {
     td {
       text-align: center;
       border-bottom: none;
-      &:first-child {
+      &:nth-child(2) {
         border-right: none;
         .cell {
           padding-right: 0;
           overflow: auto;
-          width: 44px;
         }
       }
-      &:nth-child(2) {
+      &:nth-child(3) {
         .cell {
           padding-left: 0;
         }
@@ -572,56 +650,6 @@ export default {
         .iconfont {
           color: #f96b6c;
         }
-      }
-    }
-  }
-}
-.addDeviceDialog {
-  .el-dialog {
-    max-width: 500px;
-
-    box-shadow: 0px 2px 14px 0px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    .el-dialog__header {
-      background: linear-gradient(-270deg, #6eb5fc, #409eff);
-      border-radius: 6px 6px 0px 0px;
-
-      padding: 16px 20px;
-      .el-dialog__title {
-        color: #fff;
-        font-size: 18px;
-      }
-      .el-dialog__headerbtn {
-        &:hover {
-          .el-dialog__close {
-            color: #fff;
-          }
-        }
-        .el-icon-close {
-          color: #ccc;
-          font-size: 18px;
-        }
-      }
-    }
-    .el-form-item__content {
-      .el-input__inner {
-        width: 300px;
-      }
-      .el-textarea {
-        width: 500px;
-        .el-textarea__inner {
-          min-height: 120px !important;
-        }
-      }
-    }
-    .sub-btn {
-      width: 110px;
-      background: linear-gradient(-270deg, #6eb5fc, #409eff);
-      border-radius: 4px;
-      border: none;
-      margin-left: 75px;
-      &:hover {
-        opacity: 0.9;
       }
     }
   }

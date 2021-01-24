@@ -13,10 +13,9 @@
   .breadcrumb-top {
     height: 30px;
     line-height: 30px;
-    margin-top: 10px;
     overflow: hidden;
     font-size: 16px;
-    padding: 5px 10px;
+    padding: 10px 10px 5px 10px;
     .el-breadcrumb__inner {
       font-weight: bold;
     }

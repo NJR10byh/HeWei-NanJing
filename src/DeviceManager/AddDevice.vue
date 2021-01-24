@@ -1,7 +1,7 @@
 <template>
   <div class="Main">
     <!-- 面包屑 -->
-    <el-breadcrumb class="BreadCrumb">
+    <el-breadcrumb class="Breadcrumb">
       <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
       <el-breadcrumb-item class="right">新增设备</el-breadcrumb-item>
     </el-breadcrumb>
@@ -221,13 +221,13 @@ export default {
   flex-direction: column;
   align-items: center;
   background: #fcfcfc;
-  .BreadCrumb {
+  .Breadcrumb {
     align-self: flex-start;
     height: 30px;
     line-height: 30px;
-    margin-top: 10px;
     overflow: hidden;
-    padding: 5px 10px;
+    font-size: 16px;
+    padding: 10px 10px 5px 10px;
     .left {
       font-size: 16px;
       font-weight: bold;

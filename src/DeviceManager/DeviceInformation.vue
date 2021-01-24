@@ -1,11 +1,11 @@
 <template>
-  <div class="main">
+  <div class="Box">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb-top" separator="/">
       <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
       <el-breadcrumb-item class="active">设备信息</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-main class="Main-box" style="width:100%">
+    <el-main class="Main-box">
       <!-- 搜索 -->
       <div class="head-btn">
         <div class="oper-btns-left">
@@ -31,9 +31,9 @@
         :data="tableData"
         tooltip-effect="dark"
         stripe
-        class="Table"
+        class="table"
         style="width: 100%;"
-        height="calc(100% - 100px)"
+        height="calc(100% - 90px)"
         @selection-change="handleDetailSelectionChange"
       >
         <el-table-column type="expand" width="25">
@@ -218,7 +218,7 @@ export default {
           console.log(err);
         });
     },
-    // 编辑
+    // 修改设备信息
     handleEdit(index, row) {
       // console.log(index, row);
       let obj = {};
@@ -436,18 +436,16 @@ export default {
 };
 </script>
 <style lang="scss">
-.v-modal {
-  opacity: 0;
-}
-.main {
-  height: 100%;
+.Box {
+  height: calc(100%);
+  // border: 1px solid blue;
+  padding: 0px;
   .breadcrumb-top {
     height: 30px;
     line-height: 30px;
     overflow: hidden;
-    margin-top: 10px;
     font-size: 16px;
-    padding: 5px 10px;
+    padding: 10px 10px 5px 10px;
     .el-breadcrumb__inner {
       font-weight: bold;
     }
@@ -464,7 +462,6 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px 0;
     .oper-btns-left {
       .el-button {
         padding: 0 10px;
@@ -507,8 +504,8 @@ export default {
     }
   }
 }
-.Table {
-  height: calc(100% - 100px);
+.table {
+  // border: 1px solid red;
   &::before {
     display: none;
   }
@@ -590,7 +587,7 @@ export default {
     }
     .el-button {
       border: none;
-      padding: 3px;
+      // padding: 3px;
       background: transparent;
       &:first-child:hover {
         .iconfont {
@@ -605,107 +602,13 @@ export default {
     }
   }
 }
-// 新增设备弹窗
-.addDevice {
-  .el-dialog {
-    max-width: 500px;
-    box-shadow: 0px 2px 14px 0px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    .el-dialog__header {
-      background: linear-gradient(-270deg, #6eb5fc, #409eff);
-      border-radius: 6px 6px 0px 0px;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .el-dialog__title {
-        color: #fff;
-        font-size: 18px;
-      }
-      .el-dialog__headerbtn {
-        &:hover {
-          .el-dialog__close {
-            color: #fff;
-          }
-        }
-        .el-icon-close {
-          color: #ccc;
-          font-size: 18px;
-        }
-      }
-    }
-  }
-  .el-form-item {
-    // border: 1px solid red;
-    margin-bottom: 20px;
-  }
-  .submitbtn {
-    display: flex;
-    justify-content: center;
-    .sub-btn {
-      width: 100px;
-      background: linear-gradient(-270deg, #6eb5fc, #409eff);
-      padding: 10px;
-      font-size: 15px;
-      border-radius: 5px;
-      // border: none;
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-  }
-}
-// 新增信息弹窗
-.addInfo {
-  .el-dialog {
-    max-width: 500px;
-    box-shadow: 0px 2px 14px 0px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    .el-dialog__header {
-      background: linear-gradient(-270deg, #6eb5fc, #409eff);
-      border-radius: 6px 6px 0px 0px;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .el-dialog__title {
-        color: #fff;
-        font-size: 18px;
-      }
-      .el-dialog__headerbtn {
-        &:hover {
-          .el-dialog__close {
-            color: #fff;
-          }
-        }
-        .el-icon-close {
-          color: #ccc;
-          font-size: 18px;
-        }
-      }
-    }
-    .submitbtn {
-      display: flex;
-      justify-content: center;
-      .el-button {
-        width: 100px;
-        background: linear-gradient(-270deg, #6eb5fc, #409eff);
-        padding: 10px;
-        font-size: 15px;
-        border-radius: 5px;
-        // border: none;
-        &:hover {
-          opacity: 0.9;
-        }
-      }
-    }
-  }
-}
 </style>
 <style lang="scss" scoped>
 .Main-box {
+  width: 100%;
   height: calc(100% - 60px);
   background: #fff;
+  // border: 1px solid red;
   .el-pagination {
     text-align: center;
     display: flex;
