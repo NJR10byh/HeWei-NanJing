@@ -297,6 +297,12 @@ export default {
                     console.log(res);
                     if (res.status == 200) {
                       that.tableData.splice(i, 1);
+                      this.$message({
+                        message: "删除成功",
+                        type: "success",
+                      });
+                    } else {
+                      this.$message.error("删除失败");
                     }
                   });
                 }
