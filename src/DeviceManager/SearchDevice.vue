@@ -10,7 +10,7 @@
       <div class="topsearch">
         <div class="Cascader">
           <el-cascader
-            placeholder="试试搜索：Apple"
+            placeholder="试试搜索：iPad"
             :options="options"
             :props="{ multiple: true }"
             filterable
@@ -30,7 +30,7 @@
         :data="tableData"
         tooltip-effect="dark"
         stripe
-        class="table"
+        class="tableCss"
         style="width: 100%;"
         height="calc(100% - 100px)"
         @selection-change="handleDetailSelectionChange"
@@ -63,8 +63,7 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column type="selection" width="45"></el-table-column>
-        <el-table-column prop="id" label="ID" width="40"></el-table-column>
+        <el-table-column prop="id" label="ID" width="45"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
@@ -136,7 +135,7 @@
           :page-sizes="[10, 20, 30, 40]"
           :page-size="10"
           layout="sizes,total, prev, pager, next, jumper"
-          :total="159"
+          :total="total"
         ></el-pagination>
       </div>
     </el-main>
@@ -186,20 +185,83 @@ export default {
       tableData: [],
       // 分页
       currentPage4: 1,
+      total: 0,
     };
   },
   methods: {
+    // 整理列表
+    Sort() {
+      let that = this;
+      console.log(that.tableData);
+    },
+    // JilianData
+    JilianData() {
+      let that = this;
+      // 设备名称
+      axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
+        // console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          // console.log(that.options[0]);
+          let obj = {};
+          obj.value = res.data[i];
+          obj.label = res.data[i];
+          that.options[0].children.push(obj);
+        }
+      });
+      // 设备品牌
+      axios.get("http://47.102.214.37:8080/device/keys/brand").then((res) => {
+        // console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          let obj = {};
+          obj.value = res.data[i];
+          obj.label = res.data[i];
+          that.options[1].children.push(obj);
+        }
+      });
+      // 设备型号/规格
+      axios.get("http://47.102.214.37:8080/device/keys/type").then((res) => {
+        // console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          let obj = {};
+          obj.value = res.data[i];
+          obj.label = res.data[i];
+          that.options[2].children.push(obj);
+        }
+      });
+      // // 设备编号
+      // axios.get("http://47.102.214.37:8080/device/keys/deviceNo").then((res) => {
+      //   console.log(res.data);
+      //   for (var i = 0; i < res.data.length; i++) {
+      //     let obj = {};
+      //     obj.value = res.data[i];
+      //     obj.label = res.data[i];
+      //     that.options[3].children.push(obj);
+      //   }
+      // });
+      // 设备分类
+      axios.get("http://47.102.214.37:8080/device/keys/clazz").then((res) => {
+        // console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          let obj = {};
+          obj.value = res.data[i];
+          obj.label = res.data[i];
+          that.options[3].children.push(obj);
+        }
+      });
+    },
     // 搜索类别
     change(res) {
       let that = this;
       console.log(res);
       that.tableData = [];
+      that.total = 0;
       for (var i = 0; i < res.length; i++) {
         if (res[i][0] == "name") {
           console.log(res[i][1]);
           let url = "http://47.102.214.37:8080/device/query?name==" + res[i][1];
           axios.get(url).then((res) => {
-            console.log(res.data.content[0]);
+            console.log(res.data.totalElements);
+            that.total += res.data.totalElements;
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
@@ -228,7 +290,8 @@ export default {
           let url =
             "http://47.102.214.37:8080/device/query?brand==" + res[i][1];
           axios.get(url).then((res) => {
-            console.log(res.data);
+            console.log(res.data.totalElements);
+            that.total += res.data.totalElements;
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
@@ -257,6 +320,7 @@ export default {
           let url = "http://47.102.214.37:8080/device/query?type==" + res[i][1];
           axios.get(url).then((res) => {
             console.log(res.data);
+            that.total += res.data.totalElements;
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
@@ -286,6 +350,7 @@ export default {
             "http://47.102.214.37:8080/device/query?clazz==" + res[i][1];
           axios.get(url).then((res) => {
             console.log(res.data);
+            that.total += res.data.totalElements;
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
@@ -310,6 +375,7 @@ export default {
           });
         }
       }
+      that.Sort();
     },
     SearchDevice() {
       console.log("aa");
@@ -335,7 +401,12 @@ export default {
             "http://47.102.214.37:8080/device/" + that.tableData[index].id;
           axios.delete(url).then((res) => {
             if (res.data.message == "ok") {
-              this.refreshDevice();
+              that.tableData.splice(index, 1);
+              this.$message({
+                message: "设备已删除",
+                type: "success",
+              });
+              that.JilianData();
             }
           });
         })
@@ -458,71 +529,22 @@ export default {
         }
       });
     },
+    //
   },
   created() {
     let that = this;
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      // console.log(res.data);
+      console.log(res.data);
       for (var i = 0; i < res.data.length; i++) {
         let obj = {};
         obj.lable = res.data[i].name;
-        obj.width = "100";
-        obj.prop = "new" + res.data[i].id;
+        obj.width = "120";
+        obj.prop = res.data[i].id;
         that.tableHead.push(obj);
       }
     });
-    // 设备名称
-    axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
-      // console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
-        // console.log(that.options[0]);
-        let obj = {};
-        obj.value = res.data[i];
-        obj.label = res.data[i];
-        that.options[0].children.push(obj);
-      }
-    });
-    // 设备品牌
-    axios.get("http://47.102.214.37:8080/device/keys/brand").then((res) => {
-      // console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
-        let obj = {};
-        obj.value = res.data[i];
-        obj.label = res.data[i];
-        that.options[1].children.push(obj);
-      }
-    });
-    // 设备型号/规格
-    axios.get("http://47.102.214.37:8080/device/keys/type").then((res) => {
-      // console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
-        let obj = {};
-        obj.value = res.data[i];
-        obj.label = res.data[i];
-        that.options[2].children.push(obj);
-      }
-    });
-    // // 设备编号
-    // axios.get("http://47.102.214.37:8080/device/keys/deviceNo").then((res) => {
-    //   console.log(res.data);
-    //   for (var i = 0; i < res.data.length; i++) {
-    //     let obj = {};
-    //     obj.value = res.data[i];
-    //     obj.label = res.data[i];
-    //     that.options[3].children.push(obj);
-    //   }
-    // });
-    // 设备分类
-    axios.get("http://47.102.214.37:8080/device/keys/clazz").then((res) => {
-      // console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
-        let obj = {};
-        obj.value = res.data[i];
-        obj.label = res.data[i];
-        that.options[3].children.push(obj);
-      }
-    });
+    that.JilianData();
     console.log("Created");
   },
 };
@@ -574,7 +596,7 @@ export default {
     }
   }
 }
-.table {
+.tableCss {
   &::before {
     display: none;
   }
@@ -589,13 +611,13 @@ export default {
         border-right: none;
       }
       &:nth-child(2) {
-        // border: 1px solid red;
-        border-right: none;
         .cell {
           padding-right: 0;
         }
       }
       &:nth-child(3) {
+        // border: 1px solid red;
+        padding-left: 20px;
         .cell {
           padding-left: 0;
         }
@@ -623,16 +645,17 @@ export default {
       &:nth-child(2) {
         border-right: none;
         .cell {
+          // border: 1px solid red;
           padding-right: 0;
           overflow: auto;
         }
       }
       &:nth-child(3) {
-        .cell {
-          padding-left: 0;
-        }
+        // border: 1px solid red;
+        padding-left: 0;
       }
       .cell {
+        // border: 1px solid red;
         padding: 0 20px;
         color: #444444;
       }

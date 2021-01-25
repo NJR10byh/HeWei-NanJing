@@ -3,7 +3,7 @@
     <el-header style="height:80px">
       <div class="logo-wrap">
         <div class="logo">
-          <a href="http://www.njupt.edu.cn/" target="_blank">
+          <a href="http://cs.njupt.edu.cn/" target="_blank">
             <img src="../assets/logo.png" alt />
           </a>
         </div>
@@ -17,12 +17,6 @@
           <nowTime></nowTime>
           <div class="am-pm" ref="timeTips">{{ timeTip }}</div>
         </div>
-        <!-- <a class="badge-item" href="#/alarmList">
-          <el-badge :value="alertnum" :max="99" :hidden="hid">
-            <img src="@/assets/img/tongzhi.png" alt />
-          </el-badge>
-          <div class="text">报警信息</div>
-        </a> -->
       </div>
     </el-header>
     <el-container>

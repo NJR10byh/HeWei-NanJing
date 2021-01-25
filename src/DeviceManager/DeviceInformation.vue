@@ -31,7 +31,7 @@
         :data="tableData"
         tooltip-effect="dark"
         stripe
-        class="table"
+        class="tablestyle"
         style="width: 100%;"
         height="calc(100% - 90px)"
         @selection-change="handleDetailSelectionChange"
@@ -64,8 +64,8 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column type="selection" width="45"></el-table-column>
-        <el-table-column prop="id" label="ID" width="40"></el-table-column>
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column prop="id" label="ID" width="45"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
@@ -220,7 +220,7 @@ export default {
     },
     // 修改设备信息
     handleEdit(index, row) {
-      // console.log(index, row);
+      console.log(index, row);
       let obj = {};
       obj.id = row.id;
       obj.name = row.name;
@@ -229,13 +229,19 @@ export default {
       obj.deviceNo = row.deviceNo;
       obj.crux = row.crux;
       obj.clazz = row.clazz;
-      console.log(obj);
-      // this.$router.path({
-      //   path: "/editDevice",
-      // });
-      this.$router.push({
-        path: "/editDevice",
-        query: obj,
+      axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+        console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          obj[res.data[i].id] = row[res.data[i].id];
+        }
+        // console.log(obj);
+        // this.$router.path({
+        //   path: "/editDevice",
+        // });
+        this.$router.push({
+          path: "/editDevice",
+          query: obj,
+        });
       });
     },
     // 删除单个行
@@ -394,21 +400,19 @@ export default {
   },
   created: function() {
     let that = this;
-    console.log("Created");
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
       console.log(res.data);
       for (var i = 0; i < res.data.length; i++) {
         let obj = {};
         obj.lable = res.data[i].name;
-        obj.width = "100";
+        obj.width = "120";
         obj.prop = res.data[i].id;
         that.tableHead.push(obj);
       }
     });
     // 获取所有设备
     axios.get("http://47.102.214.37:8080/device?page=0&size=10").then((res) => {
-      console.log(res.data);
       that.total = res.data.totalElements;
       for (var i = 0; i < res.data.content.length; i++) {
         let obj = {};
@@ -462,6 +466,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding-bottom: 5px;
     .oper-btns-left {
       .el-button {
         padding: 0 10px;
@@ -504,7 +509,7 @@ export default {
     }
   }
 }
-.table {
+.tablestyle {
   // border: 1px solid red;
   &::before {
     display: none;
@@ -520,13 +525,13 @@ export default {
         border-right: none;
       }
       &:nth-child(2) {
-        // border: 1px solid red;
         border-right: none;
         .cell {
           padding-right: 0;
         }
       }
       &:nth-child(3) {
+        // border: 1px solid red;
         .cell {
           padding-left: 0;
         }
@@ -587,7 +592,7 @@ export default {
     }
     .el-button {
       border: none;
-      // padding: 3px;
+      padding: 3px;
       background: transparent;
       &:first-child:hover {
         .iconfont {
