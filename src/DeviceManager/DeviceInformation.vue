@@ -13,16 +13,12 @@
             class="Add-btn"
             icon="el-icon-refresh"
             @click="refreshDevice"
-            >刷新列表</el-button
-          >
+            >刷新列表
+          </el-button>
         </div>
         <div class="oper-btns-right">
-          <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll"
-            >批量删除</el-button
-          >
-          <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
-            >清空</el-button
-          >
+          <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll">批量删除</el-button>
+          <el-button class="clear-btn" icon="el-icon-delete" @click="Clear">清空</el-button>
         </div>
       </div>
       <!-- table -->
@@ -65,7 +61,7 @@
           </template>
         </el-table-column>
         <el-table-column type="selection" width="50"></el-table-column>
-        <el-table-column prop="id" label="ID" width="45"></el-table-column>
+        <el-table-column prop="id" label="ID" width="60"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
@@ -167,12 +163,12 @@ export default {
   },
   methods: {
     // id排序
-    sortid() {
-      for (let i = 0; i < this.tableData.length; i++) {
-        const element = this.tableData[i];
-        element.id = i + 1;
-      }
-    },
+    // sortid() {
+    //   for (let i = 0; i < this.tableData.length; i++) {
+    //     const element = this.tableData[i];
+    //     element.id = i + 1;
+    //   }
+    // },
     // 搜索
     //单选框选中数据
     handleDetailSelectionChange(selection) {
@@ -403,7 +399,7 @@ export default {
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
       console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
+      for (let i = 0; i < res.data.length; i++) {
         let obj = {};
         obj.lable = res.data[i].name;
         obj.width = "120";
@@ -414,7 +410,7 @@ export default {
     // 获取所有设备
     axios.get("http://47.102.214.37:8080/device?page=0&size=10").then((res) => {
       that.total = res.data.totalElements;
-      for (var i = 0; i < res.data.content.length; i++) {
+      for (let i = 0; i < res.data.content.length; i++) {
         let obj = {};
         obj.id = res.data.content[i].id;
         obj.name = res.data.content[i].name;
@@ -422,7 +418,7 @@ export default {
         obj.type = res.data.content[i].type;
         obj.deviceNo = res.data.content[i].deviceNo;
         if (res.data.content[i].extra.length != 0) {
-          for (var j = 0; j < res.data.content[i].extra.length; j++) {
+          for (let j = 0; j < res.data.content[i].extra.length; j++) {
             obj[res.data.content[i].extra[j].field.id] =
               res.data.content[i].extra[j].value;
           }

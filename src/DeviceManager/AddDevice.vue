@@ -244,31 +244,38 @@ export default {
     // 新增额外字段
     SubmitNewExtraInfo(Info) {
       let that = this;
-      axios
-        .post("http://47.102.214.37:8080/device/info-field", {
-          name: Info.name,
-          type: Info.type,
-        })
-        .then((res) => {
-          if (res.status == 201) {
-            that.tableData.push({
-              extraname: Info.name,
-              extrainfo: "",
-            });
-            // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
-            axios
-              .get("http://47.102.214.37:8080/device/info-field")
-              .then((res) => {
-                for (var j = 0; j < res.data.length; j++) {
-                  if (res.data[j].name == Info.name) {
-                    that.extraid.push(res.data[j].id);
-                    break;
-                  }
-                }
-              });
-            that.dialogFormVisible = false;
-          }
+      console.log(Info);
+      if (Info.name == "" || Info.type == undefined) {
+        this.$alert("请将基本信息填写完整！", "提示", {
+          confirmButtonText: "确定",
         });
+      } else {
+        axios
+          .post("http://47.102.214.37:8080/device/info-field", {
+            name: Info.name,
+            type: Info.type,
+          })
+          .then((res) => {
+            if (res.status == 201) {
+              that.tableData.push({
+                extraname: Info.name,
+                extrainfo: "",
+              });
+              // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
+              axios
+                .get("http://47.102.214.37:8080/device/info-field")
+                .then((res) => {
+                  for (var j = 0; j < res.data.length; j++) {
+                    if (res.data[j].name == Info.name) {
+                      that.extraid.push(res.data[j].id);
+                      break;
+                    }
+                  }
+                });
+              that.dialogFormVisible = false;
+            }
+          });
+      }
     },
     // 批量删除字段
     delectExtraInfo() {
@@ -279,7 +286,7 @@ export default {
         });
       } else {
         that
-          .$confirm("删除后无法更改, 是否确定?", "提示", {
+          .$confirm("现有的设备中属于该字段的所有信息都会被删除, \n是否确定?", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
@@ -310,10 +317,7 @@ export default {
             });
           })
           .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
-            });
+            this.$message.info("已取消删除");
           });
       }
     },

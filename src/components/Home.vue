@@ -110,16 +110,21 @@ export default {
           children: [
             {
               id: 30,
+              authName: "新增信息",
+              path: "addTask",
+            },
+            {
+              id: 31,
               authName: "任务信息",
               path: "taskInformation",
             },
             {
-              id: 31,
+              id: 32,
               authName: "保养记录",
               path: "maintenanceNotes",
             },
             {
-              id: 32,
+              id: 33,
               authName: "保养查询",
               path: "searchMaintenance",
             },
