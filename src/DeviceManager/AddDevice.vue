@@ -79,17 +79,6 @@
                 placeholder="请输入设备分类"
               ></el-input>
             </el-form-item>
-            <el-form-item
-              label="维护保养标准标号: "
-              :label-width="formLabelWidth"
-              prop="fixnumber"
-            >
-              <el-input
-                v-model="form.fixnumber"
-                autocomplete="off"
-                placeholder="请输入维护保养标准标号"
-              ></el-input>
-            </el-form-item>
           </el-form>
           <div class="submitbtn">
             <el-button type="primary" @click="submitNewDevice(form)"
@@ -113,9 +102,6 @@
             @click="delectExtraInfo"
             >删除字段</el-button
           >
-          <!-- <el-button class="MoreDelBtn" icon="el-icon-delete"
-            >批量删除</el-button
-          > -->
         </div>
         <el-dialog
           title="新增字段"
@@ -165,9 +151,33 @@
           <el-table-column label="字段信息">
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.type == 'String'"
                 v-model="scope.row.extrainfo"
                 placeholder="请输入字段信息"
               ></el-input>
+              <el-input
+                v-if="scope.row.type == 'Integer'"
+                type="number"
+                v-model="scope.row.extrainfo"
+                placeholder="请输入字段信息"
+              ></el-input>
+              <el-date-picker
+                v-if="scope.row.type == 'Date'"
+                v-model="scope.row.extrainfo"
+                type="date"
+                placeholder="选择日期"
+                size="large"
+                value-format="yyyy-MM-dd"
+                @change="datechange"
+              >
+              </el-date-picker>
+              <el-radio-group
+                v-model="scope.row.extrainfo"
+                v-if="scope.row.type == 'Bool'"
+              >
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
             </template>
           </el-table-column>
         </el-table>
@@ -286,11 +296,15 @@ export default {
         });
       } else {
         that
-          .$confirm("现有的设备中属于该字段的所有信息都会被删除, \n是否确定?", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          })
+          .$confirm(
+            "现有的设备中属于该字段的所有信息都会被删除, \n是否确定?",
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            }
+          )
           .then(() => {
             that.checkedDetail.forEach((element) => {
               that.tableData.forEach((e, i) => {
@@ -374,6 +388,7 @@ export default {
     },
   },
   created: function() {
+    console.log(typeof [1, 2]);
     let that = this;
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
       console.log(res.data);
@@ -382,9 +397,11 @@ export default {
         that.tableData.push({
           extraname: res.data[i].name,
           extrainfo: "",
+          type: res.data[i].type,
         });
       }
     });
+    console.log(that.tableData);
   },
 };
 </script>

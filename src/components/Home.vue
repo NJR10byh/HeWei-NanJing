@@ -52,7 +52,7 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main class="Main">
+      <el-main>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -92,16 +92,6 @@ export default {
               authName: "设备信息",
               path: "deviceInformation",
             },
-            {
-              id: 22,
-              authName: "生成编码",
-              path: "code",
-            },
-            {
-              id: 23,
-              authName: "查询设备",
-              path: "searchDevice",
-            },
           ],
         },
         {
@@ -120,11 +110,16 @@ export default {
             },
             {
               id: 32,
+              authName: "任务分配",
+              path: "tssignTask",
+            },
+            {
+              id: 33,
               authName: "保养记录",
               path: "maintenanceNotes",
             },
             {
-              id: 33,
+              id: 34,
               authName: "保养查询",
               path: "searchMaintenance",
             },
@@ -392,6 +387,7 @@ export default {
   .el-main {
     background-color: #f8f8f8;
     padding: 0;
+    height: 100%;
     // border: 1px solid red;
   }
 }

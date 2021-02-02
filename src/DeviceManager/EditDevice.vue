@@ -162,9 +162,33 @@
           <el-table-column label="字段信息">
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.type == 'String'"
                 v-model="scope.row.extrainfo"
                 placeholder="请输入字段信息"
               ></el-input>
+              <el-input
+                v-if="scope.row.type == 'Integer'"
+                type="number"
+                v-model="scope.row.extrainfo"
+                placeholder="请输入字段信息"
+              ></el-input>
+              <el-date-picker
+                v-if="scope.row.type == 'Date'"
+                v-model="scope.row.extrainfo"
+                type="date"
+                placeholder="选择日期"
+                size="large"
+                value-format="yyyy-MM-dd"
+                @change="datechange"
+              >
+              </el-date-picker>
+              <el-radio-group
+                v-model="scope.row.extrainfo"
+                v-if="scope.row.type == 'Bool'"
+              >
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
             </template>
           </el-table-column>
         </el-table>
@@ -378,7 +402,7 @@ export default {
     },
   },
   created: function() {
-    // console.log(this.$route.query);
+    console.log(this.$route.query);
     let that = this;
     that.form.name = this.$route.query.name;
     that.form.brand = this.$route.query.brand;
@@ -393,6 +417,7 @@ export default {
         that.tableData.push({
           extraname: res.data[i].name,
           extrainfo: this.$route.query[res.data[i].id],
+          type: res.data[i].type,
         });
       }
     });
