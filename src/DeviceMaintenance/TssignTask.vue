@@ -60,8 +60,8 @@ export default {
         for (var i = 0; i < res.data.content.length; i++) {
           // console.log(res.data.content[i].device[0]);
           that.data1.push({
-            lable: `${res.data.content[i].device[0].name}`,
-            key: res.data.content[i].device[0].name,
+            lable: "任务 " + `${res.data.content[i].id}`,
+            key: "任务 " + res.data.content[i].id,
           });
         }
       });

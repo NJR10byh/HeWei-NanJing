@@ -8,9 +8,11 @@
     <div class="Tasks">
       <div class="card" v-for="(item, index) in taskData" :key="index">
         <div class="content">
-          <h2>{{ item.taskName }}</h2>
+          <h2>任务ID：{{ item.taskName }}</h2>
+          <p>设备名称: {{ item.devicename }}</p>
+          <p>设备类别: {{ item.deviceclazz }}</p>
           <div class="Btns">
-            <el-button class="btn btn1" @click="showInfo(index)"
+            <el-button class="btn btn1" @click="taskdetail(index)"
               >查看任务</el-button
             >
             <el-button class="btn btn2" @click="showInfo(index)"
@@ -33,16 +35,41 @@ export default {
       taskData: [],
     };
   },
-  methods: {},
+  methods: {
+    taskdetail(index) {
+      console.log(index);
+      axios
+        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            console.log(res.data.content[i]);
+            this.$router.push({
+              path: "/addTaskInside",
+              query: res.data.content[i],
+            });
+          }
+        });
+    },
+  },
   created() {
     let that = this;
+    let taskid = "";
     axios
       .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
       .then((res) => {
         for (var i = 0; i < res.data.content.length; i++) {
           console.log(res.data.content[i]);
-          that.taskData.push({
-            taskName: res.data.content[i].device[0].name,
+          taskid = res.data.content[i].id;
+          let url =
+            "http://47.102.214.37:8080/device/" +
+            res.data.content[i].device[0].id;
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            that.taskData.push({
+              taskName: taskid,
+              devicename: res.data.name,
+              deviceclazz: res.data.clazz,
+            });
           });
         }
       });

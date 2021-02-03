@@ -100,7 +100,7 @@ export default {
           children: [
             {
               id: 30,
-              authName: "新增信息",
+              authName: "新增任务",
               path: "addTask",
             },
             {

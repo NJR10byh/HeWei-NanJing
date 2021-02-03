@@ -82,9 +82,6 @@
               <el-form-item label="设备分类">
                 <span>{{ props.row.clazz }}</span>
               </el-form-item>
-              <el-form-item label="维护保养标准编号">
-                <span>{{ props.row.fixnumber }}</span>
-              </el-form-item>
             </el-form>
           </template>
         </el-table-column>
@@ -287,7 +284,6 @@ export default {
       let List = [];
       for (var i = 0; i < res.length; i++) {
         if (res.length == 1) {
-          console.log("tutu");
           let url =
             "http://47.102.214.37:8080/device/query?" +
             res[0][0] +

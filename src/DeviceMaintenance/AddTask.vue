@@ -7,7 +7,9 @@
     </div>
     <div class="card" v-for="(item, index) in taskData" :key="index">
       <div class="content">
-        <h2>{{ item.taskName }}</h2>
+        <h2>任务ID：{{ item.taskName }}</h2>
+        <p>设备名称: {{ item.devicename }}</p>
+        <p>设备类别: {{ item.deviceclazz }}</p>
         <div class="Btns">
           <el-button class="btn btn1" @click="showInfo(index)"
             >进入编辑</el-button
@@ -44,18 +46,33 @@ export default {
   name: "AddTask",
   created: function() {
     let that = this;
+    let taskid = "";
     that.JilianData();
-    axios.get("");
+    axios
+      .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+      .then((res) => {
+        for (var i = 0; i < res.data.content.length; i++) {
+          console.log(res.data.content[i]);
+          taskid = res.data.content[i].id;
+          let url =
+            "http://47.102.214.37:8080/device/" +
+            res.data.content[i].device[0].id;
+          axios.get(url).then((res) => {
+            that.taskData.push({
+              taskName: taskid,
+              devicename: res.data.name,
+              deviceclazz: res.data.clazz,
+            });
+          });
+        }
+      });
   },
   data() {
     return {
       dialogVisible: false,
-      taskname: "",
-      taskData: [
-        {
-          taskName: "iPad Pro",
-        },
-      ],
+      devicename: "",
+      deviceclazz: "",
+      taskData: [],
       // 级联选择
       options: [
         {
@@ -63,11 +80,6 @@ export default {
           label: "设备列表",
           children: [],
         },
-        // {
-        //   value: "brand",
-        //   label: "设备品牌",
-        //   children: [],
-        // },
       ],
     };
   },
@@ -86,20 +98,15 @@ export default {
           // console.log(that.options[0]);
         }
       });
-      // // 设备品牌
-      // axios.get("http://47.102.214.37:8080/device/keys/brand").then((res) => {
-      //   // console.log(res.data);
-      //   for (var i = 0; i < res.data.length; i++) {
-      //     let obj = {};
-      //     obj.value = res.data[i];
-      //     obj.label = res.data[i];
-      //     that.options[1].children.push(obj);
-      //   }
-      // });
     },
     change(res) {
-      console.log(res);
-      this.taskname = res[1];
+      let that = this;
+      this.devicename = res[1];
+      let url =
+        "http://47.102.214.37:8080/device/query?name==" + this.devicename;
+      axios.get(url).then((res) => {
+        that.deviceclazz = res.data.content[0].clazz;
+      });
     },
     showInfo(index) {
       console.log(index);
@@ -110,9 +117,10 @@ export default {
     },
     // 添加任务卡
     Plus() {
-      console.log(this.taskname);
-      this.taskData.push({
-        taskName: this.taskname,
+      // unshift() 从堆顶加入元素
+      this.taskData.unshift({
+        devicename: this.devicename,
+        deviceclazz: this.deviceclazz,
       });
       this.dialogVisible = false;
     },
@@ -127,7 +135,6 @@ export default {
   justify-content: space-evenly;
   align-items: center;
   flex-wrap: wrap;
-  transition: 0.5s;
   // border: 1px solid red;
   .card,
   .add {
@@ -183,8 +190,8 @@ export default {
   }
   .card:hover,
   .add:hover {
-    transform: scale(1);
     transition: 0.5s;
+    transform: scale(1);
   }
 }
 </style>

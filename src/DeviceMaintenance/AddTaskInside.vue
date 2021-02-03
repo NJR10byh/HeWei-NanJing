@@ -10,37 +10,53 @@
     <div class="Task-container">
       <div class="Task-box">
         <el-form ref="form" :model="TaskInfo" label-position="left">
-          <div class="number-name">
-            <el-form-item label="任务名称" style="width:48%">
+          <div class="part1">
+            <el-form-item label="设备名称" class="DeviceName Device">
               <el-input
-                v-model="TaskInfo.taskname"
-                placeholder="请输入任务名称"
+                v-model="TaskInfo.devicename"
+                placeholder="请输入设备名称"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="设备类别" class="DeviceClazz Device">
+              <el-input
+                v-model="TaskInfo.deviceclazz"
+                placeholder="请输入设备类别"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="保养周期" class="TaskTime">
+              每
+              <el-select
+                clearable
+                placeholder="请选择"
+                class="TaskTime-select"
+                v-model="TaskInfo.scheduleType"
+              >
+                <el-option
+                  v-for="item in tasktime"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div class="part2">
+            <el-form-item label="保养部位" style="width:48%">
+              <el-input
+                v-model="TaskInfo.side"
+                placeholder="请输入保养部位"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="接受标准" style="width:48%">
+              <el-input
+                v-model="TaskInfo.acceptedStandard"
+                placeholder="请输入接受标准"
               ></el-input>
             </el-form-item>
           </div>
-          <el-form-item label="保养周期" class="TaskTime">
-            每
-            <el-input
-              class="TaskTime-input inputStyle"
-              v-model="TaskInfo.tasktime"
-            ></el-input>
-            <el-select
-              v-model="value"
-              clearable
-              placeholder="请选择"
-              class="TaskTime-select"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <div class="number-name">
-            <el-form-item label="保养内容" style="width:48%">
+          <div class="part2">
+            <el-form-item label="保养内容" style="width:32%">
               <el-input
                 class="inputStyle"
                 type="textarea"
@@ -48,10 +64,7 @@
                 :rows="8"
               ></el-input>
             </el-form-item>
-            <el-form-item
-              label="保养工具及备件"
-              style="margin-left:10px;width:48%"
-            >
+            <el-form-item label="保养工具及备件" style="width:32%">
               <el-input
                 class="inputStyle"
                 type="textarea"
@@ -59,10 +72,18 @@
                 :rows="8"
               ></el-input>
             </el-form-item>
+            <el-form-item label="注意事项" style="width:32%">
+              <el-input
+                class="inputStyle"
+                type="textarea"
+                v-model="TaskInfo.attention"
+                :rows="8"
+              ></el-input>
+            </el-form-item>
           </div>
           <div class="Btns">
             <div class="sub-btn">
-              <el-button>保存</el-button>
+              <el-button @click="submittask">保存</el-button>
             </div>
             <div class="del-btn">
               <el-button>删除</el-button>
@@ -75,40 +96,71 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "AddTaskInside",
   created: function() {
-    // console.log(this.$route.query);
-    this.taskid = this.$route.query.taskName;
+    let that = this;
+    console.log(that.$route.query);
+    // console.log(that.$route.query.device[0].id);
+    if (that.$route.query.devicename == undefined) {
+      let url =
+        "http://47.102.214.37:8080/device/" + that.$route.query.device[0].id;
+      axios.get(url).then((res) => {
+        that.TaskInfo.devicename = res.data.name;
+        that.TaskInfo.deviceclazz = res.data.clazz;
+      });
+      setTimeout(function() {
+        that.taskid = that.$route.query.id;
+        that.TaskInfo.side = that.$route.query.side;
+        that.TaskInfo.acceptedStandard = that.$route.query.acceptedStandard;
+        that.TaskInfo.scheduleType = that.$route.query.scheduleType;
+      }, 200);
+    } else {
+      that.taskid = that.$route.query.devicename;
+      that.TaskInfo.devicename = that.$route.query.devicename;
+      that.TaskInfo.deviceclazz = that.$route.query.deviceclazz;
+    }
   },
   data() {
     return {
       taskid: "",
       TaskInfo: {},
-      options: [
+      tasktime: [
         {
-          value: "year",
+          value: "Predictability",
+          label: "未知",
+        },
+        {
+          value: "Yearly",
           label: "年",
         },
         {
-          value: "month",
+          value: "Seasonally",
+          label: "季度",
+        },
+        {
+          value: "Monthly",
           label: "月",
         },
         {
-          value: "day",
+          value: "Weekly",
+          label: "周",
+        },
+        {
+          value: "Daily",
           label: "天",
-        },
-        {
-          value: "hour",
-          label: "小时",
-        },
-        {
-          value: "minute",
-          label: "分钟",
         },
       ],
       value: "",
     };
+  },
+  methods: {
+    submittask() {
+      let that = this;
+      console.log(that.TaskInfo);
+      axios;
+    },
   },
 };
 </script>
@@ -124,9 +176,10 @@ export default {
     overflow: hidden;
     font-size: 16px;
     // border: 1px solid red;
-    padding: 10px 10px 20px 10px;
+    padding: 10px 0 20px 0;
     .el-breadcrumb__inner {
       font-weight: bold;
+      margin-left: 10px;
     }
     .el-breadcrumb__inner.is-link {
       color: #666666;
@@ -159,9 +212,15 @@ export default {
         border-radius: 20px;
         box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
         padding: 10px 30px 20px 30px;
-        .number-name {
+        .part1 {
+          display: flex;
+          justify-content: flex-start;
+          width: 100%;
+        }
+        .part2 {
           // border: 1px solid red;
           display: flex;
+          justify-content: space-between;
           width: 100%;
         }
         .inputStyle {
@@ -170,19 +229,33 @@ export default {
         .el-form-item {
           margin: 0;
         }
+        .Device {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-self: flex-start;
+        }
+        // 设备名称
+        .DeviceName {
+          margin-left: 0;
+        }
+        // 设备类别
+        .DeviceClazz {
+          margin-left: 20px;
+        }
+        // 保养周期
         .TaskTime {
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-self: flex-start;
-          .TaskTime-input {
-            width: 60px;
-          }
+          margin-left: 20px;
           .TaskTime-select {
             width: 100px;
             margin-left: 10px;
           }
         }
+        // 下面俩按钮
         .Btns {
           display: flex;
           margin-top: 20px;

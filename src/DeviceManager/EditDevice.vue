@@ -79,17 +79,6 @@
                 placeholder="请输入设备分类"
               ></el-input>
             </el-form-item>
-            <el-form-item
-              label="维护保养标准标号: "
-              :label-width="formLabelWidth"
-              prop="fixnumber"
-            >
-              <el-input
-                v-model="form.fixnumber"
-                autocomplete="off"
-                placeholder="请输入维护保养标准标号"
-              ></el-input>
-            </el-form-item>
           </el-form>
           <div class="submitbtn">
             <el-button type="primary" @click="submitEditDevice(form)"
@@ -179,7 +168,6 @@
                 placeholder="选择日期"
                 size="large"
                 value-format="yyyy-MM-dd"
-                @change="datechange"
               >
               </el-date-picker>
               <el-radio-group

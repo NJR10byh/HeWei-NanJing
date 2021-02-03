@@ -168,7 +168,6 @@
                 placeholder="选择日期"
                 size="large"
                 value-format="yyyy-MM-dd"
-                @change="datechange"
               >
               </el-date-picker>
               <el-radio-group
