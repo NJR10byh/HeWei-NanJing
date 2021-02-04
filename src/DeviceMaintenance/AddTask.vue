@@ -1,42 +1,45 @@
 <template>
-  <div class="Container-AddTask">
-    <div class="add" @click="dialogVisible = true">
-      <div class="content">
-        <h2 style="font-size:5em">+</h2>
-      </div>
-    </div>
-    <div class="card" v-for="(item, index) in taskData" :key="index">
-      <div class="content">
-        <h2>任务ID：{{ item.taskName }}</h2>
-        <p>设备名称: {{ item.devicename }}</p>
-        <p>设备类别: {{ item.deviceclazz }}</p>
-        <div class="Btns">
-          <el-button class="btn btn1" @click="showInfo(index)"
-            >进入编辑</el-button
-          >
-          <el-button class="btn btn2" @click="showInfo(index)"
-            >删除任务</el-button
-          >
+  <div style="width:100%;height:100%">
+    <div class="nopower" v-if="user != 'CREATOR'">无权限</div>
+    <div class="Container-AddTask" v-if="user == 'CREATOR'">
+      <div class="add" @click="dialogVisible = true">
+        <div class="content">
+          <h2 style="font-size:5em">+</h2>
         </div>
       </div>
+      <div class="card" v-for="(item, index) in taskData" :key="index">
+        <div class="content">
+          <h2>任务ID：{{ item.taskName }}</h2>
+          <p>设备名称: {{ item.devicename }}</p>
+          <p>设备类别: {{ item.deviceclazz }}</p>
+          <div class="Btns">
+            <el-button class="btn btn1" @click="showInfo(index)"
+              >进入编辑</el-button
+            >
+            <el-button class="btn btn2" @click="showInfo(index)"
+              >删除任务</el-button
+            >
+          </div>
+        </div>
+      </div>
+      <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+        <div class="Cascader">
+          <p>选择需要维护的设备</p>
+          <el-cascader
+            placeholder="试试搜索：Apple"
+            :options="options"
+            filterable
+            clearable
+            @change="change"
+            style="width:80%;margin-top:10px"
+          ></el-cascader>
+        </div>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="Plus">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-      <div class="Cascader">
-        <p>选择需要维护的设备</p>
-        <el-cascader
-          placeholder="试试搜索：Apple"
-          :options="options"
-          filterable
-          clearable
-          @change="change"
-          style="width:80%;margin-top:10px"
-        ></el-cascader>
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="Plus">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -47,28 +50,37 @@ export default {
   created: function() {
     let that = this;
     let taskid = "";
-    that.JilianData();
-    axios
-      .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-      .then((res) => {
-        for (var i = 0; i < res.data.content.length; i++) {
-          console.log(res.data.content[i]);
-          taskid = res.data.content[i].id;
-          let url =
-            "http://47.102.214.37:8080/device/" +
-            res.data.content[i].device[0].id;
-          axios.get(url).then((res) => {
-            that.taskData.push({
-              taskName: taskid,
-              devicename: res.data.name,
-              deviceclazz: res.data.clazz,
-            });
+    let url = "http://47.102.214.37:8080/user/" + 1;
+    axios.get(url).then((res) => {
+      that.user = res.data.role;
+    });
+    setTimeout(function() {
+      if (that.user == "CREATOR") {
+        that.JilianData();
+        axios
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              console.log(res.data.content[i]);
+              taskid = res.data.content[i].id;
+              let url =
+                "http://47.102.214.37:8080/device/" +
+                res.data.content[i].device[0].id;
+              axios.get(url).then((res) => {
+                that.taskData.push({
+                  taskName: taskid,
+                  devicename: res.data.name,
+                  deviceclazz: res.data.clazz,
+                });
+              });
+            }
           });
-        }
-      });
+      }
+    }, 200);
   },
   data() {
     return {
+      user: "",
       dialogVisible: false,
       devicename: "",
       deviceclazz: "",
@@ -129,6 +141,12 @@ export default {
 </script>
 
 <style lang="scss">
+.nopower {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .Container-AddTask {
   height: 100%;
   display: flex;

@@ -159,7 +159,11 @@ export default {
     submittask() {
       let that = this;
       console.log(that.TaskInfo);
-      axios;
+      axios.post("http://47.102.214.37:8080/ops/schedule", {
+        acceptedStandard: that.TaskInfo.acceptedStandard,
+        scheduleType: that.TaskInfo.scheduleType,
+        side: that.TaskInfo.side,
+      });
     },
   },
 };

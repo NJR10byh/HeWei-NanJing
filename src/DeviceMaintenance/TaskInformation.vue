@@ -1,23 +1,26 @@
 <template>
-  <div class="Container-TaskInfomation">
-    <!-- 面包屑 -->
-    <el-breadcrumb class="breadcrumb" separator="/">
-      <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">任务信息</el-breadcrumb-item>
-    </el-breadcrumb>
-    <div class="Tasks">
-      <div class="card" v-for="(item, index) in taskData" :key="index">
-        <div class="content">
-          <h2>任务ID：{{ item.taskName }}</h2>
-          <p>设备名称: {{ item.devicename }}</p>
-          <p>设备类别: {{ item.deviceclazz }}</p>
-          <div class="Btns">
-            <el-button class="btn btn1" @click="taskdetail(index)"
-              >查看任务</el-button
-            >
-            <el-button class="btn btn2" @click="showInfo(index)"
-              >删除任务</el-button
-            >
+  <div style="width:100%;height:100%">
+    <div class="nopower" v-if="user != 'OPERATOR'">无权限</div>
+    <div class="Container-TaskInfomation" v-if="user == 'OPERATOR'">
+      <!-- 面包屑 -->
+      <el-breadcrumb class="breadcrumb" separator="/">
+        <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
+        <el-breadcrumb-item class="active">任务信息</el-breadcrumb-item>
+      </el-breadcrumb>
+      <div class="Tasks">
+        <div class="card" v-for="(item, index) in taskData" :key="index">
+          <div class="content">
+            <h2>任务ID：{{ item.taskName }}</h2>
+            <p>设备名称: {{ item.devicename }}</p>
+            <p>设备类别: {{ item.deviceclazz }}</p>
+            <div class="Btns">
+              <el-button class="btn btn1" @click="taskdetail(index)"
+                >查看任务</el-button
+              >
+              <el-button class="btn btn2" @click="showInfo(index)"
+                >删除任务</el-button
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -32,6 +35,7 @@ export default {
   components: {},
   data() {
     return {
+      user: "",
       taskData: [],
     };
   },
@@ -54,29 +58,43 @@ export default {
   created() {
     let that = this;
     let taskid = "";
-    axios
-      .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-      .then((res) => {
-        for (var i = 0; i < res.data.content.length; i++) {
-          console.log(res.data.content[i]);
-          taskid = res.data.content[i].id;
-          let url =
-            "http://47.102.214.37:8080/device/" +
-            res.data.content[i].device[0].id;
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            that.taskData.push({
-              taskName: taskid,
-              devicename: res.data.name,
-              deviceclazz: res.data.clazz,
-            });
+    let url = "http://47.102.214.37:8080/user/" + 1;
+    axios.get(url).then((res) => {
+      that.user = res.data.role;
+    });
+    setTimeout(function() {
+      if (that.user == "OPERATOR") {
+        axios
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              console.log(res.data.content[i]);
+              taskid = res.data.content[i].id;
+              let url =
+                "http://47.102.214.37:8080/device/" +
+                res.data.content[i].device[0].id;
+              axios.get(url).then((res) => {
+                console.log(res.data);
+                that.taskData.push({
+                  taskName: taskid,
+                  devicename: res.data.name,
+                  deviceclazz: res.data.clazz,
+                });
+              });
+            }
           });
-        }
-      });
+      }
+    }, 200);
   },
 };
 </script>
 <style lang="scss">
+.nopower {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .Container-TaskInfomation {
   .breadcrumb {
     height: 30px;

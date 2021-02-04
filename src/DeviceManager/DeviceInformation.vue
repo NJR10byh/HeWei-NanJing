@@ -1,171 +1,177 @@
 <template>
-  <div class="Box">
-    <!-- 面包屑 -->
-    <el-breadcrumb class="breadcrumb-top" separator="/">
-      <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">设备信息</el-breadcrumb-item>
-    </el-breadcrumb>
-    <el-main class="Main-Box">
-      <!-- 搜索 -->
-      <div class="head-btn">
-        <div class="oper-btns-left">
-          <div class="Cascader">
-            <el-cascader
-              placeholder="试试搜索：Apple"
-              :options="options"
-              :props="{ multiple: true }"
-              filterable
-              clearable
-              @change="change"
-              style="width:160px"
-            ></el-cascader>
+  <div style="width:100%;height:100%">
+    <div class="nopower" v-if="user != 'OPERATOR'">无权限</div>
+    <div class="Box" v-if="user == 'OPERATOR'">
+      <!-- 面包屑 -->
+      <el-breadcrumb class="breadcrumb-top" separator="/">
+        <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
+        <el-breadcrumb-item class="active">设备信息</el-breadcrumb-item>
+      </el-breadcrumb>
+      <el-main class="Main-Box">
+        <!-- 搜索 -->
+        <div class="head-btn">
+          <div class="oper-btns-left">
+            <div class="Cascader">
+              <el-cascader
+                placeholder="试试搜索：Apple"
+                :options="options"
+                :props="{ multiple: true }"
+                filterable
+                clearable
+                @change="change"
+                style="width:160px"
+              ></el-cascader>
+            </div>
+            <div class="refresh">
+              <el-button icon="el-icon-refresh" @click="refreshDevice"
+                >刷新列表
+              </el-button>
+            </div>
+            <div class="getall refresh">
+              <el-button icon="el-icon-document-copy" @click="getAllDevice"
+                >获取全部设备
+              </el-button>
+            </div>
+            <div class="import refresh">
+              <el-button icon="el-icon-upload2">导入 </el-button>
+            </div>
+            <div class="export refresh">
+              <el-button icon="el-icon-download" @click="exportExcel"
+                >导出
+              </el-button>
+            </div>
           </div>
-          <div class="refresh">
-            <el-button icon="el-icon-refresh" @click="refreshDevice"
-              >刷新列表
-            </el-button>
-          </div>
-          <div class="getall refresh">
-            <el-button icon="el-icon-document-copy" @click="getAllDevice"
-              >获取全部设备
-            </el-button>
-          </div>
-          <div class="import refresh">
-            <el-button icon="el-icon-upload2">导入 </el-button>
-          </div>
-          <div class="export refresh">
-            <el-button icon="el-icon-download" @click="exportExcel"
-              >导出
-            </el-button>
+          <div class="oper-btns-right">
+            <el-button
+              class="bigdel-btn"
+              icon="el-icon-delete"
+              @click="delectAll"
+              >批量删除</el-button
+            >
+            <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
+              >清空</el-button
+            >
           </div>
         </div>
-        <div class="oper-btns-right">
-          <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll"
-            >批量删除</el-button
-          >
-          <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
-            >清空</el-button
-          >
-        </div>
-      </div>
-      <!-- table -->
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        stripe
-        class="tablestyle"
-        style="width: 100%;"
-        height="460"
-        id="outTable"
-        @selection-change="handleDetailSelectionChange"
-      >
-        <el-table-column type="expand" width="25">
-          <template slot-scope="props">
-            <el-form label-position="left" inline class="Demo-table-expand">
-              关键信息:
-              <el-form-item label="设备名称">
-                <span>{{ props.row.name }}</span>
-              </el-form-item>
-              <el-form-item label="设备品牌">
-                <span>{{ props.row.brand }}</span>
-              </el-form-item>
-              <el-form-item label="设备型号/规格">
-                <span>{{ props.row.type }}</span>
-              </el-form-item>
-              <el-form-item label="设备编号">
-                <span>{{ props.row.deviceNo }}</span>
-              </el-form-item>
-              <el-form-item label="是否为关键设备">
-                <span>{{ props.row.crux }}</span>
-              </el-form-item>
-              <el-form-item label="设备分类">
-                <span>{{ props.row.clazz }}</span>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column type="selection" width="50"></el-table-column>
-        <el-table-column prop="id" label="ID" width="60"></el-table-column>
-        <el-table-column
-          prop="name"
-          label="设备名称"
-          width="150"
-        ></el-table-column>
-        <el-table-column
-          prop="brand"
-          label="设备品牌"
-          width="120"
-        ></el-table-column>
-        <el-table-column
-          prop="type"
-          label="设备型号/规格"
-          width="150"
-        ></el-table-column>
-        <el-table-column
-          prop="deviceNo"
-          label="设备编号"
-          width="150"
-        ></el-table-column>
-        <el-table-column
-          prop="crux"
-          label="是否为关键设备"
-          width="150"
-        ></el-table-column>
-        <el-table-column
-          prop="clazz"
-          label="设备分类"
-          width="120"
-        ></el-table-column>
-        <el-table-column
-          prop="fixnumber"
-          label="维护保养标准编号"
-          width="160"
-        ></el-table-column>
-        <template v-for="(item, index) in tableHead">
+        <!-- table -->
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          stripe
+          class="tablestyle"
+          style="width: 100%;"
+          height="460"
+          id="outTable"
+          @selection-change="handleDetailSelectionChange"
+        >
+          <el-table-column type="expand" width="25">
+            <template slot-scope="props">
+              <el-form label-position="left" inline class="Demo-table-expand">
+                关键信息:
+                <el-form-item label="设备名称">
+                  <span>{{ props.row.name }}</span>
+                </el-form-item>
+                <el-form-item label="设备品牌">
+                  <span>{{ props.row.brand }}</span>
+                </el-form-item>
+                <el-form-item label="设备型号/规格">
+                  <span>{{ props.row.type }}</span>
+                </el-form-item>
+                <el-form-item label="设备编号">
+                  <span>{{ props.row.deviceNo }}</span>
+                </el-form-item>
+                <el-form-item label="是否为关键设备">
+                  <span>{{ props.row.crux }}</span>
+                </el-form-item>
+                <el-form-item label="设备分类">
+                  <span>{{ props.row.clazz }}</span>
+                </el-form-item>
+              </el-form>
+            </template>
+          </el-table-column>
+          <el-table-column type="selection" width="50"></el-table-column>
+          <el-table-column prop="id" label="ID" width="60"></el-table-column>
           <el-table-column
-            :prop="item.prop"
-            :label="item.lable"
-            :key="index"
-            :width="item.width"
+            prop="name"
+            label="设备名称"
+            width="150"
           ></el-table-column>
-        </template>
-        <el-table-column prop="setting" label="操作" width="150">
-          <template slot-scope="scope">
-            <el-tooltip content="修改" effect="light" :enterable="false">
-              <el-button
-                icon="iconfont icon-bianji"
-                @click="handleEdit(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="生成编码" effect="light" :enterable="false">
-              <el-button
-                icon="iconfont icon-tiaoxingma"
-                @click="handleCode(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除" :enterable="false">
-              <el-button
-                icon="iconfont icon-shanchu"
-                @click="handleDelete(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
+          <el-table-column
+            prop="brand"
+            label="设备品牌"
+            width="120"
+          ></el-table-column>
+          <el-table-column
+            prop="type"
+            label="设备型号/规格"
+            width="150"
+          ></el-table-column>
+          <el-table-column
+            prop="deviceNo"
+            label="设备编号"
+            width="150"
+          ></el-table-column>
+          <el-table-column
+            prop="crux"
+            label="是否为关键设备"
+            width="150"
+          ></el-table-column>
+          <el-table-column
+            prop="clazz"
+            label="设备分类"
+            width="120"
+          ></el-table-column>
+          <el-table-column
+            prop="fixnumber"
+            label="维护保养标准编号"
+            width="160"
+          ></el-table-column>
+          <template v-for="(item, index) in tableHead">
+            <el-table-column
+              :prop="item.prop"
+              :label="item.lable"
+              :key="index"
+              :width="item.width"
+            ></el-table-column>
           </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页 -->
-      <div class="block">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10, 20, 30, 40]"
-          :page-size="10"
-          layout="sizes,total, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
-      </div>
-    </el-main>
+          <el-table-column prop="setting" label="操作" width="150">
+            <template slot-scope="scope">
+              <el-tooltip content="修改" effect="light" :enterable="false">
+                <el-button
+                  icon="iconfont icon-bianji"
+                  @click="handleEdit(scope.$index, scope.row)"
+                ></el-button>
+              </el-tooltip>
+              <el-tooltip content="生成编码" effect="light" :enterable="false">
+                <el-button
+                  icon="iconfont icon-tiaoxingma"
+                  @click="handleCode(scope.$index, scope.row)"
+                ></el-button>
+              </el-tooltip>
+              <el-tooltip content="删除" :enterable="false">
+                <el-button
+                  icon="iconfont icon-shanchu"
+                  @click="handleDelete(scope.$index, scope.row)"
+                ></el-button>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <div class="block">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 20, 30, 40]"
+            :page-size="10"
+            layout="sizes,total, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+      </el-main>
+    </div>
   </div>
 </template>
 
@@ -178,6 +184,7 @@ export default {
   components: {},
   data() {
     return {
+      user: "",
       //选择框
       checkedDetail: [],
       // 可选表头数据
@@ -772,48 +779,64 @@ export default {
   },
   created: function() {
     let that = this;
-    that.JilianData();
-    // 获取所有附加字段
-    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      // console.log(res.data);
-      for (let i = 0; i < res.data.length; i++) {
-        let obj = {};
-        obj.lable = res.data[i].name;
-        obj.width = "130";
-        obj.prop = res.data[i].id;
-        that.tableHead.push(obj);
-      }
+    let url = "http://47.102.214.37:8080/user/" + 1;
+    axios.get(url).then((res) => {
+      that.user = res.data.role;
     });
-    // 获取所有设备
-    axios.get("http://47.102.214.37:8080/device?page=0&size=10").then((res) => {
-      // console.log(res);
-      that.total = res.data.totalElements;
-      for (let i = 0; i < res.data.content.length; i++) {
-        let obj = {};
-        obj.id = res.data.content[i].id;
-        obj.name = res.data.content[i].name;
-        obj["brand"] = res.data.content[i].brand;
-        obj.type = res.data.content[i].type;
-        obj.deviceNo = res.data.content[i].deviceNo;
-        if (res.data.content[i].extra.length != 0) {
-          for (let j = 0; j < res.data.content[i].extra.length; j++) {
-            obj[res.data.content[i].extra[j].field.id] =
-              res.data.content[i].extra[j].value;
+    setTimeout(function() {
+      if (that.user == "OPERATOR") {
+        that.JilianData();
+        // 获取所有附加字段
+        axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+          // console.log(res.data);
+          for (let i = 0; i < res.data.length; i++) {
+            let obj = {};
+            obj.lable = res.data[i].name;
+            obj.width = "130";
+            obj.prop = res.data[i].id;
+            that.tableHead.push(obj);
           }
-        }
-        if (res.data.content[i].crux == true) {
-          obj.crux = "Y";
-        } else if (res.data.content[i].crux == false) {
-          obj.crux = "N";
-        }
-        obj.clazz = res.data.content[i].clazz;
-        that.tableData.push(obj);
+        });
+        // 获取所有设备
+        axios
+          .get("http://47.102.214.37:8080/device?page=0&size=10")
+          .then((res) => {
+            // console.log(res);
+            that.total = res.data.totalElements;
+            for (let i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (let j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
+              }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "Y";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "N";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
+            }
+          });
       }
-    });
+    }, 200);
   },
 };
 </script>
 <style lang="scss">
+.nopower {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .Box {
   // height: calc(100%);
   // border: 1px solid blue;
