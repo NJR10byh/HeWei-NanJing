@@ -11,6 +11,7 @@ import Code from "@/DeviceManager/Code"; // 生成编码
 import AddTask from "@/DeviceMaintenance/AddTask"; // 新增任务
 import AddTaskInside from "@/DeviceMaintenance/AddTaskInside"; // 新增任务详情页
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
+import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 
 const Home = () => import("../components/Home.vue");
@@ -65,6 +66,11 @@ const routes = [
       {
         path: "/taskInformation",
         component: TaskInformation,
+      },
+      // 任务信息详情
+      {
+        path: "/taskDetailInfo",
+        component: TaskDetailInfo,
       },
       // 任务分配
       {

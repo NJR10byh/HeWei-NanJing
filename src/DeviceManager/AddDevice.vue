@@ -1,7 +1,6 @@
 <template>
   <div style="width:100%;height:100%">
-    <div class="nopower" v-if="user != 'CREATOR'">无权限</div>
-    <div class="Main" v-if="user == 'CREATOR'">
+    <div class="Main" v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)">
       <!-- 面包屑 -->
       <el-breadcrumb class="Breadcrumb">
         <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
@@ -192,6 +191,7 @@
         </div>
       </div>
     </div>
+    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 <script>
@@ -199,13 +199,12 @@ import axios from "axios";
 export default {
   data() {
     return {
-      user: "CREATOR",
+      user: "ROOT", //用户类型
       form: {},
       ExtraInfoDialog: {},
       formLabelWidth: "150px",
       dialogFormVisible: false,
-      //选择框
-      checkedDetail: [],
+      checkedDetail: [], //选择框
       tableData: [],
       extraid: [],
       extraobj: [],
@@ -398,12 +397,18 @@ export default {
   },
   created: function() {
     let that = this;
-    let url = "http://47.102.214.37:8080/user/" + 1;
-    axios.get(url).then((res) => {
-      that.user = res.data.role;
-    });
+    // 判断用户类型
+    // let url = "http://47.102.214.37:8080/user/" + 1;
+    // axios.get(url).then((res) => {
+    //   that.user = res.data.role;
+    // });
+    // 加入定时器，避免异步导致的 Obserer
     setTimeout(function() {
-      if (that.user == "CREATOR") {
+      if (
+        that.user == "ROOT" ||
+        that.user == "ADMIN" ||
+        that.user == "CREATOR"
+      ) {
         axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
           console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {

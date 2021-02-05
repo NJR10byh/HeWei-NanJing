@@ -1,7 +1,6 @@
 <template>
   <div style="width:100%;height:100%">
-    <div class="nopower" v-if="user != 'OPERATOR'">无权限</div>
-    <div class="Box" v-if="user == 'OPERATOR'">
+    <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(user)">
       <!-- 面包屑 -->
       <el-breadcrumb class="breadcrumb-top" separator="/">
         <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
@@ -172,6 +171,7 @@
         </div>
       </el-main>
     </div>
+    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 
@@ -184,7 +184,7 @@ export default {
   components: {},
   data() {
     return {
-      user: "",
+      user: "", //用户类型
       //选择框
       checkedDetail: [],
       // 可选表头数据
@@ -446,6 +446,8 @@ export default {
       }
       setTimeout(function() {
         console.log(List);
+        console.log(List.length);
+        that.total = List.length;
         let arr = [];
         let newArr = []; //定义一个新数组来接收元素
         for (var i = 0; i < List.length; i++) {
@@ -461,8 +463,7 @@ export default {
         for (var t = 0; t < newArr.length; t++) {
           let url = "http://47.102.214.37:8080/device/" + newArr[t];
           axios.get(url).then((res) => {
-            console.log(res.data);
-            that.total += res.data.totalElements;
+            // console.log(res.data);
             let obj = {};
             obj.id = res.data.id;
             obj.name = res.data.name;
@@ -483,8 +484,7 @@ export default {
             that.tableData.push(obj);
           });
         }
-        console.log(that.tableData);
-      }, 1000);
+      }, 300);
     },
     // 刷新
     refreshDevice() {
@@ -745,6 +745,7 @@ export default {
       let that = this;
       that.page = val;
       that.currentPage = val;
+      console.log(val);
       let url =
         "http://47.102.214.37:8080/device?page=" +
         (that.page - 1) +
@@ -779,12 +780,17 @@ export default {
   },
   created: function() {
     let that = this;
+    // 判断用户类型
     let url = "http://47.102.214.37:8080/user/" + 1;
     axios.get(url).then((res) => {
       that.user = res.data.role;
     });
     setTimeout(function() {
-      if (that.user == "OPERATOR") {
+      if (
+        that.user == "ROOT" ||
+        that.user == "ADMIN" ||
+        that.user == "OPERATOR"
+      ) {
         that.JilianData();
         // 获取所有附加字段
         axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {

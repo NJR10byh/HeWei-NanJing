@@ -1,7 +1,9 @@
 <template>
   <div style="width:100%;height:100%">
-    <div class="nopower" v-if="user != 'OPERATOR'">无权限</div>
-    <div class="Container-TaskInfomation" v-if="user == 'OPERATOR'">
+    <div
+      class="Container-TaskInfomation"
+      v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(user)"
+    >
       <!-- 面包屑 -->
       <el-breadcrumb class="breadcrumb" separator="/">
         <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
@@ -25,6 +27,7 @@
         </div>
       </div>
     </div>
+    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 
@@ -35,7 +38,7 @@ export default {
   components: {},
   data() {
     return {
-      user: "",
+      user: "", //用户类型
       taskData: [],
     };
   },
@@ -48,7 +51,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             console.log(res.data.content[i]);
             this.$router.push({
-              path: "/addTaskInside",
+              path: "/taskDetailInfo",
               query: res.data.content[i],
             });
           }
@@ -58,12 +61,18 @@ export default {
   created() {
     let that = this;
     let taskid = "";
+    // 判断用户类型
     let url = "http://47.102.214.37:8080/user/" + 1;
     axios.get(url).then((res) => {
       that.user = res.data.role;
     });
+    console.log(that.user);
     setTimeout(function() {
-      if (that.user == "OPERATOR") {
+      if (
+        that.user == "ROOT" ||
+        that.user == "ADMIN" ||
+        that.user == "OPERATOR"
+      ) {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
           .then((res) => {
