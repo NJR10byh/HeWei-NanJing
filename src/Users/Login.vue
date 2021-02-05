@@ -69,6 +69,10 @@ export default {};
           height: 50px;
           border: 1px solid #d1d1d1;
           border-radius: 10px;
+          outline-color: red;
+        }
+        .el-input__inner:focus {
+          border-color: #409eff;
         }
       }
       span {
