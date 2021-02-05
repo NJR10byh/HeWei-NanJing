@@ -2,6 +2,9 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 /* 用户管理 */
 import Users from "@/Users/Users";
+import Register from "@/Users/Register"; // 注册
+import Login from "@/Users/Login"; // 登录
+import Authorize from "@/Users/Authorize"; // 授权
 /* 设备管理 */
 import AddDevice from "@/DeviceManager/AddDevice"; // 新增设备
 import DeviceInformation from "@/DeviceManager/DeviceInformation"; // 设备信息
@@ -29,6 +32,18 @@ const routes = [
       {
         path: "/users",
         component: Users,
+      },
+      {
+        path: "/register",
+        component: Register,
+      },
+      {
+        path: "/login",
+        component: Login,
+      },
+      {
+        path: "/authorize",
+        component: Authorize,
       },
       /* 设备管理 */
       // 新增设备

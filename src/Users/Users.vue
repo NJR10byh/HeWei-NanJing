@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="box">
-      <div class="module">
+      <div class="module" @click="Register">
         <div class="top">
           <img src="../assets/img/register.png" />
         </div>
@@ -9,7 +9,7 @@
           注册
         </div>
       </div>
-      <div class="module">
+      <div class="module" @click="Login">
         <div class="top">
           <img src="../assets/img/login.png" />
         </div>
@@ -17,7 +17,7 @@
           登录
         </div>
       </div>
-      <div class="module">
+      <div class="module" @click="Authorize">
         <div class="top">
           <img src="../assets/img/authorize.png" />
         </div>
@@ -28,6 +28,27 @@
     </div>
   </div>
 </template>
+<script>
+export default {
+  data() {
+    return {};
+  },
+  methods: {
+    Register() {
+      console.log("Register");
+      this.$router.push({ path: "/register" });
+    },
+    Login() {
+      console.log("Login");
+      this.$router.push({ path: "/login" });
+    },
+    Authorize() {
+      console.log("Authorize");
+      this.$router.push({ path: "/authorize" });
+    },
+  },
+};
+</script>
 <style lang="scss">
 .container {
   width: 100%;
@@ -42,6 +63,8 @@
     justify-content: space-around;
     align-items: center;
     .module {
+      // border: 1px solid red;
+      cursor: pointer;
       width: 30%;
       height: 80%;
       display: flex;
