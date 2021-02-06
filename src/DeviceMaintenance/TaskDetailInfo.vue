@@ -4,8 +4,8 @@
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active"
-        >任务（ {{ taskid }} ）</el-breadcrumb-item
-      >
+        >任务ID：{{ taskid }}
+      </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-box">
@@ -83,10 +83,7 @@
           </div>
           <div class="Btns">
             <div class="sub-btn">
-              <el-button @click="submittask">保存</el-button>
-            </div>
-            <div class="del-btn">
-              <el-button>删除</el-button>
+              <el-button @click="back">返回</el-button>
             </div>
           </div>
         </el-form>
@@ -96,31 +93,12 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
     console.log(that.$route.query);
-    // console.log(that.$route.query.device[0].id);
-    if (that.$route.query.devicename == undefined) {
-      let url =
-        "http://47.102.214.37:8080/device/" + that.$route.query.device[0].id;
-      axios.get(url).then((res) => {
-        that.TaskInfo.devicename = res.data.name;
-        that.TaskInfo.deviceclazz = res.data.clazz;
-      });
-      setTimeout(function() {
-        that.taskid = that.$route.query.id;
-        that.TaskInfo.side = that.$route.query.side;
-        that.TaskInfo.acceptedStandard = that.$route.query.acceptedStandard;
-        that.TaskInfo.scheduleType = that.$route.query.scheduleType;
-      }, 200);
-    } else {
-      that.taskid = that.$route.query.devicename;
-      that.TaskInfo.devicename = that.$route.query.devicename;
-      that.TaskInfo.deviceclazz = that.$route.query.deviceclazz;
-    }
+    that.taskid = that.$route.query.taskName;
   },
   data() {
     return {
@@ -156,13 +134,9 @@ export default {
     };
   },
   methods: {
-    submittask() {
-      let that = this;
-      console.log(that.TaskInfo);
-      axios.post("http://47.102.214.37:8080/ops/schedule", {
-        acceptedStandard: that.TaskInfo.acceptedStandard,
-        scheduleType: that.TaskInfo.scheduleType,
-        side: that.TaskInfo.side,
+    back() {
+      this.$router.push({
+        path: "/taskInformation",
       });
     },
   },
@@ -263,27 +237,12 @@ export default {
         .Btns {
           display: flex;
           margin-top: 20px;
-          justify-content: space-between;
-          width: 180px;
+          justify-content: center;
           // border: 1px solid red;
           .sub-btn {
             .el-button {
               width: 80px;
               background: linear-gradient(-270deg, #6eb5fc, #409eff);
-              color: #fff;
-              border: 0;
-              padding: 10px;
-              font-size: 15px;
-              border-radius: 5px;
-              &:hover {
-                opacity: 0.9;
-              }
-            }
-          }
-          .del-btn {
-            .el-button {
-              width: 80px;
-              background: linear-gradient(-270deg, #fca4a4, #f96b6c);
               color: #fff;
               border: 0;
               padding: 10px;
