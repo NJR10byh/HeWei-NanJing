@@ -30,16 +30,6 @@
           >
           </el-transfer>
         </div>
-        <div class="kuang kuang3">
-          <el-transfer
-            filterable
-            filter-placeholder=""
-            v-model="value3"
-            :data="data3"
-            :titles="titles3"
-          >
-          </el-transfer>
-        </div>
         <div class="Btns">
           <div class="sub-btn">
             <el-button>保存</el-button>
@@ -61,44 +51,20 @@ export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
-    // 判断用户类型
-    // let url = "http://47.102.214.37:8080/user/" + 1;
-    // axios.get(url).then((res) => {
-    //   that.user = res.data.role;
-    // });
-    setTimeout(function() {
-      if (
-        that.user == "ROOT" ||
-        that.user == "ADMIN" ||
-        that.user == "CREATOR"
-      ) {
-        axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i].device[0]);
-              that.data1.push({
-                lable: "任务 " + `${res.data.content[i].id}`,
-                key: "任务 " + res.data.content[i].id,
-              });
-            }
-          });
-        // 所有设备名称
-        axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
-          // console.log(res.data);
-          for (var i = 0; i < res.data.length; i++) {
-            let obj = {};
-            obj.key = res.data[i];
-            obj.label = res.data[i];
-            that.data3.push({
-              lable: `${res.data[i]}`,
-              key: res.data[i],
+    if (["ROOT", "ADMIN", "CREATOR"].includes(that.user)) {
+      // 获取全部任务
+      axios
+        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            // console.log(res.data.content[i].device[0]);
+            that.data1.push({
+              lable: "任务 " + `${res.data.content[i].id}`,
+              key: "任务 " + res.data.content[i].id,
             });
-            // console.log(that.options[0]);
           }
         });
-      }
-    }, 200);
+    }
   },
   data() {
     return {
@@ -111,10 +77,6 @@ export default {
       data2: [],
       value2: [],
       titles2: ["人员列表", "已选择人员"],
-      // 选择框 3
-      data3: [],
-      value3: [],
-      titles3: ["设备列表", "已选择设备"],
     };
   },
   methods: {},
@@ -159,9 +121,6 @@ export default {
       width: 600px;
     }
     .kuang2 {
-      margin-top: 10px;
-    }
-    .kuang3 {
       margin-top: 10px;
     }
   }
