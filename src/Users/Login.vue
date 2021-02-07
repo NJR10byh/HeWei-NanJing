@@ -33,8 +33,8 @@ import globaldata from "../GlobalData/globaldata";
 export default {
   data() {
     return {
-      username: "",
-      password: "",
+      username: "NJUPT",
+      password: "njupt123",
     };
   },
   methods: {

@@ -55,25 +55,31 @@ export default {
     // axios.get(url).then((res) => {
     //   that.user = res.data.role;
     // });
-    setTimeout(function() {
-      if (
-        that.user == "ROOT" ||
-        that.user == "ADMIN" ||
-        that.user == "OPERATOR"
-      ) {
-        axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              console.log(res.data.content[i]);
-              taskid = res.data.content[i].id;
-              that.taskData.push({
-                taskName: taskid,
-              });
-            }
+    if (that.user == "ROOT" || that.user == "ADMIN") {
+      console.log(globaldata.userID);
+      axios
+        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            console.log(res.data.content[i]);
+            taskid = res.data.content[i].id;
+            that.taskData.push({
+              taskName: taskid,
+            });
+          }
+        });
+    } else if (that.user == "OPERATOR") {
+      let url = "http://47.102.214.37:8080/user/schedule/" + globaldata.userID;
+      axios.get(url).then((res) => {
+        for (var i = 0; i < res.data.length; i++) {
+          console.log(res.data[i]);
+          taskid = res.data[i].id;
+          that.taskData.push({
+            taskName: taskid,
           });
-      }
-    }, 200);
+        }
+      });
+    }
   },
 };
 </script>
