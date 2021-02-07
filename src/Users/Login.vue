@@ -7,8 +7,17 @@
         </div>
         <div class="input-body">
           <span>您的用户ID是您用于登录系统的唯一识别ID</span>
-          <el-input placeholder="用户ID" v-model="username"></el-input>
-          <el-input placeholder="密码" v-model="password"></el-input>
+          <el-input
+            placeholder="用户名"
+            v-model="username"
+            clearable
+          ></el-input>
+          <el-input
+            placeholder="密码"
+            v-model="password"
+            clearable
+            show-password
+          ></el-input>
         </div>
         <div class="login-btn">
           <el-button @click="Sign_In">登录</el-button>
@@ -19,6 +28,8 @@
 </template>
 <script>
 import axios from "axios";
+import qs from "qs";
+import globaldata from "../GlobalData/globaldata";
 export default {
   data() {
     return {
@@ -29,15 +40,32 @@ export default {
   methods: {
     Sign_In() {
       let that = this;
-      console.log(this.password);
-      axios
-        .post("http://47.102.214.37:8080/user/login", {
-          username: that.username,
-          password: that.password,
-        })
-        .then((res) => {
-          console.log(res);
-        });
+      let params = qs.stringify({
+        username: that.username,
+        password: that.password,
+      });
+      axios.post("http://47.102.214.37:8080/login", params).then((res) => {
+        if (res.status == 200) {
+          let url =
+            "http://47.102.214.37:8080/user/query?username==" + that.username;
+          axios.get(url).then((res) => {
+            console.log(res.data.content[0]);
+            globaldata.role = res.data.content[0].role;
+            globaldata.userID = res.data.content[0].id;
+            globaldata.userName = res.data.content[0].username;
+            console.log(globaldata.userName);
+            if (["ROOT", "ADMIN", "OPERATOR"].includes(globaldata.role)) {
+              this.$router.push({
+                path: "./deviceInformation",
+              });
+            } else if (["ROOT", "ADMIN", "CREATOR"].includes(globaldata.role)) {
+              this.$router.push({
+                path: "./addDevice",
+              });
+            }
+          });
+        }
+      });
     },
   },
 };

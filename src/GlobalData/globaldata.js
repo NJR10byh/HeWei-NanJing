@@ -1,7 +1,9 @@
-var role = "ROOT";
-var userID = "001";
+var role = "";
+var userID = "";
+var userName = "";
 
 export default {
   role,
   userID,
+  userName,
 };

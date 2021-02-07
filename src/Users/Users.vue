@@ -1,7 +1,11 @@
 <template>
   <div class="container">
     <div class="box">
-      <div class="module" @click="Register">
+      <div
+        class="module"
+        @click="Register"
+        v-if="['ROOT', 'ADMIN'].includes(userRole)"
+      >
         <div class="top">
           <img src="../assets/img/register.png" />
         </div>
@@ -9,7 +13,7 @@
           注册
         </div>
       </div>
-      <div class="module" @click="Login">
+      <div class="module" @click="Login" v-if="[''].includes(userRole)">
         <div class="top">
           <img src="../assets/img/login.png" />
         </div>
@@ -17,7 +21,31 @@
           登录
         </div>
       </div>
-      <div class="module" @click="Authorize">
+      <div
+        class="module"
+        style="cursor: default;"
+        v-if="['ROOT', 'ADMIN', 'CREATOR', 'OPERATOR'].includes(userRole)"
+      >
+        <div class="top">
+          <img src="../assets/img/login-success.png" />
+        </div>
+        <div class="User-info">
+          <div>
+            用户ID：<span>{{ userID }}</span>
+          </div>
+          <div class="username">
+            用户名：<span>{{ userName }}</span>
+          </div>
+          <div class="role">
+            用户权限：<span>{{ userRole }}</span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="module"
+        @click="Authorize"
+        v-if="['ROOT', 'ADMIN'].includes(userRole)"
+      >
         <div class="top">
           <img src="../assets/img/authorize.png" />
         </div>
@@ -29,9 +57,18 @@
   </div>
 </template>
 <script>
+import globaldata from "../GlobalData/globaldata";
 export default {
+  created: function() {
+    console.log(this.userName);
+    console.log(this.userRole);
+  },
   data() {
-    return {};
+    return {
+      userRole: globaldata.role,
+      userName: globaldata.userName,
+      userID: globaldata.userID,
+    };
   },
   methods: {
     Register() {
@@ -95,6 +132,28 @@ export default {
         align-items: flex-start;
         color: #409eff;
         font-size: 30px;
+      }
+      .User-info {
+        // border: 1px solid red;
+        height: 35%;
+        font-weight: bold;
+        span {
+          font-weight: normal;
+        }
+        .username {
+          margin-top: 10px;
+        }
+        .role {
+          margin-top: 10px;
+          span {
+            background: #000;
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+          }
+        }
       }
     }
     .module:hover {

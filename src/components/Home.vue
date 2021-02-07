@@ -10,26 +10,6 @@
         <div class="toggle-button" @click="toggleCollapse">
           <i class="iconfont icon-caidan1"></i>
         </div>
-        <el-popover
-          placement="bottom"
-          width="150"
-          trigger="hover"
-          v-if="user != ''"
-        >
-          <div class="userinfo">
-            <p style="font-weight:bold;font-size:16px">用户信息</p>
-            <div style=";padding:0 10px;margin-top:10px">
-              <div style="">用户ID：{{ userID }}</div>
-              <div class="userRole" style="margin-top:5px">
-                用户权限：<span
-                  style="background:#000;border-radius:5px;color:#fff;font-size:12px;font-weight:bolder;padding:2px 5px;"
-                  >{{ user }}</span
-                >
-              </div>
-            </div>
-          </div>
-          <i class="iconfont icon-login" slot="reference"></i>
-        </el-popover>
       </div>
       <div class="title">合为企业设备管理系统</div>
       <div class="hd-btns">

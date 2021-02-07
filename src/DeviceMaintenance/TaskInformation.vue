@@ -17,9 +17,6 @@
               <el-button class="btn btn1" @click="taskdetail(index)"
                 >查看任务</el-button
               >
-              <el-button class="btn btn2" @click="showInfo(index)"
-                >删除任务</el-button
-              >
             </div>
           </div>
         </div>
