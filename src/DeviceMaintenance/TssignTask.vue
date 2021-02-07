@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%;height:100%">
+  <div style="width:100%;">
     <div
       class="Container-TssignTask"
       v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)"
@@ -56,6 +56,7 @@
 
 <script>
 import axios from "axios";
+import globaldata from "../GlobalData/globaldata";
 export default {
   name: "AddTaskInside",
   created: function() {
@@ -101,7 +102,7 @@ export default {
   },
   data() {
     return {
-      user: "ROOT", //用户类型
+      user: globaldata.role, //用户类型
       // 选择框 1
       data1: [],
       value1: [],

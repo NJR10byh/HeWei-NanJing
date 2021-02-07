@@ -5,38 +5,21 @@
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active">任务编辑</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-      <div class="Cascader">
-        <p>选择需要维护的设备</p>
-        <el-cascader
-          placeholder="试试搜索：Apple"
-          :options="options"
-          filterable
-          clearable
-          @change="change"
-          style="width:80%;margin-top:10px"
-        ></el-cascader>
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="Plus">确 定</el-button>
-      </div>
-    </el-dialog>
     <div class="Task-container">
       <div class="Task-box">
         <el-form ref="form" :model="TaskInfo" label-position="left">
           <div class="part1">
             <el-form-item label="设备名称" class="DeviceName Device">
-              <el-input
+              <el-cascader
+                placeholder="试试搜索：Apple"
+                :options="options"
+                :props="{ multiple: true }"
+                filterable
+                clearable
+                @change="change"
+                style="width:160px"
                 v-model="TaskInfo.devicename"
-                placeholder="请输入设备名称"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="设备类别" class="DeviceClazz Device">
-              <el-input
-                v-model="TaskInfo.deviceclazz"
-                placeholder="请输入设备类别"
-              ></el-input>
+              ></el-cascader>
             </el-form-item>
             <el-form-item label="保养周期" class="TaskTime">
               每
@@ -114,7 +97,10 @@
 import axios from "axios";
 export default {
   name: "AddTaskInside",
-  created: function() {},
+  created: function() {
+    let that = this;
+    that.JilianData();
+  },
   data() {
     return {
       TaskInfo: {},
@@ -145,18 +131,26 @@ export default {
         },
       ],
       value: "",
-      dialogVisible: false, // 设备选择框
       // 级联选择
-      options: [
-        {
-          value: "name",
-          label: "设备列表",
-          children: [],
-        },
-      ],
+      options: [],
+      deviceid: [],
     };
   },
   methods: {
+    JilianData() {
+      let that = this;
+      // 设备名称
+      axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
+        // console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          let obj = {};
+          obj.value = res.data[i];
+          obj.label = res.data[i];
+          that.options.push(obj);
+          // console.log(that.options[0]);
+        }
+      });
+    },
     Plus() {
       // unshift() 从堆顶加入元素
       this.taskData.unshift({
@@ -167,21 +161,37 @@ export default {
     },
     change(res) {
       let that = this;
-      this.devicename = res[1];
-      let url =
-        "http://47.102.214.37:8080/device/query?name==" + this.devicename;
-      axios.get(url).then((res) => {
-        that.deviceclazz = res.data.content[0].clazz;
-      });
+      that.deviceid = [];
+      for (var i = 0; i < res.length; i++) {
+        let url = "http://47.102.214.37:8080/device/query?name==" + res[i][0];
+        axios.get(url).then((res) => {
+          that.deviceid.push({
+            id: res.data.content[0].id,
+          });
+        });
+      }
     },
     submittask() {
       let that = this;
-      console.log(that.TaskInfo);
-      axios.post("http://47.102.214.37:8080/ops/schedule", {
-        acceptedStandard: that.TaskInfo.acceptedStandard,
-        scheduleType: that.TaskInfo.scheduleType,
-        side: that.TaskInfo.side,
-      });
+      console.log(that.deviceid);
+      axios
+        .post("http://47.102.214.37:8080/ops/schedule", {
+          acceptedStandard: that.TaskInfo.acceptedStandard,
+          scheduleType: that.TaskInfo.scheduleType,
+          side: that.TaskInfo.side,
+          device: that.deviceid,
+          manager: null,
+          name: "string",
+          content: ["string1", "string2"],
+          ops: null,
+          remark: "string",
+          scheduleDay: 0,
+          tools: ["string1", "string2"],
+          parent: null,
+        })
+        .then((res) => {
+          console.log(res);
+        });
     },
   },
 };
@@ -260,6 +270,8 @@ export default {
         // 设备名称
         .DeviceName {
           margin-left: 0;
+          display: flex;
+          // border: 1px solid red;
         }
         // 设备类别
         .DeviceClazz {

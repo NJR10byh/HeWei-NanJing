@@ -7,22 +7,40 @@
         </div>
         <div class="input-body">
           <span>您的用户ID是您用于登录系统的唯一识别ID</span>
-          <el-input placeholder="用户ID"></el-input>
-          <el-input placeholder="密码"></el-input>
+          <el-input placeholder="用户ID" v-model="username"></el-input>
+          <el-input placeholder="密码" v-model="password"></el-input>
         </div>
         <div class="login-btn">
-          <el-button>登录</el-button>
-        </div>
-        <div class="foot-register">
-          <a href=".#/register">没有用户ID？立即创建一个</a>
+          <el-button @click="Sign_In">登录</el-button>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-// import axios from "axios";
-export default {};
+import axios from "axios";
+export default {
+  data() {
+    return {
+      username: "",
+      password: "",
+    };
+  },
+  methods: {
+    Sign_In() {
+      let that = this;
+      console.log(this.password);
+      axios
+        .post("http://47.102.214.37:8080/user/login", {
+          username: that.username,
+          password: that.password,
+        })
+        .then((res) => {
+          console.log(res);
+        });
+    },
+  },
+};
 </script>
 <style lang="scss">
 .Container-Login {
@@ -96,21 +114,6 @@ export default {};
         width: 80%;
         height: 50px;
         border-radius: 10px;
-      }
-    }
-    .foot-register {
-      //   border: 1px solid red;
-      width: 100%;
-      height: 15%;
-      display: flex;
-      justify-content: center;
-      margin-top: 5px;
-      a {
-        // border: 1px solid red;
-        font-size: 12px;
-        color: #409eff;
-        letter-spacing: 1px;
-        text-decoration: none;
       }
     }
   }

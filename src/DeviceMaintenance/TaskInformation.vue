@@ -31,12 +31,13 @@
 
 <script>
 import axios from "axios";
+import globaldata from "../GlobalData/globaldata";
 export default {
   name: "DeviceInformation",
   components: {},
   data() {
     return {
-      user: "", //用户类型
+      user: globaldata.role, //用户类型
       taskData: [],
     };
   },
@@ -53,11 +54,10 @@ export default {
     let that = this;
     let taskid = "";
     // 判断用户类型
-    let url = "http://47.102.214.37:8080/user/" + 1;
-    axios.get(url).then((res) => {
-      that.user = res.data.role;
-    });
-    console.log(that.user);
+    // let url = "http://47.102.214.37:8080/user/" + 1;
+    // axios.get(url).then((res) => {
+    //   that.user = res.data.role;
+    // });
     setTimeout(function() {
       if (
         that.user == "ROOT" ||

@@ -179,12 +179,13 @@
 import axios from "axios";
 import XLSX from "xlsx";
 import FileSaver from "file-saver";
+import globaldata from "../GlobalData/globaldata";
 export default {
   name: "DeviceInformation",
   components: {},
   data() {
     return {
-      user: "", //用户类型
+      user: globaldata.role, //用户类型
       //选择框
       checkedDetail: [],
       // 可选表头数据
@@ -781,10 +782,10 @@ export default {
   created: function() {
     let that = this;
     // 判断用户类型
-    let url = "http://47.102.214.37:8080/user/" + 1;
-    axios.get(url).then((res) => {
-      that.user = res.data.role;
-    });
+    // let url = "http://47.102.214.37:8080/user/" + 1;
+    // axios.get(url).then((res) => {
+    //   that.user = res.data.role;
+    // });
     setTimeout(function() {
       if (
         that.user == "ROOT" ||

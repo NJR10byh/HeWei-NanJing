@@ -196,10 +196,11 @@
 </template>
 <script>
 import axios from "axios";
+import globaldata from "../GlobalData/globaldata";
 export default {
   data() {
     return {
-      user: "ROOT", //用户类型
+      user: globaldata.role, //用户类型
       form: {},
       ExtraInfoDialog: {},
       formLabelWidth: "150px",

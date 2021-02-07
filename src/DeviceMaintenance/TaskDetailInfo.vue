@@ -8,6 +8,9 @@
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
+      <div class="backbtn">
+        <el-button @click="back">返回</el-button>
+      </div>
       <div class="Task-info">
         <div class="Side-Standard">
           <div class="part1 Side">
@@ -73,6 +76,16 @@ export default {
       that.standard = res.data.acceptedStandard;
       that.side = res.data.side;
       that.Time = res.data.scheduleType;
+      for (var i = 0; i < res.data.device.length; i++) {
+        let searchdevice =
+          "http://47.102.214.37:8080/device/" + res.data.device[i].id;
+        axios.get(searchdevice).then((res) => {
+          that.deviceinfo.push({
+            deviceName: res.data.name,
+            deviceClazz: res.data.clazz,
+          });
+        });
+      }
     });
   },
   data() {
@@ -83,18 +96,9 @@ export default {
       standard: "", // 接受标准
       /* part2 */
       // 设备信息
-      deviceinfo: [
-        {
-          deviceName: "iPad Pro",
-          deviceClazz: "平板电脑",
-        },
-        {
-          deviceName: "iPad Pro",
-          deviceClazz: "平板电脑",
-        },
-      ],
+      deviceinfo: [],
       // 周期
-      Time: "Weekly",
+      Time: "",
       /* part3 */
       content: "", // 保养内容
       tools: "", // 保养工具及备件
@@ -123,7 +127,7 @@ export default {
     overflow: hidden;
     font-size: 16px;
     // border: 1px solid red;
-    padding: 10px 0 20px 0;
+    padding: 10px 0 10px 0;
     .el-breadcrumb__inner {
       font-weight: bold;
       margin-left: 10px;
@@ -140,13 +144,28 @@ export default {
     // height: 80%;
     // border: 1px solid red;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    .backbtn {
+      width: 85%;
+      .el-button {
+        display: flex;
+        align-self: flex-start;
+        background: #409eff;
+        color: #fff;
+        border: 0;
+        font-size: 15px;
+        padding: 8px 15px;
+      }
+    }
     .Task-info {
       width: 85%;
       background: #fff;
       border-radius: 15px;
       box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
       padding: 10px 20px;
+      margin-top: 10px;
       // border: 1px solid red;
       .Side-Standard {
         // border: 1px solid red;

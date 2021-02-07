@@ -10,12 +10,34 @@
         <div class="toggle-button" @click="toggleCollapse">
           <i class="iconfont icon-caidan1"></i>
         </div>
+        <el-popover
+          placement="bottom"
+          width="150"
+          trigger="hover"
+          v-if="user != ''"
+        >
+          <div class="userinfo">
+            <p style="font-weight:bold;font-size:16px">用户信息</p>
+            <div style=";padding:0 10px;margin-top:10px">
+              <div style="">用户ID：{{ userID }}</div>
+              <div class="userRole" style="margin-top:5px">
+                用户权限：<span
+                  style="background:#000;border-radius:5px;color:#fff;font-size:12px;font-weight:bolder;padding:2px 5px;"
+                  >{{ user }}</span
+                >
+              </div>
+            </div>
+          </div>
+          <i class="iconfont icon-login" slot="reference"></i>
+        </el-popover>
       </div>
       <div class="title">合为企业设备管理系统</div>
       <div class="hd-btns">
         <div class="nowtime">
-          <nowTime></nowTime>
-          <div class="am-pm" ref="timeTips">{{ timeTip }}</div>
+          <div class="timeinfo">
+            <nowTime></nowTime>
+            <div class="am-pm" ref="timeTips">{{ timeTip }}</div>
+          </div>
         </div>
       </div>
     </el-header>
@@ -61,11 +83,14 @@
 
 <script>
 import nowTime from "./Timer";
+import globaldata from "../GlobalData/globaldata";
 export default {
   data() {
     return {
       isCollapse: false,
       timeTip: "",
+      user: globaldata.role,
+      userID: globaldata.userID,
       menuList: [
         {
           id: 1,
@@ -216,6 +241,9 @@ export default {
   },
   created() {
     this.getMycount();
+    if (globaldata.role == "") {
+      console.log(globaldata.role);
+    }
   },
 };
 </script>
@@ -233,16 +261,18 @@ export default {
     background-color: #fff;
     box-shadow: 1px 0 14px 0 rgba(0, 0, 0, 0.04);
     border-bottom: 2px solid #f6f6f6;
-    padding: 0 20px;
+    padding: 0 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: #409eff;
     .logo-wrap {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       width: 260px;
+      padding-left: 10px;
+      // border: 1px solid red;
       .logo {
         display: flex;
         align-items: center;
@@ -253,6 +283,7 @@ export default {
       }
       .toggle-button {
         text-align: center;
+        // border: 1px solid red;
         cursor: pointer;
         margin-left: 35px;
         .iconfont {
@@ -266,28 +297,49 @@ export default {
           }
         }
       }
+      .icon-login {
+        color: #000;
+        font-size: 25px;
+        transition: 0.3s ease all;
+        margin-left: 30px;
+      }
+      .icon-login:hover {
+        color: #409eff;
+      }
     }
     .title {
       font-size: 36px;
       font-weight: bold;
-      //   border: 1px solid red;
+      // border: 1px solid red;
     }
     .nowtime {
       display: flex;
       justify-content: center;
+      align-items: center;
       width: 260px;
-      .nowDate {
-        font-size: 40px;
-        font-weight: bold;
-        color: #409eff;
+      // border: 1px solid red;
+      .icon {
+        color: #000;
+        margin-right: 30px;
+        width: 20px;
+        height: 20px;
       }
-      .am-pm {
-        color: #409eff;
-        font-size: 15px;
-        font-weight: bold;
-        position: relative;
-        top: 3px;
-        margin-left: 6px;
+      .timeinfo {
+        display: flex;
+        justify-content: center;
+        .nowDate {
+          font-size: 40px;
+          font-weight: bold;
+          color: #409eff;
+        }
+        .am-pm {
+          color: #409eff;
+          font-size: 15px;
+          font-weight: bold;
+          position: relative;
+          top: 3px;
+          margin-left: 6px;
+        }
       }
     }
   }
