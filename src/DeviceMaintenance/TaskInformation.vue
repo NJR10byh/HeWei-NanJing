@@ -70,12 +70,9 @@ export default {
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
               taskid = res.data.content[i].id;
-              for (var j = 0; j < res.data.content[i].device.length; j++) {
-                that.taskData.push({
-                  taskName: taskid,
-                  deviceid: res.data.content[i].device[j],
-                });
-              }
+              that.taskData.push({
+                taskName: taskid,
+              });
             }
           });
       }

@@ -3,10 +3,25 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active"
-        >任务编辑（ {{ taskid }} ）</el-breadcrumb-item
-      >
+      <el-breadcrumb-item class="active">任务编辑</el-breadcrumb-item>
     </el-breadcrumb>
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+      <div class="Cascader">
+        <p>选择需要维护的设备</p>
+        <el-cascader
+          placeholder="试试搜索：Apple"
+          :options="options"
+          filterable
+          clearable
+          @change="change"
+          style="width:80%;margin-top:10px"
+        ></el-cascader>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="Plus">确 定</el-button>
+      </div>
+    </el-dialog>
     <div class="Task-container">
       <div class="Task-box">
         <el-form ref="form" :model="TaskInfo" label-position="left">
@@ -99,32 +114,9 @@
 import axios from "axios";
 export default {
   name: "AddTaskInside",
-  created: function() {
-    let that = this;
-    console.log(that.$route.query);
-    // console.log(that.$route.query.device[0].id);
-    if (that.$route.query.devicename == undefined) {
-      let url =
-        "http://47.102.214.37:8080/device/" + that.$route.query.device[0].id;
-      axios.get(url).then((res) => {
-        that.TaskInfo.devicename = res.data.name;
-        that.TaskInfo.deviceclazz = res.data.clazz;
-      });
-      setTimeout(function() {
-        that.taskid = that.$route.query.id;
-        that.TaskInfo.side = that.$route.query.side;
-        that.TaskInfo.acceptedStandard = that.$route.query.acceptedStandard;
-        that.TaskInfo.scheduleType = that.$route.query.scheduleType;
-      }, 200);
-    } else {
-      that.taskid = that.$route.query.devicename;
-      that.TaskInfo.devicename = that.$route.query.devicename;
-      that.TaskInfo.deviceclazz = that.$route.query.deviceclazz;
-    }
-  },
+  created: function() {},
   data() {
     return {
-      taskid: "",
       TaskInfo: {},
       tasktime: [
         {
@@ -153,9 +145,35 @@ export default {
         },
       ],
       value: "",
+      dialogVisible: false, // 设备选择框
+      // 级联选择
+      options: [
+        {
+          value: "name",
+          label: "设备列表",
+          children: [],
+        },
+      ],
     };
   },
   methods: {
+    Plus() {
+      // unshift() 从堆顶加入元素
+      this.taskData.unshift({
+        devicename: this.devicename,
+        deviceclazz: this.deviceclazz,
+      });
+      this.dialogVisible = false;
+    },
+    change(res) {
+      let that = this;
+      this.devicename = res[1];
+      let url =
+        "http://47.102.214.37:8080/device/query?name==" + this.devicename;
+      axios.get(url).then((res) => {
+        that.deviceclazz = res.data.content[0].clazz;
+      });
+    },
     submittask() {
       let that = this;
       console.log(that.TaskInfo);

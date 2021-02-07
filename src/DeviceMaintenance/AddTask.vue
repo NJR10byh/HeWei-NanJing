@@ -4,7 +4,7 @@
       class="Container-AddTask"
       v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)"
     >
-      <div class="add" @click="dialogVisible = true">
+      <div class="add" @click="addNewTask">
         <div class="content">
           <h2 style="font-size:5em">+</h2>
         </div>
@@ -12,11 +12,9 @@
       <div class="card" v-for="(item, index) in taskData" :key="index">
         <div class="content">
           <h2>任务ID：{{ item.taskName }}</h2>
-          <p>设备名称: {{ item.devicename }}</p>
-          <p>设备类别: {{ item.deviceclazz }}</p>
           <div class="Btns">
             <el-button class="btn btn1" @click="showInfo(index)"
-              >进入编辑</el-button
+              >以此为模版编辑</el-button
             >
             <el-button class="btn btn2" @click="showInfo(index)"
               >删除任务</el-button
@@ -71,15 +69,8 @@ export default {
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
               taskid = res.data.content[i].id;
-              let url =
-                "http://47.102.214.37:8080/device/" +
-                res.data.content[i].device[0].id;
-              axios.get(url).then((res) => {
-                that.taskData.push({
-                  taskName: taskid,
-                  devicename: res.data.name,
-                  deviceclazz: res.data.clazz,
-                });
+              that.taskData.push({
+                taskName: taskid,
               });
             }
           });
@@ -117,6 +108,12 @@ export default {
           that.options[0].children.push(obj);
           // console.log(that.options[0]);
         }
+      });
+    },
+    //新建维护任务（不使用模版）
+    addNewTask() {
+      this.$router.push({
+        path: "/addTaskInside",
       });
     },
     change(res) {
@@ -201,8 +198,10 @@ export default {
           border-radius: 5px;
         }
         .btn2 {
+          width: 118px;
           margin: 10px 0 0 0;
           background: #f96b6c;
+          letter-spacing: 1px;
         }
       }
     }
