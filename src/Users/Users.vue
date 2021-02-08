@@ -39,6 +39,9 @@
           <div class="role">
             用户权限：<span>{{ userRole }}</span>
           </div>
+          <div class="role email">
+            用户邮箱：<span>{{ userEmail }}</span>
+          </div>
         </div>
       </div>
       <div
@@ -66,6 +69,7 @@ export default {
       this.userName = res.data.username;
       this.userID = res.data.id;
       this.userRole = res.data.role;
+      this.userEmail = res.data.email;
     });
   },
   data() {
@@ -73,6 +77,7 @@ export default {
       userRole: "",
       userName: "",
       userID: "",
+      userEmail: "",
     };
   },
   methods: {
@@ -153,6 +158,12 @@ export default {
             font-size: 12px;
             font-weight: bold;
             color: #fff;
+          }
+        }
+        .email {
+          span {
+            background: #409eff;
+            padding: 3px 8px;
           }
         }
       }

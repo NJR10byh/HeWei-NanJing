@@ -53,7 +53,7 @@ export default {
             }
           });
       }
-    }, 200);
+    }, 300);
   },
   data() {
     return {
@@ -129,8 +129,8 @@ export default {
   .card,
   .add {
     position: relative;
-    width: 250px;
-    height: 300px;
+    width: 230px;
+    height: 280px;
     border-radius: 20px;
     background: #fff;
     transform: scale(0.9);

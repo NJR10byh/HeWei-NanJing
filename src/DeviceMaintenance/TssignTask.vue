@@ -140,6 +140,12 @@ export default {
             console.log(URL);
             axios.post(URL).then((res) => {
               console.log(res);
+              if (res.status == 200) {
+                that.$message({
+                  message: "分配成功",
+                  type: "success",
+                });
+              }
             });
           }
         }

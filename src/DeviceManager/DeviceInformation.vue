@@ -207,8 +207,8 @@
 
 <script>
 import axios from "axios";
-import XLSX from "xlsx";
-import FileSaver from "file-saver";
+// import XLSX from "xlsx";
+// import FileSaver from "file-saver";
 export default {
   name: "DeviceInformation",
   components: {},
@@ -216,6 +216,7 @@ export default {
     return {
       dialogVisible: false, //对话框
       fileList: [], //上传文件列表
+      exporturl: "", // 导出URL
       userRole: "", //用户类型
       //选择框
       checkedDetail: [],
@@ -320,9 +321,10 @@ export default {
     },
     UpLoad(val) {
       let that = this;
-      console.log(val.file, val.filename);
+      console.log(val.file);
       let fd = new FormData();
       fd.append("file", val.file);
+      console.log(fd);
       axios.post("http://47.102.214.37:8080/device/import", fd).then((res) => {
         console.log(res);
         if (res.status == 200) {
@@ -351,6 +353,11 @@ export default {
         if (res.length == 1) {
           let url =
             "http://47.102.214.37:8080/device/query?" +
+            res[0][0] +
+            "==" +
+            res[0][1];
+          that.exporturl =
+            "http://47.102.214.37:8080/device/export?" +
             res[0][0] +
             "==" +
             res[0][1];
@@ -587,26 +594,50 @@ export default {
     },
     // 导出
     exportExcel() {
-      var xlsxParam = { raw: true }; //转换成excel时，使用原始的格式
-      var wb = XLSX.utils.table_to_book(
-        document.querySelector("#outTable"),
-        xlsxParam
-      ); //outTable为列表id
-      // console.log(wb.Sheets.Sheet1);
-      var wbout = XLSX.write(wb, {
-        bookType: "xlsx",
-        bookSST: true,
-        type: "array",
-      });
-      try {
-        FileSaver.saveAs(
-          new Blob([wbout], { type: "application/octet-stream;charset=utf-8" }),
-          "data.xlsx"
-        );
-      } catch (e) {
-        if (typeof console !== "undefined") console.log(e, wbout);
-      }
-      return wbout;
+      /* 前端导出 */
+      // var xlsxParam = { raw: true }; //转换成excel时，使用原始的格式
+      // var wb = XLSX.utils.table_to_book(
+      //   document.querySelector("#outTable"),
+      //   xlsxParam
+      // ); //outTable为列表id
+      // // console.log(wb.Sheets.Sheet1);
+      // var wbout = XLSX.write(wb, {
+      //   bookType: "xlsx",
+      //   bookSST: true,
+      //   type: "array",
+      // });
+      // try {
+      //   FileSaver.saveAs(
+      //     new Blob([wbout], { type: "application/octet-stream;charset=utf-8" }),
+      //     "data.xlsx"
+      //   );
+      // } catch (e) {
+      //   if (typeof console !== "undefined") console.log(e, wbout);
+      // }
+      // return wbout;
+      /* 后段导出 */
+      let that = this;
+      // console.log(that.exporturl);
+      axios
+        .get(that.exporturl, {
+          responseType: "blob", //二进制流
+        })
+        .then((res) => {
+          console.log(res);
+          if (!res) return;
+          let blob = new Blob([res.data], {
+            type: "application/vnd.ms-excel;charset=utf-8",
+          });
+          let url = window.URL.createObjectURL(blob);
+          let aLink = document.createElement("a");
+          aLink.style.display = "none";
+          aLink.href = url;
+          aLink.setAttribute("download", "data.xlsx");
+          document.body.appendChild(aLink);
+          aLink.click();
+          document.body.removeChild(aLink);
+          window.URL.revokeObjectURL(url);
+        });
     },
     // 批量删除
     delectAll() {
@@ -799,7 +830,6 @@ export default {
   created: function() {
     let that = this;
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
       that.userRole = res.data.role;
     });
     setTimeout(function() {
