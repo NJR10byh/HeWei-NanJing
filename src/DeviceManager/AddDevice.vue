@@ -1,6 +1,6 @@
 <template>
   <div style="width:100%;height:100%">
-    <div class="Main" v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)">
+    <div class="Main" v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)">
       <!-- 面包屑 -->
       <el-breadcrumb class="Breadcrumb">
         <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
@@ -196,11 +196,10 @@
 </template>
 <script>
 import axios from "axios";
-import globaldata from "../GlobalData/globaldata";
 export default {
   data() {
     return {
-      user: globaldata.role, //用户类型
+      userRole: "", //用户类型
       form: {},
       ExtraInfoDialog: {},
       formLabelWidth: "150px",
@@ -398,18 +397,12 @@ export default {
   },
   created: function() {
     let that = this;
-    // 判断用户类型
-    // let url = "http://47.102.214.37:8080/user/" + 1;
-    // axios.get(url).then((res) => {
-    //   that.user = res.data.role;
-    // });
-    // 加入定时器，避免异步导致的 Obserer
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+    });
     setTimeout(function() {
-      if (
-        that.user == "ROOT" ||
-        that.user == "ADMIN" ||
-        that.user == "CREATOR"
-      ) {
+      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
           console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {

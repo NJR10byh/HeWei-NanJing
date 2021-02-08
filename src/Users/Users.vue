@@ -13,7 +13,7 @@
           注册
         </div>
       </div>
-      <div class="module" @click="Login" v-if="[''].includes(userRole)">
+      <div class="module" v-if="[''].includes(userRole)">
         <div class="top">
           <img src="../assets/img/login.png" />
         </div>
@@ -57,27 +57,28 @@
   </div>
 </template>
 <script>
-import globaldata from "../GlobalData/globaldata";
+import axios from "axios";
+axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
   created: function() {
-    console.log(this.userName);
-    console.log(this.userRole);
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      this.userName = res.data.username;
+      this.userID = res.data.id;
+      this.userRole = res.data.role;
+    });
   },
   data() {
     return {
-      userRole: globaldata.role,
-      userName: globaldata.userName,
-      userID: globaldata.userID,
+      userRole: "",
+      userName: "",
+      userID: "",
     };
   },
   methods: {
     Register() {
       console.log("Register");
       this.$router.push({ path: "/register" });
-    },
-    Login() {
-      console.log("Login");
-      this.$router.push({ path: "/login" });
     },
     Authorize() {
       console.log("Authorize");

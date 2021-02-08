@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">任务编辑</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">新增模版</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-box">
@@ -17,26 +17,39 @@
                 filterable
                 clearable
                 @change="change"
-                style="width:160px"
+                style="width:180px"
                 v-model="TaskInfo.devicename"
               ></el-cascader>
             </el-form-item>
             <el-form-item label="保养周期" class="TaskTime">
-              每
-              <el-select
-                clearable
-                placeholder="请选择"
-                class="TaskTime-select"
-                v-model="TaskInfo.scheduleType"
-              >
-                <el-option
-                  v-for="item in tasktime"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+              <div class="TaskTime_exp">
+                每
+                <el-select
+                  clearable
+                  placeholder="请选择"
+                  class="TaskTime-select"
+                  v-model="TaskInfo.scheduleType"
                 >
-                </el-option>
-              </el-select>
+                  <el-option
+                    v-for="item in tasktime"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
+                <el-input
+                  v-model="TaskInfo.scheduleDay"
+                  class="TaskTime-input"
+                  placeholder="请填写每周几，每月几号，每季度第几月，每年第几天，只填写数字即可"
+                  type="number"
+                  v-if="
+                    ['Weekly', 'Monthly', 'Seasonally', 'Yearly'].includes(
+                      TaskInfo.scheduleType
+                    )
+                  "
+                ></el-input>
+              </div>
             </el-form-item>
           </div>
           <div class="part2">
@@ -83,9 +96,6 @@
             <div class="sub-btn">
               <el-button @click="submittask">保存</el-button>
             </div>
-            <div class="del-btn">
-              <el-button>删除</el-button>
-            </div>
           </div>
         </el-form>
       </div>
@@ -100,10 +110,31 @@ export default {
   created: function() {
     let that = this;
     that.JilianData();
+    if (this.$route.query.taskName != undefined) {
+      let url =
+        "http://47.102.214.37:8080/ops/schedule/detail/" +
+        this.$route.query.taskName;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.TaskInfo.scheduleType = res.data.scheduleType;
+        that.TaskInfo.scheduleDay = res.data.scheduleDay;
+        that.TaskInfo.side = res.data.side;
+        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+      });
+    }
   },
   data() {
     return {
-      TaskInfo: {},
+      TaskInfo: {
+        devicename: "",
+        scheduleType: "",
+        scheduleDay: "",
+        acceptedStandard: "",
+        side: "",
+        taskcontent: "",
+        tasktools: "",
+        attention: "",
+      },
       tasktime: [
         {
           value: "Predictability",
@@ -173,11 +204,18 @@ export default {
     },
     submittask() {
       let that = this;
+      console.log(that.TaskInfo);
       console.log(that.deviceid);
+      if (that.TaskInfo.scheduleType == "Weekly") {
+        if ([1, 2, 3, 4, 5, 6, 7].includes(that.TaskInfo.scheduleDay)) {
+          console.log("ok");
+        }
+      }
       axios
         .post("http://47.102.214.37:8080/ops/schedule", {
           acceptedStandard: that.TaskInfo.acceptedStandard,
           scheduleType: that.TaskInfo.scheduleType,
+          scheduleDay: that.TaskInfo.scheduleDay,
           side: that.TaskInfo.side,
           device: that.deviceid,
           manager: null,
@@ -185,12 +223,17 @@ export default {
           content: ["string1", "string2"],
           ops: null,
           remark: "string",
-          scheduleDay: 0,
           tools: ["string1", "string2"],
           parent: null,
         })
         .then((res) => {
           console.log(res);
+          if (res.data.message == "ok") {
+            this.$message({
+              message: "新建成功",
+              type: "success",
+            });
+          }
         });
     },
   },
@@ -248,6 +291,7 @@ export default {
           display: flex;
           justify-content: flex-start;
           width: 100%;
+          // border: 1px solid red;
         }
         .part2 {
           // border: 1px solid red;
@@ -284,9 +328,16 @@ export default {
           justify-content: center;
           align-self: flex-start;
           margin-left: 20px;
-          .TaskTime-select {
-            width: 100px;
-            margin-left: 10px;
+          .TaskTime_exp {
+            display: flex;
+            .TaskTime-select {
+              width: 100px;
+              margin-left: 10px;
+            }
+            .TaskTime-input {
+              width: 500px;
+              margin-left: 10px;
+            }
           }
         }
         // 下面俩按钮
@@ -294,26 +345,11 @@ export default {
           display: flex;
           margin-top: 20px;
           justify-content: space-between;
-          width: 180px;
           // border: 1px solid red;
           .sub-btn {
             .el-button {
               width: 80px;
               background: linear-gradient(-270deg, #6eb5fc, #409eff);
-              color: #fff;
-              border: 0;
-              padding: 10px;
-              font-size: 15px;
-              border-radius: 5px;
-              &:hover {
-                opacity: 0.9;
-              }
-            }
-          }
-          .del-btn {
-            .el-button {
-              width: 80px;
-              background: linear-gradient(-270deg, #fca4a4, #f96b6c);
               color: #fff;
               border: 0;
               padding: 10px;

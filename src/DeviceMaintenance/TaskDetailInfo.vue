@@ -13,24 +13,24 @@
       </div>
       <div class="Task-info">
         <div class="Side-Standard">
-          <div class="part1 Side">
+          <div class="part1 Side" style="width: 40%;">
             <div class="Text">保养部位</div>
             <div class="Info">{{ side }}</div>
           </div>
           <div class="part1 Standard">
-            <div class="Text" style="width:126px">接受标准</div>
+            <div class="Text">接受标准</div>
             <div class="Info">{{ standard }}</div>
           </div>
-          <div class="part1" style="margin-right: 20px;width:72px"></div>
+          <div class="part1" style="margin-right: 20px;"></div>
         </div>
         <div class="Name-Clazz-Time">
-          <div class="part2 Name">
+          <div class="part2 Name" style="width: 40%;">
             <div class="Text">设备名称</div>
             <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
               {{ item.deviceName }}
             </div>
           </div>
-          <div class="part2 Clazz">
+          <div class="part2 Clazz" style="width: 40%;">
             <div class="Text" style="width:126px">设备类别</div>
             <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
               {{ item.deviceClazz }}
@@ -38,15 +38,17 @@
           </div>
           <div class="part2 Time">
             <div class="Text">保养周期</div>
-            <div class="Info">{{ Time }}</div>
+            <div class="Info">
+              {{ Time }}<span>（每{{ Time_info }}）</span>
+            </div>
           </div>
         </div>
         <div class="Content-Tools-Attention">
-          <div class="part3 Content">
+          <div class="part3 Content" style="width: 40%;">
             <div class="Text">保养内容</div>
             <div class="Info">{{ content }}</div>
           </div>
-          <div class="part3 Tools">
+          <div class="part3 Tools" style="width: 40%;">
             <div class="Text">保养工具及备件</div>
             <div class="Info">{{ tools }}</div>
           </div>
@@ -76,6 +78,40 @@ export default {
       that.standard = res.data.acceptedStandard;
       that.side = res.data.side;
       that.Time = res.data.scheduleType;
+      if (that.Time == "Daily") {
+        that.Time_info = "天";
+      }
+      if (that.Time == "Weekly") {
+        switch (res.data.scheduleDay) {
+          case 1:
+            that.Time_info = "周一";
+            break;
+          case 2:
+            that.Time_info = "周二";
+            break;
+          case 3:
+            that.Time_info = "周三";
+            break;
+          case 4:
+            that.Time_info = "周四";
+            break;
+          case 5:
+            that.Time_info = "周五";
+            break;
+          case 6:
+            that.Time_info = "周六";
+            break;
+          case 7:
+            that.Time_info = "周日";
+            break;
+          default:
+            break;
+        }
+      } else if (that.Time == "Monthly") {
+        that.Time_info = "月" + res.data.scheduleDay + "号";
+      } else if (that.Time == "Yearly") {
+        that.Time_info = "年第" + res.data.scheduleDay + "天";
+      }
       for (var i = 0; i < res.data.device.length; i++) {
         let searchdevice =
           "http://47.102.214.37:8080/device/" + res.data.device[i].id;
@@ -99,6 +135,7 @@ export default {
       deviceinfo: [],
       // 周期
       Time: "",
+      Time_info: "a",
       /* part3 */
       content: "", // 保养内容
       tools: "", // 保养工具及备件
@@ -172,7 +209,7 @@ export default {
         border-bottom: 1px solid #ddd;
         padding-bottom: 10px;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         .part1 {
           display: flex;
           flex-direction: column;
@@ -196,7 +233,7 @@ export default {
         padding: 10px 0;
         border-bottom: 1px solid #ddd;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         .part2 {
           display: flex;
           flex-direction: column;
@@ -215,14 +252,11 @@ export default {
             font-weight: 400;
           }
         }
-        .Time {
-          margin-right: 20px;
-        }
       }
       .Content-Tools-Attention {
         padding-top: 10px;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         .part3 {
           display: flex;
           flex-direction: column;
@@ -240,9 +274,6 @@ export default {
             font-size: 14px;
             font-weight: 400;
           }
-        }
-        .Attention {
-          margin-right: 20px;
         }
       }
     }

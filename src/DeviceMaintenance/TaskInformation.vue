@@ -2,7 +2,7 @@
   <div style="width:100%;height:100%">
     <div
       class="Container-TaskInfomation"
-      v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(user)"
+      v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)"
     >
       <!-- 面包屑 -->
       <el-breadcrumb class="breadcrumb" separator="/">
@@ -28,13 +28,13 @@
 
 <script>
 import axios from "axios";
-import globaldata from "../GlobalData/globaldata";
 export default {
   name: "DeviceInformation",
   components: {},
   data() {
     return {
-      user: globaldata.role, //用户类型
+      userRole: "", //用户类型
+      userID: "",
       taskData: [],
     };
   },
@@ -50,36 +50,38 @@ export default {
   created() {
     let that = this;
     let taskid = "";
-    // 判断用户类型
-    // let url = "http://47.102.214.37:8080/user/" + 1;
-    // axios.get(url).then((res) => {
-    //   that.user = res.data.role;
-    // });
-    if (that.user == "ROOT" || that.user == "ADMIN") {
-      console.log(globaldata.userID);
-      axios
-        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-        .then((res) => {
-          for (var i = 0; i < res.data.content.length; i++) {
-            console.log(res.data.content[i]);
-            taskid = res.data.content[i].id;
-            that.taskData.push({
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+      that.userID = res.data.id;
+    });
+    setTimeout(function() {
+      if (["ROOT", "ADMIN"].includes(that.userRole)) {
+        axios
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              console.log(res.data.content[i]);
+              taskid = res.data.content[i].id;
+              that.taskData.push({
+                taskName: taskid,
+              });
+            }
+          });
+      } else if (that.userRole == "OPERATOR") {
+        let url = "http://47.102.214.37:8080/user/schedule/" + that.userID;
+        console.log(url);
+        axios.get(url).then((res) => {
+          for (var i = 0; i < res.data.length; i++) {
+            console.log(res.data[i]);
+            taskid = res.data[i].id;
+            that.taskData.unshift({
               taskName: taskid,
             });
           }
         });
-    } else if (that.user == "OPERATOR") {
-      let url = "http://47.102.214.37:8080/user/schedule/" + globaldata.userID;
-      axios.get(url).then((res) => {
-        for (var i = 0; i < res.data.length; i++) {
-          console.log(res.data[i]);
-          taskid = res.data[i].id;
-          that.taskData.push({
-            taskName: taskid,
-          });
-        }
-      });
-    }
+      }
+    }, 200);
   },
 };
 </script>

@@ -1,4 +1,4 @@
-var role = "";
+var role = "ROOT";
 var userID = "";
 var userName = "";
 

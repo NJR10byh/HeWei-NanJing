@@ -3,7 +3,6 @@ import VueRouter from "vue-router";
 /* 用户管理 */
 import Users from "@/Users/Users";
 import Register from "@/Users/Register"; // 注册
-import Login from "@/Users/Login"; // 登录
 import Authorize from "@/Users/Authorize"; // 授权
 /* 设备管理 */
 import AddDevice from "@/DeviceManager/AddDevice"; // 新增设备
@@ -17,6 +16,7 @@ import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信�
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 
+const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
 
 Vue.use(VueRouter);
@@ -24,7 +24,11 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "Home",
+    name: "Login",
+    component: LoginSystem,
+  },
+  {
+    path: "/",
     component: Home,
     redirect: "/users",
     children: [
@@ -36,10 +40,6 @@ const routes = [
       {
         path: "/register",
         component: Register,
-      },
-      {
-        path: "/login",
-        component: Login,
       },
       {
         path: "/authorize",

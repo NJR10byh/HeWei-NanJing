@@ -2,7 +2,7 @@
   <div style="width:100%;height:100%">
     <div
       class="Container-AddTask"
-      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)"
+      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
     >
       <div class="add" @click="addNewTask">
         <div class="content">
@@ -16,8 +16,8 @@
             <el-button class="btn btn1" @click="showInfo(index)"
               >以此为模版编辑</el-button
             >
-            <el-button class="btn btn2" @click="showInfo(index)"
-              >删除任务</el-button
+            <el-button class="btn btn2" @click="deleteTask(index)"
+              >删除模版</el-button
             >
           </div>
         </div>
@@ -29,26 +29,21 @@
 
 <script>
 import axios from "axios";
-import globaldata from "../GlobalData/globaldata";
 export default {
   name: "AddTask",
   created: function() {
     let that = this;
     let taskid = "";
-    // 判断用户类型
-    // let url = "http://47.102.214.37:8080/user/" + 1;
-    // axios.get(url).then((res) => {
-    //   that.user = res.data.role;
-    // });
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+    });
     setTimeout(function() {
-      if (
-        that.user == "ROOT" ||
-        that.user == "ADMIN" ||
-        that.user == "CREATOR"
-      ) {
+      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
           .then((res) => {
+            console.log(res);
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
               taskid = res.data.content[i].id;
@@ -62,7 +57,7 @@ export default {
   },
   data() {
     return {
-      user: globaldata.role, //用户类型
+      userRole: "", //用户类型
       dialogVisible: false,
       devicename: "",
       deviceclazz: "",
@@ -77,11 +72,41 @@ export default {
       });
     },
     showInfo(index) {
-      console.log(index);
       this.$router.push({
         path: "/addTaskInside",
         query: this.taskData[index],
       });
+    },
+    deleteTask(index) {
+      let that = this;
+      console.log(that.taskData[index]);
+      that
+        .$confirm(
+          "这个是模版，所有继承它的维护任务也会被删除, \n是否确定?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
+        )
+        .then(() => {
+          let url =
+            "http://47.102.214.37:8080/ops/schedule/" +
+            that.taskData[index].taskName;
+          axios.delete(url).then((res) => {
+            if (res.status == 200) {
+              that.taskData.splice(index, 1);
+              this.$message({
+                message: "删除成功",
+                type: "success",
+              });
+            }
+          });
+        })
+        .catch(() => {
+          that.$message.info("已取消删除");
+        });
     },
   },
 };

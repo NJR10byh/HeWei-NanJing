@@ -2,7 +2,7 @@
   <div style="width:100%;height:100%;">
     <div
       class="Container-TssignTask"
-      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(user)"
+      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
     >
       <div style="padding-bottom:20px;width:100%;">
         <!-- 面包屑 -->
@@ -48,40 +48,46 @@
 
 <script>
 import axios from "axios";
-import globaldata from "../GlobalData/globaldata";
 export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
-    if (["ROOT", "ADMIN", "CREATOR"].includes(that.user)) {
-      // 获取全部任务
-      axios
-        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
-        .then((res) => {
-          for (var i = 0; i < res.data.content.length; i++) {
-            // console.log(res.data.content[i].device[0]);
-            that.data1.push({
-              key: res.data.content[i].id,
-            });
-          }
-        });
-      // 获取全部 OPERATOR 员工
-      axios
-        .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-        .then((res) => {
-          for (var i = 0; i < res.data.content.length; i++) {
-            res.data.content[i];
-            that.data2.push({
-              lable: res.data.content[i].username,
-              key: res.data.content[i].username,
-            });
-          }
-        });
-    }
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+      that.userID = res.data.id;
+    });
+    setTimeout(function() {
+      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+        // 获取全部任务
+        axios
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              // console.log(res.data.content[i].device[0]);
+              that.data1.push({
+                key: res.data.content[i].id,
+              });
+            }
+          });
+        // 获取全部 OPERATOR 员工
+        axios
+          .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              res.data.content[i];
+              that.data2.push({
+                lable: res.data.content[i].username,
+                key: res.data.content[i].username,
+              });
+            }
+          });
+      }
+    }, 200);
   },
   data() {
     return {
-      user: globaldata.role, //用户类型
+      userRole: "", //用户类型
       // 选择框 1
       data1: [],
       value1: [],
@@ -132,9 +138,9 @@ export default {
               "?scheduleId=" +
               that.selectedTaskid[b];
             console.log(URL);
-            // axios.post(URL).then((res) => {
-            //   console.log(res);
-            // });
+            axios.post(URL).then((res) => {
+              console.log(res);
+            });
           }
         }
       }, 200);

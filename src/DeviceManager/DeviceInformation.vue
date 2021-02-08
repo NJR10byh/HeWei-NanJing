@@ -1,6 +1,6 @@
 <template>
   <div style="width:100%;height:100%">
-    <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(user)">
+    <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)">
       <!-- 面包屑 -->
       <el-breadcrumb class="breadcrumb-top" separator="/">
         <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
@@ -21,18 +21,15 @@
                 style="width:160px"
               ></el-cascader>
             </div>
-            <div class="refresh">
-              <el-button icon="el-icon-refresh" @click="refreshDevice"
-                >刷新列表
-              </el-button>
-            </div>
             <div class="getall refresh">
               <el-button icon="el-icon-document-copy" @click="getAllDevice"
                 >获取全部设备
               </el-button>
             </div>
             <div class="import refresh">
-              <el-button icon="el-icon-upload2">导入 </el-button>
+              <el-button icon="el-icon-upload2" @click="dialogVisible = true"
+                >导入
+              </el-button>
             </div>
             <div class="export refresh">
               <el-button icon="el-icon-download" @click="exportExcel"
@@ -51,6 +48,37 @@
               >清空</el-button
             >
           </div>
+          <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
+            <div
+              style="display:flex;flex-direction: column;justify-content: center;align-items: center"
+            >
+              <el-upload
+                ref="upload"
+                drag
+                action="http://47.102.214.37:8080/device/import"
+                multiple
+                :http-request="UpLoad"
+                :auto-upload="false"
+                accept=".xlsx"
+                :on-preview="handlePreview"
+              >
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">
+                  将文件拖到此处，或<em>点击上传</em>
+                </div>
+                <div class="el-upload__tip" slot="tip">
+                  只能上传 xlsx 文件
+                </div>
+              </el-upload>
+              <div style="margin-top: 10px;">
+                <el-button
+                  style="border: 0;background:#409eff;color:#fff;font-weight:bold;"
+                  @click="submitUpload"
+                  >确认上传</el-button
+                >
+              </div>
+            </div>
+          </el-dialog>
         </div>
         <!-- table -->
         <el-table
@@ -171,7 +199,9 @@
         </div>
       </el-main>
     </div>
-    <div class="nopower" v-else>无权限</div>
+    <div class="nopower" v-else>
+      无权限
+    </div>
   </div>
 </template>
 
@@ -179,13 +209,14 @@
 import axios from "axios";
 import XLSX from "xlsx";
 import FileSaver from "file-saver";
-import globaldata from "../GlobalData/globaldata";
 export default {
   name: "DeviceInformation",
   components: {},
   data() {
     return {
-      user: globaldata.role, //用户类型
+      dialogVisible: false, //对话框
+      fileList: [], //上传文件列表
+      userRole: "", //用户类型
       //选择框
       checkedDetail: [],
       // 可选表头数据
@@ -282,6 +313,32 @@ export default {
           that.options[3].children.push(obj);
         }
       });
+    },
+    // 上传
+    handlePreview(file, fileList) {
+      console.log(file, fileList);
+    },
+    UpLoad(val) {
+      let that = this;
+      console.log(val.file, val.filename);
+      let fd = new FormData();
+      fd.append("file", val.file);
+      axios.post("http://47.102.214.37:8080/device/import", fd).then((res) => {
+        console.log(res);
+        if (res.status == 200) {
+          that.dialogVisible = false;
+          that.$message({
+            message: "上传成功",
+            type: "success",
+          });
+          setTimeout(function() {
+            that.getAllDevice();
+          }, 200);
+        }
+      });
+    },
+    submitUpload() {
+      this.$refs.upload.submit();
     },
     // 搜索类别
     change(res) {
@@ -487,46 +544,6 @@ export default {
         }
       }, 300);
     },
-    // 刷新
-    refreshDevice() {
-      let that = this;
-      axios({
-        method: "GET",
-        url: "http://47.102.214.37:8080/device?page=0&size=10",
-      })
-        .then((res) => {
-          that.tableData = [];
-          that.currentPage = 1;
-          for (var i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.name = res.data.content[i].name;
-            obj["brand"] = res.data.content[i].brand;
-            obj.type = res.data.content[i].type;
-            obj.deviceNo = res.data.content[i].deviceNo;
-            if (res.data.content[i].extra.length != 0) {
-              for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                obj[res.data.content[i].extra[j].field.id] =
-                  res.data.content[i].extra[j].value;
-              }
-            }
-            if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
-            } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
-            }
-            obj.clazz = res.data.content[i].clazz;
-            that.tableData.push(obj);
-          }
-          this.$message({
-            message: "设备信息已更新",
-            type: "success",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
     // 获取全部全部信息
     getAllDevice() {
       let that = this;
@@ -614,14 +631,14 @@ export default {
                     "http://47.102.214.37:8080/device/" + that.tableData[i].id;
                   // console.log(url);
                   axios.delete(url).then((res) => {
-                    if (res.data.message == "ok") {
-                      // that.tableData.splice(i, 1);
-                      that.refreshDevice();
-                    }
+                    console.log(res);
                   });
                 }
               });
             });
+            setTimeout(function() {
+              that.getAllDevice();
+            }, 200);
           })
           .catch(() => {
             this.$message({
@@ -695,7 +712,7 @@ export default {
             "http://47.102.214.37:8080/device/" + that.tableData[index].id;
           axios.delete(url).then((res) => {
             if (res.data.message == "ok") {
-              this.refreshDevice();
+              this.getAllDevice();
             }
           });
         })
@@ -781,17 +798,12 @@ export default {
   },
   created: function() {
     let that = this;
-    // 判断用户类型
-    // let url = "http://47.102.214.37:8080/user/" + 1;
-    // axios.get(url).then((res) => {
-    //   that.user = res.data.role;
-    // });
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+    });
     setTimeout(function() {
-      if (
-        that.user == "ROOT" ||
-        that.user == "ADMIN" ||
-        that.user == "OPERATOR"
-      ) {
+      if (["ROOT", "ADMIN", "OPERATOR"].includes(that.userRole)) {
         that.JilianData();
         // 获取所有附加字段
         axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
