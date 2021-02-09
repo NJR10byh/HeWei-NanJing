@@ -13,6 +13,10 @@
       </div>
       <div class="Task-info">
         <div class="Side-Standard">
+          <div class="part1" style="width: 40%;">
+            <div class="Text">任务名称</div>
+            <div class="Info">{{ taskname }}</div>
+          </div>
           <div class="part1 Side" style="width: 40%;">
             <div class="Text">保养部位</div>
             <div class="Info">{{ side }}</div>
@@ -21,7 +25,6 @@
             <div class="Text">接受标准</div>
             <div class="Info">{{ standard }}</div>
           </div>
-          <div class="part1" style="margin-right: 20px;"></div>
         </div>
         <div class="Name-Clazz-Time">
           <div class="part2 Name" style="width: 40%;">
@@ -31,7 +34,7 @@
             </div>
           </div>
           <div class="part2 Clazz" style="width: 40%;">
-            <div class="Text" style="width:126px">设备类别</div>
+            <div class="Text">设备类别</div>
             <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
               {{ item.deviceClazz }}
             </div>
@@ -46,11 +49,15 @@
         <div class="Content-Tools-Attention">
           <div class="part3 Content" style="width: 40%;">
             <div class="Text">保养内容</div>
-            <div class="Info">{{ content }}</div>
+            <div class="Info" v-for="(item, index) in content" :key="index">
+              {{ item.contentinfo }}
+            </div>
           </div>
           <div class="part3 Tools" style="width: 40%;">
             <div class="Text">保养工具及备件</div>
-            <div class="Info">{{ tools }}</div>
+            <div class="Info" v-for="(item, index) in tools" :key="index">
+              {{ item.toolsinfo }}
+            </div>
           </div>
           <div class="part3 Attention">
             <div class="Text">注意事项</div>
@@ -75,9 +82,11 @@ export default {
       that.$route.query.taskName;
     axios.get(url).then((res) => {
       console.log(res.data);
+      that.taskname = res.data.name;
       that.standard = res.data.acceptedStandard;
       that.side = res.data.side;
       that.Time = res.data.scheduleType;
+      that.attention = res.data.remark;
       if (that.Time == "Daily") {
         that.Time_info = "天";
       }
@@ -122,12 +131,23 @@ export default {
           });
         });
       }
+      for (var j = 0; j < res.data.content.length; j++) {
+        that.content.push({
+          contentinfo: res.data.content[j],
+        });
+      }
+      for (var k = 0; k < res.data.tools.length; k++) {
+        that.tools.push({
+          toolsinfo: res.data.tools[k],
+        });
+      }
     });
   },
   data() {
     return {
       taskid: "", //任务ID
       /* part1 */
+      taskname: "", // 任务名称
       side: "", // 保养部位
       standard: "", // 接受标准
       /* part2 */
@@ -137,8 +157,8 @@ export default {
       Time: "",
       Time_info: "a",
       /* part3 */
-      content: "", // 保养内容
-      tools: "", // 保养工具及备件
+      content: [], // 保养内容
+      tools: [], // 保养工具及备件
       attention: "", // 注意事项
     };
   },

@@ -38,23 +38,29 @@ export default {
         username: that.username,
         password: that.password,
       });
-      axios.post("http://47.102.214.37:8080/login", params).then((res) => {
-        console.log(res);
-        if (res.status == 200) {
-          console.log(res.data);
-          localStorage.setItem("token", res.data);
-          this.$message({
-            message: "登录成功",
-            type: "success",
-          });
-          this.$router.push("./users");
-        } else {
-          this.$message({
-            message: "登录失败",
-            type: "error",
-          });
-        }
-      });
+      axios
+        .post("http://47.102.214.37:8080/login", params, {
+          headers: {
+            Authorization: "token",
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          if (res.status == 200) {
+            console.log(res.data);
+            localStorage.setItem("token", res.data);
+            this.$message({
+              message: "登录成功",
+              type: "success",
+            });
+            this.$router.push("./users");
+          } else {
+            this.$message({
+              message: "登录失败",
+              type: "error",
+            });
+          }
+        });
     },
   },
 };

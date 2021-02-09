@@ -53,13 +53,19 @@
             </el-form-item>
           </div>
           <div class="part2">
-            <el-form-item label="保养部位" style="width:48%">
+            <el-form-item label="任务名称" style="width:32%">
+              <el-input
+                v-model="TaskInfo.taskname"
+                placeholder="请输入任务名称"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="保养部位" style="width:32%">
               <el-input
                 v-model="TaskInfo.side"
                 placeholder="请输入保养部位"
               ></el-input>
             </el-form-item>
-            <el-form-item label="接受标准" style="width:48%">
+            <el-form-item label="接受标准" style="width:32%">
               <el-input
                 v-model="TaskInfo.acceptedStandard"
                 placeholder="请输入接受标准"
@@ -116,24 +122,22 @@ export default {
         this.$route.query.taskName;
       axios.get(url).then((res) => {
         console.log(res.data);
+        console.log(res.data.content.join("<br/>"));
         that.TaskInfo.scheduleType = res.data.scheduleType;
         that.TaskInfo.scheduleDay = res.data.scheduleDay;
+        that.TaskInfo.taskname = res.data.name;
         that.TaskInfo.side = res.data.side;
         that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+        that.TaskInfo.taskcontent = res.data.content.join("\n");
+        that.TaskInfo.tasktools = res.data.tools.join("\n");
+        that.TaskInfo.attention = res.data.remark;
       });
     }
   },
   data() {
     return {
       TaskInfo: {
-        devicename: "",
-        scheduleType: "",
-        scheduleDay: "",
-        acceptedStandard: "",
         side: "",
-        taskcontent: "",
-        tasktools: "",
-        attention: "",
       },
       tasktime: [
         {
@@ -204,8 +208,11 @@ export default {
     },
     submittask() {
       let that = this;
+      let taskContent = that.preText(that.TaskInfo.taskcontent).split(",");
+      let taskTools = that.preText(that.TaskInfo.tasktools).split(",");
       console.log(that.TaskInfo);
-      console.log(that.deviceid);
+      console.log(taskContent);
+      console.log(taskTools);
       if (that.TaskInfo.scheduleType == "Weekly") {
         if ([1, 2, 3, 4, 5, 6, 7].includes(that.TaskInfo.scheduleDay)) {
           console.log("ok");
@@ -214,16 +221,16 @@ export default {
       axios
         .post("http://47.102.214.37:8080/ops/schedule", {
           acceptedStandard: that.TaskInfo.acceptedStandard,
+          name: that.TaskInfo.taskname,
           scheduleType: that.TaskInfo.scheduleType,
           scheduleDay: that.TaskInfo.scheduleDay,
           side: that.TaskInfo.side,
           device: that.deviceid,
           manager: null,
-          name: "string",
-          content: ["string1", "string2"],
+          content: taskContent,
           ops: null,
-          remark: "string",
-          tools: ["string1", "string2"],
+          remark: that.TaskInfo.attention,
+          tools: taskTools,
           parent: null,
         })
         .then((res) => {
@@ -235,6 +242,10 @@ export default {
             });
           }
         });
+    },
+    // 多行文本域内容逐行获取
+    preText(pretext) {
+      return pretext.replace(/\r\n/g, ",").replace(/\n/g, ",");
     },
   },
 };
