@@ -11,7 +11,7 @@
       </div>
       <div class="card" v-for="(item, index) in taskData" :key="index">
         <div class="content">
-          <h2>任务ID：{{ item.taskName }}</h2>
+          <h2>{{ item.taskname }}</h2>
           <div class="Btns">
             <el-button class="btn btn1" @click="showInfo(index)"
               >以此为模版编辑</el-button
@@ -33,7 +33,6 @@ export default {
   name: "AddTask",
   created: function() {
     let that = this;
-    let taskid = "";
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       that.userRole = res.data.role;
@@ -46,9 +45,9 @@ export default {
             console.log(res);
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
-              taskid = res.data.content[i].id;
               that.taskData.push({
-                taskName: taskid,
+                taskID: res.data.content[i].id,
+                taskname: res.data.content[i].name,
               });
             }
           });
@@ -93,7 +92,7 @@ export default {
         .then(() => {
           let url =
             "http://47.102.214.37:8080/ops/schedule/" +
-            that.taskData[index].taskName;
+            that.taskData[index].taskID;
           axios.delete(url).then((res) => {
             if (res.status == 200) {
               that.taskData.splice(index, 1);

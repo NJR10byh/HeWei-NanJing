@@ -4,7 +4,7 @@
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active"
-        >任务ID：{{ taskid }}
+        >任务名称：{{ taskname }}
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
@@ -76,10 +76,10 @@ export default {
   created: function() {
     let that = this;
     console.log(that.$route.query);
-    that.taskid = that.$route.query.taskName;
+    that.taskid = that.$route.query.taskID;
     let url =
       "http://47.102.214.37:8080/ops/schedule/detail/" +
-      that.$route.query.taskName;
+      that.$route.query.taskID;
     axios.get(url).then((res) => {
       console.log(res.data);
       that.taskname = res.data.name;

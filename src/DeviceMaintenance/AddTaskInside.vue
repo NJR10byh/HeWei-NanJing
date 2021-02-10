@@ -100,7 +100,10 @@
           </div>
           <div class="Btns">
             <div class="sub-btn">
-              <el-button @click="submittask">保存</el-button>
+              <el-button @click="submittask">保存并提交</el-button>
+            </div>
+            <div class="cancel-btn">
+              <el-button @click="cancel">取消</el-button>
             </div>
           </div>
         </el-form>
@@ -116,10 +119,10 @@ export default {
   created: function() {
     let that = this;
     that.JilianData();
-    if (this.$route.query.taskName != undefined) {
+    if (this.$route.query.taskID != undefined) {
       let url =
         "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskName;
+        this.$route.query.taskID;
       axios.get(url).then((res) => {
         console.log(res.data);
         console.log(res.data.content.join("<br/>"));
@@ -206,6 +209,7 @@ export default {
         });
       }
     },
+    // 保存编辑并提交
     submittask() {
       let that = this;
       let taskContent = that.preText(that.TaskInfo.taskcontent).split(",");
@@ -242,6 +246,12 @@ export default {
             });
           }
         });
+    },
+    // 取消编辑
+    cancel() {
+      this.$router.push({
+        path: "/addTask",
+      });
     },
     // 多行文本域内容逐行获取
     preText(pretext) {
@@ -357,10 +367,25 @@ export default {
           margin-top: 20px;
           justify-content: space-between;
           // border: 1px solid red;
+          width: 180px;
           .sub-btn {
             .el-button {
-              width: 80px;
+              // width: 80px;
               background: linear-gradient(-270deg, #6eb5fc, #409eff);
+              color: #fff;
+              border: 0;
+              padding: 10px;
+              font-size: 15px;
+              border-radius: 5px;
+              &:hover {
+                opacity: 0.9;
+              }
+            }
+          }
+          .cancel-btn {
+            .el-button {
+              width: 70px;
+              background: linear-gradient(-270deg, #fc9494, #f96b6c);
               color: #fff;
               border: 0;
               padding: 10px;
