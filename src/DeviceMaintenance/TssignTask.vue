@@ -64,10 +64,11 @@ export default {
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i].device[0]);
-              that.data1.push({
-                key: res.data.content[i].id,
-              });
+              let obj = {};
+              // console.log(res.data.content[i]);
+              obj.key = res.data.content[i].id;
+              obj.label = res.data.content[i].name;
+              that.data1.push(obj);
             }
           });
         // 获取全部 OPERATOR 员工
@@ -75,11 +76,11 @@ export default {
           .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
-              res.data.content[i];
-              that.data2.push({
-                lable: res.data.content[i].username,
-                key: res.data.content[i].username,
-              });
+              // console.log(res.data.content[i]);
+              let obj = {};
+              obj.key = res.data.content[i].id;
+              obj.label = res.data.content[i].username;
+              that.data2.push(obj);
             }
           });
       }
@@ -91,65 +92,53 @@ export default {
       // 选择框 1
       data1: [],
       value1: [],
-      titles1: ["任务 ID", "已选择任务"],
+      titles1: ["任务名称", "已选择任务"],
       // 选择框 2
       data2: [],
       value2: [],
       titles2: ["人员列表", "已选择人员"],
       selectedTaskid: [],
-      selectedUsername: [],
       selectedUserid: [],
     };
   },
   methods: {
     change1(res) {
       let that = this;
-      console.log(res.length);
+      console.log(res);
       for (var i = 0; i < res.length; i++) {
         that.selectedTaskid.push(res[i]);
       }
     },
     change2(res) {
       let that = this;
-      console.log(res.length);
+      console.log(res);
       for (var i = 0; i < res.length; i++) {
-        that.selectedUsername.push(res[i]);
+        that.selectedUserid.push(res[i]);
       }
     },
     SubTssign() {
       let that = this;
       console.log(that.selectedTaskid);
-      console.log(that.selectedUsername);
-      for (var i = 0; i < that.selectedUsername.length; i++) {
-        let url =
-          "http://47.102.214.37:8080/user/query?username==" +
-          that.selectedUsername[i];
-        axios.get(url).then((res) => {
-          that.selectedUserid.push(res.data.content[0].id);
-        });
-      }
-      setTimeout(function() {
-        console.log(that.selectedUserid);
-        for (var a = 0; a < that.selectedUserid.length; a++) {
-          for (var b = 0; b < that.selectedTaskid.length; b++) {
-            let URL =
-              "http://47.102.214.37:8080/user/schedule/" +
-              that.selectedUserid[a] +
-              "?scheduleId=" +
-              that.selectedTaskid[b];
-            console.log(URL);
-            axios.post(URL).then((res) => {
-              console.log(res);
-              if (res.status == 200) {
-                that.$message({
-                  message: "分配成功",
-                  type: "success",
-                });
-              }
-            });
-          }
+      console.log(that.selectedUserid);
+      for (var a = 0; a < that.selectedUserid.length; a++) {
+        for (var b = 0; b < that.selectedTaskid.length; b++) {
+          let URL =
+            "http://47.102.214.37:8080/user/schedule/" +
+            that.selectedUserid[a] +
+            "?scheduleId=" +
+            that.selectedTaskid[b];
+          // console.log(URL);
+          axios.post(URL).then((res) => {
+            console.log(res);
+            if (res.status == 200) {
+              that.$message({
+                message: "分配成功",
+                type: "success",
+              });
+            }
+          });
         }
-      }, 200);
+      }
     },
   },
 };

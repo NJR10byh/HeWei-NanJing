@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import Users from "@/Users/Users";
 import Register from "@/Users/Register"; // 注册
 import Authorize from "@/Users/Authorize"; // 授权
+import Edituser from "@/Users/Edituser"; // 编辑用户信息
 /* 设备管理 */
 import AddDevice from "@/DeviceManager/AddDevice"; // 新增设备
 import DeviceInformation from "@/DeviceManager/DeviceInformation"; // 设备信息
@@ -37,13 +38,20 @@ const routes = [
         path: "/users",
         component: Users,
       },
+      // 注册用户
       {
         path: "/register",
         component: Register,
       },
+      // 授权用户
       {
         path: "/authorize",
         component: Authorize,
+      },
+      // 编辑用户信息
+      {
+        path: "/edituser",
+        component: Edituser,
       },
       /* 设备管理 */
       // 新增设备

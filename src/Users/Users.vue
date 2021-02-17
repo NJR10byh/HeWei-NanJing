@@ -13,18 +13,11 @@
           注册
         </div>
       </div>
-      <div class="module" v-if="[''].includes(userRole)">
-        <div class="top">
-          <img src="../assets/img/login.png" />
-        </div>
-        <div class="bottom">
-          登录
-        </div>
-      </div>
       <div
         class="module"
-        style="cursor: default;"
+        style="cursor: pointer;"
         v-if="['ROOT', 'ADMIN', 'CREATOR', 'OPERATOR'].includes(userRole)"
+        @click="Edituser"
       >
         <div class="top">
           <img src="../assets/img/login-success.png" />
@@ -66,6 +59,11 @@ export default {
   created: function() {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
+      // this.uesrInfo.push(res.data.username);
+      // this.uesrInfo.push(res.data.id);
+      // this.uesrInfo.push(res.data.role);
+      // this.uesrInfo.push(res.data.email);
+      this.uesrInfo = res.data;
       this.userName = res.data.username;
       this.userID = res.data.id;
       this.userRole = res.data.role;
@@ -78,16 +76,25 @@ export default {
       userName: "",
       userID: "",
       userEmail: "",
+      uesrInfo: {},
     };
   },
   methods: {
+    // 注册用户
     Register() {
       console.log("Register");
       this.$router.push({ path: "/register" });
     },
+    // 授权用户
     Authorize() {
       console.log("Authorize");
       this.$router.push({ path: "/authorize" });
+    },
+    // 编辑用户信息
+    Edituser() {
+      console.log("Edituser");
+      let that = this;
+      this.$router.push({ path: "/edituser", query: that.uesrInfo });
     },
   },
 };
