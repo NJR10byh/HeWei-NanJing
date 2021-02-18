@@ -1,48 +1,55 @@
 <template>
-  <div style="width:100%;height:100%;">
-    <div
-      class="Container-TssignTask"
-      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
-    >
-      <div style="padding-bottom:20px;width:100%;">
-        <!-- 面包屑 -->
-        <el-breadcrumb class="Breadcrumb">
-          <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-          <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
-        </el-breadcrumb>
+  <div
+    class="Container-TssignTask"
+    v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
+  >
+    <div style="padding-bottom:20px;width:100%;">
+      <!-- 面包屑 -->
+      <el-breadcrumb class="Breadcrumb">
+        <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
+        <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="chuansuo">
+      <div class="kuang">
+        <el-transfer
+          filterable
+          v-model="value1"
+          :data="data1"
+          :titles="titles1"
+          @change="change1"
+        >
+        </el-transfer>
       </div>
-      <div class="chuansuo">
-        <div class="kuang">
-          <el-transfer
-            filterable
-            v-model="value1"
-            :data="data1"
-            :titles="titles1"
-            @change="change1"
-          >
-          </el-transfer>
+      <div class="kuang kuang2">
+        <el-transfer
+          filterable
+          v-model="value2"
+          :data="data2"
+          :titles="titles2"
+          @change="change2"
+        >
+        </el-transfer>
+      </div>
+      <div class="kuang kuang3">
+        <el-transfer
+          filterable
+          v-model="value3"
+          :data="data3"
+          :titles="titles3"
+          @change="change3"
+        >
+        </el-transfer>
+      </div>
+      <div class="Btns">
+        <div class="sub-btn">
+          <el-button @click="SubTssign">保存</el-button>
         </div>
-        <div class="kuang kuang2">
-          <el-transfer
-            filterable
-            v-model="value2"
-            :data="data2"
-            :titles="titles2"
-            @change="change2"
-          >
-          </el-transfer>
-        </div>
-        <div class="Btns">
-          <div class="sub-btn">
-            <el-button @click="SubTssign">保存</el-button>
-          </div>
-          <div class="del-btn">
-            <el-button>删除</el-button>
-          </div>
+        <div class="del-btn">
+          <el-button>删除</el-button>
         </div>
       </div>
     </div>
-    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 
@@ -83,6 +90,16 @@ export default {
               that.data2.push(obj);
             }
           });
+        // 获取全部设备
+        axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
+          // console.log(res);
+          for (var i = 0; i < res.data.length; i++) {
+            let obj = {};
+            obj.key = i;
+            obj.label = res.data[i];
+            that.data3.push(obj);
+          }
+        });
       }
     }, 200);
   },
@@ -97,8 +114,13 @@ export default {
       data2: [],
       value2: [],
       titles2: ["人员列表", "已选择人员"],
+      // 选择框 3
+      data3: [],
+      value3: [],
+      titles3: ["设备列表", "已选择设备"],
       selectedTaskid: [],
       selectedUserid: [],
+      selectedDeviceid: [],
     };
   },
   methods: {
@@ -114,6 +136,13 @@ export default {
       console.log(res);
       for (var i = 0; i < res.length; i++) {
         that.selectedUserid.push(res[i]);
+      }
+    },
+    change3(res) {
+      let that = this;
+      console.log(res);
+      for (var i = 0; i < res.length; i++) {
+        that.selectedDeviceid.push(res[i]);
       }
     },
     SubTssign() {
@@ -182,6 +211,9 @@ export default {
       width: 600px;
     }
     .kuang2 {
+      margin-top: 10px;
+    }
+    .kuang3 {
       margin-top: 10px;
     }
   }

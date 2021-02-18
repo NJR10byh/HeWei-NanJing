@@ -1,197 +1,188 @@
 <template>
-  <div style="width:100%;height:100%">
-    <div class="Main" v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)">
-      <!-- 面包屑 -->
-      <el-breadcrumb class="Breadcrumb">
-        <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
-        <el-breadcrumb-item class="right">新增设备</el-breadcrumb-item>
-      </el-breadcrumb>
-      <div class="AddDeviceInfo">
-        <div class="BaseInfo">
-          <div class="BaseInfoText">基本信息</div>
-          <div class="BaseInfoTable">
-            <el-form
-              :model="form"
-              ref="form"
-              label-position="left"
-              :rules="rules"
+  <div class="Main" v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)">
+    <!-- 面包屑 -->
+    <el-breadcrumb class="Breadcrumb">
+      <el-breadcrumb-item class="left">设备管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="right">新增设备</el-breadcrumb-item>
+    </el-breadcrumb>
+    <div class="AddDeviceInfo">
+      <div class="BaseInfo">
+        <div class="BaseInfoText">基本信息</div>
+        <div class="BaseInfoTable">
+          <el-form
+            :model="form"
+            ref="form"
+            label-position="left"
+            :rules="rules"
+          >
+            <el-form-item
+              label="设备名称: "
+              :label-width="formLabelWidth"
+              prop="name"
             >
-              <el-form-item
-                label="设备名称: "
-                :label-width="formLabelWidth"
-                prop="name"
-              >
-                <el-input
-                  v-model="form.name"
-                  placeholder="请输入设备名称"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="设备品牌: "
-                :label-width="formLabelWidth"
-                prop="brand"
-              >
-                <el-input
-                  v-model="form.brand"
-                  autocomplete="off"
-                  placeholder="请输入设备品牌"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="设备型号/规格: "
-                :label-width="formLabelWidth"
-                prop="type"
-              >
-                <el-input
-                  v-model="form.type"
-                  autocomplete="off"
-                  placeholder="请输入设备型号/规格"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="设备编号: "
-                :label-width="formLabelWidth"
-                prop="deviceNo"
-              >
-                <el-input
-                  v-model="form.deviceNo"
-                  autocomplete="off"
-                  placeholder="请输入设备编号"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="是否为关键设备:"
-                :label-width="formLabelWidth"
-                prop="crux"
-              >
-                <el-radio-group v-model="form.crux">
-                  <el-radio label="Y">是</el-radio>
-                  <el-radio label="N">否</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item
-                label="设备分类: "
-                :label-width="formLabelWidth"
-                prop="clazz"
-              >
-                <el-input
-                  v-model="form.clazz"
-                  autocomplete="off"
-                  placeholder="请输入设备分类"
-                ></el-input>
-              </el-form-item>
-            </el-form>
-            <div class="submitbtn">
-              <el-button type="primary" @click="submitNewDevice(form)"
-                >保存并提交</el-button
-              >
-            </div>
-          </div>
-        </div>
-        <div class="ExtraInfo">
-          <div class="ExtraInfoText">拓展信息</div>
-          <div class="Btns">
-            <el-button
-              class="AddBtn"
-              icon="el-icon-circle-plus-outline"
-              @click="dialogFormVisible = true"
-              >新增字段</el-button
+              <el-input
+                v-model="form.name"
+                placeholder="请输入设备名称"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              label="设备品牌: "
+              :label-width="formLabelWidth"
+              prop="brand"
             >
-            <el-button
-              class="DelBtn"
-              icon="el-icon-delete"
-              @click="delectExtraInfo"
-              >删除字段</el-button
+              <el-input
+                v-model="form.brand"
+                autocomplete="off"
+                placeholder="请输入设备品牌"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              label="设备型号/规格: "
+              :label-width="formLabelWidth"
+              prop="type"
+            >
+              <el-input
+                v-model="form.type"
+                autocomplete="off"
+                placeholder="请输入设备型号/规格"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              label="设备编号: "
+              :label-width="formLabelWidth"
+              prop="deviceNo"
+            >
+              <el-input
+                v-model="form.deviceNo"
+                autocomplete="off"
+                placeholder="请输入设备编号"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              label="是否为关键设备:"
+              :label-width="formLabelWidth"
+              prop="crux"
+            >
+              <el-radio-group v-model="form.crux">
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item
+              label="设备分类: "
+              :label-width="formLabelWidth"
+              prop="clazz"
+            >
+              <el-input
+                v-model="form.clazz"
+                autocomplete="off"
+                placeholder="请输入设备分类"
+              ></el-input>
+            </el-form-item>
+          </el-form>
+          <div class="submitbtn">
+            <el-button type="primary" @click="submitNewDevice(form)"
+              >保存并提交</el-button
             >
           </div>
-          <el-dialog
-            title="新增字段"
-            :visible.sync="dialogFormVisible"
-            class="addExtraInfoDialog"
-          >
-            <el-form :model="ExtraInfoDialog">
-              <el-form-item label="字段名称: " label-width="100px">
-                <el-input
-                  v-model="ExtraInfoDialog.name"
-                  autocomplete="off"
-                  placeholder="请输入字段名称"
-                ></el-input>
-              </el-form-item>
-              <el-form-item label="字段类型: " label-width="100px">
-                <el-select
-                  v-model="ExtraInfoDialog.type"
-                  placeholder="请选择字段类型"
-                >
-                  <el-option
-                    label="String (字符串型)"
-                    value="String"
-                  ></el-option>
-                  <el-option label="Date (日期型)" value="Date"></el-option>
-                  <el-option
-                    label="Integer (数字型)"
-                    value="Integer"
-                  ></el-option>
-                  <el-option label="Bool (布尔型)" value="Bool"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <div slot="footer">
-              <el-button @click="dialogFormVisible = false">取 消</el-button>
-              <el-button
-                type="primary"
-                @click="SubmitNewExtraInfo(ExtraInfoDialog)"
-                >确 定</el-button
-              >
-            </div>
-          </el-dialog>
-          <el-table
-            ref="multipleTable"
-            :data="tableData"
-            stripe
-            border
-            style="width:100%;"
-            class="extraTable"
-            @selection-change="handleDetailSelectionChange"
-          >
-            <el-table-column type="selection"></el-table-column>
-            <el-table-column prop="extraname" label="字段名"></el-table-column>
-            <el-table-column label="字段信息">
-              <template slot-scope="scope">
-                <el-input
-                  v-if="scope.row.type == 'String'"
-                  v-model="scope.row.extrainfo"
-                  placeholder="请输入字段信息"
-                ></el-input>
-                <el-input
-                  v-if="scope.row.type == 'Integer'"
-                  type="number"
-                  v-model="scope.row.extrainfo"
-                  placeholder="请输入字段信息"
-                ></el-input>
-                <el-date-picker
-                  v-if="scope.row.type == 'Date'"
-                  v-model="scope.row.extrainfo"
-                  type="date"
-                  placeholder="选择日期"
-                  size="large"
-                  value-format="yyyy-MM-dd"
-                >
-                </el-date-picker>
-                <el-radio-group
-                  v-model="scope.row.extrainfo"
-                  v-if="scope.row.type == 'Bool'"
-                >
-                  <el-radio label="Y">是</el-radio>
-                  <el-radio label="N">否</el-radio>
-                </el-radio-group>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="ExtraInfoTable"></div>
         </div>
       </div>
+      <div class="ExtraInfo">
+        <div class="ExtraInfoText">拓展信息</div>
+        <div class="Btns">
+          <el-button
+            class="AddBtn"
+            icon="el-icon-circle-plus-outline"
+            @click="dialogFormVisible = true"
+            >新增字段</el-button
+          >
+          <el-button
+            class="DelBtn"
+            icon="el-icon-delete"
+            @click="delectExtraInfo"
+            >删除字段</el-button
+          >
+        </div>
+        <el-dialog
+          title="新增字段"
+          :visible.sync="dialogFormVisible"
+          class="addExtraInfoDialog"
+        >
+          <el-form :model="ExtraInfoDialog">
+            <el-form-item label="字段名称: " label-width="100px">
+              <el-input
+                v-model="ExtraInfoDialog.name"
+                autocomplete="off"
+                placeholder="请输入字段名称"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="字段类型: " label-width="100px">
+              <el-select
+                v-model="ExtraInfoDialog.type"
+                placeholder="请选择字段类型"
+              >
+                <el-option label="String (字符串型)" value="String"></el-option>
+                <el-option label="Date (日期型)" value="Date"></el-option>
+                <el-option label="Integer (数字型)" value="Integer"></el-option>
+                <el-option label="Bool (布尔型)" value="Bool"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <div slot="footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button
+              type="primary"
+              @click="SubmitNewExtraInfo(ExtraInfoDialog)"
+              >确 定</el-button
+            >
+          </div>
+        </el-dialog>
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          stripe
+          border
+          style="width:100%;"
+          class="extraTable"
+          @selection-change="handleDetailSelectionChange"
+        >
+          <el-table-column type="selection"></el-table-column>
+          <el-table-column prop="extraname" label="字段名"></el-table-column>
+          <el-table-column label="字段信息">
+            <template slot-scope="scope">
+              <el-input
+                v-if="scope.row.type == 'String'"
+                v-model="scope.row.extrainfo"
+                placeholder="请输入字段信息"
+              ></el-input>
+              <el-input
+                v-if="scope.row.type == 'Integer'"
+                type="number"
+                v-model="scope.row.extrainfo"
+                placeholder="请输入字段信息"
+              ></el-input>
+              <el-date-picker
+                v-if="scope.row.type == 'Date'"
+                v-model="scope.row.extrainfo"
+                type="date"
+                placeholder="选择日期"
+                size="large"
+                value-format="yyyy-MM-dd"
+              >
+              </el-date-picker>
+              <el-radio-group
+                v-model="scope.row.extrainfo"
+                v-if="scope.row.type == 'Bool'"
+              >
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="ExtraInfoTable"></div>
+      </div>
     </div>
-    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 <script>
@@ -420,12 +411,6 @@ export default {
 };
 </script>
 <style lang="scss">
-.nopower {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .Main {
   height: 100%;
   display: flex;

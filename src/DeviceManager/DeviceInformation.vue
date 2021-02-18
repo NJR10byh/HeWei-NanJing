@@ -1,207 +1,199 @@
 <template>
-  <div style="width:100%;height:100%">
-    <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)">
-      <!-- 面包屑 -->
-      <el-breadcrumb class="breadcrumb-top" separator="/">
-        <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
-        <el-breadcrumb-item class="active">设备信息</el-breadcrumb-item>
-      </el-breadcrumb>
-      <el-main class="Main-Box">
-        <!-- 搜索 -->
-        <div class="head-btn">
-          <div class="oper-btns-left">
-            <div class="Cascader">
-              <el-cascader
-                placeholder="试试搜索：Apple"
-                :options="options"
-                :props="{ multiple: true }"
-                filterable
-                clearable
-                @change="change"
-                style="width:160px"
-              ></el-cascader>
-            </div>
-            <div class="getall refresh">
-              <el-button icon="el-icon-document-copy" @click="getAllDevice"
-                >获取全部设备
-              </el-button>
-            </div>
-            <div class="import refresh">
-              <el-button icon="el-icon-upload2" @click="dialogVisible = true"
-                >导入
-              </el-button>
-            </div>
-            <div class="export refresh">
-              <el-button icon="el-icon-download" @click="exportExcel"
-                >导出
-              </el-button>
-            </div>
+  <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)">
+    <!-- 面包屑 -->
+    <el-breadcrumb class="breadcrumb-top" separator="/">
+      <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">设备信息</el-breadcrumb-item>
+    </el-breadcrumb>
+    <el-main class="Main-Box">
+      <!-- 搜索 -->
+      <div class="head-btn">
+        <div class="oper-btns-left">
+          <div class="Cascader">
+            <el-cascader
+              placeholder="试试搜索：Apple"
+              :options="options"
+              :props="{ multiple: true }"
+              filterable
+              clearable
+              @change="change"
+              style="width:160px"
+            ></el-cascader>
           </div>
-          <div class="oper-btns-right">
-            <el-button
-              class="bigdel-btn"
-              icon="el-icon-delete"
-              @click="delectAll"
-              >批量删除</el-button
-            >
-            <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
-              >清空</el-button
-            >
+          <div class="getall refresh">
+            <el-button icon="el-icon-document-copy" @click="getAllDevice"
+              >获取全部设备
+            </el-button>
           </div>
-          <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
-            <div
-              style="display:flex;flex-direction: column;justify-content: center;align-items: center"
+          <div class="import refresh">
+            <el-button icon="el-icon-upload2" @click="dialogVisible = true"
+              >导入
+            </el-button>
+          </div>
+          <div class="export refresh">
+            <el-button icon="el-icon-download" @click="exportExcel"
+              >导出
+            </el-button>
+          </div>
+        </div>
+        <div class="oper-btns-right">
+          <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll"
+            >批量删除</el-button
+          >
+          <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
+            >清空</el-button
+          >
+        </div>
+        <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
+          <div
+            style="display:flex;flex-direction: column;justify-content: center;align-items: center"
+          >
+            <el-upload
+              ref="upload"
+              drag
+              action="http://47.102.214.37:8080/device/import"
+              multiple
+              :http-request="UpLoad"
+              :auto-upload="false"
+              accept=".xlsx"
+              :on-preview="handlePreview"
             >
-              <el-upload
-                ref="upload"
-                drag
-                action="http://47.102.214.37:8080/device/import"
-                multiple
-                :http-request="UpLoad"
-                :auto-upload="false"
-                accept=".xlsx"
-                :on-preview="handlePreview"
-              >
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text">
-                  将文件拖到此处，或<em>点击上传</em>
-                </div>
-                <div class="el-upload__tip" slot="tip">
-                  只能上传 xlsx 文件
-                </div>
-              </el-upload>
-              <div style="margin-top: 10px;">
-                <el-button
-                  style="border: 0;background:#409eff;color:#fff;font-weight:bold;"
-                  @click="submitUpload"
-                  >确认上传</el-button
-                >
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">
+                将文件拖到此处，或<em>点击上传</em>
               </div>
+              <div class="el-upload__tip" slot="tip">
+                只能上传 xlsx 文件
+              </div>
+            </el-upload>
+            <div style="margin-top: 10px;">
+              <el-button
+                style="border: 0;background:#409eff;color:#fff;font-weight:bold;"
+                @click="submitUpload"
+                >确认上传</el-button
+              >
             </div>
-          </el-dialog>
-        </div>
-        <!-- table -->
-        <el-table
-          ref="multipleTable"
-          :data="tableData"
-          tooltip-effect="dark"
-          stripe
-          class="tablestyle"
-          style="width: 100%;"
-          height="460"
-          id="outTable"
-          @selection-change="handleDetailSelectionChange"
-        >
-          <el-table-column type="expand" width="25">
-            <template slot-scope="props">
-              <el-form label-position="left" inline class="Demo-table-expand">
-                关键信息:
-                <el-form-item label="设备名称">
-                  <span>{{ props.row.name }}</span>
-                </el-form-item>
-                <el-form-item label="设备品牌">
-                  <span>{{ props.row.brand }}</span>
-                </el-form-item>
-                <el-form-item label="设备型号/规格">
-                  <span>{{ props.row.type }}</span>
-                </el-form-item>
-                <el-form-item label="设备编号">
-                  <span>{{ props.row.deviceNo }}</span>
-                </el-form-item>
-                <el-form-item label="是否为关键设备">
-                  <span>{{ props.row.crux }}</span>
-                </el-form-item>
-                <el-form-item label="设备分类">
-                  <span>{{ props.row.clazz }}</span>
-                </el-form-item>
-              </el-form>
-            </template>
-          </el-table-column>
-          <el-table-column type="selection" width="50"></el-table-column>
-          <el-table-column prop="id" label="ID" width="60"></el-table-column>
-          <el-table-column
-            prop="name"
-            label="设备名称"
-            width="150"
-          ></el-table-column>
-          <el-table-column
-            prop="brand"
-            label="设备品牌"
-            width="120"
-          ></el-table-column>
-          <el-table-column
-            prop="type"
-            label="设备型号/规格"
-            width="150"
-          ></el-table-column>
-          <el-table-column
-            prop="deviceNo"
-            label="设备编号"
-            width="150"
-          ></el-table-column>
-          <el-table-column
-            prop="crux"
-            label="是否为关键设备"
-            width="150"
-          ></el-table-column>
-          <el-table-column
-            prop="clazz"
-            label="设备分类"
-            width="120"
-          ></el-table-column>
-          <el-table-column
-            prop="fixnumber"
-            label="维护保养标准编号"
-            width="160"
-          ></el-table-column>
-          <template v-for="(item, index) in tableHead">
-            <el-table-column
-              :prop="item.prop"
-              :label="item.lable"
-              :key="index"
-              :width="item.width"
-            ></el-table-column>
+          </div>
+        </el-dialog>
+      </div>
+      <!-- table -->
+      <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        stripe
+        class="tablestyle"
+        style="width: 100%;"
+        height="460"
+        id="outTable"
+        @selection-change="handleDetailSelectionChange"
+      >
+        <el-table-column type="expand" width="25">
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="Demo-table-expand">
+              关键信息:
+              <el-form-item label="设备名称">
+                <span>{{ props.row.name }}</span>
+              </el-form-item>
+              <el-form-item label="设备品牌">
+                <span>{{ props.row.brand }}</span>
+              </el-form-item>
+              <el-form-item label="设备型号/规格">
+                <span>{{ props.row.type }}</span>
+              </el-form-item>
+              <el-form-item label="设备编号">
+                <span>{{ props.row.deviceNo }}</span>
+              </el-form-item>
+              <el-form-item label="是否为关键设备">
+                <span>{{ props.row.crux }}</span>
+              </el-form-item>
+              <el-form-item label="设备分类">
+                <span>{{ props.row.clazz }}</span>
+              </el-form-item>
+            </el-form>
           </template>
-          <el-table-column prop="setting" label="操作" width="150">
-            <template slot-scope="scope">
-              <el-tooltip content="修改" effect="light" :enterable="false">
-                <el-button
-                  icon="iconfont icon-bianji"
-                  @click="handleEdit(scope.$index, scope.row)"
-                ></el-button>
-              </el-tooltip>
-              <el-tooltip content="生成编码" effect="light" :enterable="false">
-                <el-button
-                  icon="iconfont icon-tiaoxingma"
-                  @click="handleCode(scope.$index, scope.row)"
-                ></el-button>
-              </el-tooltip>
-              <el-tooltip content="删除" :enterable="false">
-                <el-button
-                  icon="iconfont icon-shanchu"
-                  @click="handleDelete(scope.$index, scope.row)"
-                ></el-button>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页 -->
-        <div class="block">
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[10, 20, 30, 40]"
-            :page-size="10"
-            layout="sizes,total, prev, pager, next, jumper"
-            :total="total"
-          ></el-pagination>
-        </div>
-      </el-main>
-    </div>
-    <div class="nopower" v-else>
-      无权限
-    </div>
+        </el-table-column>
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column prop="id" label="ID" width="60"></el-table-column>
+        <el-table-column
+          prop="name"
+          label="设备名称"
+          width="150"
+        ></el-table-column>
+        <el-table-column
+          prop="brand"
+          label="设备品牌"
+          width="120"
+        ></el-table-column>
+        <el-table-column
+          prop="type"
+          label="设备型号/规格"
+          width="150"
+        ></el-table-column>
+        <el-table-column
+          prop="deviceNo"
+          label="设备编号"
+          width="150"
+        ></el-table-column>
+        <el-table-column
+          prop="crux"
+          label="是否为关键设备"
+          width="150"
+        ></el-table-column>
+        <el-table-column
+          prop="clazz"
+          label="设备分类"
+          width="120"
+        ></el-table-column>
+        <el-table-column
+          prop="fixnumber"
+          label="维护保养标准编号"
+          width="160"
+        ></el-table-column>
+        <template v-for="(item, index) in tableHead">
+          <el-table-column
+            :prop="item.prop"
+            :label="item.lable"
+            :key="index"
+            :width="item.width"
+          ></el-table-column>
+        </template>
+        <el-table-column prop="setting" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-tooltip content="修改" effect="light" :enterable="false">
+              <el-button
+                icon="iconfont icon-bianji"
+                @click="handleEdit(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+            <el-tooltip content="生成编码" effect="light" :enterable="false">
+              <el-button
+                icon="iconfont icon-tiaoxingma"
+                @click="handleCode(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+            <el-tooltip content="删除" :enterable="false">
+              <el-button
+                icon="iconfont icon-shanchu"
+                @click="handleDelete(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <div class="block">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 30, 40]"
+          :page-size="10"
+          layout="sizes,total, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
+      </div>
+    </el-main>
   </div>
 </template>
 
@@ -880,12 +872,6 @@ export default {
 };
 </script>
 <style lang="scss">
-.nopower {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .Box {
   // height: calc(100%);
   // border: 1px solid blue;

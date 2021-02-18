@@ -1,5 +1,6 @@
 <template>
   <div class="Container-Login">
+    <div class="Title">合为企业设备管理系统</div>
     <div class="Box">
       <div class="head">
         <div class="head-text">请登录</div>
@@ -46,17 +47,19 @@ export default {
         })
         .then((res) => {
           console.log(res);
-          if (res.status == 200) {
-            console.log(res.data);
-            localStorage.setItem("token", res.data);
+          console.log(res.data);
+          localStorage.setItem("token", res.data);
+          this.$message({
+            message: "登录成功",
+            type: "success",
+          });
+          this.$router.push("./users");
+        })
+        .catch((res) => {
+          console.log(res.response);
+          if (res.response.status == 403) {
             this.$message({
-              message: "登录成功",
-              type: "success",
-            });
-            this.$router.push("./users");
-          } else {
-            this.$message({
-              message: "登录失败",
+              message: res.response.data.message,
               type: "error",
             });
           }
@@ -72,9 +75,18 @@ export default {
   height: 100%;
   //   border: 1px solid red;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background: #fff;
+  .Title {
+    // border: 1px solid red;
+    height: 11%;
+    font-size: 36px;
+    font-weight: bold;
+    color: #409eff;
+    letter-spacing: 1px;
+  }
   .Box {
     width: 35%;
     height: 70%;

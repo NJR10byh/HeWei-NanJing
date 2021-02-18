@@ -22,7 +22,7 @@ const Home = () => import("../components/Home.vue");
 
 Vue.use(VueRouter);
 
-const routes = [
+var routes = [
   {
     path: "/",
     name: "Login",
@@ -104,8 +104,7 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
+var router = new VueRouter({
   routes,
 });
-
 export default router;

@@ -50,6 +50,11 @@
         </div>
       </div>
     </div>
+    <div class="loginout">
+      <el-button @click="loginOut">
+        注销
+      </el-button>
+    </div>
   </div>
 </template>
 <script>
@@ -96,6 +101,19 @@ export default {
       let that = this;
       this.$router.push({ path: "/edituser", query: that.uesrInfo });
     },
+    // 注销账户
+    loginOut() {
+      let that = this;
+      this.$confirm("您确定要退出吗?", "退出管理平台", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      })
+        .then(() => {
+          window.localStorage.clear();
+          that.$router.push({ path: "/" });
+        })
+        .catch(() => {});
+    },
   },
 };
 </script>
@@ -104,14 +122,16 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   .box {
     width: 90%;
     height: 80%;
     display: flex;
     justify-content: space-around;
     align-items: center;
+    // border: 1px solid red;
     .module {
       // border: 1px solid red;
       cursor: pointer;
@@ -178,6 +198,28 @@ export default {
     .module:hover {
       width: 35%;
       height: 85%;
+      transition: 0.5s;
+    }
+  }
+  .loginout {
+    width: 100%;
+    height: 15%;
+    // border: 1px solid red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .el-button {
+      width: 25%;
+      background: #f96b6c;
+      border: 0;
+      color: #fff;
+      font-size: 17px;
+      letter-spacing: 2px;
+      border-radius: 6px;
+      transition: 0.5s;
+    }
+    .el-button:hover {
+      transform: scale(1.15);
       transition: 0.5s;
     }
   }

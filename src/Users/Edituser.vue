@@ -35,16 +35,19 @@
   </div>
 </template>
 <script>
+import axios from "axios";
 export default {
   created: function() {
     let that = this;
     console.log(this.$route.query);
-    that.username = "原姓名：" + this.$route.query.username;
-    that.email = "原邮箱：" + this.$route.query.email;
+    that.userid = this.$route.query.id;
+    that.username = this.$route.query.username;
+    that.email = this.$route.query.email;
   },
   data() {
     return {
       username: "",
+      userid: "",
       email: "",
       password: "",
       confirmpassword: "",
@@ -58,15 +61,33 @@ export default {
         "^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$"
       );
       if (!Email.test(this.email)) {
-        alert("请输入正确的邮箱");
+        this.$message({
+          message: "请输入正确的邮箱地址",
+          type: "error",
+        });
         this.email = "";
-        // return;
       }
     },
     submit() {
       let that = this;
       console.log(that.username);
       console.log(that.email);
+      axios
+        .post("http://47.102.214.37:8080/user/me/edit", {
+          username: that.username,
+          email: that.email,
+          id: that.userid,
+        })
+        .then((res) => {
+          // console.log(res);
+          if (res.status == 200) {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+            this.$router.push({ path: "/users" });
+          }
+        });
     },
   },
 };

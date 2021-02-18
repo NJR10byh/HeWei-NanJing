@@ -1,29 +1,26 @@
 <template>
-  <div style="width:100%;height:100%">
-    <div
-      class="Container-AddTask"
-      v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
-    >
-      <div class="add" @click="addNewTask">
-        <div class="content">
-          <h2 style="font-size:5em">+</h2>
-        </div>
+  <div
+    class="Container-AddTask"
+    v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
+  >
+    <div class="add" @click="addNewTask">
+      <div class="content">
+        <h2 style="font-size:5em">+</h2>
       </div>
-      <div class="card" v-for="(item, index) in taskData" :key="index">
-        <div class="content">
-          <h2>{{ item.taskname }}</h2>
-          <div class="Btns">
-            <el-button class="btn btn1" @click="showInfo(index)"
-              >以此为模版编辑</el-button
-            >
-            <el-button class="btn btn2" @click="deleteTask(index)"
-              >删除模版</el-button
-            >
-          </div>
+    </div>
+    <div class="card" v-for="(item, index) in taskData" :key="index">
+      <div class="content">
+        <h2>{{ item.taskname }}</h2>
+        <div class="Btns">
+          <el-button class="btn btn1" @click="showInfo(index)"
+            >以此为模版编辑</el-button
+          >
+          <el-button class="btn btn2" @click="deleteTask(index)"
+            >删除模版</el-button
+          >
         </div>
       </div>
     </div>
-    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 
@@ -34,7 +31,7 @@ export default {
   created: function() {
     let that = this;
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       that.userRole = res.data.role;
     });
     setTimeout(function() {
@@ -42,7 +39,7 @@ export default {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
           .then((res) => {
-            console.log(res);
+            // console.log(res);
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
               that.taskData.push({
@@ -112,12 +109,6 @@ export default {
 </script>
 
 <style lang="scss">
-.nopower {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .Container-AddTask {
   height: 100%;
   display: flex;

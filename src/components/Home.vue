@@ -21,7 +21,7 @@
         </div>
       </div>
     </el-header>
-    <el-container>
+    <el-container v-if="['ROOT', 'ADMIN'].includes(userRole)">
       <el-aside :width="isCollapse ? '80px' : '200px'">
         <el-menu
           class="el-menu-vertical-demo"
@@ -33,7 +33,81 @@
         >
           <el-submenu
             :index="item.id + ''"
-            v-for="item in menuList"
+            v-for="item in menuList1"
+            :key="item.id"
+          >
+            <template slot="title">
+              <!-- 图标 -->
+              <i :class="iconsObj[item.id]"></i>
+              <!-- 文本-->
+              <span>{{ item.authName }}</span>
+            </template>
+            <!-- 二级菜单 -->
+            <el-menu-item
+              :index="'/' + subItem.path"
+              v-for="subItem in item.children"
+              :key="subItem.id"
+              class="subItem"
+            >
+              <span slot="title">{{ subItem.authName }}</span>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </el-container>
+    <el-container v-if="['CREATOR'].includes(userRole)">
+      <el-aside :width="isCollapse ? '80px' : '200px'">
+        <el-menu
+          class="el-menu-vertical-demo"
+          :unique-opened="true"
+          :collapse-transition="false"
+          :router="true"
+          :collapse="isCollapse"
+          :default-active="$route.path"
+        >
+          <el-submenu
+            :index="item.id + ''"
+            v-for="item in menuList2"
+            :key="item.id"
+          >
+            <template slot="title">
+              <!-- 图标 -->
+              <i :class="iconsObj[item.id]"></i>
+              <!-- 文本-->
+              <span>{{ item.authName }}</span>
+            </template>
+            <!-- 二级菜单 -->
+            <el-menu-item
+              :index="'/' + subItem.path"
+              v-for="subItem in item.children"
+              :key="subItem.id"
+              class="subItem"
+            >
+              <span slot="title">{{ subItem.authName }}</span>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </el-container>
+    <el-container v-if="['OPERATOR'].includes(userRole)">
+      <el-aside :width="isCollapse ? '80px' : '200px'">
+        <el-menu
+          class="el-menu-vertical-demo"
+          :unique-opened="true"
+          :collapse-transition="false"
+          :router="true"
+          :collapse="isCollapse"
+          :default-active="$route.path"
+        >
+          <el-submenu
+            :index="item.id + ''"
+            v-for="item in menuList3"
             :key="item.id"
           >
             <template slot="title">
@@ -63,15 +137,22 @@
 
 <script>
 import nowTime from "./Timer";
-import globaldata from "../GlobalData/globaldata";
+import axios from "axios";
 export default {
+  created() {
+    this.getMycount();
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      this.userRole = res.data.role;
+    });
+  },
   data() {
     return {
       isCollapse: false,
+      userRole: "",
       timeTip: "",
-      user: globaldata.role,
-      userID: globaldata.userID,
-      menuList: [
+      // ROOT，ADMIN权限
+      menuList1: [
         {
           id: 1,
           authName: "用户管理",
@@ -183,6 +264,207 @@ export default {
           ],
         },
       ],
+      // CREATOR权限
+      menuList2: [
+        {
+          id: 1,
+          authName: "用户管理",
+          children: [
+            {
+              id: 10,
+              authName: "用户",
+              path: "users",
+            },
+          ],
+        },
+        {
+          id: 2,
+          authName: "设备管理",
+          children: [
+            {
+              id: 20,
+              authName: "新增设备",
+              path: "addDevice",
+            },
+          ],
+        },
+        {
+          id: 3,
+          authName: "设备保养",
+          children: [
+            {
+              id: 30,
+              authName: "新增任务",
+              path: "addTask",
+            },
+            {
+              id: 32,
+              authName: "任务分配",
+              path: "tssignTask",
+            },
+            {
+              id: 33,
+              authName: "保养记录",
+              path: "maintenanceNotes",
+            },
+            {
+              id: 34,
+              authName: "保养查询",
+              path: "searchMaintenance",
+            },
+          ],
+        },
+        {
+          id: 4,
+          authName: "设备维修",
+          children: [
+            {
+              id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
+            {
+              id: 41,
+              authName: "维修诊断",
+              path: "fixDiagnosis",
+            },
+            {
+              id: 43,
+              authName: "维修查询",
+              path: "fixSearch",
+            },
+          ],
+        },
+        {
+          id: 5,
+          authName: "数据分析",
+          children: [
+            {
+              id: 50,
+              authName: "故障分析",
+              path: "faultAnalysis",
+            },
+            {
+              id: 51,
+              authName: "保养分析",
+              path: "maintenanceAnalysis",
+            },
+            {
+              id: 52,
+              authName: "维修分析",
+              path: "fixAnalysis",
+            },
+            {
+              id: 53,
+              authName: "使用日志",
+              path: "useLogs",
+            },
+            {
+              id: 54,
+              authName: "维修日志",
+              path: "fixLogs",
+            },
+          ],
+        },
+      ],
+      // OPERATOR权限
+      menuList3: [
+        {
+          id: 1,
+          authName: "用户管理",
+          children: [
+            {
+              id: 10,
+              authName: "用户",
+              path: "users",
+            },
+          ],
+        },
+        {
+          id: 2,
+          authName: "设备管理",
+          children: [
+            {
+              id: 21,
+              authName: "设备信息",
+              path: "deviceInformation",
+            },
+          ],
+        },
+        {
+          id: 3,
+          authName: "设备保养",
+          children: [
+            {
+              id: 31,
+              authName: "任务信息",
+              path: "taskInformation",
+            },
+            {
+              id: 33,
+              authName: "保养记录",
+              path: "maintenanceNotes",
+            },
+            {
+              id: 34,
+              authName: "保养查询",
+              path: "searchMaintenance",
+            },
+          ],
+        },
+        {
+          id: 4,
+          authName: "设备维修",
+          children: [
+            {
+              id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
+            {
+              id: 41,
+              authName: "维修诊断",
+              path: "fixDiagnosis",
+            },
+            {
+              id: 43,
+              authName: "维修查询",
+              path: "fixSearch",
+            },
+          ],
+        },
+        {
+          id: 5,
+          authName: "数据分析",
+          children: [
+            {
+              id: 50,
+              authName: "故障分析",
+              path: "faultAnalysis",
+            },
+            {
+              id: 51,
+              authName: "保养分析",
+              path: "maintenanceAnalysis",
+            },
+            {
+              id: 52,
+              authName: "维修分析",
+              path: "fixAnalysis",
+            },
+            {
+              id: 53,
+              authName: "使用日志",
+              path: "useLogs",
+            },
+            {
+              id: 54,
+              authName: "维修日志",
+              path: "fixLogs",
+            },
+          ],
+        },
+      ],
       // 导航图标
       iconsObj: {
         1: "iconfont icon-yonghu",
@@ -218,12 +500,6 @@ export default {
   },
   components: {
     nowTime,
-  },
-  created() {
-    this.getMycount();
-    if (globaldata.role == "") {
-      console.log(globaldata.role);
-    }
   },
 };
 </script>

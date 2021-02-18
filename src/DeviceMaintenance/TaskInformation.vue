@@ -1,28 +1,25 @@
 <template>
-  <div style="width:100%;height:100%">
-    <div
-      class="Container-TaskInfomation"
-      v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)"
-    >
-      <!-- 面包屑 -->
-      <el-breadcrumb class="breadcrumb" separator="/">
-        <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-        <el-breadcrumb-item class="active">任务信息</el-breadcrumb-item>
-      </el-breadcrumb>
-      <div class="Tasks">
-        <div class="card" v-for="(item, index) in taskData" :key="index">
-          <div class="content">
-            <h2>{{ item.taskname }}</h2>
-            <div class="Btns">
-              <el-button class="btn btn1" @click="taskdetail(index)"
-                >查看任务</el-button
-              >
-            </div>
+  <div
+    class="Container-TaskInfomation"
+    v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)"
+  >
+    <!-- 面包屑 -->
+    <el-breadcrumb class="breadcrumb" separator="/">
+      <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">任务信息</el-breadcrumb-item>
+    </el-breadcrumb>
+    <div class="Tasks">
+      <div class="card" v-for="(item, index) in taskData" :key="index">
+        <div class="content">
+          <h2>{{ item.taskname }}</h2>
+          <div class="Btns">
+            <el-button class="btn btn1" @click="taskdetail(index)"
+              >查看任务</el-button
+            >
           </div>
         </div>
       </div>
     </div>
-    <div class="nopower" v-else>无权限</div>
   </div>
 </template>
 
@@ -71,7 +68,7 @@ export default {
         console.log(url);
         axios.get(url).then((res) => {
           for (var i = 0; i < res.data.length; i++) {
-            console.log(res.data[i]);
+            // console.log(res.data[i]);
             that.taskData.unshift({
               taskID: res.data[i].id,
               taskname: res.data[i].name,
@@ -84,12 +81,6 @@ export default {
 };
 </script>
 <style lang="scss">
-.nopower {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .Container-TaskInfomation {
   .breadcrumb {
     height: 30px;
