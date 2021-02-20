@@ -75,7 +75,7 @@ export default {
               // console.log(res.data.content[i]);
               obj.key = res.data.content[i].id;
               obj.label = res.data.content[i].name;
-              that.data1.push(obj);
+              that.data1.unshift(obj);
             }
           });
         // 获取全部 OPERATOR 员工
@@ -87,7 +87,7 @@ export default {
               let obj = {};
               obj.key = res.data.content[i].id;
               obj.label = res.data.content[i].username;
-              that.data2.push(obj);
+              that.data2.unshift(obj);
             }
           });
         // 获取全部设备

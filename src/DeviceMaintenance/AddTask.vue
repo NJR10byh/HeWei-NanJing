@@ -41,7 +41,7 @@ export default {
           .then((res) => {
             // console.log(res);
             for (var i = 0; i < res.data.content.length; i++) {
-              console.log(res.data.content[i]);
+              // console.log(res.data.content[i]);
               that.taskData.unshift({
                 taskID: res.data.content[i].id,
                 taskname: res.data.content[i].name,

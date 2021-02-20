@@ -112,7 +112,7 @@ export default {
         this.$route.query.taskID;
       axios.get(url).then((res) => {
         console.log(res.data);
-        console.log(res.data.content.join("<br/>"));
+        that.parentid = res.data.id;
         that.TaskInfo.scheduleType = res.data.scheduleType;
         that.TaskInfo.scheduleDay = res.data.scheduleDay;
         that.TaskInfo.taskname = res.data.name;
@@ -127,8 +127,16 @@ export default {
   data() {
     return {
       TaskInfo: {
+        scheduleType: "",
+        scheduleDay: "",
+        taskname: "",
         side: "",
+        acceptedStandard: "",
+        taskcontent: "",
+        tasktools: "",
+        attention: "",
       },
+      parentid: "",
       tasktime: [
         {
           value: "Predictability",
@@ -156,8 +164,6 @@ export default {
         },
       ],
       value: "",
-      // 级联选择
-      options: [],
     };
   },
   methods: {
@@ -182,11 +188,11 @@ export default {
           scheduleDay: that.TaskInfo.scheduleDay,
           side: that.TaskInfo.side,
           content: taskContent,
-          remark: that.TaskInfo.attention,
+          remark: "parent",
           tools: taskTools,
+          parent: { id: that.parentid },
         })
         .then((res) => {
-          console.log(res);
           if (res.data.message == "ok") {
             this.$message({
               message: "新建成功",
