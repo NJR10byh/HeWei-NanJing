@@ -152,11 +152,7 @@ export default {
       let that = this;
       console.log(that.selectedTaskid);
       console.log(that.selectedUserid);
-      if (
-        that.selectedTaskid.length == 0 ||
-        that.selectedUserid.length == 0 ||
-        that.selectedDeviceid.length == 0
-      ) {
+      if (that.selectedTaskid.length == 0) {
         that.$message({
           message: "请将信息填写完整",
           type: "warning",
@@ -185,6 +181,10 @@ export default {
             })
             .then((res) => {
               console.log(res);
+              that.$message({
+                message: "分配成功",
+                type: "success",
+              });
             });
         }
       }

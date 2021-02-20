@@ -17,6 +17,7 @@
                   placeholder="请选择"
                   class="TaskTime-select"
                   v-model="TaskInfo.scheduleType"
+                  @change="changescheduleType"
                 >
                   <el-option
                     v-for="item in tasktime"
@@ -36,6 +37,7 @@
                       TaskInfo.scheduleType
                     )
                   "
+                  @input="changescheduleDay"
                 ></el-input>
               </div>
             </el-form-item>
@@ -43,20 +45,23 @@
           <div class="part2">
             <el-form-item label="任务名称" style="width:32%">
               <el-input
-                v-model="TaskInfo.taskname"
+                v-model="TaskInfo.name"
                 placeholder="请输入任务名称"
+                @input="changename"
               ></el-input>
             </el-form-item>
             <el-form-item label="保养部位" style="width:32%">
               <el-input
                 v-model="TaskInfo.side"
                 placeholder="请输入保养部位"
+                @input="changeside"
               ></el-input>
             </el-form-item>
             <el-form-item label="接受标准" style="width:32%">
               <el-input
                 v-model="TaskInfo.acceptedStandard"
                 placeholder="请输入接受标准"
+                @input="changeacceptedStandard"
               ></el-input>
             </el-form-item>
           </div>
@@ -65,24 +70,27 @@
               <el-input
                 class="inputStyle"
                 type="textarea"
-                v-model="TaskInfo.taskcontent"
+                v-model="TaskInfo.content"
                 :rows="8"
+                @input="changecontent"
               ></el-input>
             </el-form-item>
             <el-form-item label="保养工具及备件" style="width:32%">
               <el-input
                 class="inputStyle"
                 type="textarea"
-                v-model="TaskInfo.tasktools"
+                v-model="TaskInfo.tools"
                 :rows="8"
+                @input="changetools"
               ></el-input>
             </el-form-item>
             <el-form-item label="注意事项" style="width:32%">
               <el-input
                 class="inputStyle"
                 type="textarea"
-                v-model="TaskInfo.attention"
+                v-model="TaskInfo.remark"
                 :rows="8"
+                @input="changeremark"
               ></el-input>
             </el-form-item>
           </div>
@@ -112,31 +120,77 @@ export default {
         this.$route.query.taskID;
       axios.get(url).then((res) => {
         console.log(res.data);
-        that.parentid = res.data.id;
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        that.TaskInfo.scheduleDay = res.data.scheduleDay;
-        that.TaskInfo.taskname = res.data.name;
-        that.TaskInfo.side = res.data.side;
-        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
-        that.TaskInfo.taskcontent = res.data.content.join("\n");
-        that.TaskInfo.tasktools = res.data.tools.join("\n");
-        that.TaskInfo.attention = res.data.remark;
+        that.submitTaskInfo.parent.id = res.data.id;
+        // 保养周期
+        if (res.data.scheduleType == null) {
+          that.TaskInfo.scheduleType = res.data.parent.scheduleType;
+        } else {
+          that.TaskInfo.scheduleType = res.data.scheduleType;
+        }
+        // 保养天数
+        if (res.data.scheduleDay == null) {
+          that.TaskInfo.scheduleDay = res.data.parent.scheduleDay;
+        } else {
+          that.TaskInfo.scheduleDay = res.data.scheduleDay;
+        }
+        // 任务名称
+        // that.TaskInfo.taskname = res.data.name;
+        // 保养部位
+        if (res.data.side == null) {
+          that.TaskInfo.side = res.data.parent.side;
+        } else {
+          that.TaskInfo.side = res.data.side;
+        }
+        // 接受标准
+        if (res.data.acceptedStandard == null) {
+          that.TaskInfo.acceptedStandard = res.data.parent.acceptedStandard;
+        } else {
+          that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+        }
+        // 保养内容
+        if (res.data.content.length == 0) {
+          that.TaskInfo.content = res.data.parent.content.join("\n");
+        } else {
+          that.TaskInfo.content = res.data.content.join("\n");
+        }
+        // 保养工具
+        if (res.data.tools.length == 0) {
+          that.TaskInfo.tools = res.data.parent.tools.join("\n");
+        } else {
+          that.TaskInfo.tools = res.data.tools.join("\n");
+        }
+        // 注意事项;
+        if (res.data.remark == null) {
+          that.TaskInfo.remark = res.data.parent.remark;
+        } else {
+          that.TaskInfo.remark = res.data.remark;
+        }
       });
     }
   },
   data() {
     return {
       TaskInfo: {
-        scheduleType: "",
-        scheduleDay: "",
-        taskname: "",
-        side: "",
-        acceptedStandard: "",
-        taskcontent: "",
-        tasktools: "",
-        attention: "",
+        scheduleType: null,
+        scheduleDay: null,
+        name: null,
+        side: null,
+        acceptedStandard: null,
+        content: null,
+        tools: null,
+        remark: null,
       },
-      parentid: "",
+      submitTaskInfo: {
+        scheduleType: null,
+        scheduleDay: null,
+        name: null,
+        side: null,
+        acceptedStandard: null,
+        content: null,
+        tools: null,
+        remark: null,
+        parent: { id: "" },
+      },
       tasktime: [
         {
           value: "Predictability",
@@ -163,35 +217,62 @@ export default {
           label: "天",
         },
       ],
-      value: "",
     };
   },
   methods: {
+    // 保养周期改变
+    changescheduleType(res) {
+      this.submitTaskInfo.scheduleType = res;
+    },
+    // 保养周期天数改变
+    changescheduleDay(res) {
+      this.submitTaskInfo.scheduleDay = res;
+    },
+    // 任务名称改变
+    changename(res) {
+      this.submitTaskInfo.name = res;
+    },
+    // 保养部位改变
+    changeside(res) {
+      this.submitTaskInfo.side = res;
+    },
+    // 接受标准改变
+    changeacceptedStandard(res) {
+      console.log(res);
+      this.submitTaskInfo.acceptedStandard = res;
+    },
+    // 保养内容改变
+    changecontent(res) {
+      console.log(res);
+      this.submitTaskInfo.content = res;
+    },
+    // 保养工具改变
+    changetools(res) {
+      console.log(res);
+      this.submitTaskInfo.tools = res;
+    },
+    // 注意事项改变
+    changeremark(res) {
+      this.submitTaskInfo.remark = res;
+    },
     // 保存编辑并提交
     submittask() {
       let that = this;
-      let taskContent = that.preText(that.TaskInfo.taskcontent).split(",");
-      let taskTools = that.preText(that.TaskInfo.tasktools).split(",");
-      console.log(that.TaskInfo);
-      console.log(taskContent);
-      console.log(taskTools);
-      if (that.TaskInfo.scheduleType == "Weekly") {
-        if ([1, 2, 3, 4, 5, 6, 7].includes(that.TaskInfo.scheduleDay)) {
-          console.log("ok");
-        }
+      if (that.submitTaskInfo.content != null) {
+        that.submitTaskInfo.content = that
+          .preText(that.submitTaskInfo.content)
+          .split(",");
+        console.log(that.submitTaskInfo.content);
       }
+      if (that.submitTaskInfo.tools != null) {
+        that.submitTaskInfo.tools = that
+          .preText(that.submitTaskInfo.tools)
+          .split(",");
+        console.log(that.submitTaskInfo.tools);
+      }
+      console.log(that.submitTaskInfo);
       axios
-        .post("http://47.102.214.37:8080/ops/schedule", {
-          acceptedStandard: that.TaskInfo.acceptedStandard,
-          name: that.TaskInfo.taskname,
-          scheduleType: that.TaskInfo.scheduleType,
-          scheduleDay: that.TaskInfo.scheduleDay,
-          side: that.TaskInfo.side,
-          content: taskContent,
-          remark: "parent",
-          tools: taskTools,
-          parent: { id: that.parentid },
-        })
+        .post("http://47.102.214.37:8080/ops/schedule", that.submitTaskInfo)
         .then((res) => {
           if (res.data.message == "ok") {
             this.$message({
