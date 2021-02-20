@@ -122,49 +122,21 @@ export default {
         console.log(res.data);
         that.submitTaskInfo.parent.id = res.data.id;
         // 保养周期
-        if (res.data.scheduleType == null) {
-          that.TaskInfo.scheduleType = res.data.parent.scheduleType;
-        } else {
-          that.TaskInfo.scheduleType = res.data.scheduleType;
-        }
+        that.TaskInfo.scheduleType = res.data.scheduleType;
         // 保养天数
-        if (res.data.scheduleDay == null) {
-          that.TaskInfo.scheduleDay = res.data.parent.scheduleDay;
-        } else {
-          that.TaskInfo.scheduleDay = res.data.scheduleDay;
-        }
+        that.TaskInfo.scheduleDay = res.data.scheduleDay;
         // 任务名称
-        // that.TaskInfo.taskname = res.data.name;
+        that.TaskInfo.taskname = res.data.name;
         // 保养部位
-        if (res.data.side == null) {
-          that.TaskInfo.side = res.data.parent.side;
-        } else {
-          that.TaskInfo.side = res.data.side;
-        }
+        that.TaskInfo.side = res.data.side;
         // 接受标准
-        if (res.data.acceptedStandard == null) {
-          that.TaskInfo.acceptedStandard = res.data.parent.acceptedStandard;
-        } else {
-          that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
-        }
+        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
         // 保养内容
-        if (res.data.content.length == 0) {
-          that.TaskInfo.content = res.data.parent.content.join("\n");
-        } else {
-          that.TaskInfo.content = res.data.content.join("\n");
-        }
+        that.TaskInfo.content = res.data.content.join("\n");
         // 保养工具
-        if (res.data.tools.length == 0) {
-          that.TaskInfo.tools = res.data.parent.tools.join("\n");
-        } else {
-          that.TaskInfo.tools = res.data.tools.join("\n");
-        }
-        // 注意事项;
-        if (res.data.remark == null) {
-          that.TaskInfo.remark = res.data.parent.remark;
-        } else {
-          that.TaskInfo.remark = res.data.remark;
-        }
+        that.TaskInfo.tools = res.data.tools.join("\n");
+        // 注意事项
+        that.TaskInfo.remark = res.data.remark;
       });
     }
   },
@@ -258,17 +230,43 @@ export default {
     // 保存编辑并提交
     submittask() {
       let that = this;
+      if (that.submitTaskInfo.scheduleType == null) {
+        that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
+      }
+      if (that.submitTaskInfo.scheduleDay == null) {
+        that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
+      }
+      if (that.submitTaskInfo.name == null) {
+        that.submitTaskInfo.name = that.TaskInfo.name;
+      }
+      if (that.submitTaskInfo.side == null) {
+        that.submitTaskInfo.side = that.TaskInfo.side;
+      }
+      if (that.submitTaskInfo.acceptedStandard == null) {
+        that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
+      }
+      if (that.submitTaskInfo.remark == null) {
+        that.submitTaskInfo.remark = that.TaskInfo.remark;
+      }
       if (that.submitTaskInfo.content != null) {
         that.submitTaskInfo.content = that
           .preText(that.submitTaskInfo.content)
           .split(",");
         console.log(that.submitTaskInfo.content);
+      } else {
+        that.submitTaskInfo.content = that
+          .preText(that.TaskInfo.content)
+          .split(",");
       }
       if (that.submitTaskInfo.tools != null) {
         that.submitTaskInfo.tools = that
           .preText(that.submitTaskInfo.tools)
           .split(",");
         console.log(that.submitTaskInfo.tools);
+      } else {
+        that.submitTaskInfo.tools = that
+          .preText(that.TaskInfo.tools)
+          .split(",");
       }
       console.log(that.submitTaskInfo);
       axios
