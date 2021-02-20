@@ -68,7 +68,7 @@ export default {
       if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         // 获取全部任务
         axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
@@ -91,15 +91,18 @@ export default {
             }
           });
         // 获取全部设备
-        axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
-          // console.log(res);
-          for (var i = 0; i < res.data.length; i++) {
-            let obj = {};
-            obj.key = i;
-            obj.label = res.data[i];
-            that.data3.push(obj);
-          }
-        });
+        axios
+          .get("http://47.102.214.37:8080/device/query?name=!")
+          .then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.content.length; i++) {
+              // console.log(res.data.content[i]);
+              let obj = {};
+              obj.key = res.data.content[i].id;
+              obj.label = res.data.content[i].name;
+              that.data3.push(obj);
+            }
+          });
       }
     }, 200);
   },
@@ -149,23 +152,40 @@ export default {
       let that = this;
       console.log(that.selectedTaskid);
       console.log(that.selectedUserid);
-      for (var a = 0; a < that.selectedUserid.length; a++) {
-        for (var b = 0; b < that.selectedTaskid.length; b++) {
-          let URL =
-            "http://47.102.214.37:8080/user/schedule/" +
-            that.selectedUserid[a] +
-            "?scheduleId=" +
-            that.selectedTaskid[b];
-          // console.log(URL);
-          axios.post(URL).then((res) => {
-            console.log(res);
-            if (res.status == 200) {
-              that.$message({
-                message: "分配成功",
-                type: "success",
-              });
-            }
-          });
+      if (
+        that.selectedTaskid.length == 0 ||
+        that.selectedUserid.length == 0 ||
+        that.selectedDeviceid.length == 0
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
+        });
+      } else {
+        console.log(that.selectedUserid);
+        console.log(that.selectedDeviceid);
+        let opsid = [];
+        let deviceid = [];
+        for (var p = 0; p < that.selectedUserid.length; p++) {
+          opsid.push({ id: that.selectedUserid[p] });
+        }
+        for (var q = 0; q < that.selectedDeviceid.length; q++) {
+          deviceid.push({ id: that.selectedDeviceid[q] });
+        }
+        console.log(opsid);
+        console.log(deviceid);
+        for (var a = 0; a < that.selectedTaskid.length; a++) {
+          let url =
+            "http://47.102.214.37:8080/ops/schedule/detail/" +
+            that.selectedTaskid[a];
+          axios
+            .put(url, {
+              device: deviceid,
+              ops: opsid,
+            })
+            .then((res) => {
+              console.log(res);
+            });
         }
       }
     },

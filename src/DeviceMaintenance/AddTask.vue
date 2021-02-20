@@ -37,12 +37,12 @@ export default {
     setTimeout(function() {
       if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
           .then((res) => {
             // console.log(res);
             for (var i = 0; i < res.data.content.length; i++) {
               console.log(res.data.content[i]);
-              that.taskData.push({
+              that.taskData.unshift({
                 taskID: res.data.content[i].id,
                 taskname: res.data.content[i].name,
               });

@@ -9,18 +9,6 @@
       <div class="Task-box">
         <el-form ref="form" :model="TaskInfo" label-position="left">
           <div class="part1">
-            <el-form-item label="设备名称" class="DeviceName Device">
-              <el-cascader
-                placeholder="试试搜索：Apple"
-                :options="options"
-                :props="{ multiple: true }"
-                filterable
-                clearable
-                @change="change"
-                style="width:180px"
-                v-model="TaskInfo.devicename"
-              ></el-cascader>
-            </el-form-item>
             <el-form-item label="保养周期" class="TaskTime">
               <div class="TaskTime_exp">
                 每
@@ -118,7 +106,6 @@ export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
-    that.JilianData();
     if (this.$route.query.taskID != undefined) {
       let url =
         "http://47.102.214.37:8080/ops/schedule/detail/" +
@@ -171,44 +158,9 @@ export default {
       value: "",
       // 级联选择
       options: [],
-      deviceid: [],
     };
   },
   methods: {
-    JilianData() {
-      let that = this;
-      // 设备名称
-      axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
-        // console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.value = res.data[i];
-          obj.label = res.data[i];
-          that.options.push(obj);
-          // console.log(that.options[0]);
-        }
-      });
-    },
-    Plus() {
-      // unshift() 从堆顶加入元素
-      this.taskData.unshift({
-        devicename: this.devicename,
-        deviceclazz: this.deviceclazz,
-      });
-      this.dialogVisible = false;
-    },
-    change(res) {
-      let that = this;
-      that.deviceid = [];
-      for (var i = 0; i < res.length; i++) {
-        let url = "http://47.102.214.37:8080/device/query?name==" + res[i][0];
-        axios.get(url).then((res) => {
-          that.deviceid.push({
-            id: res.data.content[0].id,
-          });
-        });
-      }
-    },
     // 保存编辑并提交
     submittask() {
       let that = this;
@@ -229,13 +181,9 @@ export default {
           scheduleType: that.TaskInfo.scheduleType,
           scheduleDay: that.TaskInfo.scheduleDay,
           side: that.TaskInfo.side,
-          device: that.deviceid,
-          manager: null,
           content: taskContent,
-          ops: null,
           remark: that.TaskInfo.attention,
           tools: taskTools,
-          parent: null,
         })
         .then((res) => {
           console.log(res);
@@ -348,11 +296,10 @@ export default {
           flex-direction: column;
           justify-content: center;
           align-self: flex-start;
-          margin-left: 20px;
           .TaskTime_exp {
             display: flex;
             .TaskTime-select {
-              width: 100px;
+              width: 120px;
               margin-left: 10px;
             }
             .TaskTime-input {
