@@ -174,18 +174,43 @@ export default {
           let url =
             "http://47.102.214.37:8080/ops/schedule/detail/" +
             that.selectedTaskid[a];
-          axios
-            .put(url, {
-              device: deviceid,
-              ops: opsid,
-            })
-            .then((res) => {
-              console.log(res);
-              that.$message({
-                message: "分配成功",
-                type: "success",
-              });
-            });
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            let acceptedStandard = res.data.acceptedStandard;
+            let content = res.data.content;
+            let id = res.data.id;
+            let name = res.data.name;
+            let parent = res.data.parent;
+            let remark = res.data.remark;
+            let scheduleDay = res.data.scheduleDay;
+            let scheduleType = res.data.scheduleType;
+            let side = res.data.side;
+            let tools = res.data.tools;
+            setTimeout(function() {
+              axios
+                .put(url, {
+                  acceptedStandard: acceptedStandard,
+                  content: content,
+                  device: deviceid,
+                  id: id,
+                  name: name,
+                  ops: opsid,
+                  parent: parent,
+                  remark: remark,
+                  scheduleDay: scheduleDay,
+                  scheduleType: scheduleType,
+                  side: side,
+                  tools: tools,
+                })
+                .then((res) => {
+                  console.log(res);
+                  that.$message({
+                    message: "分配成功",
+                    type: "success",
+                  });
+                });
+            }, 200);
+          });
         }
       }
     },
