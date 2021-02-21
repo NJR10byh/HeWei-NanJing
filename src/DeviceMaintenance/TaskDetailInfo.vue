@@ -4,7 +4,7 @@
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active"
-        >任务名称：{{ taskname }}
+        >任务名称：{{ name }}
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
@@ -15,7 +15,7 @@
         <div class="Side-Standard">
           <div class="part1" style="width: 40%;">
             <div class="Text">任务名称</div>
-            <div class="Info">{{ taskname }}</div>
+            <div class="Info">{{ name }}</div>
           </div>
           <div class="part1 Side" style="width: 40%;">
             <div class="Text">保养部位</div>
@@ -23,7 +23,7 @@
           </div>
           <div class="part1 Standard">
             <div class="Text">接受标准</div>
-            <div class="Info">{{ standard }}</div>
+            <div class="Info">{{ acceptedStandard }}</div>
           </div>
         </div>
         <div class="Name-Clazz-Time">
@@ -42,7 +42,7 @@
           <div class="part2 Time">
             <div class="Text">保养周期</div>
             <div class="Info">
-              {{ Time }}<span>（每{{ Time_info }}）</span>
+              {{ scheduleType }}<span>（每{{ scheduleType_info }}）</span>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@
           </div>
           <div class="part3 Attention">
             <div class="Text">注意事项</div>
-            <div class="Info">{{ attention }}</div>
+            <div class="Info">{{ remark }}</div>
           </div>
         </div>
       </div>
@@ -82,46 +82,101 @@ export default {
       that.$route.query.taskID;
     axios.get(url).then((res) => {
       console.log(res.data);
-      that.taskname = res.data.name;
-      that.standard = res.data.acceptedStandard;
-      that.side = res.data.side;
-      that.Time = res.data.scheduleType;
-      that.attention = res.data.remark;
-      if (that.Time == "Daily") {
-        that.Time_info = "天";
+      // 保养周期
+      if (res.data.scheduleType == null) {
+        that.scheduleType = res.data.parent.scheduleType;
+      } else {
+        that.scheduleType = res.data.scheduleType;
       }
-      if (that.Time == "Weekly") {
+      // 保养天数
+      if (res.data.scheduleDay == null) {
+        that.scheduleDay = res.data.parent.scheduleDay;
+      } else {
+        that.scheduleDay = res.data.scheduleDay;
+      }
+      if (that.scheduleType == "Daily") {
+        that.scheduleType_info = "天";
+      }
+      if (that.scheduleType == "Weekly") {
         switch (res.data.scheduleDay) {
           case 1:
-            that.Time_info = "周一";
+            that.scheduleType_info = "周一";
             break;
           case 2:
-            that.Time_info = "周二";
+            that.scheduleType_info = "周二";
             break;
           case 3:
-            that.Time_info = "周三";
+            that.scheduleType_info = "周三";
             break;
           case 4:
-            that.Time_info = "周四";
+            that.scheduleType_info = "周四";
             break;
           case 5:
-            that.Time_info = "周五";
+            that.scheduleType_info = "周五";
             break;
           case 6:
-            that.Time_info = "周六";
+            that.scheduleType_info = "周六";
             break;
           case 7:
-            that.Time_info = "周日";
+            that.scheduleType_info = "周日";
             break;
           default:
             break;
         }
-      } else if (that.Time == "Monthly") {
-        that.Time_info = "月" + res.data.scheduleDay + "号";
-      } else if (that.Time == "Yearly") {
-        that.Time_info = "年第" + res.data.scheduleDay + "天";
+      } else if (that.scheduleType == "Monthly") {
+        that.scheduleType_info = "月" + that.scheduleDay + "号";
+      } else if (that.scheduleType == "Yearly") {
+        that.scheduleType_info = "年第" + that.scheduleDay + "天";
       }
-      for (var i = 0; i < res.data.device.length; i++) {
+      // 任务名称
+      that.name = res.data.name;
+      // 保养部位
+      if (res.data.side == null) {
+        that.side = res.data.parent.side;
+      } else {
+        that.side = res.data.side;
+      }
+      // 接受标准
+      if (res.data.acceptedStandard == null) {
+        that.acceptedStandard = res.data.parent.acceptedStandard;
+      } else {
+        that.acceptedStandard = res.data.acceptedStandard;
+      }
+      // 保养内容
+      if (res.data.content.length == 0) {
+        for (let j = 0; j < res.data.parent.content.length; j++) {
+          that.content.push({
+            contentinfo: res.data.parent.content[j],
+          });
+        }
+      } else {
+        for (let j = 0; j < res.data.content.length; j++) {
+          that.content.push({
+            contentinfo: res.data.content[j],
+          });
+        }
+      }
+      // 保养工具
+      if (res.data.tools.length == 0) {
+        for (let j = 0; j < res.data.parent.tools.length; j++) {
+          that.tools.push({
+            toolsinfo: res.data.parent.tools[j],
+          });
+        }
+      } else {
+        for (let k = 0; k < res.data.tools.length; k++) {
+          that.tools.push({
+            toolsinfo: res.data.tools[k],
+          });
+        }
+      }
+      // 注意事项;
+      if (res.data.remark == null) {
+        that.remark = res.data.parent.remark;
+      } else {
+        that.remark = res.data.remark;
+      }
+      for (let i = 0; i < res.data.device.length; i++) {
         let searchdevice =
           "http://47.102.214.37:8080/device/" + res.data.device[i].id;
         axios.get(searchdevice).then((res) => {
@@ -131,35 +186,26 @@ export default {
           });
         });
       }
-      for (var j = 0; j < res.data.content.length; j++) {
-        that.content.push({
-          contentinfo: res.data.content[j],
-        });
-      }
-      for (var k = 0; k < res.data.tools.length; k++) {
-        that.tools.push({
-          toolsinfo: res.data.tools[k],
-        });
-      }
     });
   },
   data() {
     return {
       taskid: "", //任务ID
       /* part1 */
-      taskname: "", // 任务名称
+      name: "", // 任务名称
       side: "", // 保养部位
-      standard: "", // 接受标准
+      acceptedStandard: "", // 接受标准
       /* part2 */
       // 设备信息
       deviceinfo: [],
       // 周期
-      Time: "",
-      Time_info: "a",
+      scheduleType: "",
+      scheduleDay: "",
+      scheduleType_info: "",
       /* part3 */
       content: [], // 保养内容
       tools: [], // 保养工具及备件
-      attention: "", // 注意事项
+      remark: "", // 注意事项
     };
   },
   methods: {
@@ -281,6 +327,8 @@ export default {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
+          // padding-right: 10px;
+          // border: 1px solid red;
           .Text {
             // border: 1px solid red;
             font-size: 18px;
@@ -293,6 +341,7 @@ export default {
             justify-content: flex-start;
             font-size: 14px;
             font-weight: 400;
+            padding-right: 10px;
           }
         }
       }

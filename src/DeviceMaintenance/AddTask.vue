@@ -13,9 +13,12 @@
         <h2>{{ item.taskname }}</h2>
         <div class="Btns">
           <el-button class="btn btn1" @click="showInfo(index)"
-            >以此为模版编辑</el-button
+            >以此为模版新增</el-button
           >
-          <el-button class="btn btn2" @click="deleteTask(index)"
+          <el-button class="btn btn2" @click="editTask(index)"
+            >编辑模版</el-button
+          >
+          <el-button class="btn btn3" @click="deleteTask(index)"
             >删除模版</el-button
           >
         </div>
@@ -73,9 +76,15 @@ export default {
         query: this.taskData[index],
       });
     },
+    editTask(index) {
+      this.$router.push({
+        path: "/editTask",
+        query: this.taskData[index],
+      });
+    },
     deleteTask(index) {
       let that = this;
-      console.log(that.taskData[index]);
+      // console.log(that.taskData[index]);
       that
         .$confirm(
           "这个是模版，所有继承它的维护任务也会被删除, \n是否确定?",
@@ -140,6 +149,8 @@ export default {
       // border: 1px solid red;
       h2 {
         font-size: 1.6em;
+        // border: 1px solid red;
+        padding: 0 10px;
       }
       .Btns {
         // border: 1px solid red;
@@ -149,15 +160,26 @@ export default {
         padding-top: 10px;
         .btn {
           padding: 8px 10px;
-          background: #409eff;
           color: #fff;
           border: 0;
           border-radius: 5px;
         }
+        .btn1 {
+          width: 150px;
+          padding: 12px 0;
+          background: #409eff;
+          font-size: 17px;
+        }
         .btn2 {
           width: 118px;
           margin: 10px 0 0 0;
-          background: #f96b6c;
+          background: #f8be20;
+          letter-spacing: 1px;
+        }
+        .btn3 {
+          width: 118px;
+          margin: 10px 0 0 0;
+          background: #fa5555;
           letter-spacing: 1px;
         }
       }

@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     taskdetail(index) {
-      console.log(index);
+      // console.log(index);
       this.$router.push({
         path: "/taskDetailInfo",
         query: this.taskData[index],
@@ -131,6 +131,7 @@ export default {
         // border: 1px solid red;
         h2 {
           font-size: 1.6em;
+          padding: 0 10px;
         }
         .Btns {
           // border: 1px solid red;

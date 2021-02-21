@@ -13,6 +13,7 @@ import Code from "@/DeviceManager/Code"; // 生成编码
 /* 设备保养 */
 import AddTask from "@/DeviceMaintenance/AddTask"; // 新增任务
 import AddTaskInside from "@/DeviceMaintenance/AddTaskInside"; // 新增任务详情页
+import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
@@ -84,6 +85,11 @@ var routes = [
       {
         path: "/addTaskInside",
         component: AddTaskInside,
+      },
+      // 编辑任务（模版）
+      {
+        path: "/editTask",
+        component: EditTask,
       },
       // 任务信息
       {
