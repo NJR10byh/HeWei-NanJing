@@ -327,7 +327,6 @@ export default {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          // padding-right: 10px;
           // border: 1px solid red;
           .Text {
             // border: 1px solid red;
