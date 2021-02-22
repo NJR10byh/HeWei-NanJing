@@ -140,15 +140,14 @@ export default {
           align-items: center;
           padding-top: 10px;
           .btn {
-            padding: 8px 10px;
+            padding: 10px;
+            width: 90px;
             background: #409eff;
             color: #fff;
             border: 0;
             border-radius: 5px;
-          }
-          .btn2 {
-            margin: 10px 0 0 0;
-            background: #f96b6c;
+            font-size: 15px;
+            font-weight: bold;
           }
         }
       }

@@ -12,6 +12,14 @@
         <el-button @click="back">返回</el-button>
       </div>
       <div class="Task-info">
+        <div class="Users">
+          <div class="part0" style="width: 40%;">
+            <div class="Text">维护人员</div>
+            <div class="Info" v-for="(item, index) in users" :key="index">
+              {{ item.usersName }}
+            </div>
+          </div>
+        </div>
         <div class="Side-Standard">
           <div class="part1" style="width: 40%;">
             <div class="Text">任务名称</div>
@@ -176,6 +184,7 @@ export default {
       } else {
         that.remark = res.data.remark;
       }
+      // 设备名称
       for (let i = 0; i < res.data.device.length; i++) {
         let searchdevice =
           "http://47.102.214.37:8080/device/" + res.data.device[i].id;
@@ -186,12 +195,28 @@ export default {
           });
         });
       }
+      // 维护人员
+      for (let i = 0; i < res.data.ops.length; i++) {
+        let searchops =
+          "http://47.102.214.37:8080/user/query?id==" + res.data.ops[i].id;
+        axios.get(searchops).then((res) => {
+          console.log(res.data.content[0]);
+          that.users.push({
+            usersName:
+              res.data.content[0].name +
+              "（ id：" +
+              res.data.content[0].id +
+              " ）",
+          });
+        });
+      }
     });
   },
   data() {
     return {
       taskid: "", //任务ID
       /* part1 */
+      users: [], // 维护人员
       name: "", // 任务名称
       side: "", // 保养部位
       acceptedStandard: "", // 接受标准
@@ -270,10 +295,35 @@ export default {
       padding: 10px 20px;
       margin-top: 10px;
       // border: 1px solid red;
-      .Side-Standard {
+      .Users {
         // border: 1px solid red;
         border-bottom: 1px solid #ddd;
         padding-bottom: 10px;
+        display: flex;
+        justify-content: flex-start;
+        .part0 {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          .Text {
+            // border: 1px solid red;
+            font-size: 18px;
+            font-weight: 600;
+          }
+          .Info {
+            // border: 1px solid red;
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start;
+            font-size: 14px;
+            font-weight: 400;
+          }
+        }
+      }
+      .Side-Standard {
+        // border: 1px solid red;
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
         display: flex;
         justify-content: flex-start;
         .part1 {
