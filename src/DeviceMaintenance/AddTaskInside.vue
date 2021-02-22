@@ -138,6 +138,8 @@ export default {
         // 注意事项
         that.TaskInfo.remark = res.data.remark;
       });
+    } else {
+      that.submitTaskInfo.parent = null;
     }
   },
   data() {
@@ -194,101 +196,143 @@ export default {
   methods: {
     // 保养周期改变
     changescheduleType(res) {
+      this.submitTaskInfo.scheduleType = null;
       this.submitTaskInfo.scheduleType = res;
     },
     // 保养周期天数改变
     changescheduleDay(res) {
+      this.submitTaskInfo.scheduleDay = null;
       this.submitTaskInfo.scheduleDay = res;
     },
     // 任务名称改变
     changename(res) {
+      this.submitTaskInfo.name = null;
       this.submitTaskInfo.name = res;
     },
     // 保养部位改变
     changeside(res) {
+      this.submitTaskInfo.side = null;
       this.submitTaskInfo.side = res;
     },
     // 接受标准改变
     changeacceptedStandard(res) {
-      console.log(res);
+      this.submitTaskInfo.acceptedStandard = null;
       this.submitTaskInfo.acceptedStandard = res;
     },
     // 保养内容改变
     changecontent(res) {
+      this.submitTaskInfo.content = null;
       console.log(res);
-      this.submitTaskInfo.content = res;
+      this.submitTaskInfo.content = res
+        .replace(/\r\n/g, ",")
+        .replace(/\n/g, ",")
+        .split(",");
     },
     // 保养工具改变
     changetools(res) {
+      this.submitTaskInfo.tools = null;
       console.log(res);
-      this.submitTaskInfo.tools = res;
+      this.submitTaskInfo.tools = res
+        .replace(/\r\n/g, ",")
+        .replace(/\n/g, ",")
+        .split(",");
     },
     // 注意事项改变
     changeremark(res) {
+      this.submitTaskInfo.remark = null;
       this.submitTaskInfo.remark = res;
     },
     // 保存编辑并提交
     submittask() {
       let that = this;
-      if (that.submitTaskInfo.scheduleType == null) {
-        that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
-      }
-      if (that.submitTaskInfo.scheduleDay == null) {
-        that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
-      }
-      if (that.submitTaskInfo.name == null) {
-        that.submitTaskInfo.name = that.TaskInfo.name;
-      }
-      if (that.submitTaskInfo.side == null) {
-        that.submitTaskInfo.side = that.TaskInfo.side;
-      }
-      if (that.submitTaskInfo.acceptedStandard == null) {
-        that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
-      }
-      if (that.submitTaskInfo.remark == null) {
-        that.submitTaskInfo.remark = that.TaskInfo.remark;
-      }
-      if (that.submitTaskInfo.content != null) {
-        that.submitTaskInfo.content = that
-          .preText(that.submitTaskInfo.content)
-          .split(",");
-        console.log(that.submitTaskInfo.content);
+      if (this.$route.query.taskID != undefined) {
+        if (that.submitTaskInfo.scheduleType == null) {
+          that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
+        }
+        if (that.submitTaskInfo.scheduleDay == null) {
+          that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
+        }
+        if (that.submitTaskInfo.name == null) {
+          that.submitTaskInfo.name = that.TaskInfo.name;
+        }
+        if (that.submitTaskInfo.side == null) {
+          that.submitTaskInfo.side = that.TaskInfo.side;
+        }
+        if (that.submitTaskInfo.acceptedStandard == null) {
+          that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
+        }
+        if (that.submitTaskInfo.remark == null) {
+          that.submitTaskInfo.remark = that.TaskInfo.remark;
+        }
+        if (that.submitTaskInfo.content == null) {
+          that.submitTaskInfo.content = that.TaskInfo.content
+            .replace(/\r\n/g, ",")
+            .replace(/\n/g, ",")
+            .split(",");
+          console.log(that.submitTaskInfo.content);
+        }
+        if (that.submitTaskInfo.tools == null) {
+          that.submitTaskInfo.tools = that.TaskInfo.tools
+            .replace(/\r\n/g, ",")
+            .replace(/\n/g, ",")
+            .split(",");
+          console.log(that.submitTaskInfo.tools);
+        }
+        console.log(that.submitTaskInfo);
+        axios
+          .post("http://47.102.214.37:8080/ops/schedule", that.submitTaskInfo)
+          .then((res) => {
+            if (res.data.message == "ok") {
+              this.$message({
+                message: "新建成功",
+                type: "success",
+              });
+              this.$router.push({
+                path: "/addTask",
+              });
+            }
+          });
       } else {
-        that.submitTaskInfo.content = that
-          .preText(that.TaskInfo.content)
-          .split(",");
-      }
-      if (that.submitTaskInfo.tools != null) {
-        that.submitTaskInfo.tools = that
-          .preText(that.submitTaskInfo.tools)
-          .split(",");
-        console.log(that.submitTaskInfo.tools);
-      } else {
-        that.submitTaskInfo.tools = that
-          .preText(that.TaskInfo.tools)
-          .split(",");
-      }
-      console.log(that.submitTaskInfo);
-      axios
-        .post("http://47.102.214.37:8080/ops/schedule", that.submitTaskInfo)
-        .then((res) => {
-          if (res.data.message == "ok") {
-            this.$message({
-              message: "新建成功",
-              type: "success",
+        if (
+          that.submitTaskInfo.scheduleType == null ||
+          that.submitTaskInfo.scheduleDay == null ||
+          that.submitTaskInfo.name == null ||
+          that.submitTaskInfo.side == null ||
+          that.submitTaskInfo.remark == null ||
+          that.submitTaskInfo.content == null ||
+          that.submitTaskInfo.tools == null ||
+          that.submitTaskInfo.acceptedStandard == null ||
+          that.submitTaskInfo.content[0] == "" ||
+          that.submitTaskInfo.tools[0] == ""
+        ) {
+          this.$message({
+            message: "请将信息填写完整（无内容可填写：无）",
+            type: "warning",
+          });
+          return;
+        } else {
+          console.log(that.submitTaskInfo);
+          axios
+            .post("http://47.102.214.37:8080/ops/schedule", that.submitTaskInfo)
+            .then((res) => {
+              if (res.data.message == "ok") {
+                this.$message({
+                  message: "新建成功",
+                  type: "success",
+                });
+                this.$router.push({
+                  path: "/addTask",
+                });
+              }
             });
-          }
-        });
+        }
+      }
     },
     // 取消编辑
     cancel() {
       this.$router.push({
         path: "/addTask",
       });
-    },
-    // 多行文本域内容逐行获取
-    preText(pretext) {
-      return pretext.replace(/\r\n/g, ",").replace(/\n/g, ",");
     },
   },
 };

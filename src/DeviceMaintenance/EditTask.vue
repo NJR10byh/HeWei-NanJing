@@ -198,57 +198,52 @@ export default {
     };
   },
   methods: {
-    // 清空submitTaskInfo
-    Clear() {
-      this.submitTaskInfo.scheduleType = null;
-      this.submitTaskInfo.scheduleDay = null;
-      this.submitTaskInfo.name = null;
-      this.submitTaskInfo.side = null;
-      this.submitTaskInfo.acceptedStandard = null;
-      this.submitTaskInfo.content = null;
-      this.submitTaskInfo.tools = null;
-      this.submitTaskInfo.remark = null;
-    },
     // 保养周期改变
     changescheduleType(res) {
-      this.Clear();
+      this.submitTaskInfo.scheduleType = null;
       this.submitTaskInfo.scheduleType = res;
     },
     // 保养周期天数改变
     changescheduleDay(res) {
-      this.Clear();
+      this.submitTaskInfo.scheduleDay = null;
       this.submitTaskInfo.scheduleDay = res;
     },
     // 任务名称改变
     changename(res) {
-      this.Clear();
+      this.submitTaskInfo.name = null;
       this.submitTaskInfo.name = res;
     },
     // 保养部位改变
     changeside(res) {
-      this.Clear();
+      this.submitTaskInfo.side = null;
       this.submitTaskInfo.side = res;
     },
     // 接受标准改变
     changeacceptedStandard(res) {
-      this.Clear();
+      this.submitTaskInfo.acceptedStandard = null;
       this.submitTaskInfo.acceptedStandard = res;
     },
     // 保养内容改变
     changecontent(res) {
-      this.Clear();
+      this.submitTaskInfo.content = null;
       console.log(res);
-      this.submitTaskInfo.content = res;
+      this.submitTaskInfo.content = res
+        .replace(/\r\n/g, ",")
+        .replace(/\n/g, ",")
+        .split(",");
     },
     // 保养工具改变
     changetools(res) {
-      this.Clear();
+      this.submitTaskInfo.tools = null;
       console.log(res);
-      this.submitTaskInfo.tools = res;
+      this.submitTaskInfo.tools = res
+        .replace(/\r\n/g, ",")
+        .replace(/\n/g, ",")
+        .split(",");
     },
     // 注意事项改变
     changeremark(res) {
-      this.Clear();
+      this.submitTaskInfo.remark = null;
       this.submitTaskInfo.remark = res;
     },
     // 保存编辑并提交
@@ -272,57 +267,58 @@ export default {
       if (that.submitTaskInfo.remark == null) {
         that.submitTaskInfo.remark = that.TaskInfo.remark;
       }
-      if (that.submitTaskInfo.content != null) {
-        that.submitTaskInfo.content = that.submitTaskInfo.content
-          .replace(/\r\n/g, ",")
-          .replace(/\n/g, ",")
-          .split(",");
-        console.log(that.submitTaskInfo.content);
-      } else {
+      if (that.submitTaskInfo.content == null) {
         that.submitTaskInfo.content = that.TaskInfo.content
           .replace(/\r\n/g, ",")
           .replace(/\n/g, ",")
           .split(",");
+        console.log(that.submitTaskInfo.content);
       }
-      if (that.submitTaskInfo.tools != null) {
-        that.submitTaskInfo.tools = that.submitTaskInfo.tools
-          .replace(/\r\n/g, ",")
-          .replace(/\n/g, ",")
-          .split(",");
-        console.log(that.submitTaskInfo.tools);
-      } else {
+      if (that.submitTaskInfo.tools == null) {
         that.submitTaskInfo.tools = that.TaskInfo.tools
           .replace(/\r\n/g, ",")
           .replace(/\n/g, ",")
           .split(",");
+        console.log(that.submitTaskInfo.tools);
       }
       console.log(that.submitTaskInfo);
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios
-        .put(url, {
-          acceptedStandard: that.submitTaskInfo.acceptedStandard,
-          content: that.submitTaskInfo.content,
-          device: that.submitTaskInfo.device,
-          id: that.submitTaskInfo.id,
-          name: that.submitTaskInfo.name,
-          ops: that.submitTaskInfo.ops,
-          parent: that.submitTaskInfo.parent,
-          remark: that.submitTaskInfo.remark,
-          scheduleDay: that.submitTaskInfo.scheduleDay,
-          scheduleType: that.submitTaskInfo.scheduleType,
-          side: that.submitTaskInfo.side,
-          tools: that.submitTaskInfo.tools,
-        })
-        .then((res) => {
-          console.log(res);
-          that.$message({
-            message: "修改成功",
-            type: "success",
-          });
-          that.$router.push("/addTask");
+      if (
+        that.submitTaskInfo.content[0] == "" ||
+        that.submitTaskInfo.tools[0] == ""
+      ) {
+        this.$message({
+          message: "请将信息填写完整（无内容可填写：无）",
+          type: "warning",
         });
+        return;
+      } else {
+        let url =
+          "http://47.102.214.37:8080/ops/schedule/detail/" +
+          this.$route.query.taskID;
+        axios
+          .put(url, {
+            acceptedStandard: that.submitTaskInfo.acceptedStandard,
+            content: that.submitTaskInfo.content,
+            device: that.submitTaskInfo.device,
+            id: that.submitTaskInfo.id,
+            name: that.submitTaskInfo.name,
+            ops: that.submitTaskInfo.ops,
+            parent: that.submitTaskInfo.parent,
+            remark: that.submitTaskInfo.remark,
+            scheduleDay: that.submitTaskInfo.scheduleDay,
+            scheduleType: that.submitTaskInfo.scheduleType,
+            side: that.submitTaskInfo.side,
+            tools: that.submitTaskInfo.tools,
+          })
+          .then((res) => {
+            console.log(res);
+            that.$message({
+              message: "修改成功",
+              type: "success",
+            });
+            that.$router.push("/addTask");
+          });
+      }
     },
     // 取消编辑
     cancel() {
