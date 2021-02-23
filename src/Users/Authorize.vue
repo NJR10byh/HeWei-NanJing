@@ -5,34 +5,40 @@
         <div class="head-text">授权</div>
       </div>
       <div class="input-body">
-        <span>只能创建一个管理员，以及三种普通用户权限</span>
+        <span v-if="['ROOT'].includes(userRole)"
+          >只能创建一个管理员，以及三种普通用户权限</span
+        >
+        <span v-if="['ADMIN'].includes(userRole)"
+          >可以创建三种普通用户权限</span
+        >
         <el-select
           v-model="value1"
           placeholder="人员选择"
           clearable
           filterable
           multiple
-          @change="change1"
         >
-          <el-option
-            v-for="item in options1"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+          <el-option-group
+            v-for="group in options1"
+            :key="group.label"
+            :label="group.label"
           >
-          </el-option>
+            <el-option
+              v-for="item in group.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-option-group>
         </el-select>
-        <el-select
-          v-model="value2"
-          placeholder="权限选择"
-          clearable
-          @change="change2"
-        >
+        <el-select v-model="value2" placeholder="权限选择" clearable>
           <el-option
             v-for="item in options2"
             :key="item.value"
             :label="item.label"
             :value="item.value"
+            :disabled="item.disabled"
           >
           </el-option>
         </el-select>
@@ -47,17 +53,91 @@
 import axios from "axios";
 export default {
   created: function() {
+    let that = this;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      this.userRole = res.data.role;
+      if (this.userRole == "ADMIN") {
+        that.options2.shift();
+      }
+    });
     axios.get("http://47.102.214.37:8080/user/query?role=!ROOT").then((res) => {
-      console.log(res);
+      console.log(res.data);
+      setTimeout(function() {
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "ADMIN") {
+            that.options1[0].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
+            that.options2[0].disabled = true;
+            // console.log(that.options2[0].disabled);
+          }
+          if (res.data.content[i].role == "CREATOR") {
+            that.options1[1].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
+          }
+          if (res.data.content[i].role == "OPERATOR") {
+            that.options1[2].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
+          }
+          if (res.data.content[i].role == "SUPERVISOR") {
+            that.options1[3].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
+          }
+        }
+      }, 200);
     });
   },
   data() {
     return {
-      options1: [],
+      userRole: "",
+      // 人员信息
+      options1: [
+        {
+          label: "ADMIN",
+          options: [],
+        },
+        {
+          label: "CREATOR",
+          options: [],
+        },
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+        {
+          label: "SUPERVISOR",
+          options: [],
+        },
+      ],
+      // 权限
       options2: [
         {
           value: "ADMIN",
           label: "ADMIN",
+          disabled: false,
         },
         {
           value: "CREATOR",
@@ -77,15 +157,45 @@ export default {
     };
   },
   methods: {
-    change1(res) {
-      console.log(res);
-    },
-    change2(res) {
-      console.log(res);
-    },
     submit() {
       let that = this;
+      console.log(that.value1);
       console.log(that.value2);
+      for (let i = 0; i < that.value1.length; i++) {
+        console.log(that.value1[i]);
+        let url = "http://47.102.214.37:8080/user/" + that.value1[i];
+        axios.get(url).then((res) => {
+          // console.log(res.data);
+          let obj = {
+            email: res.data.email,
+            id: res.data.id,
+            name: res.data.name,
+            role: that.value2,
+            username: res.data.username,
+            enable: res.data.enable,
+          };
+          setTimeout(function() {
+            console.log(obj);
+            axios
+              .put(url, obj)
+              .then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "授权成功",
+                  type: "success",
+                });
+                that.$router.push("/users");
+              })
+              .catch((res) => {
+                console.log(res.response);
+                that.$message({
+                  message: "授权失败",
+                  type: "error",
+                });
+              });
+          }, 200);
+        });
+      }
     },
   },
 };
@@ -131,6 +241,10 @@ export default {
       span {
         font-size: 12px;
         letter-spacing: 1px;
+      }
+      .el-select {
+        // border: 1px solid red;
+        width: 75%;
       }
     }
     .login-btn {

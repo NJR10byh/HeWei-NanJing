@@ -7,7 +7,7 @@
       <div class="input-body">
         <span>仅能修改姓名、邮箱和密码</span>
         <span>（注：不需要修改的内容可不用填写）</span>
-        <el-input placeholder="姓名" v-model="username" clearable></el-input>
+        <el-input placeholder="姓名" v-model="name" clearable></el-input>
         <el-input
           placeholder="电子邮件"
           v-model="email"
@@ -41,12 +41,12 @@ export default {
     let that = this;
     console.log(this.$route.query);
     that.userid = this.$route.query.id;
-    that.username = this.$route.query.username;
+    that.name = this.$route.query.name;
     that.email = this.$route.query.email;
   },
   data() {
     return {
-      username: "",
+      name: "",
       userid: "",
       email: "",
       password: "",
@@ -70,24 +70,40 @@ export default {
     },
     submit() {
       let that = this;
-      console.log(that.username);
+      console.log(that.name);
       console.log(that.email);
-      axios
-        .post("http://47.102.214.37:8080/user/me/edit", {
-          username: that.username,
+      console.log(that.userid);
+      let url = "http://47.102.214.37:8080/user/" + that.userid;
+      axios.get(url).then((res) => {
+        // console.log(res.data);
+        let obj = {
           email: that.email,
-          id: that.userid,
-        })
-        .then((res) => {
-          // console.log(res);
-          if (res.status == 200) {
-            this.$message({
-              message: "修改成功",
-              type: "success",
+          id: res.data.id,
+          name: that.name,
+          role: res.data.role,
+          username: res.data.username,
+          enable: res.data.enable,
+        };
+        setTimeout(function() {
+          console.log(obj);
+          axios
+            .put(url, obj)
+            .then((res) => {
+              console.log(res);
+              that.$message({
+                message: "修改成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              console.log(res.response);
+              that.$message({
+                message: "修改失败",
+                type: "error",
+              });
             });
-            this.$router.push({ path: "/users" });
-          }
-        });
+        }, 200);
+      });
     },
   },
 };

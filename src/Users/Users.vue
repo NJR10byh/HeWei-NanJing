@@ -3,14 +3,14 @@
     <div class="box">
       <div
         class="module"
-        @click="Register"
+        @click="UserList"
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
       >
         <div class="top">
           <img src="../assets/img/register.png" />
         </div>
         <div class="bottom">
-          注册
+          用户列表
         </div>
       </div>
       <div
@@ -24,6 +24,9 @@
         </div>
         <div class="User-info">
           <div>
+            姓名：<span>{{ name }}</span>
+          </div>
+          <div class="userid">
             用户ID：<span>{{ userID }}</span>
           </div>
           <div class="username">
@@ -70,6 +73,7 @@ export default {
       // this.uesrInfo.push(res.data.email);
       this.uesrInfo = res.data;
       this.userName = res.data.username;
+      this.name = res.data.name;
       this.userID = res.data.id;
       this.userRole = res.data.role;
       this.userEmail = res.data.email;
@@ -81,14 +85,15 @@ export default {
       userName: "",
       userID: "",
       userEmail: "",
+      name: "",
       uesrInfo: {},
     };
   },
   methods: {
     // 注册用户
-    Register() {
-      console.log("Register");
-      this.$router.push({ path: "/register" });
+    UserList() {
+      console.log("UserList");
+      this.$router.push({ path: "/userList" });
     },
     // 授权用户
     Authorize() {
@@ -109,8 +114,10 @@ export default {
         cancelButtonText: "取消",
       })
         .then(() => {
-          window.localStorage.clear();
-          that.$router.push({ path: "/" });
+          localStorage.clear();
+          setTimeout(function() {
+            that.$router.push({ path: "/" });
+          }, 1000);
         })
         .catch(() => {});
     },
@@ -148,7 +155,7 @@ export default {
       transition: 0.5s;
       .top {
         width: 80%;
-        height: 65%;
+        height: 60%;
         // border: 1px solid red;
         display: flex;
         justify-content: center;
@@ -159,19 +166,23 @@ export default {
       }
       .bottom {
         width: 80%;
-        height: 35%;
+        height: 40%;
         display: flex;
         justify-content: center;
         align-items: flex-start;
         color: #409eff;
         font-size: 30px;
+        // border: 1px solid red;
       }
       .User-info {
         // border: 1px solid red;
-        height: 35%;
+        height: 45%;
         font-weight: bold;
         span {
           font-weight: normal;
+        }
+        .userid {
+          margin-top: 10px;
         }
         .username {
           margin-top: 10px;

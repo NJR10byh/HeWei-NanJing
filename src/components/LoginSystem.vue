@@ -27,19 +27,21 @@ axios.defaults.withCredentials = true;
 import qs from "qs";
 export default {
   created: function() {
-    axios
-      .get("http://47.102.214.37:8080/user/me")
-      .then(() => {
-        this.$message({
-          message: "登录成功",
-          type: "success",
+    setTimeout(() => {
+      axios
+        .get("http://47.102.214.37:8080/user/me")
+        .then(() => {
+          this.$message({
+            message: "登录成功",
+            type: "success",
+          });
+          this.$router.push("/users");
+        })
+        .catch((res) => {
+          console.log(res.response);
+          return;
         });
-        this.$router.push("/users");
-      })
-      .catch((res) => {
-        console.log(res.response);
-        return;
-      });
+    }, 1000);
   },
   data() {
     return {
@@ -68,7 +70,9 @@ export default {
             message: "登录成功",
             type: "success",
           });
-          this.$router.push("./users");
+          setTimeout(() => {
+            this.$router.push("/users");
+          }, 1000);
         })
         .catch((res) => {
           console.log(res.response);

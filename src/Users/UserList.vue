@@ -1,0 +1,448 @@
+<template>
+  <div class="Container-Register">
+    <!-- 搜索 -->
+    <div class="head-btn">
+      <div class="oper-btns-left">
+        <div class="refresh">
+          <el-button icon="el-icon-refresh" @click="refresh"
+            >刷新列表
+          </el-button>
+        </div>
+      </div>
+      <div class="oper-btns-right">
+        <el-button
+          class="bigdel-btn"
+          icon="el-icon-delete"
+          @click="delectExtraInfo"
+          >批量删除</el-button
+        >
+      </div>
+    </div>
+    <!-- table -->
+    <el-table
+      ref="multipleTable"
+      :data="tableData"
+      stripe
+      border
+      style="width:100%;"
+      class="extraTable"
+      @selection-change="handleDetailSelectionChange"
+    >
+      <el-table-column type="selection"></el-table-column>
+      <el-table-column prop="id" label="用户ID"></el-table-column>
+      <el-table-column prop="username" label="用户名"></el-table-column>
+      <el-table-column prop="name" label="姓名"></el-table-column>
+      <el-table-column prop="userrole" label="用户权限"></el-table-column>
+      <el-table-column prop="setting" label="操作" width="200">
+        <template slot-scope="scope">
+          <el-tooltip content="修改" effect="light" :enterable="false">
+            <el-button
+              icon="iconfont icon-bianji"
+              @click="handleEdit(scope.$index, scope.row)"
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除" :enterable="false">
+            <el-button
+              icon="iconfont icon-shanchu"
+              @click="handleDelete(scope.$index, scope.row)"
+            ></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页 -->
+    <div class="block">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="10"
+        layout="sizes,total, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
+  </div>
+</template>
+<script>
+import axios from "axios";
+export default {
+  created: function() {
+    let that = this;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      that.userRole = res.data.role;
+    });
+    setTimeout(() => {
+      if (that.userRole == "ROOT") {
+        axios
+          .get(
+            "http://47.102.214.37:8080/user/query?role=IADMIN,CREATOR,OPERATOR,SUPERVISOR"
+          )
+          .then((res) => {
+            console.log(res);
+            that.total = res.data.content.length;
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "ADMIN") {
+                that.tableData.unshift({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              } else {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
+            }
+          });
+      } else if (that.userRole == "ADMIN") {
+        axios
+          .get(
+            "http://47.102.214.37:8080/user/query?role=ICREATOR,OPERATOR,SUPERVISOR"
+          )
+          .then((res) => {
+            console.log(res);
+            for (let i = 0; i < res.data.content.length; i++) {
+              that.tableData.push({
+                id: res.data.content[i].id,
+                username: res.data.content[i].username,
+                userrole: res.data.content[i].role,
+                name: res.data.content[i].name,
+                email: res.data.content[i].email,
+              });
+            }
+          });
+      }
+    }, 200);
+  },
+  data() {
+    return {
+      userRole: "",
+      tableData: [],
+      // 分页
+      currentPage: 1,
+      page: 1,
+      size: 10,
+      total: 0,
+    };
+  },
+  methods: {
+    //单选框选中数据
+    handleDetailSelectionChange(selection) {
+      this.checkedDetail = selection;
+    },
+    // 刷新列表
+    refresh() {
+      let that = this;
+      that.tableData = [];
+      if (that.userRole == "ROOT") {
+        axios
+          .get(
+            "http://47.102.214.37:8080/user/query?role=IADMIN,CREATOR,OPERATOR,SUPERVISOR"
+          )
+          .then((res) => {
+            console.log(res);
+            that.total = res.data.content.length;
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "ADMIN") {
+                that.tableData.unshift({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              } else {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
+            }
+          });
+      } else if (that.userRole == "ADMIN") {
+        axios
+          .get(
+            "http://47.102.214.37:8080/user/query?role=ICREATOR,OPERATOR,SUPERVISOR"
+          )
+          .then((res) => {
+            console.log(res);
+            for (let i = 0; i < res.data.content.length; i++) {
+              that.tableData.push({
+                id: res.data.content[i].id,
+                username: res.data.content[i].username,
+                userrole: res.data.content[i].role,
+                name: res.data.content[i].name,
+                email: res.data.content[i].email,
+              });
+            }
+          });
+      }
+      that.$message({
+        message: "列表已更新",
+        type: "success",
+      });
+    },
+    // 编辑员工信息
+    handleEdit(index) {
+      console.log(this.tableData[index]);
+      this.$router.push({
+        path: "/edituser",
+        query: this.tableData[index],
+      });
+    },
+    // 删除单个行
+    handleDelete(index) {
+      let that = this;
+      this.$confirm("删除后无法更改, 是否确定?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          let url =
+            "http://47.102.214.37:8080/user/" + that.tableData[index].id;
+          console.log(url);
+          axios.delete(url).then(() => {
+            that.tableData.splice(index, 1);
+            this.$message({
+              message: "删除成功",
+              type: "success",
+            });
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    // 批量删除字段
+    delectExtraInfo() {
+      let that = this;
+      if (this.checkedDetail.length == 0) {
+        that.$alert("请先选择要删除的数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        that
+          .$confirm("此用户将被永久删除, \n是否确定?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          })
+          .then(() => {
+            that.checkedDetail.forEach((element) => {
+              that.tableData.forEach((e, i) => {
+                if (element.id == e.id) {
+                  console.log(element, e, i);
+                  let url = "http://47.102.214.37:8080/user/" + e.id;
+                  console.log(url);
+                  axios.delete(url).then(() => {
+                    that.tableData.splice(i, 1);
+                    this.$message({
+                      message: "删除成功",
+                      type: "success",
+                    });
+                  });
+                }
+              });
+            });
+          })
+          .catch(() => {
+            this.$message.info("已取消删除");
+          });
+      }
+    },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      console.log(val);
+      that.size = val;
+      let url =
+        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        for (var i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          obj["brand"] = res.data.content[i].brand;
+          obj.type = res.data.content[i].type;
+          obj.deviceNo = res.data.content[i].deviceNo;
+          if (res.data.content[i].extra.length != 0) {
+            for (var j = 0; j < res.data.content[i].extra.length; j++) {
+              obj[res.data.content[i].extra[j].field.id] =
+                res.data.content[i].extra[j].value;
+            }
+          }
+          if (res.data.content[i].crux == true) {
+            obj.crux = "Y";
+          } else if (res.data.content[i].crux == false) {
+            obj.crux = "N";
+          }
+          obj.clazz = res.data.content[i].clazz;
+          that.tableData.push(obj);
+        }
+      });
+    },
+    // 页变化
+    handleCurrentChange(val) {
+      let that = this;
+      that.page = val;
+      that.currentPage = val;
+      console.log(val);
+      let url =
+        "http://47.102.214.37:8080/device?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.size;
+      axios.get(url).then((res) => {
+        // console.log(res.data);
+        that.tableData = [];
+        for (var i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          obj["brand"] = res.data.content[i].brand;
+          obj.type = res.data.content[i].type;
+          obj.deviceNo = res.data.content[i].deviceNo;
+          if (res.data.content[i].extra.length != 0) {
+            for (var j = 0; j < res.data.content[i].extra.length; j++) {
+              obj[res.data.content[i].extra[j].field.id] =
+                res.data.content[i].extra[j].value;
+            }
+          }
+          if (res.data.content[i].crux == true) {
+            obj.crux = "Y";
+          } else if (res.data.content[i].crux == false) {
+            obj.crux = "N";
+          }
+          obj.clazz = res.data.content[i].clazz;
+          that.tableData.push(obj);
+        }
+      });
+    },
+  },
+};
+</script>
+<style lang="scss">
+.Container-Register {
+  width: 100%;
+  padding: 10px 0;
+  // border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .head-btn {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    // border: 1px solid red;
+    .oper-btns-left {
+      // border: 1px solid red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .refresh {
+        .el-button {
+          padding: 0 10px;
+          height: 30px;
+          border-radius: 5px;
+          font-size: 12px;
+          width: 85px;
+          border: 1px solid #409eff;
+          color: #409eff;
+          margin-left: 10px;
+        }
+      }
+    }
+    .oper-btns-right {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 10px;
+      // border: 1px solid red;
+      .el-button {
+        padding: 0 10px;
+        height: 30px;
+        border-radius: 5px;
+        font-size: 12px;
+        &.bigdel-btn {
+          width: 85px;
+          border: 1px solid #f96b6c;
+          color: #f96b6c;
+        }
+        &.bigdel-btn:hover {
+          background: #ffcccc;
+        }
+      }
+    }
+  }
+  .el-pagination {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .extraTable {
+    .el-table__header {
+      th {
+        background: #fafafa;
+        &:first-child {
+          border-right: none;
+        }
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
+          }
+        }
+      }
+    }
+    .el-table__body {
+      td {
+        &:first-child {
+          border-right: none;
+        }
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
+          }
+        }
+      }
+      .el-button {
+        border: none;
+        padding: 5px 10px;
+        background: transparent;
+        &:first-child:hover {
+          .iconfont {
+            color: #409eff;
+          }
+        }
+        &:nth-child(2):hover {
+          .iconfont {
+            color: #f96b6c;
+          }
+        }
+      }
+    }
+  }
+}
+</style>

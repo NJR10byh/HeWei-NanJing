@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 /* 用户管理 */
 import Users from "@/Users/Users";
-import Register from "@/Users/Register"; // 注册
+import UserList from "@/Users/UserList"; // 注册
 import Authorize from "@/Users/Authorize"; // 授权
 import Edituser from "@/Users/Edituser"; // 编辑用户信息
 /* 设备管理 */
@@ -41,8 +41,8 @@ var routes = [
       },
       // 注册用户
       {
-        path: "/register",
-        component: Register,
+        path: "/userList",
+        component: UserList,
       },
       // 授权用户
       {
