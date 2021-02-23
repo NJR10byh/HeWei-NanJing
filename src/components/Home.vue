@@ -286,6 +286,11 @@ export default {
               authName: "新增设备",
               path: "addDevice",
             },
+            {
+              id: 21,
+              authName: "设备信息",
+              path: "deviceInformation",
+            },
           ],
         },
         {
@@ -296,6 +301,11 @@ export default {
               id: 30,
               authName: "新增任务",
               path: "addTask",
+            },
+            {
+              id: 31,
+              authName: "任务信息",
+              path: "taskInformation",
             },
             {
               id: 32,
@@ -332,37 +342,6 @@ export default {
               id: 43,
               authName: "维修查询",
               path: "fixSearch",
-            },
-          ],
-        },
-        {
-          id: 5,
-          authName: "数据分析",
-          children: [
-            {
-              id: 50,
-              authName: "故障分析",
-              path: "faultAnalysis",
-            },
-            {
-              id: 51,
-              authName: "保养分析",
-              path: "maintenanceAnalysis",
-            },
-            {
-              id: 52,
-              authName: "维修分析",
-              path: "fixAnalysis",
-            },
-            {
-              id: 53,
-              authName: "使用日志",
-              path: "useLogs",
-            },
-            {
-              id: 54,
-              authName: "维修日志",
-              path: "fixLogs",
             },
           ],
         },

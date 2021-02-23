@@ -1,5 +1,5 @@
 <template>
-  <div class="Box" v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)">
+  <div class="Box">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb-top" separator="/">
       <el-breadcrumb-item class="pathActive">设备管理</el-breadcrumb-item>
@@ -825,48 +825,46 @@ export default {
       that.userRole = res.data.role;
     });
     setTimeout(function() {
-      if (["ROOT", "ADMIN", "OPERATOR"].includes(that.userRole)) {
-        that.JilianData();
-        // 获取所有附加字段
-        axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-          // console.log(res.data);
-          for (let i = 0; i < res.data.length; i++) {
+      that.JilianData();
+      // 获取所有附加字段
+      axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+        // console.log(res.data);
+        for (let i = 0; i < res.data.length; i++) {
+          let obj = {};
+          obj.lable = res.data[i].name;
+          obj.width = "130";
+          obj.prop = res.data[i].id;
+          that.tableHead.push(obj);
+        }
+      });
+      // 获取所有设备
+      axios
+        .get("http://47.102.214.37:8080/device?page=0&size=10")
+        .then((res) => {
+          // console.log(res);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
             let obj = {};
-            obj.lable = res.data[i].name;
-            obj.width = "130";
-            obj.prop = res.data[i].id;
-            that.tableHead.push(obj);
+            obj.id = res.data.content[i].id;
+            obj.name = res.data.content[i].name;
+            obj["brand"] = res.data.content[i].brand;
+            obj.type = res.data.content[i].type;
+            obj.deviceNo = res.data.content[i].deviceNo;
+            if (res.data.content[i].extra.length != 0) {
+              for (let j = 0; j < res.data.content[i].extra.length; j++) {
+                obj[res.data.content[i].extra[j].field.id] =
+                  res.data.content[i].extra[j].value;
+              }
+            }
+            if (res.data.content[i].crux == true) {
+              obj.crux = "Y";
+            } else if (res.data.content[i].crux == false) {
+              obj.crux = "N";
+            }
+            obj.clazz = res.data.content[i].clazz;
+            that.tableData.push(obj);
           }
         });
-        // 获取所有设备
-        axios
-          .get("http://47.102.214.37:8080/device?page=0&size=10")
-          .then((res) => {
-            // console.log(res);
-            that.total = res.data.totalElements;
-            for (let i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.id = res.data.content[i].id;
-              obj.name = res.data.content[i].name;
-              obj["brand"] = res.data.content[i].brand;
-              obj.type = res.data.content[i].type;
-              obj.deviceNo = res.data.content[i].deviceNo;
-              if (res.data.content[i].extra.length != 0) {
-                for (let j = 0; j < res.data.content[i].extra.length; j++) {
-                  obj[res.data.content[i].extra[j].field.id] =
-                    res.data.content[i].extra[j].value;
-                }
-              }
-              if (res.data.content[i].crux == true) {
-                obj.crux = "Y";
-              } else if (res.data.content[i].crux == false) {
-                obj.crux = "N";
-              }
-              obj.clazz = res.data.content[i].clazz;
-              that.tableData.push(obj);
-            }
-          });
-      }
     }, 200);
   },
 };

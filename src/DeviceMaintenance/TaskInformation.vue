@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="Container-TaskInfomation"
-    v-if="['ROOT', 'ADMIN', 'OPERATOR'].includes(userRole)"
-  >
+  <div class="Container-TaskInfomation">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
@@ -52,7 +49,7 @@ export default {
       that.userID = res.data.id;
     });
     setTimeout(function() {
-      if (["ROOT", "ADMIN"].includes(that.userRole)) {
+      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
           .then((res) => {
