@@ -17,6 +17,7 @@
                   placeholder="请选择"
                   class="TaskTime-select"
                   v-model="TaskInfo.scheduleType"
+                  :disabled="scheduleTypedisabled"
                   @change="changescheduleType"
                 >
                   <el-option
@@ -30,13 +31,9 @@
                 <el-input
                   v-model="TaskInfo.scheduleDay"
                   class="TaskTime-input"
-                  placeholder="请填写每周几，每月几号，每季度第几月，每年第几天，只填写数字即可"
+                  placeholder="每周几，每月几号，每季度第几月，每年第几天，只填数字 (每天不填写)"
                   type="number"
-                  v-if="
-                    ['Weekly', 'Monthly', 'Seasonally', 'Yearly'].includes(
-                      TaskInfo.scheduleType
-                    )
-                  "
+                  :disabled="scheduleDaydisabled"
                   @input="changescheduleDay"
                 ></el-input>
               </div>
@@ -54,6 +51,7 @@
               <el-input
                 v-model="TaskInfo.side"
                 placeholder="请输入保养部位"
+                :disabled="sidedisabled"
                 @input="changeside"
               ></el-input>
             </el-form-item>
@@ -61,6 +59,7 @@
               <el-input
                 v-model="TaskInfo.acceptedStandard"
                 placeholder="请输入接受标准"
+                :disabled="acceptedStandarddisabled"
                 @input="changeacceptedStandard"
               ></el-input>
             </el-form-item>
@@ -72,6 +71,7 @@
                 type="textarea"
                 v-model="TaskInfo.content"
                 :rows="8"
+                :disabled="contentdisabled"
                 @input="changecontent"
               ></el-input>
             </el-form-item>
@@ -81,6 +81,7 @@
                 type="textarea"
                 v-model="TaskInfo.tools"
                 :rows="8"
+                :disabled="toolsdisabled"
                 @input="changetools"
               ></el-input>
             </el-form-item>
@@ -90,6 +91,7 @@
                 type="textarea"
                 v-model="TaskInfo.remark"
                 :rows="8"
+                :disabled="remarkdisabled"
                 @input="changeremark"
               ></el-input>
             </el-form-item>
@@ -119,27 +121,46 @@ export default {
         "http://47.102.214.37:8080/ops/schedule/detail/" +
         this.$route.query.taskID;
       axios.get(url).then((res) => {
-        console.log(res.data);
         that.submitTaskInfo.parent.id = res.data.id;
-        // 保养周期
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        // 保养天数
-        that.TaskInfo.scheduleDay = res.data.scheduleDay;
-        // 任务名称
-        that.TaskInfo.name = res.data.name;
-        // 保养部位
-        that.TaskInfo.side = res.data.side;
-        // 接受标准
-        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
-        // 保养内容
-        that.TaskInfo.content = res.data.content.join("\n");
-        // 保养工具
-        that.TaskInfo.tools = res.data.tools.join("\n");
-        // 注意事项
-        that.TaskInfo.remark = res.data.remark;
+        let i = res.data;
+        if (i.scheduleType != null) {
+          that.TaskInfo.scheduleType = i.scheduleType;
+          that.scheduleTypedisabled = false;
+        }
+        if (i.scheduleDay != null) {
+          that.TaskInfo.scheduleDay = i.scheduleDay;
+          that.scheduleDaydisabled = false;
+        }
+        if (i.side != null) {
+          that.TaskInfo.side = i.side;
+          that.sidedisabled = false;
+        }
+        if (i.acceptedStandard != null) {
+          that.TaskInfo.acceptedStandard = i.acceptedStandard;
+          that.acceptedStandarddisabled = false;
+        }
+        if (i.content != "") {
+          that.TaskInfo.content = i.content.join("\n");
+          that.contentdisabled = false;
+        }
+        if (i.tools != "") {
+          that.TaskInfo.tools = i.tools.join("\n");
+          that.toolsdisabled = false;
+        }
+        if (i.remark != null) {
+          that.TaskInfo.remark = i.remark;
+          that.remarkdisabled = false;
+        }
       });
     } else {
       that.submitTaskInfo.parent = null;
+      that.scheduleTypedisabled = false;
+      that.scheduleDaydisabled = false;
+      that.sidedisabled = false;
+      that.acceptedStandarddisabled = false;
+      that.contentdisabled = false;
+      that.toolsdisabled = false;
+      that.remarkdisabled = false;
     }
   },
   data() {
@@ -191,6 +212,13 @@ export default {
           label: "天",
         },
       ],
+      scheduleTypedisabled: true,
+      scheduleDaydisabled: true,
+      sidedisabled: true,
+      acceptedStandarddisabled: true,
+      contentdisabled: true,
+      toolsdisabled: true,
+      remarkdisabled: true,
     };
   },
   methods: {
@@ -222,20 +250,12 @@ export default {
     // 保养内容改变
     changecontent(res) {
       this.submitTaskInfo.content = null;
-      console.log(res);
-      this.submitTaskInfo.content = res
-        .replace(/\r\n/g, ",")
-        .replace(/\n/g, ",")
-        .split(",");
+      this.submitTaskInfo.content = res.replace(/\n/g, ",").split(",");
     },
     // 保养工具改变
     changetools(res) {
       this.submitTaskInfo.tools = null;
-      console.log(res);
-      this.submitTaskInfo.tools = res
-        .replace(/\r\n/g, ",")
-        .replace(/\n/g, ",")
-        .split(",");
+      this.submitTaskInfo.tools = res.replace(/\n/g, ",").split(",");
     },
     // 注意事项改变
     changeremark(res) {
@@ -246,37 +266,26 @@ export default {
     submittask() {
       let that = this;
       if (this.$route.query.taskID != undefined) {
-        if (that.submitTaskInfo.scheduleType == null) {
-          that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
+        if (that.submitTaskInfo.scheduleType == "") {
+          that.submitTaskInfo.scheduleType = null;
         }
-        if (that.submitTaskInfo.scheduleDay == null) {
-          that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
+        if (that.submitTaskInfo.scheduleDay == "") {
+          that.submitTaskInfo.scheduleDay = null;
         }
-        if (that.submitTaskInfo.name == null) {
-          that.submitTaskInfo.name = that.TaskInfo.name;
+        if (that.submitTaskInfo.side == "") {
+          that.submitTaskInfo.side = null;
         }
-        if (that.submitTaskInfo.side == null) {
-          that.submitTaskInfo.side = that.TaskInfo.side;
+        if (that.submitTaskInfo.acceptedStandard == "") {
+          that.submitTaskInfo.acceptedStandard = null;
         }
-        if (that.submitTaskInfo.acceptedStandard == null) {
-          that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
+        if (that.submitTaskInfo.remark == "") {
+          that.submitTaskInfo.remark = null;
         }
-        if (that.submitTaskInfo.remark == null) {
-          that.submitTaskInfo.remark = that.TaskInfo.remark;
+        if (that.submitTaskInfo.content == "") {
+          that.submitTaskInfo.content = null;
         }
-        if (that.submitTaskInfo.content == null) {
-          that.submitTaskInfo.content = that.TaskInfo.content
-            .replace(/\r\n/g, ",")
-            .replace(/\n/g, ",")
-            .split(",");
-          console.log(that.submitTaskInfo.content);
-        }
-        if (that.submitTaskInfo.tools == null) {
-          that.submitTaskInfo.tools = that.TaskInfo.tools
-            .replace(/\r\n/g, ",")
-            .replace(/\n/g, ",")
-            .split(",");
-          console.log(that.submitTaskInfo.tools);
+        if (that.submitTaskInfo.tools == "") {
+          that.submitTaskInfo.tools = null;
         }
         console.log(that.submitTaskInfo);
         axios
@@ -294,16 +303,16 @@ export default {
           });
       } else {
         if (
-          that.submitTaskInfo.scheduleType == null ||
-          that.submitTaskInfo.scheduleDay == null ||
-          that.submitTaskInfo.name == null ||
-          that.submitTaskInfo.side == null ||
-          that.submitTaskInfo.remark == null ||
-          that.submitTaskInfo.content == null ||
-          that.submitTaskInfo.tools == null ||
-          that.submitTaskInfo.acceptedStandard == null ||
-          that.submitTaskInfo.content[0] == "" ||
-          that.submitTaskInfo.tools[0] == ""
+          that.TaskInfo.scheduleType == null ||
+          that.TaskInfo.scheduleDay == null ||
+          that.TaskInfo.name == null ||
+          that.TaskInfo.side == null ||
+          that.TaskInfo.remark == null ||
+          that.TaskInfo.content == null ||
+          that.TaskInfo.tools == null ||
+          that.TaskInfo.acceptedStandard == null ||
+          that.TaskInfo.content == "" ||
+          that.TaskInfo.tools == ""
         ) {
           this.$message({
             message: "请将信息填写完整（无内容可填写：无）",
@@ -311,6 +320,18 @@ export default {
           });
           return;
         } else {
+          that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
+          that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
+          that.submitTaskInfo.name = that.TaskInfo.name;
+          that.submitTaskInfo.side = that.TaskInfo.side;
+          that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
+          that.submitTaskInfo.content = that.TaskInfo.content
+            .replace(/\n/g, ",")
+            .split(",");
+          that.submitTaskInfo.tools = that.TaskInfo.tools
+            .replace(/\n/g, ",")
+            .split(",");
+          that.submitTaskInfo.remark = that.TaskInfo.remark;
           console.log(that.submitTaskInfo);
           axios
             .post("http://47.102.214.37:8080/ops/schedule", that.submitTaskInfo)

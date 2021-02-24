@@ -9,7 +9,7 @@
           </el-button>
         </div>
       </div>
-      <div class="oper-btns-right">
+      <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
         <el-button
           class="bigdel-btn"
           icon="el-icon-delete"
@@ -32,8 +32,14 @@
       <el-table-column prop="id" label="用户ID"></el-table-column>
       <el-table-column prop="username" label="用户名"></el-table-column>
       <el-table-column prop="name" label="姓名"></el-table-column>
+      <el-table-column prop="email" label="用户邮箱"></el-table-column>
       <el-table-column prop="userrole" label="用户权限"></el-table-column>
-      <el-table-column prop="setting" label="操作" width="200">
+      <el-table-column
+        prop="setting"
+        label="操作"
+        width="200"
+        v-if="['ROOT', 'ADMIN'].includes(userRole)"
+      >
         <template slot-scope="scope">
           <el-tooltip content="修改" effect="light" :enterable="false">
             <el-button
@@ -70,55 +76,47 @@ export default {
   created: function() {
     let that = this;
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
       that.userRole = res.data.role;
     });
     setTimeout(() => {
-      if (that.userRole == "ROOT") {
-        axios
-          .get(
-            "http://47.102.214.37:8080/user/query?role=IADMIN,CREATOR,OPERATOR,SUPERVISOR"
-          )
-          .then((res) => {
-            console.log(res);
-            that.total = res.data.content.length;
-            for (let i = 0; i < res.data.content.length; i++) {
-              if (res.data.content[i].role == "ADMIN") {
-                that.tableData.unshift({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
-              } else {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
-              }
-            }
-          });
-      } else if (that.userRole == "ADMIN") {
-        axios
-          .get(
-            "http://47.102.214.37:8080/user/query?role=ICREATOR,OPERATOR,SUPERVISOR"
-          )
-          .then((res) => {
-            console.log(res);
-            for (let i = 0; i < res.data.content.length; i++) {
-              that.tableData.push({
-                id: res.data.content[i].id,
-                username: res.data.content[i].username,
-                userrole: res.data.content[i].role,
-                name: res.data.content[i].name,
-                email: res.data.content[i].email,
-              });
-            }
-          });
-      }
+      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+        console.log(res);
+        that.total = res.data.content.length;
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "ROOT") {
+            that.tableData.unshift({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          } else if (res.data.content[i].role == "ADMIN") {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (
+            res.data.content[i].role != "ROOT" &&
+            res.data.content[i].role != "ADMIN"
+          ) {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+      });
     }, 200);
   },
   data() {
@@ -141,42 +139,21 @@ export default {
     refresh() {
       let that = this;
       that.tableData = [];
-      if (that.userRole == "ROOT") {
-        axios
-          .get(
-            "http://47.102.214.37:8080/user/query?role=IADMIN,CREATOR,OPERATOR,SUPERVISOR"
-          )
-          .then((res) => {
-            console.log(res);
-            that.total = res.data.content.length;
-            for (let i = 0; i < res.data.content.length; i++) {
-              if (res.data.content[i].role == "ADMIN") {
-                that.tableData.unshift({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
-              } else {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
-              }
-            }
-          });
-      } else if (that.userRole == "ADMIN") {
-        axios
-          .get(
-            "http://47.102.214.37:8080/user/query?role=ICREATOR,OPERATOR,SUPERVISOR"
-          )
-          .then((res) => {
-            console.log(res);
-            for (let i = 0; i < res.data.content.length; i++) {
+      axios
+        .get("http://47.102.214.37:8080/user/query")
+        .then((res) => {
+          console.log(res);
+          that.total = res.data.content.length;
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "ROOT") {
+              that.tableData.unshift({
+                id: res.data.content[i].id,
+                username: res.data.content[i].username,
+                userrole: res.data.content[i].role,
+                name: res.data.content[i].name,
+                email: res.data.content[i].email,
+              });
+            } else if (res.data.content[i].role == "ADMIN") {
               that.tableData.push({
                 id: res.data.content[i].id,
                 username: res.data.content[i].username,
@@ -185,12 +162,33 @@ export default {
                 email: res.data.content[i].email,
               });
             }
+          }
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (
+              res.data.content[i].role != "ROOT" &&
+              res.data.content[i].role != "ADMIN"
+            ) {
+              that.tableData.push({
+                id: res.data.content[i].id,
+                username: res.data.content[i].username,
+                userrole: res.data.content[i].role,
+                name: res.data.content[i].name,
+                email: res.data.content[i].email,
+              });
+            }
+          }
+          that.$message({
+            message: "列表已更新",
+            type: "success",
           });
-      }
-      that.$message({
-        message: "列表已更新",
-        type: "success",
-      });
+        })
+        .catch((res) => {
+          console.log(res.response);
+          that.$message({
+            message: "列表刷新失败",
+            type: "error",
+          });
+        });
     },
     // 编辑员工信息
     handleEdit(index) {

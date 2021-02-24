@@ -17,7 +17,7 @@
                   placeholder="请选择"
                   class="TaskTime-select"
                   v-model="TaskInfo.scheduleType"
-                  @change="changescheduleType"
+                  :disabled="scheduleTypedisabled"
                 >
                   <el-option
                     v-for="item in tasktime"
@@ -30,14 +30,9 @@
                 <el-input
                   v-model="TaskInfo.scheduleDay"
                   class="TaskTime-input"
-                  placeholder="请填写每周几，每月几号，每季度第几月，每年第几天，只填写数字即可"
+                  placeholder="每周几，每月几号，每季度第几月，每年第几天，只填数字 (每天不填写)"
                   type="number"
-                  v-if="
-                    ['Weekly', 'Monthly', 'Seasonally', 'Yearly'].includes(
-                      TaskInfo.scheduleType
-                    )
-                  "
-                  @input="changescheduleDay"
+                  :disabled="scheduleDaydisabled"
                 ></el-input>
               </div>
             </el-form-item>
@@ -47,21 +42,20 @@
               <el-input
                 v-model="TaskInfo.name"
                 placeholder="请输入任务名称"
-                @input="changename"
               ></el-input>
             </el-form-item>
             <el-form-item label="保养部位" style="width:32%">
               <el-input
                 v-model="TaskInfo.side"
                 placeholder="请输入保养部位"
-                @input="changeside"
+                :disabled="sidedisabled"
               ></el-input>
             </el-form-item>
             <el-form-item label="接受标准" style="width:32%">
               <el-input
                 v-model="TaskInfo.acceptedStandard"
                 placeholder="请输入接受标准"
-                @input="changeacceptedStandard"
+                :disabled="acceptedStandarddisabled"
               ></el-input>
             </el-form-item>
           </div>
@@ -72,7 +66,7 @@
                 type="textarea"
                 v-model="TaskInfo.content"
                 :rows="8"
-                @input="changecontent"
+                :disabled="contentdisabled"
               ></el-input>
             </el-form-item>
             <el-form-item label="保养工具及备件" style="width:32%">
@@ -81,7 +75,7 @@
                 type="textarea"
                 v-model="TaskInfo.tools"
                 :rows="8"
-                @input="changetools"
+                :disabled="toolsdisabled"
               ></el-input>
             </el-form-item>
             <el-form-item label="注意事项" style="width:32%">
@@ -90,7 +84,7 @@
                 type="textarea"
                 v-model="TaskInfo.remark"
                 :rows="8"
-                @input="changeremark"
+                :disabled="remarkdisabled"
               ></el-input>
             </el-form-item>
           </div>
@@ -114,34 +108,48 @@ export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
-    if (this.$route.query.taskID != undefined) {
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.submitTaskInfo.id = res.data.id;
-        that.submitTaskInfo.ops = res.data.ops;
-        that.submitTaskInfo.device = res.data.device;
-        that.submitTaskInfo.parent = res.data.parent;
-        // 保养周期
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        // 保养天数
-        that.TaskInfo.scheduleDay = res.data.scheduleDay;
-        // 任务名称
-        that.TaskInfo.name = res.data.name;
-        // 保养部位
-        that.TaskInfo.side = res.data.side;
-        // 接受标准
-        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
-        // 保养内容
-        that.TaskInfo.content = res.data.content.join("\n");
-        // 保养工具
-        that.TaskInfo.tools = res.data.tools.join("\n");
-        // 注意事项
-        that.TaskInfo.remark = res.data.remark;
-      });
-    }
+    let url =
+      "http://47.102.214.37:8080/ops/schedule/detail/" +
+      this.$route.query.taskID;
+    axios.get(url).then((res) => {
+      console.log(res.data);
+      if (res.data.parent != null) {
+        that.submitInfo.parent = { id: res.data.parent.id };
+      }
+      that.TaskInfo.id = res.data.id;
+      that.submitInfo.id = res.data.id;
+      that.TaskInfo.name = res.data.name;
+      that.submitInfo.name = res.data.name;
+      let i = res.data;
+      if (i.scheduleType != null) {
+        that.TaskInfo.scheduleType = i.scheduleType;
+        that.scheduleTypedisabled = false;
+      }
+      if (i.scheduleDay != null) {
+        that.TaskInfo.scheduleDay = i.scheduleDay;
+        that.scheduleDaydisabled = false;
+      }
+      if (i.side != null) {
+        that.TaskInfo.side = i.side;
+        that.sidedisabled = false;
+      }
+      if (i.acceptedStandard != null) {
+        that.TaskInfo.acceptedStandard = i.acceptedStandard;
+        that.acceptedStandarddisabled = false;
+      }
+      if (i.content != "") {
+        that.TaskInfo.content = i.content.join("\n");
+        that.contentdisabled = false;
+      }
+      if (i.tools != "") {
+        that.TaskInfo.tools = i.tools.join("\n");
+        that.toolsdisabled = false;
+      }
+      if (i.remark != null) {
+        that.TaskInfo.remark = i.remark;
+        that.remarkdisabled = false;
+      }
+    });
   },
   data() {
     return {
@@ -154,8 +162,11 @@ export default {
         content: null,
         tools: null,
         remark: null,
+        id: null,
+        device: [],
+        ops: [],
       },
-      submitTaskInfo: {
+      submitInfo: {
         scheduleType: null,
         scheduleDay: null,
         name: null,
@@ -165,8 +176,8 @@ export default {
         tools: null,
         remark: null,
         id: null,
-        device: null,
-        ops: null,
+        device: [],
+        ops: [],
         parent: null,
       },
       tasktime: [
@@ -195,130 +206,63 @@ export default {
           label: "天",
         },
       ],
+      scheduleTypedisabled: true,
+      scheduleDaydisabled: true,
+      sidedisabled: true,
+      acceptedStandarddisabled: true,
+      contentdisabled: true,
+      toolsdisabled: true,
+      remarkdisabled: true,
     };
   },
   methods: {
-    // 保养周期改变
-    changescheduleType(res) {
-      this.submitTaskInfo.scheduleType = null;
-      this.submitTaskInfo.scheduleType = res;
-    },
-    // 保养周期天数改变
-    changescheduleDay(res) {
-      this.submitTaskInfo.scheduleDay = null;
-      this.submitTaskInfo.scheduleDay = res;
-    },
-    // 任务名称改变
-    changename(res) {
-      this.submitTaskInfo.name = null;
-      this.submitTaskInfo.name = res;
-    },
-    // 保养部位改变
-    changeside(res) {
-      this.submitTaskInfo.side = null;
-      this.submitTaskInfo.side = res;
-    },
-    // 接受标准改变
-    changeacceptedStandard(res) {
-      this.submitTaskInfo.acceptedStandard = null;
-      this.submitTaskInfo.acceptedStandard = res;
-    },
-    // 保养内容改变
-    changecontent(res) {
-      this.submitTaskInfo.content = null;
-      console.log(res);
-      this.submitTaskInfo.content = res
-        .replace(/\r\n/g, ",")
-        .replace(/\n/g, ",")
-        .split(",");
-    },
-    // 保养工具改变
-    changetools(res) {
-      this.submitTaskInfo.tools = null;
-      console.log(res);
-      this.submitTaskInfo.tools = res
-        .replace(/\r\n/g, ",")
-        .replace(/\n/g, ",")
-        .split(",");
-    },
-    // 注意事项改变
-    changeremark(res) {
-      this.submitTaskInfo.remark = null;
-      this.submitTaskInfo.remark = res;
-    },
     // 保存编辑并提交
     submittask() {
       let that = this;
-      if (that.submitTaskInfo.scheduleType == null) {
-        that.submitTaskInfo.scheduleType = that.TaskInfo.scheduleType;
-      }
-      if (that.submitTaskInfo.scheduleDay == null) {
-        that.submitTaskInfo.scheduleDay = that.TaskInfo.scheduleDay;
-      }
-      if (that.submitTaskInfo.name == null) {
-        that.submitTaskInfo.name = that.TaskInfo.name;
-      }
-      if (that.submitTaskInfo.side == null) {
-        that.submitTaskInfo.side = that.TaskInfo.side;
-      }
-      if (that.submitTaskInfo.acceptedStandard == null) {
-        that.submitTaskInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
-      }
-      if (that.submitTaskInfo.remark == null) {
-        that.submitTaskInfo.remark = that.TaskInfo.remark;
-      }
-      if (that.submitTaskInfo.content == null) {
-        that.submitTaskInfo.content = that.TaskInfo.content
-          .replace(/\r\n/g, ",")
+      console.log(that.TaskInfo);
+      that.submitInfo.scheduleType = that.TaskInfo.scheduleType;
+      that.submitInfo.scheduleDay = that.TaskInfo.scheduleDay;
+      that.submitInfo.name = that.TaskInfo.name;
+      that.submitInfo.side = that.TaskInfo.side;
+      that.submitInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
+      if (that.contentdisabled != true) {
+        that.submitInfo.content = that.TaskInfo.content
           .replace(/\n/g, ",")
           .split(",");
-        console.log(that.submitTaskInfo.content);
       }
-      if (that.submitTaskInfo.tools == null) {
-        that.submitTaskInfo.tools = that.TaskInfo.tools
-          .replace(/\r\n/g, ",")
+      if (that.toolsdisabled != true) {
+        that.submitInfo.tools = that.TaskInfo.tools
           .replace(/\n/g, ",")
           .split(",");
-        console.log(that.submitTaskInfo.tools);
       }
-      console.log(that.submitTaskInfo);
-      if (
-        that.submitTaskInfo.content[0] == "" ||
-        that.submitTaskInfo.tools[0] == ""
-      ) {
-        this.$message({
-          message: "请将信息填写完整（无内容可填写：无）",
-          type: "warning",
-        });
-        return;
-      } else {
-        let url =
-          "http://47.102.214.37:8080/ops/schedule/detail/" +
-          this.$route.query.taskID;
-        axios
-          .put(url, {
-            acceptedStandard: that.submitTaskInfo.acceptedStandard,
-            content: that.submitTaskInfo.content,
-            device: that.submitTaskInfo.device,
-            id: that.submitTaskInfo.id,
-            name: that.submitTaskInfo.name,
-            ops: that.submitTaskInfo.ops,
-            parent: that.submitTaskInfo.parent,
-            remark: that.submitTaskInfo.remark,
-            scheduleDay: that.submitTaskInfo.scheduleDay,
-            scheduleType: that.submitTaskInfo.scheduleType,
-            side: that.submitTaskInfo.side,
-            tools: that.submitTaskInfo.tools,
-          })
-          .then((res) => {
-            console.log(res);
-            that.$message({
-              message: "修改成功",
-              type: "success",
-            });
-            that.$router.push("/addTask");
+      that.submitInfo.remark = that.TaskInfo.remark;
+      console.log(that.submitInfo);
+      let url =
+        "http://47.102.214.37:8080/ops/schedule/detail/" +
+        this.$route.query.taskID;
+      axios
+        .put(url, {
+          acceptedStandard: that.submitInfo.acceptedStandard,
+          content: that.submitInfo.content,
+          device: that.submitInfo.device,
+          id: that.submitInfo.id,
+          name: that.submitInfo.name,
+          ops: that.submitInfo.ops,
+          parent: that.submitInfo.parent,
+          remark: that.submitInfo.remark,
+          scheduleDay: that.submitInfo.scheduleDay,
+          scheduleType: that.submitInfo.scheduleType,
+          side: that.submitInfo.side,
+          tools: that.submitInfo.tools,
+        })
+        .then((res) => {
+          console.log(res);
+          that.$message({
+            message: "修改成功",
+            type: "success",
           });
-      }
+          that.$router.push("/addTask");
+        });
     },
     // 取消编辑
     cancel() {

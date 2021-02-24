@@ -38,20 +38,18 @@ export default {
       that.userRole = res.data.role;
     });
     setTimeout(function() {
-      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-        axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
-          .then((res) => {
-            // console.log(res);
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i]);
-              that.taskData.unshift({
-                taskID: res.data.content[i].id,
-                taskname: res.data.content[i].name,
-              });
-            }
-          });
-      }
+      axios
+        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
+        .then((res) => {
+          // console.log(res);
+          for (var i = 0; i < res.data.content.length; i++) {
+            // console.log(res.data.content[i]);
+            that.taskData.unshift({
+              taskID: res.data.content[i].id,
+              taskname: res.data.content[i].name,
+            });
+          }
+        });
     }, 300);
   },
   data() {

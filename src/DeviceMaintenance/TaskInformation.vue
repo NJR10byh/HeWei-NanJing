@@ -61,9 +61,10 @@ export default {
             }
           });
       } else if (that.userRole == "OPERATOR") {
-        let url = "http://47.102.214.37:8080/user/schedule/" + that.userID;
+        let url = "http://47.102.214.37:8080/my/schedule";
         console.log(url);
         axios.get(url).then((res) => {
+          console.log(res);
           for (var i = 0; i < res.data.length; i++) {
             // console.log(res.data[i]);
             that.taskData.unshift({

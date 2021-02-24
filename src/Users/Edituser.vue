@@ -73,37 +73,51 @@ export default {
       console.log(that.name);
       console.log(that.email);
       console.log(that.userid);
-      let url = "http://47.102.214.37:8080/user/" + that.userid;
-      axios.get(url).then((res) => {
-        // console.log(res.data);
-        let obj = {
-          email: that.email,
-          id: res.data.id,
-          name: that.name,
-          role: res.data.role,
-          username: res.data.username,
-          enable: res.data.enable,
-        };
-        setTimeout(function() {
-          console.log(obj);
-          axios
-            .put(url, obj)
-            .then((res) => {
-              console.log(res);
-              that.$message({
-                message: "修改成功",
-                type: "success",
-              });
-            })
-            .catch((res) => {
-              console.log(res.response);
-              that.$message({
-                message: "修改失败",
-                type: "error",
-              });
-            });
-        }, 200);
-      });
+      console.log(that.password);
+      console.log(that.confirmpassword);
+      if (that.password === that.confirmpassword) {
+        let url = "http://47.102.214.37:8080/user/" + that.userid;
+        axios.get(url).then((res) => {
+          // console.log(res.data);
+          let obj = {
+            email: that.email,
+            id: res.data.id,
+            name: that.name,
+            role: res.data.role,
+            username: res.data.username,
+            enable: res.data.enable,
+            password: that.confirmpassword,
+          };
+          setTimeout(function() {
+            console.log(obj);
+            // axios
+            //   .put(url, obj)
+            //   .then((res) => {
+            //     console.log(res);
+            //     that.$message({
+            //       message: "修改成功,请重新登录",
+            //       type: "success",
+            //     });
+            //     localStorage.clear();
+            //     that.$router.push("./");
+            //   })
+            //   .catch((res) => {
+            //     console.log(res.response);
+            //     that.$message({
+            //       message: "修改失败",
+            //       type: "error",
+            //     });
+            //   });
+          }, 200);
+        });
+      } else {
+        this.$message({
+          message: "两次密码输入不一致，请重新输入",
+          type: "warning",
+        });
+        this.password = "";
+        this.confirmpassword = "";
+      }
     },
   },
 };

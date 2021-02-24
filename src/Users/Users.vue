@@ -1,11 +1,7 @@
 <template>
   <div class="container">
     <div class="box">
-      <div
-        class="module"
-        @click="UserList"
-        v-if="['ROOT', 'ADMIN'].includes(userRole)"
-      >
+      <div class="module" @click="UserList">
         <div class="top">
           <img src="../assets/img/register.png" />
         </div>

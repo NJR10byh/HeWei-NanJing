@@ -80,7 +80,6 @@
 <script>
 import axios from "axios";
 export default {
-  name: "AddTaskInside",
   created: function() {
     let that = this;
     console.log(that.$route.query);
@@ -90,23 +89,91 @@ export default {
       that.$route.query.taskID;
     axios.get(url).then((res) => {
       console.log(res.data);
-      // 保养周期
-      if (res.data.scheduleType == null) {
-        that.scheduleType = res.data.parent.scheduleType;
-      } else {
-        that.scheduleType = res.data.scheduleType;
+      // 任务名称
+      that.name = res.data.name;
+      let i = res.data;
+      while (i.parent != null) {
+        // 保养周期
+        if (i.scheduleType != null && that.scheduleType == null) {
+          that.scheduleType = i.scheduleType;
+        }
+        // 保养天数
+        if (i.scheduleDay != null && that.scheduleDay == null) {
+          that.scheduleDay = i.scheduleDay;
+        }
+        if (that.scheduleType == "Daily") {
+          that.scheduleType_info = "天";
+        }
+        if (that.scheduleType == "Weekly") {
+          switch (that.scheduleDay) {
+            case 1:
+              that.scheduleType_info = "周一";
+              break;
+            case 2:
+              that.scheduleType_info = "周二";
+              break;
+            case 3:
+              that.scheduleType_info = "周三";
+              break;
+            case 4:
+              that.scheduleType_info = "周四";
+              break;
+            case 5:
+              that.scheduleType_info = "周五";
+              break;
+            case 6:
+              that.scheduleType_info = "周六";
+              break;
+            case 7:
+              that.scheduleType_info = "周日";
+              break;
+            default:
+              break;
+          }
+        } else if (that.scheduleType == "Monthly") {
+          that.scheduleType_info = "月" + that.scheduleDay + "号";
+        } else if (that.scheduleType == "Yearly") {
+          that.scheduleType_info = "年第" + that.scheduleDay + "天";
+        }
+        if (i.side != null && that.side == null) {
+          that.side = i.side;
+        }
+        if (i.acceptedStandard != null && that.acceptedStandard == null) {
+          that.acceptedStandard = i.acceptedStandard;
+        }
+        if (i.content != "" && that.content == "") {
+          for (let a = 0; a < i.content.length; a++) {
+            that.content.push({
+              contentinfo: i.content[a],
+            });
+          }
+        }
+        if (i.tools != "" && that.tools == "") {
+          for (let b = 0; b < i.content.length; b++) {
+            that.tools.push({
+              toolsinfo: i.tools[b],
+            });
+          }
+        }
+        if (i.remark != null && that.remark == null) {
+          that.remark = i.remark;
+        }
+        console.log(i);
+        i = i.parent;
+      }
+      console.log(i);
+      if (that.scheduleType == null) {
+        that.scheduleType = i.scheduleType;
       }
       // 保养天数
-      if (res.data.scheduleDay == null) {
-        that.scheduleDay = res.data.parent.scheduleDay;
-      } else {
-        that.scheduleDay = res.data.scheduleDay;
+      if (that.scheduleDay == null) {
+        that.scheduleDay = i.scheduleDay;
       }
       if (that.scheduleType == "Daily") {
         that.scheduleType_info = "天";
       }
       if (that.scheduleType == "Weekly") {
-        switch (res.data.scheduleDay) {
+        switch (that.scheduleDay) {
           case 1:
             that.scheduleType_info = "周一";
             break;
@@ -136,53 +203,28 @@ export default {
       } else if (that.scheduleType == "Yearly") {
         that.scheduleType_info = "年第" + that.scheduleDay + "天";
       }
-      // 任务名称
-      that.name = res.data.name;
-      // 保养部位
-      if (res.data.side == null) {
-        that.side = res.data.parent.side;
-      } else {
-        that.side = res.data.side;
+      if (that.side == null) {
+        that.side = i.side;
       }
-      // 接受标准
-      if (res.data.acceptedStandard == null) {
-        that.acceptedStandard = res.data.parent.acceptedStandard;
-      } else {
-        that.acceptedStandard = res.data.acceptedStandard;
+      if (that.acceptedStandard == null) {
+        that.acceptedStandard = i.acceptedStandard;
       }
-      // 保养内容
-      if (res.data.content.length == 0) {
-        for (let j = 0; j < res.data.parent.content.length; j++) {
+      if (i.content != "") {
+        for (let a = 0; a < i.content.length; a++) {
           that.content.push({
-            contentinfo: res.data.parent.content[j],
-          });
-        }
-      } else {
-        for (let j = 0; j < res.data.content.length; j++) {
-          that.content.push({
-            contentinfo: res.data.content[j],
+            contentinfo: i.content[a],
           });
         }
       }
-      // 保养工具
-      if (res.data.tools.length == 0) {
-        for (let j = 0; j < res.data.parent.tools.length; j++) {
+      if (i.tools != "") {
+        for (let b = 0; b < i.content.length; b++) {
           that.tools.push({
-            toolsinfo: res.data.parent.tools[j],
-          });
-        }
-      } else {
-        for (let k = 0; k < res.data.tools.length; k++) {
-          that.tools.push({
-            toolsinfo: res.data.tools[k],
+            toolsinfo: i.tools[b],
           });
         }
       }
-      // 注意事项;
-      if (res.data.remark == null) {
-        that.remark = res.data.parent.remark;
-      } else {
-        that.remark = res.data.remark;
+      if (that.remark == null) {
+        that.remark = i.remark;
       }
       // 设备名称
       for (let i = 0; i < res.data.device.length; i++) {
@@ -217,20 +259,20 @@ export default {
       taskid: "", //任务ID
       /* part1 */
       users: [], // 维护人员
-      name: "", // 任务名称
-      side: "", // 保养部位
-      acceptedStandard: "", // 接受标准
+      name: null, // 任务名称
+      side: null, // 保养部位
+      acceptedStandard: null, // 接受标准
       /* part2 */
       // 设备信息
       deviceinfo: [],
       // 周期
-      scheduleType: "",
-      scheduleDay: "",
-      scheduleType_info: "",
+      scheduleType: null,
+      scheduleDay: null,
+      scheduleType_info: null,
       /* part3 */
       content: [], // 保养内容
       tools: [], // 保养工具及备件
-      remark: "", // 注意事项
+      remark: null, // 注意事项
     };
   },
   methods: {
