@@ -8,6 +8,18 @@
             >刷新列表
           </el-button>
         </div>
+        <div class="input">
+          <el-input placeholder="用户名" v-model="username"></el-input>
+        </div>
+        <div class="input">
+          <el-input placeholder="姓名" v-model="name"></el-input>
+        </div>
+        <div class="input">
+          <el-input placeholder="邮箱" v-model="email"></el-input>
+        </div>
+        <div class="search">
+          <el-button icon="el-icon-search" @click="search">搜索</el-button>
+        </div>
       </div>
       <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
         <el-button
@@ -29,15 +41,19 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="id" label="用户ID"></el-table-column>
-      <el-table-column prop="username" label="用户名"></el-table-column>
-      <el-table-column prop="name" label="姓名"></el-table-column>
+      <el-table-column prop="id" label="用户ID" width="100"></el-table-column>
+      <el-table-column
+        prop="username"
+        label="用户名"
+        width="150"
+      ></el-table-column>
+      <el-table-column prop="name" label="姓名" width="150"></el-table-column>
       <el-table-column prop="email" label="用户邮箱"></el-table-column>
       <el-table-column prop="userrole" label="用户权限"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
-        width="200"
+        width="160"
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
       >
         <template slot-scope="scope">
@@ -128,6 +144,10 @@ export default {
       page: 1,
       size: 10,
       total: 0,
+      // 搜索
+      username: "",
+      name: "",
+      email: "",
     };
   },
   methods: {
@@ -334,6 +354,13 @@ export default {
         }
       });
     },
+    // 搜索
+    search() {
+      let that = this;
+      console.log(that.username);
+      console.log(that.name);
+      console.log(that.email);
+    },
   },
 };
 </script>
@@ -366,6 +393,26 @@ export default {
           width: 85px;
           border: 1px solid #409eff;
           color: #409eff;
+          margin-left: 10px;
+        }
+      }
+      .input {
+        // border: 1px solid red;
+        margin-left: 10px;
+        .el-input__inner {
+          height: 35px;
+        }
+      }
+      .search {
+        .el-button {
+          height: 35px;
+          padding: 0 10px;
+          border-radius: 5px;
+          font-size: 15px;
+          background: #409eff;
+          width: 85px;
+          border: 0;
+          color: #fff;
           margin-left: 10px;
         }
       }
