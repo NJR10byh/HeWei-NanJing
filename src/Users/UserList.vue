@@ -360,6 +360,71 @@ export default {
       console.log(that.username);
       console.log(that.name);
       console.log(that.email);
+      let url =
+        "http://47.102.214.37:8080/user/query?name==高凡&username==test-o";
+      if (that.username == "" && that.name == "" && that.email == "") {
+        that.$message({
+          message: "请输入搜索条件",
+          type: "warning",
+        });
+        return;
+      } else if (that.username != "") {
+        url = "http://47.102.214.37:8080/user/query?username==" + that.username;
+        if (that.name != "") {
+          url =
+            "http://47.102.214.37:8080/user/query?username==" +
+            that.username +
+            "&name==" +
+            that.name;
+          if (that.email != "") {
+            url =
+              "http://47.102.214.37:8080/user/query?username==" +
+              that.username +
+              "&name==" +
+              that.name +
+              "&email==" +
+              that.email;
+          }
+        } else if (that.name == "") {
+          if (that.email != "") {
+            url =
+              "http://47.102.214.37:8080/user/query?username==" +
+              that.username +
+              "&email==" +
+              that.email;
+          }
+        }
+      } else if (that.username == "") {
+        if (that.name != "") {
+          url = "http://47.102.214.37:8080/user/query?name==" + that.name;
+          if (that.email != "") {
+            url =
+              "http://47.102.214.37:8080/user/query?name==" +
+              that.name +
+              "&email==" +
+              that.email;
+          }
+        } else if (that.name == "") {
+          if (that.email != "") {
+            url = "http://47.102.214.37:8080/user/query?email==" + that.email;
+          }
+        }
+      }
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        that.total = res.data.content.length;
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.tableData.unshift({
+            id: res.data.content[i].id,
+            username: res.data.content[i].username,
+            userrole: res.data.content[i].role,
+            name: res.data.content[i].name,
+            email: res.data.content[i].email,
+          });
+        }
+      });
     },
   },
 };
