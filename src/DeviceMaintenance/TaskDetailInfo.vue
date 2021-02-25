@@ -10,6 +10,7 @@
     <div class="Task-container">
       <div class="backbtn">
         <el-button @click="back">返回</el-button>
+        <el-button @click="error" class="error">异常报告</el-button>
       </div>
       <div class="Task-info">
         <div class="Users">
@@ -281,6 +282,22 @@ export default {
         path: "/taskInformation",
       });
     },
+    error() {
+      let that = this;
+      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+        console.log(res.data);
+        that.$router.push({
+          path: "./errorTask",
+          query: {
+            id: res.data.id,
+            name: res.data.name,
+            username: res.data.username,
+            taskid: that.$route.query.taskID,
+          },
+        });
+      });
+      console.log("error", this.$route.query.taskID);
+    },
   },
 };
 </script>
@@ -319,6 +336,10 @@ export default {
     align-items: center;
     .backbtn {
       width: 85%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      // border: 1px solid red;
       .el-button {
         display: flex;
         align-self: flex-start;
@@ -327,6 +348,9 @@ export default {
         border: 0;
         font-size: 15px;
         padding: 8px 15px;
+      }
+      .error {
+        background: #ffbc05;
       }
     }
     .Task-info {

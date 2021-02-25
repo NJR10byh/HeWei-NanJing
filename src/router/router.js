@@ -17,6 +17,7 @@ import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
+import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -105,6 +106,11 @@ var routes = [
       {
         path: "/tssignTask",
         component: TssignTask,
+      },
+      // 异常报告
+      {
+        path: "/errorTask",
+        component: ErrorTask,
       },
     ],
   },

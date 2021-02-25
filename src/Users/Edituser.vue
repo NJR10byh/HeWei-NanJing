@@ -90,24 +90,23 @@ export default {
           };
           setTimeout(function() {
             console.log(obj);
-            // axios
-            //   .put(url, obj)
-            //   .then((res) => {
-            //     console.log(res);
-            //     that.$message({
-            //       message: "修改成功,请重新登录",
-            //       type: "success",
-            //     });
-            //     localStorage.clear();
-            //     that.$router.push("./");
-            //   })
-            //   .catch((res) => {
-            //     console.log(res.response);
-            //     that.$message({
-            //       message: "修改失败",
-            //       type: "error",
-            //     });
-            //   });
+            axios
+              .put(url, obj)
+              .then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "修改成功",
+                  type: "success",
+                });
+                that.$router.push("./users");
+              })
+              .catch((res) => {
+                console.log(res.response);
+                that.$message({
+                  message: "修改失败",
+                  type: "error",
+                });
+              });
           }, 200);
         });
       } else {
