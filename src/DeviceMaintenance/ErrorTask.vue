@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="Name-Clazz">
-        <div class="part2 Name" style="width: 50%;">
+        <div class="part1 Name" style="width: 50%;">
           <div class="Text">设备名称</div>
           <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
           <div
@@ -23,7 +23,7 @@
             {{ item.deviceName }}
           </div>
         </div>
-        <div class="part2 Clazz" style="width: 50%;">
+        <div class="part1 Clazz" style="width: 50%;">
           <div class="Text">设备类别</div>
           <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
           <div
@@ -36,28 +36,48 @@
           </div>
         </div>
       </div>
-      <div class="Side-Standard">
-        <div class="part1" style="width: 50%;">
+      <div class="Description-Request">
+        <div class="part2" style="width: 50%;">
           <div class="Text">异常描述</div>
           <el-input
             type="textarea"
             :rows="3"
             v-model="textarea1"
-            style="width:85%"
+            style="width:85%;margin-top: 5px;"
           ></el-input>
         </div>
-        <div class="part1 Side" style="width: 50%;">
+        <div class="part2 Side" style="width: 50%;">
           <div class="Text">异常处理请求</div>
           <el-input
             type="textarea"
             v-model="textarea2"
             :rows="3"
-            style="width:85%"
+            style="width:85%;margin-top: 5px;"
           ></el-input>
         </div>
       </div>
+      <div class="SelectOpreator">
+        <div class="part3">
+          <div class="Text">选择报告接受人</div>
+          <el-select v-model="assignee" placeholder="请选择">
+            <el-option-group
+              v-for="group in options"
+              :key="group.label"
+              :label="group.label"
+            >
+              <el-option
+                v-for="item in group.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-option-group>
+          </el-select>
+        </div>
+      </div>
       <div class="submitbtn">
-        <el-button>提交</el-button>
+        <el-button @click="submit">提交</el-button>
       </div>
     </div>
   </div>
@@ -89,9 +109,27 @@ export default {
           that.deviceinfo.push({
             deviceName: res.data.name,
             deviceClazz: res.data.clazz,
+            deviceID: res.data.id,
           });
         });
       }
+    });
+    axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+      console.log(res.data);
+      setTimeout(function() {
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "OPERATOR") {
+            that.options[0].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
+          }
+        }
+      }, 200);
     });
   },
   data() {
@@ -100,7 +138,43 @@ export default {
       deviceinfo: [],
       textarea1: "",
       textarea2: "",
+      // 报告接受人
+      assignee: "",
+      options: [
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+      ],
     };
+  },
+  methods: {
+    submit() {
+      let that = this;
+      console.log(this.value);
+      let device = [];
+      for (let i = 0; i < that.deviceinfo.length; i++) {
+        device.push({
+          id: that.deviceinfo[0].deviceID,
+        });
+      }
+      let obj = {
+        assignee: { id: that.assignee },
+        closed: false,
+        content: that.textarea2,
+        descriptionPic: that.textarea1,
+        device: device,
+        exceptionType: "",
+        reason: "",
+        reporter: { id: that.$route.query.id * 1 },
+        record: {},
+        solution: "",
+      };
+      console.log(obj);
+      axios.post("http://47.102.214.37:8080/issue").then((res) => {
+        console.log(res);
+      });
+    },
   },
 };
 </script>
@@ -108,6 +182,7 @@ export default {
 .ErrorTask-container {
   height: 100%;
   //   border: 1px solid red;
+  padding: 10px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -156,9 +231,9 @@ export default {
         }
       }
     }
-    .Side-Standard {
+    .Name-Clazz {
       padding: 10px 0;
-      //   border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
       display: flex;
       justify-content: flex-start;
       .part1 {
@@ -180,7 +255,7 @@ export default {
         }
       }
     }
-    .Name-Clazz {
+    .Description-Request {
       padding: 10px 0;
       border-bottom: 1px solid #e0e0e0;
       display: flex;
@@ -201,6 +276,25 @@ export default {
           justify-content: flex-start;
           font-size: 14px;
           font-weight: 400;
+        }
+      }
+    }
+    .SelectOpreator {
+      padding: 10px 0;
+      // border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-start;
+      .part3 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        .Text {
+          // border: 1px solid red;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        .el-select {
+          margin-top: 5px;
         }
       }
     }
