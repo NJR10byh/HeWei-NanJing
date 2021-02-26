@@ -18,6 +18,8 @@ import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信�
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
+/* 设备维修*/
+import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -111,6 +113,12 @@ var routes = [
       {
         path: "/errorTask",
         component: ErrorTask,
+      },
+      /* 设备维修*/
+      // 维修诊断
+      {
+        path: "/fixDiagnosis",
+        component: FixDiagnosis,
       },
     ],
   },

@@ -13,13 +13,25 @@
       <div class="Name-Clazz">
         <div class="part2 Name" style="width: 50%;">
           <div class="Text">设备名称</div>
-          <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
+          <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
+          <div
+            class="Info"
+            v-else
+            v-for="(item, index) in deviceinfo"
+            :key="index"
+          >
             {{ item.deviceName }}
           </div>
         </div>
         <div class="part2 Clazz" style="width: 50%;">
           <div class="Text">设备类别</div>
-          <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
+          <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
+          <div
+            class="Info"
+            v-else
+            v-for="(item, index) in deviceinfo"
+            :key="index"
+          >
             {{ item.deviceClazz }}
           </div>
         </div>
