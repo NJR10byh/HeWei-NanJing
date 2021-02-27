@@ -222,7 +222,7 @@ export default {
             background: #fdbd0c;
           }
           .btn3 {
-            background: #09da02;
+            background: #88dd00;
           }
         }
       }
@@ -239,8 +239,8 @@ export default {
     .card_5 {
       border: 3px solid #fdbd0c;
     }
-    .card_3 {
-      border: 3px solid #a5ff14;
+    .card_10 {
+      border: 3px solid #88dd00;
     }
   }
 }

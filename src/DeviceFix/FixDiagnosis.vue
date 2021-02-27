@@ -8,10 +8,10 @@
     <div class="Tasks">
       <div class="card" v-for="(item, index) in taskData" :key="index">
         <div class="content">
-          <h2>{{ item.taskname }}</h2>
+          <h2>异常ID：{{ item.errorid }}</h2>
           <div class="Btns">
-            <el-button class="btn btn1" @click="taskdetail(index)"
-              >查看任务</el-button
+            <el-button class="btn btn1" @click="errordetail(index)"
+              >诊断异常</el-button
             >
           </div>
         </div>
@@ -23,14 +23,52 @@
 import axios from "axios";
 export default {
   created: function() {
-    axios.get("http://47.102.214.37:8080/issue?page=0&size=10").then((res) => {
-      console.log(res);
+    let that = this;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      if (res.data.role != "OPERATOR") {
+        setTimeout(() => {
+          axios
+            .get("http://47.102.214.37:8080/issue?page=0&size=10")
+            .then((res) => {
+              console.log(res.data);
+              for (let i = 0; i < res.data.content.length; i++) {
+                that.taskData.unshift({
+                  errorid: res.data.content[i].id,
+                });
+              }
+            });
+        }, 200);
+      } else {
+        setTimeout(() => {
+          axios
+            .get("http://47.102.214.37:8080/issue/assignee?page=0&size=10")
+            .then((res) => {
+              console.log(res.data);
+              for (let i = 0; i < res.data.content.length; i++) {
+                that.taskData.unshift({
+                  errorid: res.data.content[i].id,
+                });
+              }
+            });
+        }, 200);
+      }
     });
   },
   data() {
     return {
       taskData: [],
     };
+  },
+  methods: {
+    errordetail(index) {
+      let that = this;
+      console.log(that.taskData[index]);
+      that.$router.push({
+        path: "./diagnosisDetail",
+        query: that.taskData[index],
+      });
+    },
   },
 };
 </script>

@@ -20,6 +20,7 @@ import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
 /* 设备维修*/
 import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
+import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -119,6 +120,11 @@ var routes = [
       {
         path: "/fixDiagnosis",
         component: FixDiagnosis,
+      },
+      // 异常详情
+      {
+        path: "/diagnosisDetail",
+        component: DiagnosisDetail,
       },
     ],
   },
