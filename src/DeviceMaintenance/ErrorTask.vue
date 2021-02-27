@@ -162,16 +162,13 @@ export default {
         assignee: { id: that.assignee },
         closed: false,
         content: that.textarea2,
-        descriptionPic: that.textarea1,
+        descriptionPic: "",
         device: device,
-        exceptionType: "",
-        reason: "",
         reporter: { id: that.$route.query.id * 1 },
-        record: {},
-        solution: "",
+        record: null,
       };
       console.log(obj);
-      axios.post("http://47.102.214.37:8080/issue").then((res) => {
+      axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
         console.log(res);
       });
     },
