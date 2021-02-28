@@ -8,7 +8,9 @@
     <div class="head-btn">
       <div class="oper-btns-left">
         <div class="refresh">
-          <el-button icon="el-icon-refresh">刷新列表 </el-button>
+          <el-button icon="el-icon-refresh" @click="refresh"
+            >刷新列表
+          </el-button>
         </div>
       </div>
       <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
@@ -194,6 +196,86 @@ export default {
       that.page = val;
       that.currentPage = val;
       console.log(that.page);
+    },
+    // 刷新
+    refresh() {
+      let that = this;
+      console.log("aaa");
+      that.userRole = "";
+      that.userID = "";
+      that.total = 0;
+      that.taskData = [];
+      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+        console.log(res.data);
+        that.userRole = res.data.role;
+        that.userID = res.data.id;
+      });
+      setTimeout(() => {
+        console.log("aaaa");
+        if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+          axios
+            .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
+            .then((res) => {
+              console.log(res.data);
+              for (var i = 0; i < res.data.content.length; i++) {
+                let taskID = res.data.content[i].id;
+                let taskname = res.data.content[i].name;
+                let taskside = res.data.content[i].side;
+                let taskacceptedStandard = res.data.content[i].acceptedStandard;
+                let url =
+                  "http://47.102.214.37:8080/ops/schedule/status/" +
+                  res.data.content[i].id;
+                setTimeout(() => {
+                  axios.get(url).then((res) => {
+                    that.taskData.push({
+                      id: taskID,
+                      deadline: res.data.nextDateDay,
+                      name: taskname,
+                      side: taskside,
+                      acceptedStandard: taskacceptedStandard,
+                    });
+                    that.total++;
+                  });
+                }, 300);
+              }
+              that.$message({
+                message: "任务更新成功",
+                type: "success",
+              });
+            });
+        } else if (that.userRole == "OPERATOR") {
+          let url = "http://47.102.214.37:8080/my/schedule";
+          console.log(url);
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.length; i++) {
+              let taskID = res.data[i].id;
+              let taskname = res.data[i].name;
+              let taskside = res.data[i].side;
+              let taskacceptedStandard = res.data[i].acceptedStandard;
+              let url =
+                "http://47.102.214.37:8080/ops/schedule/status/" +
+                res.data[i].id;
+              setTimeout(() => {
+                axios.get(url).then((res) => {
+                  that.taskData.push({
+                    id: taskID,
+                    deadline: res.data.nextDateDay,
+                    name: taskname,
+                    side: taskside,
+                    acceptedStandard: taskacceptedStandard,
+                  });
+                  that.total++;
+                });
+              }, 300);
+            }
+            that.$message({
+              message: "任务更新成功",
+              type: "success",
+            });
+          });
+        }
+      }, 500);
     },
   },
   created() {

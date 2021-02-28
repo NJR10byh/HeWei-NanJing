@@ -99,7 +99,11 @@ export default {
               // console.log(res.data.content[i]);
               let obj = {};
               obj.key = res.data.content[i].id;
-              obj.label = res.data.content[i].name;
+              obj.label =
+                res.data.content[i].name +
+                "（" +
+                res.data.content[i].deviceNo +
+                "）";
               that.data3.push(obj);
             }
           });
@@ -253,7 +257,6 @@ export default {
     // overflow: hidden;
     .kuang {
       // border: 1px solid red;
-      width: 600px;
     }
     .kuang2 {
       margin-top: 10px;
@@ -297,5 +300,10 @@ export default {
       }
     }
   }
+}
+</style>
+<style scoped>
+.kuang >>> .el-transfer-panel {
+  width: 250px;
 }
 </style>

@@ -9,16 +9,23 @@
       <!-- 搜索 -->
       <div class="head-btn">
         <div class="oper-btns-left">
-          <div class="Cascader">
-            <el-cascader
-              placeholder="试试搜索：Apple"
-              :options="options"
-              :props="{ multiple: true }"
-              filterable
-              clearable
-              @change="change"
-              style="width:160px"
-            ></el-cascader>
+          <div class="input" style="margin-left:0;">
+            <el-input placeholder="设备名称" v-model="devicename"></el-input>
+          </div>
+          <div class="input">
+            <el-input placeholder="设备品牌" v-model="devicebrand"></el-input>
+          </div>
+          <div class="input">
+            <el-input
+              placeholder="设备型号/规格"
+              v-model="devicetype"
+            ></el-input>
+          </div>
+          <div class="input">
+            <el-input placeholder="设备编号" v-model="deviceclazz"></el-input>
+          </div>
+          <div class="search">
+            <el-button icon="el-icon-search" @click="search">搜索</el-button>
           </div>
           <div class="getall refresh">
             <el-button icon="el-icon-document-copy" @click="getAllDevice"
@@ -39,9 +46,6 @@
         <div class="oper-btns-right">
           <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll"
             >批量删除</el-button
-          >
-          <el-button class="clear-btn" icon="el-icon-delete" @click="Clear"
-            >清空</el-button
           >
         </div>
         <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
@@ -208,6 +212,7 @@ export default {
     return {
       dialogVisible: false, //对话框
       fileList: [], //上传文件列表
+      searchurl: "", // 导出URL
       exporturl: "", // 导出URL
       userRole: "", //用户类型
       //选择框
@@ -217,34 +222,18 @@ export default {
       // 表格数据
       tableData: [],
       multipleSelection: [],
-      // 级联选择
-      options: [
-        {
-          value: "name",
-          label: "设备名称",
-          children: [],
-        },
-        {
-          value: "brand",
-          label: "设备品牌",
-          children: [],
-        },
-        {
-          value: "type",
-          label: "设备型号/规格",
-          children: [],
-        },
-        {
-          value: "clazz",
-          label: "设备分类",
-          children: [],
-        },
-      ],
       // 分页
       currentPage: 1,
       page: 1,
       size: 10,
       total: 0,
+      // 搜索
+      devicename: "",
+      devicebrand: "",
+      devicetype: "",
+      deviceclazz: "",
+      query: 0,
+      query_value: [],
     };
   },
   methods: {
@@ -252,296 +241,205 @@ export default {
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
     },
-    // JilianData
-    JilianData() {
+    // 搜索
+    search() {
       let that = this;
-      // 设备名称
-      axios.get("http://47.102.214.37:8080/device/keys/name").then((res) => {
-        // console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.value = res.data[i];
-          obj.label = res.data[i];
-          that.options[0].children.push(obj);
-          // console.log(that.options[0]);
-        }
-      });
-      // 设备品牌
-      axios.get("http://47.102.214.37:8080/device/keys/brand").then((res) => {
-        // console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.value = res.data[i];
-          obj.label = res.data[i];
-          that.options[1].children.push(obj);
-        }
-      });
-      // 设备型号/规格
-      axios.get("http://47.102.214.37:8080/device/keys/type").then((res) => {
-        // console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.value = res.data[i];
-          obj.label = res.data[i];
-          that.options[2].children.push(obj);
-        }
-      });
-      // // 设备编号
-      // axios.get("http://47.102.214.37:8080/device/keys/deviceNo").then((res) => {
-      //   console.log(res.data);
-      //   for (var i = 0; i < res.data.length; i++) {
-      //     let obj = {};
-      //     obj.value = res.data[i];
-      //     obj.label = res.data[i];
-      //     that.options[3].children.push(obj);
-      //   }
-      // });
-      // 设备分类
-      axios.get("http://47.102.214.37:8080/device/keys/clazz").then((res) => {
-        // console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.value = res.data[i];
-          obj.label = res.data[i];
-          that.options[3].children.push(obj);
-        }
-      });
-    },
-    // 上传
-    handlePreview(file, fileList) {
-      console.log(file, fileList);
-    },
-    UpLoad(val) {
-      let that = this;
-      console.log(val.file);
-      let fd = new FormData();
-      fd.append("file", val.file);
-      console.log(fd);
-      axios.post("http://47.102.214.37:8080/device/import", fd).then((res) => {
-        console.log(res);
-        if (res.status == 200) {
-          that.dialogVisible = false;
-          that.$message({
-            message: "上传成功",
-            type: "success",
-          });
-          setTimeout(function() {
-            that.getAllDevice();
-          }, 200);
-        }
-      });
-    },
-    submitUpload() {
-      this.$refs.upload.submit();
-    },
-    // 搜索类别
-    change(res) {
-      let that = this;
-      console.log(res);
+      that.query = 0;
+      that.query_value = [];
       that.tableData = [];
-      that.total = 0;
-      let List = [];
-      for (var i = 0; i < res.length; i++) {
-        if (res.length == 1) {
-          let url =
+      console.log(that.devicename);
+      console.log(that.devicebrand);
+      console.log(that.devicetype);
+      console.log(that.deviceclazz);
+      if (that.devicename != "") {
+        that.query++;
+      }
+      if (that.devicebrand != "") {
+        that.query++;
+      }
+      if (that.devicetype != "") {
+        that.query++;
+      }
+      if (that.deviceclazz != "") {
+        that.query++;
+      }
+      console.log(that.query);
+      switch (that.query) {
+        case 1:
+          if (that.devicename != "") {
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?name==" + that.devicename;
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?name==" +
+              that.devicename;
+          } else if (that.devicebrand != "") {
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?brand==" +
+              that.devicebrand;
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?name==" +
+              that.devicebrand;
+          } else if (that.devicetype != "") {
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?type==" + that.devicetype;
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?name==" +
+              that.devicetype;
+          } else if (that.deviceclazz != "") {
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?clazz==" +
+              that.deviceclazz;
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?name==" +
+              that.deviceclazz;
+          }
+          break;
+        case 2:
+          if (that.devicename != "") {
+            that.query_value.push({
+              name: "name",
+              value: that.devicename,
+            });
+          }
+          if (that.devicebrand != "") {
+            that.query_value.push({
+              name: "brand",
+              value: that.devicebrand,
+            });
+          }
+          if (that.devicetype != "") {
+            that.query_value.push({
+              name: "type",
+              value: that.devicetype,
+            });
+          }
+          if (that.deviceclazz != "") {
+            that.query_value.push({
+              name: "clazz",
+              value: that.deviceclazz,
+            });
+          }
+          console.log(that.query_value);
+          that.searchurl =
             "http://47.102.214.37:8080/device/query?" +
-            res[0][0] +
+            that.query_value[0].name +
             "==" +
-            res[0][1];
+            that.query_value[0].value +
+            "&" +
+            that.query_value[1].name +
+            "==" +
+            that.query_value[1].value;
           that.exporturl =
             "http://47.102.214.37:8080/device/export?" +
-            res[0][0] +
+            that.query_value[0].name +
             "==" +
-            res[0][1];
-          axios.get(url).then((res) => {
-            console.log(res.data.totalElements);
-            that.total += res.data.totalElements;
-            for (var i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.id = res.data.content[i].id;
-              obj.name = res.data.content[i].name;
-              obj["brand"] = res.data.content[i].brand;
-              obj.type = res.data.content[i].type;
-              obj.deviceNo = res.data.content[i].deviceNo;
-              if (res.data.content[i].extra.length != 0) {
-                for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                  obj[res.data.content[i].extra[j].field.id] =
-                    res.data.content[i].extra[j].value;
-                }
-              }
-              if (res.data.content[i].crux == true) {
-                obj.crux = "Y";
-              } else if (res.data.content[i].crux == false) {
-                obj.crux = "N";
-              }
-              obj.clazz = res.data.content[i].clazz;
-              List.push(obj);
-            }
-          });
-        } else {
-          if (res[i][0] == "name") {
-            console.log(res[i][1]);
-            let url =
-              "http://47.102.214.37:8080/device/query?name==" + res[i][1];
-            axios.get(url).then((res) => {
-              console.log(res.data.totalElements);
-              that.total += res.data.totalElements;
-              for (var i = 0; i < res.data.content.length; i++) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.name = res.data.content[i].name;
-                obj["brand"] = res.data.content[i].brand;
-                obj.type = res.data.content[i].type;
-                obj.deviceNo = res.data.content[i].deviceNo;
-                if (res.data.content[i].extra.length != 0) {
-                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                    obj[res.data.content[i].extra[j].field.id] =
-                      res.data.content[i].extra[j].value;
-                  }
-                }
-                if (res.data.content[i].crux == true) {
-                  obj.crux = "Y";
-                } else if (res.data.content[i].crux == false) {
-                  obj.crux = "N";
-                }
-                obj.clazz = res.data.content[i].clazz;
-                List.push(obj);
-              }
+            that.query_value[0].value +
+            "&" +
+            that.query_value[1].name +
+            "==" +
+            that.query_value[1].value;
+          break;
+        case 3:
+          if (that.devicename != "") {
+            that.query_value.push({
+              name: "name",
+              value: that.devicename,
             });
           }
-          if (res[i][0] == "brand") {
-            console.log(res[i][1]);
-            let url =
-              "http://47.102.214.37:8080/device/query?brand==" + res[i][1];
-            axios.get(url).then((res) => {
-              console.log(res.data.totalElements);
-              that.total += res.data.totalElements;
-              for (var i = 0; i < res.data.content.length; i++) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.name = res.data.content[i].name;
-                obj["brand"] = res.data.content[i].brand;
-                obj.type = res.data.content[i].type;
-                obj.deviceNo = res.data.content[i].deviceNo;
-                if (res.data.content[i].extra.length != 0) {
-                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                    obj[res.data.content[i].extra[j].field.id] =
-                      res.data.content[i].extra[j].value;
-                  }
-                }
-                if (res.data.content[i].crux == true) {
-                  obj.crux = "Y";
-                } else if (res.data.content[i].crux == false) {
-                  obj.crux = "N";
-                }
-                obj.clazz = res.data.content[i].clazz;
-                List.push(obj);
-              }
+          if (that.devicebrand != "") {
+            that.query_value.push({
+              name: "brand",
+              value: that.devicebrand,
             });
           }
-          if (res[i][0] == "type") {
-            console.log(res[i][1]);
-            let url =
-              "http://47.102.214.37:8080/device/query?type==" + res[i][1];
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              that.total += res.data.totalElements;
-              for (var i = 0; i < res.data.content.length; i++) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.name = res.data.content[i].name;
-                obj["brand"] = res.data.content[i].brand;
-                obj.type = res.data.content[i].type;
-                obj.deviceNo = res.data.content[i].deviceNo;
-                if (res.data.content[i].extra.length != 0) {
-                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                    obj[res.data.content[i].extra[j].field.id] =
-                      res.data.content[i].extra[j].value;
-                  }
-                }
-                if (res.data.content[i].crux == true) {
-                  obj.crux = "Y";
-                } else if (res.data.content[i].crux == false) {
-                  obj.crux = "N";
-                }
-                obj.clazz = res.data.content[i].clazz;
-                List.push(obj);
-              }
+          if (that.devicetype != "") {
+            that.query_value.push({
+              name: "type",
+              value: that.devicetype,
             });
           }
-          if (res[i][0] == "clazz") {
-            console.log(res[i][1]);
-            let url =
-              "http://47.102.214.37:8080/device/query?clazz==" + res[i][1];
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              that.total += res.data.totalElements;
-              for (var i = 0; i < res.data.content.length; i++) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.name = res.data.content[i].name;
-                obj["brand"] = res.data.content[i].brand;
-                obj.type = res.data.content[i].type;
-                obj.deviceNo = res.data.content[i].deviceNo;
-                if (res.data.content[i].extra.length != 0) {
-                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                    obj[res.data.content[i].extra[j].field.id] =
-                      res.data.content[i].extra[j].value;
-                  }
-                }
-                if (res.data.content[i].crux == true) {
-                  obj.crux = "Y";
-                } else if (res.data.content[i].crux == false) {
-                  obj.crux = "N";
-                }
-                obj.clazz = res.data.content[i].clazz;
-                List.push(obj);
-              }
+          if (that.deviceclazz != "") {
+            that.query_value.push({
+              name: "clazz",
+              value: that.deviceclazz,
             });
           }
-        }
+          console.log(that.query_value);
+          that.searchurl =
+            "http://47.102.214.37:8080/device/query?" +
+            that.query_value[0].name +
+            "==" +
+            that.query_value[0].value +
+            "&" +
+            that.query_value[1].name +
+            "==" +
+            that.query_value[1].value +
+            "&" +
+            that.query_value[2].name +
+            "==" +
+            that.query_value[2].value;
+          that.exporturl =
+            "http://47.102.214.37:8080/device/export?" +
+            that.query_value[0].name +
+            "==" +
+            that.query_value[0].value +
+            "&" +
+            that.query_value[1].name +
+            "==" +
+            that.query_value[1].value +
+            "&" +
+            that.query_value[2].name +
+            "==" +
+            that.query_value[2].value;
+          break;
+        case 4:
+          that.searchurl =
+            "http://47.102.214.37:8080/device/query?name==" +
+            that.devicename +
+            "&brand==" +
+            that.devicebrand +
+            "&type==" +
+            that.devicetype +
+            "&clazz==" +
+            that.deviceclazz;
+          that.exporturl =
+            "http://47.102.214.37:8080/device/export?name==" +
+            that.devicename +
+            "&brand==" +
+            that.devicebrand +
+            "&type==" +
+            that.devicetype +
+            "&clazz==" +
+            that.deviceclazz;
+          break;
+        default:
+          break;
       }
-      setTimeout(function() {
-        console.log(List);
-        console.log(List.length);
-        that.total = List.length;
-        let arr = [];
-        let newArr = []; //定义一个新数组来接收元素
-        for (var i = 0; i < List.length; i++) {
-          //判断newArr中是否有arr[i]这个元素，如果返回结果为-1（<0）证明新数组newArr中没有这个元素，则把元素添加到新数组中
-          arr.push(List[i].id);
-        }
-        for (var j = 0; j < arr.length; j++) {
-          //判断newArr中是否有arr[i]这个元素，如果返回结果为-1（<0）证明新数组newArr中没有这个元素，则把元素添加到新数组中
-          if (newArr.indexOf(arr[j]) < 0) {
-            newArr.push(arr[j]);
+      console.log(that.searchurl);
+      axios.get(that.searchurl).then((res) => {
+        console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          obj["brand"] = res.data.content[i].brand;
+          obj.type = res.data.content[i].type;
+          obj.deviceNo = res.data.content[i].deviceNo;
+          if (res.data.content[i].extra.length != 0) {
+            for (let j = 0; j < res.data.content[i].extra.length; j++) {
+              obj[res.data.content[i].extra[j].field.id] =
+                res.data.content[i].extra[j].value;
+            }
           }
+          if (res.data.content[i].crux == true) {
+            obj.crux = "Y";
+          } else if (res.data.content[i].crux == false) {
+            obj.crux = "N";
+          }
+          obj.clazz = res.data.content[i].clazz;
+          that.tableData.push(obj);
         }
-        for (var t = 0; t < newArr.length; t++) {
-          let url = "http://47.102.214.37:8080/device/" + newArr[t];
-          axios.get(url).then((res) => {
-            // console.log(res.data);
-            let obj = {};
-            obj.id = res.data.id;
-            obj.name = res.data.name;
-            obj["brand"] = res.data.brand;
-            obj.type = res.data.type;
-            obj.deviceNo = res.data.deviceNo;
-            if (res.data.extra.length != 0) {
-              for (var j = 0; j < res.data.extra.length; j++) {
-                obj[res.data.extra[j].field.id] = res.data.extra[j].value;
-              }
-            }
-            if (res.data.crux == true) {
-              obj.crux = "Y";
-            } else if (res.data.crux == false) {
-              obj.crux = "N";
-            }
-            obj.clazz = res.data.clazz;
-            that.tableData.push(obj);
-          });
-        }
-      }, 300);
+      });
     },
     // 获取全部全部信息
     getAllDevice() {
@@ -584,6 +482,33 @@ export default {
           console.log(err);
         });
     },
+    // 导入
+    handlePreview(file, fileList) {
+      console.log(file, fileList);
+    },
+    UpLoad(val) {
+      let that = this;
+      console.log(val.file);
+      let fd = new FormData();
+      fd.append("file", val.file);
+      console.log(fd);
+      axios.post("http://47.102.214.37:8080/device/import", fd).then((res) => {
+        console.log(res);
+        if (res.status == 200) {
+          that.dialogVisible = false;
+          that.$message({
+            message: "上传成功",
+            type: "success",
+          });
+          setTimeout(function() {
+            that.getAllDevice();
+          }, 200);
+        }
+      });
+    },
+    submitUpload() {
+      this.$refs.upload.submit();
+    },
     // 导出
     exportExcel() {
       /* 前端导出 */
@@ -609,10 +534,17 @@ export default {
       // return wbout;
       /* 后段导出 */
       let that = this;
-      // console.log(that.exporturl);
+      if (
+        that.devicename == "" &&
+        that.devicebrand == "" &&
+        that.devicetype == "" &&
+        that.deviceclazz == ""
+      ) {
+        that.exporturl = "http://47.102.214.37:8080/device/export?name=!";
+      }
       axios
         .get(that.exporturl, {
-          responseType: "blob", //二进制流
+          responseType: "blob", // 二进制流
         })
         .then((res) => {
           console.log(res);
@@ -670,23 +602,6 @@ export default {
             });
           });
       }
-    },
-    //清空List
-    Clear() {
-      this.$confirm("清空后无法恢复, 是否确定?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.tableData = undefined;
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
     },
     // 修改设备信息
     handleEdit(index, row) {
@@ -825,7 +740,6 @@ export default {
       that.userRole = res.data.role;
     });
     setTimeout(function() {
-      that.JilianData();
       // 获取所有附加字段
       axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
         // console.log(res.data);
@@ -915,6 +829,27 @@ export default {
           margin-left: 10px;
         }
       }
+      .input {
+        // border: 1px solid red;
+        margin-left: 10px;
+        .el-input__inner {
+          width: 120px;
+          height: 35px;
+        }
+      }
+      .search {
+        .el-button {
+          height: 35px;
+          padding: 0 10px;
+          border-radius: 5px;
+          font-size: 15px;
+          background: #409eff;
+          width: 85px;
+          border: 0;
+          color: #fff;
+          margin-left: 10px;
+        }
+      }
       .getall {
         .el-button {
           width: 110px;
@@ -944,15 +879,6 @@ export default {
           color: #f96b6c;
         }
         &.bigdel-btn:hover {
-          background: #ffcccc;
-        }
-        &.clear-btn {
-          width: 65px;
-          border: 1px solid #f96b6c;
-          color: #f96b6c;
-          margin-left: 10px;
-        }
-        &.clear-btn:hover {
           background: #ffcccc;
         }
       }
