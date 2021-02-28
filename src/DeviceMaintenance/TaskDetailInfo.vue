@@ -1,5 +1,5 @@
 <template>
-  <div class="Container-AddTaskInside">
+  <div class="Container-TaskDetailInfo">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
@@ -84,10 +84,9 @@ export default {
   created: function() {
     let that = this;
     console.log(that.$route.query);
-    that.taskid = that.$route.query.taskID;
+    that.taskid = that.$route.query.id;
     let url =
-      "http://47.102.214.37:8080/ops/schedule/detail/" +
-      that.$route.query.taskID;
+      "http://47.102.214.37:8080/ops/schedule/detail/" + that.$route.query.id;
     axios.get(url).then((res) => {
       console.log(res.data);
       // 任务名称
@@ -303,10 +302,11 @@ export default {
 </script>
 
 <style lang="scss">
-.Container-AddTaskInside {
+.Container-TaskDetailInfo {
   // border: 1px solid red;
   width: 100%;
   height: 100%;
+  padding-bottom: 10px;
   .breadcrumb {
     width: 100%;
     height: 30px;

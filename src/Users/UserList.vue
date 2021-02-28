@@ -139,6 +139,7 @@ export default {
     return {
       userRole: "",
       tableData: [],
+      checkedDetail: "",
       // 分页
       currentPage: 1,
       page: 1,

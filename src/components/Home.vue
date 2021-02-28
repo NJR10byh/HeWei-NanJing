@@ -228,13 +228,13 @@ export default {
             },
             {
               id: 31,
-              authName: "任务信息",
-              path: "taskInformation",
+              authName: "任务分配",
+              path: "tssignTask",
             },
             {
               id: 32,
-              authName: "任务分配",
-              path: "tssignTask",
+              authName: "任务信息",
+              path: "taskInformation",
             },
             {
               id: 33,
@@ -341,13 +341,13 @@ export default {
             },
             {
               id: 31,
-              authName: "任务信息",
-              path: "taskInformation",
+              authName: "任务分配",
+              path: "tssignTask",
             },
             {
               id: 32,
-              authName: "任务分配",
-              path: "tssignTask",
+              authName: "任务信息",
+              path: "taskInformation",
             },
             {
               id: 33,

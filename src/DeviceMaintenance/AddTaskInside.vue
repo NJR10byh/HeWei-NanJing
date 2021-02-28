@@ -31,7 +31,7 @@
                 <el-input
                   v-model="TaskInfo.scheduleDay"
                   class="TaskTime-input"
-                  placeholder="每周几，每月几号，每季度第几月，每年第几天，只填数字 (每天不填写)"
+                  placeholder="每周几，每月几号，每季度第几月，每年第几天，只填数字 (每天填写0)"
                   type="number"
                   :disabled="scheduleDaydisabled"
                   @input="changescheduleDay"
@@ -312,7 +312,13 @@ export default {
           that.TaskInfo.tools == null ||
           that.TaskInfo.acceptedStandard == null ||
           that.TaskInfo.content == "" ||
-          that.TaskInfo.tools == ""
+          that.TaskInfo.tools == "" ||
+          that.TaskInfo.scheduleType == "" ||
+          that.TaskInfo.scheduleDay == "" ||
+          that.TaskInfo.name == "" ||
+          that.TaskInfo.side == "" ||
+          that.TaskInfo.acceptedStandard == "" ||
+          that.TaskInfo.remark == ""
         ) {
           this.$message({
             message: "请将信息填写完整（无内容可填写：无）",

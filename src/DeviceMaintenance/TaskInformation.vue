@@ -5,49 +5,76 @@
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active">任务信息</el-breadcrumb-item>
     </el-breadcrumb>
-    <div class="Tasks">
-      <div
-        class="card"
-        v-for="(item, index) in taskData"
-        :key="'taskData' + index"
-      >
-        <div class="content">
-          <h2>{{ item.taskname }}</h2>
-          <div class="Btns">
-            <el-button class="btn btn1" @click="taskdetail(index)"
-              >查看任务</el-button
-            >
-          </div>
+    <div class="head-btn">
+      <div class="oper-btns-left">
+        <div class="refresh">
+          <el-button icon="el-icon-refresh">刷新列表 </el-button>
         </div>
       </div>
-      <div
-        class="card card_5"
-        v-for="(item, index) in taskData_5"
-        :key="'taskData_5' + index"
-      >
-        <div class="content">
-          <h2>{{ item.taskname }}</h2>
-          <div class="Btns">
-            <el-button class="btn btn2" @click="taskdetail(index)"
-              >查看任务</el-button
-            >
-          </div>
-        </div>
+      <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
+        <el-button
+          class="bigdel-btn"
+          icon="el-icon-delete"
+          @click="delectExtraInfo"
+          >批量删除</el-button
+        >
       </div>
-      <div
-        class="card card_10"
-        v-for="(item, index) in taskData_10"
-        :key="'taskData_10' + index"
-      >
-        <div class="content">
-          <h2>{{ item.taskname }}</h2>
-          <div class="Btns">
-            <el-button class="btn btn3" @click="taskdetail(index)"
-              >查看任务</el-button
-            >
-          </div>
-        </div>
-      </div>
+    </div>
+    <!-- table -->
+    <el-table
+      ref="multipleTable"
+      :data="taskData"
+      stripe
+      border
+      style="width:100%;"
+      class="extraTable"
+      @selection-change="handleDetailSelectionChange"
+    >
+      <el-table-column type="selection"></el-table-column>
+      <el-table-column prop="id" label="任务ID" width="100"></el-table-column>
+      <el-table-column
+        prop="deadline"
+        label="剩余天数"
+        width="120"
+      ></el-table-column>
+      <el-table-column prop="name" label="任务名称"></el-table-column>
+      <el-table-column prop="side" label="保养部位"></el-table-column>
+      <el-table-column
+        prop="acceptedStandard"
+        label="接受标准"
+      ></el-table-column>
+      <el-table-column prop="setting" label="操作" width="160">
+        <template slot-scope="scope">
+          <el-tooltip content="详情" effect="light" :enterable="false">
+            <el-button
+              icon="iconfont icon-xiangqing"
+              @click="handleDetail(scope.$index, scope.row)"
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip
+            content="删除"
+            :enterable="false"
+            v-if="['ROOT', 'ADMIN'].includes(userRole)"
+          >
+            <el-button
+              icon="iconfont icon-shanchu"
+              @click="handleDelete(scope.$index, scope.row)"
+            ></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页 -->
+    <div class="block">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[8, 16, 24, 32, 40]"
+        :page-size="8"
+        layout="sizes,total, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </div>
   </div>
 </template>
@@ -61,19 +88,112 @@ export default {
     return {
       userRole: "", //用户类型
       userID: "",
-      taskData_10: [],
-      taskData_5: [],
       taskData: [],
+      checkedDetail: null,
+      // 分页
+      currentPage: 1,
+      page: 1,
+      size: 10,
+      total: 0,
       nextDateDay: "",
     };
   },
   methods: {
-    taskdetail(index) {
-      // console.log(index);
+    //单选框选中数据
+    handleDetailSelectionChange(selection) {
+      this.checkedDetail = selection;
+    },
+    // 查看任务详情
+    handleDetail(index) {
+      console.log(this.taskData[index]);
       this.$router.push({
         path: "/taskDetailInfo",
         query: this.taskData[index],
       });
+    },
+    // 删除单个行
+    handleDelete(index) {
+      let that = this;
+      this.$confirm("删除后无法更改, 是否确定?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          let url =
+            "http://47.102.214.37:8080/ops/schedule/" + that.taskData[index].id;
+          console.log(url);
+          axios.delete(url).then(() => {
+            that.tableData.splice(index, 1);
+            this.$message({
+              message: "删除成功",
+              type: "success",
+            });
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    // 批量删除字段
+    delectExtraInfo() {
+      let that = this;
+      if (this.checkedDetail.length == 0) {
+        that.$alert("请先选择要删除的数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        that
+          .$confirm("此用户将被永久删除, \n是否确定?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          })
+          .then(() => {
+            that.checkedDetail.forEach((element) => {
+              that.taskData.forEach((e, i) => {
+                if (element.id == e.id) {
+                  console.log(element, e, i);
+                  let url = "http://47.102.214.37:8080/ops/schedule/" + e.id;
+                  console.log(url);
+                  axios.delete(url).then(() => {
+                    that.tableData.splice(i, 1);
+                    this.$message({
+                      message: "删除成功",
+                      type: "success",
+                    });
+                  });
+                }
+              });
+            });
+          })
+          .catch(() => {
+            this.$message.info("已取消删除");
+          });
+      }
+    },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      console.log(val);
+      that.size = val;
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=0" + "&size=" + that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+      });
+    },
+    // 页变化
+    handleCurrentChange(val) {
+      let that = this;
+      that.page = val;
+      that.currentPage = val;
+      console.log(that.page);
     },
   },
   created() {
@@ -83,67 +203,63 @@ export default {
       that.userRole = res.data.role;
       that.userID = res.data.id;
     });
-    setTimeout(function() {
+    setTimeout(() => {
+      console.log("aaaa");
       if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=10")
           .then((res) => {
             console.log(res.data);
             for (var i = 0; i < res.data.content.length; i++) {
               let taskID = res.data.content[i].id;
               let taskname = res.data.content[i].name;
+              let taskside = res.data.content[i].side;
+              let taskacceptedStandard = res.data.content[i].acceptedStandard;
               let url =
                 "http://47.102.214.37:8080/ops/schedule/status/" +
                 res.data.content[i].id;
-              setTimeout(function() {
+              setTimeout(() => {
                 axios.get(url).then((res) => {
-                  console.log(res.data);
-                  if (res.data.nextDateDay >= 10) {
-                    that.taskData_10.unshift({
-                      taskID: taskID,
-                      taskname: taskname,
-                    });
-                  } else if (
-                    res.data.nextDateDay < 10 &&
-                    res.data.nextDateDay >= 5
-                  ) {
-                    that.taskData_5.unshift({
-                      taskID: taskID,
-                      taskname: taskname,
-                    });
-                  } else if (res.data.nextDateDay < 5) {
-                    that.taskData.unshift({
-                      taskID: taskID,
-                      taskname: taskname,
-                    });
-                  }
+                  that.taskData.push({
+                    id: taskID,
+                    deadline: res.data.nextDateDay,
+                    name: taskname,
+                    side: taskside,
+                    acceptedStandard: taskacceptedStandard,
+                  });
+                  that.total++;
                 });
-              }, 200);
+              }, 300);
             }
           });
       } else if (that.userRole == "OPERATOR") {
         let url = "http://47.102.214.37:8080/my/schedule";
         console.log(url);
         axios.get(url).then((res) => {
-          console.log(res);
+          console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {
-            // console.log(res.data[i]);
-            that.taskData.unshift({
-              taskID: res.data[i].id,
-              taskname: res.data[i].name,
-            });
-            setTimeout(function() {
-              let url =
-                "http://47.102.214.37:8080/ops/schedule/status/" +
-                res.data[i].id;
+            let taskID = res.data[i].id;
+            let taskname = res.data[i].name;
+            let taskside = res.data[i].side;
+            let taskacceptedStandard = res.data[i].acceptedStandard;
+            let url =
+              "http://47.102.214.37:8080/ops/schedule/status/" + res.data[i].id;
+            setTimeout(() => {
               axios.get(url).then((res) => {
-                console.log(res);
+                that.taskData.push({
+                  id: taskID,
+                  deadline: res.data.nextDateDay,
+                  name: taskname,
+                  side: taskside,
+                  acceptedStandard: taskacceptedStandard,
+                });
+                that.total++;
               });
-            }, 200);
+            }, 300);
           }
         });
       }
-    }, 200);
+    }, 500);
   },
 };
 </script>
@@ -167,79 +283,121 @@ export default {
       font-size: 20px;
     }
   }
-  .Tasks {
+  .head-btn {
     width: 100%;
-    // border: 1px solid red;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    .card {
-      position: relative;
-      width: 220px;
-      height: 250px;
-      border-radius: 15px;
-      background: #fff;
-      border: 3px solid #ff4848;
-      transition: 0.5s;
-      transform: scale(0.9);
-      box-shadow: 5px 5px 20px rgb(231, 231, 231),
-        -5px 5px 20px rgb(231, 231, 231);
-      .content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: center;
-        transition: 0.5s;
-        // border: 1px solid red;
-        h2 {
-          font-size: 1.6em;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    // border: 1px solid red;
+    .oper-btns-left {
+      // border: 1px solid red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .refresh {
+        .el-button {
           padding: 0 10px;
+          height: 30px;
+          border-radius: 5px;
+          font-size: 12px;
+          width: 85px;
+          border: 1px solid #409eff;
+          color: #409eff;
+          margin-left: 10px;
         }
-        .Btns {
-          // border: 1px solid red;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding-top: 10px;
-          .btn {
-            padding: 10px;
-            width: 90px;
-            background: #ff4848;
-            color: #fff;
-            border: 0;
-            border-radius: 5px;
-            font-size: 15px;
-            font-weight: bold;
-          }
-          .btn2 {
-            background: #fdbd0c;
-          }
-          .btn3 {
-            background: #88dd00;
+      }
+      .input {
+        // border: 1px solid red;
+        margin-left: 10px;
+        .el-input__inner {
+          height: 35px;
+        }
+      }
+      .search {
+        .el-button {
+          height: 35px;
+          padding: 0 10px;
+          border-radius: 5px;
+          font-size: 15px;
+          background: #409eff;
+          width: 85px;
+          border: 0;
+          color: #fff;
+          margin-left: 10px;
+        }
+      }
+    }
+    .oper-btns-right {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 10px;
+      // border: 1px solid red;
+      .el-button {
+        padding: 0 10px;
+        height: 30px;
+        border-radius: 5px;
+        font-size: 12px;
+        &.bigdel-btn {
+          width: 85px;
+          border: 1px solid #f96b6c;
+          color: #f96b6c;
+        }
+        &.bigdel-btn:hover {
+          background: #ffcccc;
+        }
+      }
+    }
+  }
+  .el-pagination {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .extraTable {
+    .el-table__header {
+      th {
+        background: #fafafa;
+        &:first-child {
+          border-right: none;
+        }
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
           }
         }
       }
     }
-    .card:hover {
-      transition: 0.5s;
-      transform: scale(1);
-      background: #000;
-      border: 0;
-      .content {
-        color: #fff;
+    .el-table__body {
+      td {
+        &:first-child {
+          border-right: none;
+        }
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
+          }
+        }
       }
-    }
-    .card_5 {
-      border: 3px solid #fdbd0c;
-    }
-    .card_10 {
-      border: 3px solid #88dd00;
+      .el-button {
+        border: none;
+        padding: 5px 10px;
+        background: transparent;
+        &:first-child:hover {
+          .iconfont {
+            color: #409eff;
+          }
+        }
+        &:nth-child(2):hover {
+          .iconfont {
+            color: #f96b6c;
+          }
+        }
+      }
     }
   }
 }
