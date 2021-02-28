@@ -10,7 +10,7 @@
     <div class="Task-container">
       <div class="backbtn">
         <el-button @click="back">返回</el-button>
-        <div class="backbtn_right">
+        <div class="backbtn_right" v-if="reporterid == userid">
           <el-button @click="confirm" class="confirm">确认</el-button>
           <el-button @click="refuse" class="refuse">拒绝</el-button>
         </div>
@@ -87,11 +87,20 @@ export default {
     let that = this;
     console.log(that.$route.query);
     that.errorid = that.$route.query.errorid;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      this.userid = res.data.id;
+    });
     let url = "http://47.102.214.37:8080/issue/" + that.$route.query.errorid;
     axios.get(url).then((res) => {
       console.log(res.data);
       let fixusersid = res.data.assignee.id;
+      that.reporterid = res.data.reporter.id;
+      that.assigneeid = res.data.assignee.id;
       that.errorcontent = res.data.content;
+      that.reason = res.data.reason;
+      that.solution = res.data.solution;
+      that.exceptionType = res.data.exceptionType;
       setTimeout(() => {
         // 维修人员
         let searchops =
@@ -118,10 +127,16 @@ export default {
         });
       }
     });
+    setTimeout(() => {
+      console.log(that.assigneeid, that.userid);
+    }, 200);
   },
   data() {
     return {
       errorid: "",
+      userid: "", // 当前登录人员
+      assigneeid: "", // 接受人员
+      reporterid: "", // 报修人员
       fixusers: [], // 维修人员
       deviceinfo: [], // 维修设备
       errordescription: "", // 异常描述

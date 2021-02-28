@@ -252,15 +252,10 @@ export default {
           id: 4,
           authName: "设备维修",
           children: [
-            // {
-            //   id: 40,
-            //   authName: "报修申请",
-            //   path: "fixApply",
-            // },
             {
-              id: 41,
-              authName: "维修诊断",
-              path: "fixDiagnosis",
+              id: 40,
+              authName: "全部异常",
+              path: "allError",
             },
             {
               id: 42,

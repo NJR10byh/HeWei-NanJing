@@ -19,6 +19,7 @@ import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
 /* 设备维修*/
+import AllError from "@/DeviceFix/AllError"; // 维修诊断
 import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
 import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
 import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
@@ -118,6 +119,11 @@ var routes = [
         component: ErrorTask,
       },
       /* 设备维修*/
+      // 全部异常
+      {
+        path: "/allError",
+        component: AllError,
+      },
       // 维修诊断
       {
         path: "/fixDiagnosis",

@@ -103,7 +103,6 @@ export default {
                       taskID: taskID,
                       taskname: taskname,
                     });
-                    console.log(that.taskData_10);
                   } else if (
                     res.data.nextDateDay < 10 &&
                     res.data.nextDateDay >= 5
