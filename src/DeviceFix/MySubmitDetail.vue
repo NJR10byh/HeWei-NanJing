@@ -1,5 +1,5 @@
 <template>
-  <div class="Container-DiagnosisDetail">
+  <div class="Container-MySubmitDetail">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
@@ -10,7 +10,10 @@
     <div class="Task-container">
       <div class="backbtn">
         <el-button @click="back">返回</el-button>
-        <el-button @click="submitbtn" class="submit">提交诊断</el-button>
+        <div class="backbtn_right">
+          <el-button @click="confirm" class="confirm">确认</el-button>
+          <el-button @click="refuse" class="refuse">拒绝</el-button>
+        </div>
       </div>
       <div class="Task-info">
         <div class="Users">
@@ -56,31 +59,21 @@
         <div class="Type-Reason-Solution">
           <div class="part4 Reason" style="width: 40%;">
             <div class="Text">异常发生原因</div>
-            <el-input
-              type="textarea"
-              v-model="reason"
-              style="width:80%"
-              :rows="3"
-              placeholder="异常发生原因"
-            ></el-input>
+            <div class="Info">
+              {{ reason }}
+            </div>
           </div>
           <div class="part4 Solution" style="width: 40%;">
             <div class="Text">异常解决措施</div>
-            <el-input
-              type="textarea"
-              v-model="solution"
-              style="width:80%"
-              :rows="3"
-              placeholder="异常解决措施"
-            ></el-input>
+            <div class="Info">
+              {{ solution }}
+            </div>
           </div>
           <div class="part4 ExceptionType">
             <div class="Text">异常类型</div>
-            <el-input
-              type="text"
-              v-model="exceptionType"
-              placeholder="异常类型"
-            ></el-input>
+            <div class="Info">
+              {{ exceptionType }}
+            </div>
           </div>
         </div>
       </div>
@@ -140,42 +133,15 @@ export default {
   },
   methods: {
     back() {
-      this.$router.push("./fixDiagnosis");
+      this.$router.push("./mySubmit");
     },
-    submitbtn() {
-      let that = this;
-      let obj = {};
-      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        obj.assignee = res.data.assignee;
-        obj.closed = res.data.closed;
-        obj.content = res.data.content;
-        obj.descriptionPic = res.data.descriptionPic;
-        obj.device = res.data.device;
-        obj.exceptionType = that.exceptionType;
-        obj.id = res.data.id;
-        obj.reason = that.reason;
-        obj.record = res.data.record;
-        obj.reporter = res.data.reporter;
-        obj.solution = that.solution;
-      });
-      setTimeout(() => {
-        console.log(obj);
-        axios.put(url, obj).then((res) => {
-          console.log(res);
-          that.$message({
-            message: "提交成功",
-            type: "success",
-          });
-        });
-      }, 200);
-    },
+    confirm() {},
+    refuse() {},
   },
 };
 </script>
 <style lang="scss">
-.Container-DiagnosisDetail {
+.Container-MySubmitDetail {
   // border: 1px solid red;
   width: 100%;
   height: 100%;
@@ -221,8 +187,16 @@ export default {
         font-size: 15px;
         padding: 8px 15px;
       }
-      .submit {
+      .backbtn_right {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .confirm {
         background: #5ed100;
+      }
+      .refuse {
+        background: #ff6060;
       }
     }
     .Task-info {

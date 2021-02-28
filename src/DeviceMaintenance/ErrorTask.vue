@@ -162,7 +162,7 @@ export default {
         assignee: { id: that.assignee },
         closed: false,
         content: that.textarea2,
-        descriptionPic: "",
+        descriptionPic: null,
         device: device,
         reporter: { id: that.$route.query.id * 1 },
         record: null,

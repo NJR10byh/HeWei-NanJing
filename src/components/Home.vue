@@ -263,6 +263,11 @@ export default {
               path: "fixDiagnosis",
             },
             {
+              id: 42,
+              authName: "我发布的",
+              path: "mySubmit",
+            },
+            {
               id: 43,
               authName: "维修查询",
               path: "fixSearch",
@@ -365,15 +370,15 @@ export default {
           id: 4,
           authName: "设备维修",
           children: [
-            // {
-            //   id: 40,
-            //   authName: "报修申请",
-            //   path: "fixApply",
-            // },
             {
               id: 41,
               authName: "维修诊断",
               path: "fixDiagnosis",
+            },
+            {
+              id: 42,
+              authName: "我发布的",
+              path: "mySubmit",
             },
             {
               id: 43,
@@ -421,15 +426,15 @@ export default {
           id: 4,
           authName: "设备维修",
           children: [
-            // {
-            //   id: 40,
-            //   authName: "报修申请",
-            //   path: "fixApply",
-            // },
             {
               id: 41,
               authName: "维修诊断",
               path: "fixDiagnosis",
+            },
+            {
+              id: 42,
+              authName: "我发布的",
+              path: "mySubmit",
             },
             {
               id: 43,
@@ -508,15 +513,15 @@ export default {
           id: 4,
           authName: "设备维修",
           children: [
-            // {
-            //   id: 40,
-            //   authName: "报修申请",
-            //   path: "fixApply",
-            // },
             {
               id: 41,
               authName: "维修诊断",
               path: "fixDiagnosis",
+            },
+            {
+              id: 42,
+              authName: "我发布的",
+              path: "mySubmit",
             },
             {
               id: 43,

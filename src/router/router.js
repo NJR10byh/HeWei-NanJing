@@ -21,6 +21,8 @@ import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
 /* 设备维修*/
 import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
 import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
+import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
+import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -125,6 +127,16 @@ var routes = [
       {
         path: "/diagnosisDetail",
         component: DiagnosisDetail,
+      },
+      // 我发布的
+      {
+        path: "/mySubmit",
+        component: MySubmit,
+      },
+      // 我发布的详情
+      {
+        path: "/mySubmitDetail",
+        component: MySubmitDetail,
       },
     ],
   },
