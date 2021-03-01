@@ -45,7 +45,7 @@
           <img src="../assets/img/authorize.png" />
         </div>
         <div class="bottom">
-          授权
+          人员管理
         </div>
       </div>
     </div>

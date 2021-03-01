@@ -73,7 +73,7 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <div class="block">
+    <!-- <div class="block">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -83,7 +83,7 @@
         layout="sizes,total, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -139,7 +139,7 @@ export default {
     return {
       userRole: "",
       tableData: [],
-      checkedDetail: "",
+      checkedDetail: [],
       // 分页
       currentPage: 1,
       page: 1,
@@ -155,6 +155,7 @@ export default {
     //单选框选中数据
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
+      console.log(this.checkedDetail);
     },
     // 刷新列表
     refresh() {
@@ -233,6 +234,7 @@ export default {
           console.log(url);
           axios.delete(url).then(() => {
             that.tableData.splice(index, 1);
+            that.total--;
             this.$message({
               message: "删除成功",
               type: "success",
@@ -268,11 +270,14 @@ export default {
                   let url = "http://47.102.214.37:8080/user/" + e.id;
                   console.log(url);
                   axios.delete(url).then(() => {
-                    that.tableData.splice(i, 1);
+                    console.log(i);
                     this.$message({
                       message: "删除成功",
                       type: "success",
                     });
+                    that.tableData.splice(i, 1);
+                    that.checkedDetail.pop();
+                    that.total--;
                   });
                 }
               });
@@ -283,78 +288,78 @@ export default {
           });
       }
     },
-    // 表格方法
-    handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`);
-      let that = this;
-      console.log(val);
-      that.size = val;
-      let url =
-        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
-      console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.tableData = [];
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.name = res.data.content[i].name;
-          obj["brand"] = res.data.content[i].brand;
-          obj.type = res.data.content[i].type;
-          obj.deviceNo = res.data.content[i].deviceNo;
-          if (res.data.content[i].extra.length != 0) {
-            for (var j = 0; j < res.data.content[i].extra.length; j++) {
-              obj[res.data.content[i].extra[j].field.id] =
-                res.data.content[i].extra[j].value;
-            }
-          }
-          if (res.data.content[i].crux == true) {
-            obj.crux = "Y";
-          } else if (res.data.content[i].crux == false) {
-            obj.crux = "N";
-          }
-          obj.clazz = res.data.content[i].clazz;
-          that.tableData.push(obj);
-        }
-      });
-    },
-    // 页变化
-    handleCurrentChange(val) {
-      let that = this;
-      that.page = val;
-      that.currentPage = val;
-      console.log(val);
-      let url =
-        "http://47.102.214.37:8080/device?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.size;
-      axios.get(url).then((res) => {
-        // console.log(res.data);
-        that.tableData = [];
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.name = res.data.content[i].name;
-          obj["brand"] = res.data.content[i].brand;
-          obj.type = res.data.content[i].type;
-          obj.deviceNo = res.data.content[i].deviceNo;
-          if (res.data.content[i].extra.length != 0) {
-            for (var j = 0; j < res.data.content[i].extra.length; j++) {
-              obj[res.data.content[i].extra[j].field.id] =
-                res.data.content[i].extra[j].value;
-            }
-          }
-          if (res.data.content[i].crux == true) {
-            obj.crux = "Y";
-          } else if (res.data.content[i].crux == false) {
-            obj.crux = "N";
-          }
-          obj.clazz = res.data.content[i].clazz;
-          that.tableData.push(obj);
-        }
-      });
-    },
+    // // 表格方法
+    // handleSizeChange(val) {
+    //   // console.log(`每页 ${val} 条`);
+    //   let that = this;
+    //   console.log(val);
+    //   that.size = val;
+    //   let url =
+    //     "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
+    //   console.log(url);
+    //   axios.get(url).then((res) => {
+    //     console.log(res.data);
+    //     that.tableData = [];
+    //     for (var i = 0; i < res.data.content.length; i++) {
+    //       let obj = {};
+    //       obj.id = res.data.content[i].id;
+    //       obj.name = res.data.content[i].name;
+    //       obj["brand"] = res.data.content[i].brand;
+    //       obj.type = res.data.content[i].type;
+    //       obj.deviceNo = res.data.content[i].deviceNo;
+    //       if (res.data.content[i].extra.length != 0) {
+    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
+    //           obj[res.data.content[i].extra[j].field.id] =
+    //             res.data.content[i].extra[j].value;
+    //         }
+    //       }
+    //       if (res.data.content[i].crux == true) {
+    //         obj.crux = "Y";
+    //       } else if (res.data.content[i].crux == false) {
+    //         obj.crux = "N";
+    //       }
+    //       obj.clazz = res.data.content[i].clazz;
+    //       that.tableData.push(obj);
+    //     }
+    //   });
+    // },
+    // // 页变化
+    // handleCurrentChange(val) {
+    //   let that = this;
+    //   that.page = val;
+    //   that.currentPage = val;
+    //   console.log(val);
+    //   let url =
+    //     "http://47.102.214.37:8080/device?page=" +
+    //     (that.page - 1) +
+    //     "&size=" +
+    //     that.size;
+    //   axios.get(url).then((res) => {
+    //     // console.log(res.data);
+    //     that.tableData = [];
+    //     for (var i = 0; i < res.data.content.length; i++) {
+    //       let obj = {};
+    //       obj.id = res.data.content[i].id;
+    //       obj.name = res.data.content[i].name;
+    //       obj["brand"] = res.data.content[i].brand;
+    //       obj.type = res.data.content[i].type;
+    //       obj.deviceNo = res.data.content[i].deviceNo;
+    //       if (res.data.content[i].extra.length != 0) {
+    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
+    //           obj[res.data.content[i].extra[j].field.id] =
+    //             res.data.content[i].extra[j].value;
+    //         }
+    //       }
+    //       if (res.data.content[i].crux == true) {
+    //         obj.crux = "Y";
+    //       } else if (res.data.content[i].crux == false) {
+    //         obj.crux = "N";
+    //       }
+    //       obj.clazz = res.data.content[i].clazz;
+    //       that.tableData.push(obj);
+    //     }
+    //   });
+    // },
     // 搜索
     search() {
       let that = this;

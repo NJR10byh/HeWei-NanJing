@@ -1,10 +1,66 @@
 <template>
-  <div class="Container-edituser">
+  <div class="Container-Authorize">
+    <div class="box register">
+      <div class="head">
+        <div class="head-text">注册</div>
+      </div>
+      <div class="input-body">
+        <span v-if="['ROOT'].includes(userRole)">还可以注册n个用户</span>
+        <span v-if="['ADMIN'].includes(userRole)"
+          >可以创建三种普通用户权限</span
+        >
+        <el-input
+          class="userinfoinput"
+          v-model="name"
+          placeholder="姓名"
+          clearable
+        ></el-input>
+        <el-input
+          class="userinfoinput"
+          v-model="username"
+          placeholder="用户名"
+          clearable
+        ></el-input>
+        <el-input
+          class="userinfoinput"
+          v-model="email"
+          placeholder="邮箱"
+          clearable
+        ></el-input>
+        <el-input
+          class="userinfoinput"
+          type="password"
+          show-password
+          v-model="password"
+          placeholder="密码"
+        ></el-input>
+        <el-input
+          class="userinfoinput"
+          type="password"
+          show-password
+          v-model="confirmpassword"
+          placeholder="确认密码"
+        ></el-input>
+        <el-select v-model="value_left" placeholder="权限选择" clearable>
+          <el-option
+            v-for="item in options_left"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            :disabled="item.disabled"
+          >
+          </el-option>
+        </el-select>
+      </div>
+      <div class="login-btn">
+        <el-button @click="register">注册</el-button>
+      </div>
+    </div>
     <div class="box">
       <div class="head">
         <div class="head-text">授权</div>
       </div>
-      <div class="input-body">
+      <div class="select-body">
         <span v-if="['ROOT'].includes(userRole)"
           >只能创建一个管理员，以及三种普通用户权限</span
         >
@@ -44,7 +100,7 @@
         </el-select>
       </div>
       <div class="login-btn">
-        <el-button @click="submit">确定授权</el-button>
+        <el-button @click="authorize">确定授权</el-button>
       </div>
     </div>
   </div>
@@ -113,6 +169,28 @@ export default {
   data() {
     return {
       userRole: "",
+      // 注册
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmpassword: "",
+      options_left: [
+        {
+          value: "CREATOR",
+          label: "CREATOR",
+        },
+        {
+          value: "OPERATOR",
+          label: "OPERATOR",
+        },
+        {
+          value: "SUPERVISOR",
+          label: "SUPERVISOR",
+        },
+      ],
+      value_left: "",
+      // 授权
       // 人员信息
       options1: [
         {
@@ -157,7 +235,56 @@ export default {
     };
   },
   methods: {
-    submit() {
+    register() {
+      let that = this;
+      if (
+        that.name == "" ||
+        that.username == "" ||
+        that.email == "" ||
+        that.password == "" ||
+        that.confirmpassword == "" ||
+        that.value_left == ""
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
+        });
+      } else if (that.password != that.confirmpassword) {
+        that.$message({
+          message: "两次密码输入不一致",
+          type: "error",
+        });
+      } else {
+        console.log(that.name);
+        console.log(that.username);
+        console.log(that.email);
+        console.log(that.password);
+        console.log(that.confirmpassword);
+        console.log(that.value_left);
+        axios
+          .post("http://47.102.214.37:8080/user/register", {
+            name: that.name,
+            username: that.username,
+            email: that.email,
+            password: that.confirmpassword,
+            role: that.value_left,
+          })
+          .then((res) => {
+            console.log(res);
+            that.$message({
+              message: "注册成功",
+              type: "success",
+            });
+            that.name = "";
+            that.username = "";
+            that.email = "";
+            that.password = "";
+            that.confirmpassword = "";
+            that.value_left = "";
+          });
+      }
+    },
+    authorize() {
       let that = this;
       console.log(that.value1);
       console.log(that.value2);
@@ -201,12 +328,12 @@ export default {
 };
 </script>
 <style lang="scss">
-.Container-edituser {
+.Container-Authorize {
   //   border: 1px solid red;
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   background: #fff;
   .box {
@@ -230,7 +357,7 @@ export default {
         // border: 1px solid red;
       }
     }
-    .input-body {
+    .select-body {
       width: 100%;
       height: 65%;
       // border: 1px solid red;
@@ -247,9 +374,35 @@ export default {
         width: 75%;
       }
     }
+    .input-body {
+      width: 100%;
+      height: 70%;
+      // border: 1px solid red;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-evenly;
+      span {
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+      .el-select {
+        // border: 1px solid red;
+        width: 75%;
+      }
+      .userinfoinput {
+        // border: 1px solid red;
+        display: flex;
+        justify-content: center;
+        .el-input__inner {
+          // border: 1px solid red;
+          width: 75%;
+        }
+      }
+    }
     .login-btn {
       width: 100%;
-      height: 15%;
+      height: 12%;
       //   border: 1px solid red;
       display: flex;
       justify-content: center;
@@ -264,6 +417,10 @@ export default {
         border-radius: 5px;
       }
     }
+  }
+  .register {
+    width: 35%;
+    height: 85%;
   }
 }
 </style>
