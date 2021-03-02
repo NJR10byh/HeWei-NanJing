@@ -602,10 +602,11 @@ export default {
   width: 100%;
   height: 100%;
   .el-container {
-    height: 100%;
+    // height: 100%;
   }
   .el-header {
     width: 100%;
+    // border: 1px solid red;
     background-color: #fff;
     box-shadow: 1px 0 14px 0 rgba(0, 0, 0, 0.04);
     border-bottom: 2px solid #f6f6f6;
