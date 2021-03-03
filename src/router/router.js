@@ -17,8 +17,8 @@ import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
-import ErrorTask from "@/DeviceMaintenance/ErrorTask"; // 异常报告
 /* 设备维修*/
+import FixApply from "@/DeviceFix/FixApply"; // 维修诊断
 import AllError from "@/DeviceFix/AllError"; // 维修诊断
 import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
 import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
@@ -113,16 +113,15 @@ var routes = [
         path: "/tssignTask",
         component: TssignTask,
       },
-      // 异常报告
-      {
-        path: "/errorTask",
-        component: ErrorTask,
-      },
       /* 设备维修*/
       // 全部异常
       {
         path: "/allError",
         component: AllError,
+      },
+      {
+        path: "/fixApply",
+        component: FixApply,
       },
       // 维修诊断
       {

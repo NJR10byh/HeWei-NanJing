@@ -254,6 +254,11 @@ export default {
           children: [
             {
               id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
+            {
+              id: 41,
               authName: "全部异常",
               path: "allError",
             },

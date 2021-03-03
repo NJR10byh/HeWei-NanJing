@@ -27,7 +27,9 @@ export default {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
     });
-    axios.get("http://47.102.214.37:8080/ops/dates/2021/3").then((res) => {
+    let url =
+      "http://47.102.214.37:8080/ops/dates/2021/" + (new Date().getMonth() + 1);
+    axios.get(url).then((res) => {
       console.log(res);
       for (let i = 0; i < res.data.length; i++) {
         that.calendarOptions.events.push({
@@ -39,9 +41,6 @@ export default {
           textColor: "#fff",
         });
       }
-      setTimeout(() => {
-        console.log(that.calendarOptions.events);
-      }, 300);
     });
   },
   data() {
@@ -58,12 +57,6 @@ export default {
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
         },
-        // events: [
-        //   { title: "event 1", date: "2021-03-01" },
-        //   { title: "event 1", date: "2021-03-01" },
-        //   { title: "event 1", date: "2021-03-01" },
-        //   { title: "event 2", date: "2021-03-02", cssClass: "red" },
-        // ],
         events: [
           // put the array in the `events` property
           {
@@ -95,13 +88,14 @@ export default {
   },
   methods: {
     handleEventClick(clickInfo) {
-      if (
-        confirm(
-          `Are you sure you want to delete the event '${clickInfo.event.title}'`
-        )
-      ) {
-        clickInfo.event.remove();
-      }
+      console.log(clickInfo);
+      let obj = {
+        id: clickInfo.event.id,
+      };
+      this.$router.push({
+        path: "./taskDetailInfo",
+        query: obj,
+      });
     },
   },
 };
