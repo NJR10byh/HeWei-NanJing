@@ -10,29 +10,37 @@
           </div>
         </div>
       </div>
-      <div class="Name-Clazz">
+      <div class="Name-Number">
         <div class="part1 Name" style="width: 50%;">
           <div class="Text">设备名称</div>
-          <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
-          <div
-            class="Info"
-            v-else
-            v-for="(item, index) in deviceinfo"
-            :key="index"
+          <el-select
+            v-model="device"
+            filterable
+            clearable
+            placeholder="请选择"
+            @change="change"
+            @clear="clear"
           >
-            {{ item.deviceName }}
-          </div>
+            <el-option
+              v-for="item in options1"
+              :key="item.value"
+              :label="item.devicename"
+              :value="item.value"
+            >
+              <span style="float: left;font-size:13px;">{{
+                item.devicename
+              }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px;">{{
+                item.devicenumber
+              }}</span>
+            </el-option>
+          </el-select>
         </div>
         <div class="part1 Clazz" style="width: 50%;">
-          <div class="Text">设备类别</div>
-          <div class="Info" v-if="deviceinfo.length == 0">暂无</div>
-          <div
-            class="Info"
-            v-else
-            v-for="(item, index) in deviceinfo"
-            :key="index"
-          >
-            {{ item.deviceClazz }}
+          <div class="Text">设备编号</div>
+          <div class="Info" v-if="deviceNo == ''">暂无</div>
+          <div class="Info" v-else>
+            {{ deviceNo }}
           </div>
         </div>
       </div>
@@ -61,7 +69,7 @@
           <div class="Text">选择报告接受人</div>
           <el-select v-model="assignee" placeholder="请选择">
             <el-option-group
-              v-for="group in options"
+              v-for="group in options2"
               :key="group.label"
               :label="group.label"
             >
@@ -87,6 +95,7 @@ import axios from "axios";
 export default {
   created: function() {
     let that = this;
+    // 获取当前登录用户基本信息
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       that.reporter =
@@ -97,12 +106,25 @@ export default {
         " | 用户ID：" +
         res.data.id;
     });
+    // 获取全部设备
+    axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
+      console.log(res.data);
+      for (var i = 0; i < res.data.content.length; i++) {
+        // console.log(res.data.content[i]);
+        let obj = {};
+        obj.value = res.data.content[i].id;
+        obj.devicename = res.data.content[i].name;
+        obj.devicenumber = res.data.content[i].deviceNo;
+        that.options1.push(obj);
+      }
+    });
+    // 获取全部OPERATOR
     axios.get("http://47.102.214.37:8080/user/query").then((res) => {
       console.log(res.data);
       setTimeout(function() {
         for (let i = 0; i < res.data.content.length; i++) {
           if (res.data.content[i].role == "OPERATOR") {
-            that.options[0].options.push({
+            that.options2[0].options.push({
               value: res.data.content[i].id,
               label:
                 res.data.content[i].name +
@@ -119,11 +141,17 @@ export default {
     return {
       reporter: "", // 报告人员
       deviceinfo: [],
+      // 设备选择
+      device: "",
+      options1: [],
       textarea1: "",
       textarea2: "",
+
+      // 设备编号
+      deviceNo: "",
       // 报告接受人
       assignee: "",
-      options: [
+      options2: [
         {
           label: "OPERATOR",
           options: [],
@@ -132,28 +160,44 @@ export default {
     };
   },
   methods: {
-    submit() {
+    change(res) {
       let that = this;
-      console.log(this.value);
-      let device = [];
-      for (let i = 0; i < that.deviceinfo.length; i++) {
-        device.push({
-          id: that.deviceinfo[0].deviceID,
+      if (res == "") {
+        return;
+      } else {
+        console.log(res);
+        let url = "http://47.102.214.37:8080/device/" + res;
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          that.deviceNo = res.data.deviceNo;
         });
       }
-      let obj = {
-        assignee: { id: that.assignee },
-        closed: false,
-        content: that.textarea2,
-        descriptionPic: null,
-        device: device,
-        reporter: { id: that.$route.query.id * 1 },
-        record: null,
-      };
-      console.log(obj);
-      axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
-        console.log(res);
-      });
+    },
+    clear() {
+      this.deviceNo = "";
+    },
+    submit() {
+      let that = this;
+      console.log(that.device);
+      // let device = [];
+      // for (let i = 0; i < that.deviceinfo.length; i++) {
+      //   device.push({
+      //     id: that.deviceinfo[0].deviceID,
+      //   });
+      // }
+      // let obj = {
+      //   assignee: { id: that.assignee },
+      //   closed: false,
+      //   content: that.textarea2,
+      //   descriptionPic: null,
+      //   device: device,
+      //   reporter: { id: that.$route.query.id * 1 },
+      //   record: null,
+      // };
+      // console.log(obj);
+      // axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
+      //   console.log(res);
+      // });
     },
   },
 };
@@ -211,7 +255,7 @@ export default {
         }
       }
     }
-    .Name-Clazz {
+    .Name-Number {
       padding: 10px 0;
       border-bottom: 1px solid #e0e0e0;
       display: flex;
@@ -232,6 +276,9 @@ export default {
           justify-content: flex-start;
           font-size: 14px;
           font-weight: 400;
+        }
+        .el-select {
+          margin-top: 5px;
         }
       }
     }

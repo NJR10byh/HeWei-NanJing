@@ -12,12 +12,14 @@
         </div>
       </div>
       <div class="title">合为企业设备管理系统</div>
-      <div class="hd-btns">
-        <div class="nowtime">
-          <div class="timeinfo">
-            <nowTime></nowTime>
-            <div class="am-pm" ref="timeTips">{{ timeTip }}</div>
-          </div>
+      <div class="user_info">
+        <div class="user_info_icon">
+          <img src="../assets/img/login-success.png" />
+        </div>
+        <div class="user_info_detail">
+          <div class="info name"><span>姓名：</span>{{ name }}</div>
+          <div class="info username"><span>用户名：</span>{{ username }}</div>
+          <div class="info userid"><span>用户ID：</span>{{ userid }}</div>
         </div>
       </div>
     </el-header>
@@ -173,7 +175,7 @@
 </template>
 
 <script>
-import nowTime from "./Timer";
+// import nowTime from "./Timer";
 import axios from "axios";
 export default {
   created() {
@@ -181,11 +183,17 @@ export default {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
+      this.username = res.data.username;
+      this.userid = res.data.id;
+      this.name = res.data.name;
     });
   },
   data() {
     return {
       isCollapse: false,
+      name: "",
+      username: "",
+      userid: "",
       userRole: "",
       timeTip: "",
       // ROOT，ADMIN权限
@@ -595,9 +603,7 @@ export default {
       }
     },
   },
-  components: {
-    nowTime,
-  },
+  components: {},
 };
 </script>
 
@@ -666,33 +672,34 @@ export default {
       font-weight: bold;
       // border: 1px solid red;
     }
-    .nowtime {
+    .user_info {
       display: flex;
-      justify-content: center;
+      justify-content: space-evenly;
       align-items: center;
       width: 260px;
       // border: 1px solid red;
-      .icon {
-        color: #000;
-        margin-right: 30px;
-        width: 20px;
-        height: 20px;
-      }
-      .timeinfo {
-        display: flex;
-        justify-content: center;
-        .nowDate {
-          font-size: 40px;
-          font-weight: bold;
-          color: #409eff;
+      .user_info_icon {
+        border-right: 1px solid #aaa;
+        padding-right: 20px;
+        img {
+          width: 40px;
+          height: 40px;
         }
-        .am-pm {
+      }
+      .user_info_detail {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        // border: 1px solid red;
+        .info {
           color: #409eff;
-          font-size: 15px;
+          font-size: 13px;
           font-weight: bold;
-          position: relative;
-          top: 3px;
-          margin-left: 6px;
+          span {
+            color: #111;
+            font-weight: normal;
+          }
         }
       }
     }

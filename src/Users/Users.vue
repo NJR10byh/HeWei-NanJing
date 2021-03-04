@@ -9,31 +9,12 @@
           用户列表
         </div>
       </div>
-      <div
-        class="module"
-        style="cursor: pointer;"
-        v-if="['ROOT', 'ADMIN', 'CREATOR', 'OPERATOR'].includes(userRole)"
-        @click="Edituser"
-      >
+      <div class="module" style="cursor: pointer;" @click="Edituser">
         <div class="top">
           <img src="../assets/img/login-success.png" />
         </div>
-        <div class="User-info">
-          <div>
-            姓名：<span>{{ name }}</span>
-          </div>
-          <div class="userid">
-            用户ID：<span>{{ userID }}</span>
-          </div>
-          <div class="username">
-            用户名：<span>{{ userName }}</span>
-          </div>
-          <div class="role">
-            用户权限：<span>{{ userRole }}</span>
-          </div>
-          <div class="role email">
-            用户邮箱：<span>{{ userEmail }}</span>
-          </div>
+        <div class="bottom">
+          修改信息
         </div>
       </div>
       <div
@@ -63,25 +44,13 @@ export default {
   created: function() {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
-      // this.uesrInfo.push(res.data.username);
-      // this.uesrInfo.push(res.data.id);
-      // this.uesrInfo.push(res.data.role);
-      // this.uesrInfo.push(res.data.email);
       this.uesrInfo = res.data;
-      this.userName = res.data.username;
-      this.name = res.data.name;
-      this.userID = res.data.id;
       this.userRole = res.data.role;
-      this.userEmail = res.data.email;
     });
   },
   data() {
     return {
       userRole: "",
-      userName: "",
-      userID: "",
-      userEmail: "",
-      name: "",
       uesrInfo: {},
     };
   },
@@ -169,37 +138,6 @@ export default {
         color: #409eff;
         font-size: 30px;
         // border: 1px solid red;
-      }
-      .User-info {
-        // border: 1px solid red;
-        height: 45%;
-        font-weight: bold;
-        span {
-          font-weight: normal;
-        }
-        .userid {
-          margin-top: 10px;
-        }
-        .username {
-          margin-top: 10px;
-        }
-        .role {
-          margin-top: 10px;
-          span {
-            background: #000;
-            border-radius: 4px;
-            padding: 3px 6px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #fff;
-          }
-        }
-        .email {
-          span {
-            background: #409eff;
-            padding: 3px 8px;
-          }
-        }
       }
     }
     .module:hover {
