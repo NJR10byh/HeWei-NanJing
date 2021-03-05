@@ -105,6 +105,7 @@ export default {
         res.data.username +
         " | 用户ID：" +
         res.data.id;
+      that.userid = res.data.id;
     });
     // 获取全部设备
     axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
@@ -140,7 +141,7 @@ export default {
   data() {
     return {
       reporter: "", // 报告人员
-      deviceinfo: [],
+      userid: "",
       // 设备选择
       device: "",
       options1: [],
@@ -179,25 +180,19 @@ export default {
     submit() {
       let that = this;
       console.log(that.device);
-      // let device = [];
-      // for (let i = 0; i < that.deviceinfo.length; i++) {
-      //   device.push({
-      //     id: that.deviceinfo[0].deviceID,
-      //   });
-      // }
-      // let obj = {
-      //   assignee: { id: that.assignee },
-      //   closed: false,
-      //   content: that.textarea2,
-      //   descriptionPic: null,
-      //   device: device,
-      //   reporter: { id: that.$route.query.id * 1 },
-      //   record: null,
-      // };
-      // console.log(obj);
-      // axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
-      //   console.log(res);
-      // });
+      let obj = {
+        assignee: { id: that.assignee },
+        closed: false,
+        content: that.textarea2,
+        descriptionPic: null,
+        device: { id: that.device },
+        reporter: { id: that.userid },
+        record: null,
+      };
+      console.log(obj);
+      axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
+        console.log(res);
+      });
     },
   },
 };
