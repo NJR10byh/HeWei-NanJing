@@ -14,7 +14,7 @@
                 <el-form-item label="保养周期" class="task tasktime">
                   <el-select
                     clearable
-                    placeholder="请选择"
+                    placeholder="请选择保养周期"
                     class="TaskTime-select"
                     v-model="TaskInfo.scheduleType"
                   >
