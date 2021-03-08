@@ -69,12 +69,18 @@
             </div>
             <div class="part_right">
               <el-form-item label="保养内容">
-                <el-input
-                  class="inputStyle"
-                  type="textarea"
-                  v-model="TaskInfo.content"
-                  :autosize="{ minRows: 6, maxRows: 15 }"
-                ></el-input>
+                <el-button @click="dialogFormVisible = true">新增</el-button>
+                <!-- <el-button></el-button> -->
+                <div style="margin-top:50px;">
+                  <el-collapse
+                    v-for="(item, index) in collapseinfo"
+                    :key="index"
+                  >
+                    <el-collapse-item :title="item.title" :name="index">
+                      {{ item.detail }}
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
               </el-form-item>
             </div>
           </div>
@@ -89,10 +95,29 @@
         </el-form>
       </div>
     </div>
+    <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+      <el-form :model="TaskInfo">
+        <el-form-item label="标题">
+          <el-input v-model="TaskInfo.title"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input
+            v-model="TaskInfo.detail"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 8 }"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitcontent">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 // import axios from "axios";
 export default {
   name: "AddTaskInside",
@@ -107,14 +132,17 @@ export default {
   data() {
     return {
       TaskInfo: {
-        scheduleType: null,
-        name: null,
-        side: null,
-        acceptedStandard: null,
-        content: null,
-        tools: null,
-        remark: null,
+        scheduleType: "",
+        name: "",
+        side: "",
+        acceptedStandard: "",
+        tools: "",
+        remark: "",
+        title: "",
+        detail: "",
+        content: [],
       },
+      collapseinfo: [],
       tasktime: [
         {
           value: "Predictability",
@@ -141,13 +169,60 @@ export default {
           label: "每天",
         },
       ],
+      dialogFormVisible: false,
+      form: {
+        tltle: "",
+        content: "",
+      },
     };
   },
   methods: {
+    // 新增保养内容
+    addcontent() {},
+    submitcontent() {
+      this.dialogFormVisible = false;
+      this.TaskInfo.content.push({
+        title: this.TaskInfo.title,
+        detail: this.TaskInfo.detail,
+      });
+      this.collapseinfo = this.TaskInfo.content;
+      console.log(this.TaskInfo);
+    },
     // 保存编辑并提交
     submittask() {
-      // let that = this;
-      console.log("submit");
+      let that = this;
+      let obj = {};
+      if (
+        that.TaskInfo.scheduleType == "" ||
+        that.TaskInfo.name == "" ||
+        that.TaskInfo.side == "" ||
+        that.TaskInfo.acceptedStandard == "" ||
+        that.TaskInfo.tools == "" ||
+        that.TaskInfo.remark == "" ||
+        that.TaskInfo.content.length == 0
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
+        });
+      } else {
+        obj.scheduleType = that.TaskInfo.scheduleType;
+        obj.name = that.TaskInfo.name;
+        obj.side = that.TaskInfo.side;
+        obj.tools = that.TaskInfo.tools;
+        obj.remark = that.TaskInfo.remark;
+        obj.content = that.TaskInfo.content;
+        axios
+          .post("http://47.102.214.37:8080/ops/schedule", obj)
+          .then((res) => {
+            console.log(res);
+            that.$message({
+              message: "新增成功",
+              type: "success",
+            });
+          });
+      }
+      console.log(obj);
     },
     // 取消编辑
     cancel() {
@@ -234,6 +309,19 @@ export default {
             // border: 1px solid red;
             width: 48%;
             padding: 0 5px 20px 5px;
+            .el-button {
+              float: right;
+              width: 70px;
+              background: linear-gradient(-270deg, #6eb5fc, #409eff);
+              color: #fff;
+              border: 0;
+              padding: 10px;
+              font-size: 15px;
+              border-radius: 5px;
+              &:hover {
+                opacity: 0.9;
+              }
+            }
           }
         }
         // 下面俩按钮
@@ -272,6 +360,15 @@ export default {
             }
           }
         }
+      }
+    }
+  }
+  .el-dialog {
+    width: 400px;
+    .el-input {
+      .el-input__inner {
+        // border: 1px red solid;
+        // width: 200px;
       }
     }
   }

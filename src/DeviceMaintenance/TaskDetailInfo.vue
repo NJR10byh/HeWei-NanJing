@@ -57,8 +57,18 @@
         <div class="Content-Tools-Attention">
           <div class="part3 Content" style="width: 40%;">
             <div class="Text">保养内容</div>
-            <div class="Info" v-for="(item, index) in content" :key="index">
-              {{ item.contentinfo }}
+            <div
+              class="Info contentInfo"
+              v-for="(item, index) in content"
+              :key="index"
+            >
+              <div style="font-size:18px;font-weight:bold;">
+                <span style="font-size:15px;font-weight:bolder;color:#409eff;"
+                  >|</span
+                >
+                {{ item.contentinfotitle }}
+              </div>
+              <div style="font-size:13px;">{{ item.contentinfotext }}</div>
             </div>
           </div>
           <div class="part3 Tools" style="width: 40%;">
@@ -82,7 +92,6 @@ import axios from "axios";
 export default {
   created: function() {
     let that = this;
-    console.log(that.$route.query);
     that.taskid = that.$route.query.id;
     let url =
       "http://47.102.214.37:8080/ops/schedule/detail/" + that.$route.query.id;
@@ -90,83 +99,12 @@ export default {
       console.log(res.data);
       // 任务名称
       that.name = res.data.name;
-      let i = res.data;
-      while (i.parent != null) {
-        // 保养周期
-        if (i.scheduleType != null && that.scheduleType == null) {
-          that.scheduleType = i.scheduleType;
-        }
-        // 保养天数
-        if (i.scheduleDay != null && that.scheduleDay == null) {
-          that.scheduleDay = i.scheduleDay;
-        }
-        if (that.scheduleType == "Daily") {
-          that.scheduleType_info = "天";
-        }
-        if (that.scheduleType == "Weekly") {
-          switch (that.scheduleDay) {
-            case 1:
-              that.scheduleType_info = "周一";
-              break;
-            case 2:
-              that.scheduleType_info = "周二";
-              break;
-            case 3:
-              that.scheduleType_info = "周三";
-              break;
-            case 4:
-              that.scheduleType_info = "周四";
-              break;
-            case 5:
-              that.scheduleType_info = "周五";
-              break;
-            case 6:
-              that.scheduleType_info = "周六";
-              break;
-            case 7:
-              that.scheduleType_info = "周日";
-              break;
-            default:
-              break;
-          }
-        } else if (that.scheduleType == "Monthly") {
-          that.scheduleType_info = "月" + that.scheduleDay + "号";
-        } else if (that.scheduleType == "Yearly") {
-          that.scheduleType_info = "年第" + that.scheduleDay + "天";
-        }
-        if (i.side != null && that.side == null) {
-          that.side = i.side;
-        }
-        if (i.acceptedStandard != null && that.acceptedStandard == null) {
-          that.acceptedStandard = i.acceptedStandard;
-        }
-        if (i.content != "" && that.content == "") {
-          for (let a = 0; a < i.content.length; a++) {
-            that.content.push({
-              contentinfo: i.content[a],
-            });
-          }
-        }
-        if (i.tools != "" && that.tools == "") {
-          for (let b = 0; b < i.content.length; b++) {
-            that.tools.push({
-              toolsinfo: i.tools[b],
-            });
-          }
-        }
-        if (i.remark != null && that.remark == null) {
-          that.remark = i.remark;
-        }
-        console.log(i);
-        i = i.parent;
-      }
-      console.log(i);
       if (that.scheduleType == null) {
-        that.scheduleType = i.scheduleType;
+        that.scheduleType = res.data.scheduleType;
       }
       // 保养天数
       if (that.scheduleDay == null) {
-        that.scheduleDay = i.scheduleDay;
+        that.scheduleDay = res.data.scheduleDay;
       }
       if (that.scheduleType == "Daily") {
         that.scheduleType_info = "天";
@@ -203,27 +141,28 @@ export default {
         that.scheduleType_info = "年第" + that.scheduleDay + "天";
       }
       if (that.side == null) {
-        that.side = i.side;
+        that.side = res.data.side;
       }
       if (that.acceptedStandard == null) {
-        that.acceptedStandard = i.acceptedStandard;
+        that.acceptedStandard = res.data.acceptedStandard;
       }
-      if (i.content != "") {
-        for (let a = 0; a < i.content.length; a++) {
+      if (res.data.content != "") {
+        for (let a = 0; a < res.data.content.length; a++) {
           that.content.push({
-            contentinfo: i.content[a],
+            contentinfotitle: res.data.content[a].title,
+            contentinfotext: res.data.content[a].detail,
           });
         }
       }
-      if (i.tools != "") {
-        for (let b = 0; b < i.content.length; b++) {
+      if (res.data.tools != "") {
+        for (let b = 0; b < res.data.content.length; b++) {
           that.tools.push({
-            toolsinfo: i.tools[b],
+            toolsinfo: res.data.tools[b],
           });
         }
       }
-      if (that.remark == null) {
-        that.remark = i.remark;
+      if (res.data.remark != "") {
+        that.remark = res.data.remark;
       }
       // 设备名称
       for (let i = 0; i < res.data.device.length; i++) {
@@ -437,6 +376,13 @@ export default {
             font-size: 14px;
             font-weight: 400;
             padding-right: 10px;
+          }
+          .contentInfo {
+            // border: 1px solid red;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
           }
         }
       }
