@@ -118,13 +118,37 @@
 
 <script>
 import axios from "axios";
-// import axios from "axios";
 export default {
   name: "AddTaskInside",
   created: function() {
-    // let that = this;
+    let that = this;
     if (this.$route.query.taskID != undefined) {
-      console.log("aaa");
+      console.log(this.$route.query);
+      let url =
+        "http://47.102.214.37:8080/ops/schedule/detail/" +
+        this.$route.query.taskID;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        console.log(res.data.content[0]);
+        that.TaskInfo.scheduleType = res.data.scheduleType;
+        that.TaskInfo.name = res.data.name;
+        that.TaskInfo.side = res.data.side;
+        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+        that.TaskInfo.tools = res.data.tools;
+        that.TaskInfo.remark = res.data.remark;
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.TaskInfo.content.push({
+            title: res.data.content[i].title,
+            detail: res.data.content[i].detail,
+          });
+        }
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.collapseinfo.push({
+            title: res.data.content[i].title,
+            detail: res.data.content[i].detail,
+          });
+        }
+      });
     } else {
       console.log("bbb");
     }
@@ -365,12 +389,6 @@ export default {
   }
   .el-dialog {
     width: 400px;
-    .el-input {
-      .el-input__inner {
-        // border: 1px red solid;
-        // width: 200px;
-      }
-    }
   }
 }
 </style>
