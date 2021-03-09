@@ -42,11 +42,22 @@ import axios from "axios";
 axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
   created: function() {
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      this.uesrInfo = res.data;
-      this.userRole = res.data.role;
-    });
+    if (localStorage.getItem("token") != null) {
+      axios
+        .get("http://47.102.214.37:8080/user/me")
+        .then((res) => {
+          console.log(res.data);
+          this.uesrInfo = res.data;
+          this.userRole = res.data.role;
+        })
+        .catch(() => {
+          axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+            console.log(res.data);
+            this.uesrInfo = res.data;
+            this.userRole = res.data.role;
+          });
+        });
+    }
   },
   data() {
     return {
@@ -79,7 +90,7 @@ export default {
         cancelButtonText: "取消",
       })
         .then(() => {
-          localStorage.clear();
+          window.localStorage.removeItem("token");
           setTimeout(function() {
             that.$router.push({ path: "/" });
           }, 1000);

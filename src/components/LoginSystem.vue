@@ -27,7 +27,8 @@ axios.defaults.withCredentials = true;
 import qs from "qs";
 export default {
   created: function() {
-    setTimeout(() => {
+    console.log(localStorage.getItem("token"));
+    if (localStorage.getItem("token") != null) {
       axios
         .get("http://47.102.214.37:8080/user/me")
         .then(() => {
@@ -41,7 +42,7 @@ export default {
           console.log(res.response);
           return;
         });
-    }, 1000);
+    }
   },
   data() {
     return {
@@ -64,7 +65,6 @@ export default {
         })
         .then((res) => {
           console.log(res);
-          console.log(res.data);
           localStorage.setItem("token", res.data);
           this.$message({
             message: "登录成功",
