@@ -1,7 +1,7 @@
 <template>
   <div class="ErrorTask-container">
     <div class="Task-info">
-      <div class="title">异常报告卡</div>
+      <div class="title">报修申请单</div>
       <div class="Users">
         <div class="part0">
           <div class="Text">报告人员</div>
@@ -212,7 +212,7 @@ export default {
     background: #fff;
     border-radius: 15px;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
-    padding: 10px 20px;
+    padding: 20px;
     // border: 1px solid red;
     display: flex;
     flex-direction: column;

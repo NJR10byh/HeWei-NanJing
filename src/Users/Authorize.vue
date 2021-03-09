@@ -5,7 +5,6 @@
         <div class="head-text">注册</div>
       </div>
       <div class="input-body">
-        <span v-if="['ROOT'].includes(userRole)">还可以注册n个用户</span>
         <span v-if="['ADMIN'].includes(userRole)"
           >可以创建三种普通用户权限</span
         >

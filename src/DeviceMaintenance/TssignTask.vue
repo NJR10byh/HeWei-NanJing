@@ -114,7 +114,7 @@ export default {
       that.selectedDeviceid = [];
       console.log(res);
       for (var i = 0; i < res.length; i++) {
-        that.selectedDeviceid.push(res[i]);
+        that.selectedDeviceid.push({ id: res[i] });
       }
     },
     Next() {
@@ -128,22 +128,15 @@ export default {
           type: "warning",
         });
       } else {
-        if (that.selectedDeviceid.length > 1) {
-          that.$message({
-            message: "一次只允许选择一台设备",
-            type: "warning",
-          });
-        } else {
-          console.log(that.selectedTaskid);
-          console.log(that.selectedDeviceid);
-          let obj = {};
-          obj.taskid = that.selectedTaskid;
-          obj.deviceid = that.selectedDeviceid;
-          this.$router.push({
-            path: "./tssignTask2",
-            query: obj,
-          });
-        }
+        console.log(that.selectedTaskid);
+        console.log(that.selectedDeviceid);
+        let obj = {};
+        obj.taskid = that.selectedTaskid;
+        obj.deviceid = that.selectedDeviceid;
+        this.$router.push({
+          path: "./tssignTask2",
+          query: obj,
+        });
       }
     },
   },

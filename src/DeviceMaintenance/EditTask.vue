@@ -1,5 +1,5 @@
 <template>
-  <div class="Container-AddTaskInside">
+  <div class="Container-EditTask">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
@@ -8,85 +8,81 @@
     <div class="Task-container">
       <div class="Task-box">
         <el-form ref="form" :model="TaskInfo" label-position="left">
-          <div class="part1">
-            <el-form-item label="保养周期" class="TaskTime">
-              <div class="TaskTime_exp">
-                每
-                <el-select
-                  clearable
-                  placeholder="请选择"
-                  class="TaskTime-select"
-                  v-model="TaskInfo.scheduleType"
-                  :disabled="scheduleTypedisabled"
-                >
-                  <el-option
-                    v-for="item in tasktime"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+          <div class="part">
+            <div class="part_left">
+              <div class="part_left_0 part_left_1">
+                <el-form-item label="保养周期" class="task tasktime">
+                  <el-select
+                    clearable
+                    placeholder="请选择保养周期"
+                    class="TaskTime-select"
+                    v-model="TaskInfo.scheduleType"
                   >
-                  </el-option>
-                </el-select>
-                <el-input
-                  v-model="TaskInfo.scheduleDay"
-                  class="TaskTime-input"
-                  placeholder="每周几，每月几号，每季度第几月，每年第几天，只填数字 (每天不填写)"
-                  type="number"
-                  :disabled="scheduleDaydisabled"
-                ></el-input>
+                    <el-option
+                      v-for="item in tasktime"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="任务名称" class="task taskname">
+                  <el-input
+                    v-model="TaskInfo.name"
+                    placeholder="请输入任务名称"
+                  ></el-input>
+                </el-form-item>
               </div>
-            </el-form-item>
-          </div>
-          <div class="part2">
-            <el-form-item label="任务名称" style="width:32%">
-              <el-input
-                v-model="TaskInfo.name"
-                placeholder="请输入任务名称"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="保养部位" style="width:32%">
-              <el-input
-                v-model="TaskInfo.side"
-                placeholder="请输入保养部位"
-                :disabled="sidedisabled"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="接受标准" style="width:32%">
-              <el-input
-                v-model="TaskInfo.acceptedStandard"
-                placeholder="请输入接受标准"
-                :disabled="acceptedStandarddisabled"
-              ></el-input>
-            </el-form-item>
-          </div>
-          <div class="part2">
-            <el-form-item label="保养内容" style="width:32%">
-              <el-input
-                class="inputStyle"
-                type="textarea"
-                v-model="TaskInfo.content"
-                :rows="8"
-                :disabled="contentdisabled"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="保养工具及备件" style="width:32%">
-              <el-input
-                class="inputStyle"
-                type="textarea"
-                v-model="TaskInfo.tools"
-                :rows="8"
-                :disabled="toolsdisabled"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="注意事项" style="width:32%">
-              <el-input
-                class="inputStyle"
-                type="textarea"
-                v-model="TaskInfo.remark"
-                :rows="8"
-                :disabled="remarkdisabled"
-              ></el-input>
-            </el-form-item>
+              <div class="part_left_0 part_left_2">
+                <el-form-item label="保养部位" class="task side">
+                  <el-input
+                    v-model="TaskInfo.side"
+                    placeholder="请输入保养部位"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="接受标准" class="task acceptedStandard">
+                  <el-input
+                    v-model="TaskInfo.acceptedStandard"
+                    placeholder="请输入接受标准"
+                  ></el-input>
+                </el-form-item>
+              </div>
+              <div class="part_left_0 part_left_3">
+                <el-form-item label="保养工具及备件" class="task tools">
+                  <el-input
+                    class="inputStyle"
+                    type="textarea"
+                    v-model="TaskInfo.tools"
+                    :rows="8"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="注意事项" class="task remark">
+                  <el-input
+                    class="inputStyle"
+                    type="textarea"
+                    v-model="TaskInfo.remark"
+                    :rows="8"
+                  ></el-input>
+                </el-form-item>
+              </div>
+            </div>
+            <div class="part_right">
+              <el-form-item label="保养内容">
+                <el-button @click="dialogFormVisible = true">新增</el-button>
+                <!-- <el-button></el-button> -->
+                <div style="margin-top:50px;">
+                  <el-collapse
+                    v-for="(item, index) in collapseinfo"
+                    :key="index"
+                  >
+                    <el-collapse-item :title="item.title" :name="index">
+                      {{ item.detail }}
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+              </el-form-item>
+            </div>
           </div>
           <div class="Btns">
             <div class="sub-btn">
@@ -99,87 +95,67 @@
         </el-form>
       </div>
     </div>
+    <el-dialog title="保养内容" :visible.sync="dialogFormVisible">
+      <el-form :model="TaskInfo">
+        <el-form-item label="标题">
+          <el-input v-model="TaskInfo.title"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input
+            v-model="TaskInfo.detail"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 8 }"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitcontent">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 export default {
-  name: "AddTaskInside",
   created: function() {
     let that = this;
-    let url =
-      "http://47.102.214.37:8080/ops/schedule/detail/" +
-      this.$route.query.taskID;
-    axios.get(url).then((res) => {
-      console.log(res.data);
-      if (res.data.parent != null) {
-        that.submitInfo.parent = { id: res.data.parent.id };
-      }
-      that.TaskInfo.id = res.data.id;
-      that.submitInfo.id = res.data.id;
-      that.TaskInfo.name = res.data.name;
-      that.submitInfo.name = res.data.name;
-      let i = res.data;
-      if (i.scheduleType != null) {
-        that.TaskInfo.scheduleType = i.scheduleType;
-        that.scheduleTypedisabled = false;
-      }
-      if (i.scheduleDay != null) {
-        that.TaskInfo.scheduleDay = i.scheduleDay;
-        that.scheduleDaydisabled = false;
-      }
-      if (i.side != null) {
-        that.TaskInfo.side = i.side;
-        that.sidedisabled = false;
-      }
-      if (i.acceptedStandard != null) {
-        that.TaskInfo.acceptedStandard = i.acceptedStandard;
-        that.acceptedStandarddisabled = false;
-      }
-      if (i.content != "") {
-        that.TaskInfo.content = i.content.join("\n");
-        that.contentdisabled = false;
-      }
-      if (i.tools != "") {
-        that.TaskInfo.tools = i.tools.join("\n");
-        that.toolsdisabled = false;
-      }
-      if (i.remark != null) {
-        that.TaskInfo.remark = i.remark;
-        that.remarkdisabled = false;
-      }
-    });
+    console.log(this.$route.query);
+    if (this.$route.query.taskID != undefined) {
+      console.log(this.$route.query);
+      let url =
+        "http://47.102.214.37:8080/ops/schedule/detail/" +
+        this.$route.query.taskID;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.TaskInfo.scheduleType = res.data.scheduleType;
+        that.TaskInfo.name = res.data.name;
+        that.TaskInfo.side = res.data.side;
+        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+        that.TaskInfo.tools = res.data.tools;
+        that.TaskInfo.remark = res.data.remark;
+        that.TaskInfo.content = res.data.content;
+        that.collapseinfo = res.data.content;
+      });
+    } else {
+      console.log("bbb");
+    }
   },
   data() {
     return {
       TaskInfo: {
-        scheduleType: null,
-        scheduleDay: null,
-        name: null,
-        side: null,
-        acceptedStandard: null,
-        content: null,
-        tools: null,
-        remark: null,
-        id: null,
-        device: [],
-        ops: [],
+        scheduleType: "",
+        name: "",
+        side: "",
+        acceptedStandard: "",
+        tools: "",
+        remark: "",
+        title: "",
+        detail: "",
+        content: [],
       },
-      submitInfo: {
-        scheduleType: null,
-        scheduleDay: null,
-        name: null,
-        side: null,
-        acceptedStandard: null,
-        content: null,
-        tools: null,
-        remark: null,
-        id: null,
-        device: [],
-        ops: [],
-        parent: null,
-      },
+      collapseinfo: [],
       tasktime: [
         {
           value: "Predictability",
@@ -187,96 +163,104 @@ export default {
         },
         {
           value: "Yearly",
-          label: "年",
+          label: "每年",
         },
         {
           value: "Seasonally",
-          label: "季度",
+          label: "每季度",
         },
         {
           value: "Monthly",
-          label: "月",
+          label: "每月",
         },
         {
           value: "Weekly",
-          label: "周",
+          label: "每周",
         },
         {
           value: "Daily",
-          label: "天",
+          label: "每天",
         },
       ],
-      scheduleTypedisabled: true,
-      scheduleDaydisabled: true,
-      sidedisabled: true,
-      acceptedStandarddisabled: true,
-      contentdisabled: true,
-      toolsdisabled: true,
-      remarkdisabled: true,
+      dialogFormVisible: false,
+      form: {
+        tltle: "",
+        content: "",
+      },
     };
   },
   methods: {
+    // 新增保养内容
+    addcontent() {},
+    submitcontent() {
+      this.dialogFormVisible = false;
+      this.TaskInfo.content.push({
+        title: this.TaskInfo.title,
+        detail: this.TaskInfo.detail,
+      });
+      this.collapseinfo = this.TaskInfo.content;
+    },
     // 保存编辑并提交
     submittask() {
       let that = this;
-      console.log(that.TaskInfo);
-      that.submitInfo.scheduleType = that.TaskInfo.scheduleType;
-      that.submitInfo.scheduleDay = that.TaskInfo.scheduleDay;
-      that.submitInfo.name = that.TaskInfo.name;
-      that.submitInfo.side = that.TaskInfo.side;
-      that.submitInfo.acceptedStandard = that.TaskInfo.acceptedStandard;
-      if (that.contentdisabled != true) {
-        that.submitInfo.content = that.TaskInfo.content
-          .replace(/\n/g, ",")
-          .split(",");
-      }
-      if (that.toolsdisabled != true) {
-        that.submitInfo.tools = that.TaskInfo.tools
-          .replace(/\n/g, ",")
-          .split(",");
-      }
-      that.submitInfo.remark = that.TaskInfo.remark;
-      console.log(that.submitInfo);
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios
-        .put(url, {
-          acceptedStandard: that.submitInfo.acceptedStandard,
-          content: that.submitInfo.content,
-          device: that.submitInfo.device,
-          id: that.submitInfo.id,
-          name: that.submitInfo.name,
-          ops: that.submitInfo.ops,
-          parent: that.submitInfo.parent,
-          remark: that.submitInfo.remark,
-          scheduleDay: that.submitInfo.scheduleDay,
-          scheduleType: that.submitInfo.scheduleType,
-          side: that.submitInfo.side,
-          tools: that.submitInfo.tools,
-        })
-        .then((res) => {
-          console.log(res);
-          that.$message({
-            message: "修改成功",
-            type: "success",
-          });
-          that.$router.push("/addTask");
+      let obj = {};
+      if (
+        that.TaskInfo.scheduleType == "" ||
+        that.TaskInfo.name == "" ||
+        that.TaskInfo.side == "" ||
+        that.TaskInfo.acceptedStandard == "" ||
+        that.TaskInfo.tools == "" ||
+        that.TaskInfo.remark == "" ||
+        that.TaskInfo.content.length == 0
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
         });
+      } else {
+        let url =
+          "http://47.102.214.37:8080/ops/schedule/detail/" +
+          that.$route.query.taskID;
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          let obj = {};
+          obj.acceptedStandard = that.TaskInfo.acceptedStandard;
+          obj.content = that.TaskInfo.content;
+          obj.id = res.data.id;
+          obj.name = that.TaskInfo.name;
+          obj.remark = that.TaskInfo.remark;
+          obj.scheduleDay = that.value1;
+          obj.scheduleType = that.TaskInfo.scheduleType;
+          obj.side = that.TaskInfo.side;
+          obj.tools = that.TaskInfo.tools;
+          obj.deviceid = that.selectedDeviceid;
+          obj.ops = that.selectedUserid;
+          console.log(obj);
+          setTimeout(function() {
+            axios.put(url, obj).then((res) => {
+              console.log(res);
+              that.$message({
+                message: "编辑成功",
+                type: "success",
+              });
+            });
+          }, 200);
+        });
+      }
+      console.log(obj);
     },
     // 取消编辑
     cancel() {
       this.$router.push({
         path: "/addTask",
       });
-      this.$message("已取消编辑");
     },
   },
 };
 </script>
 
 <style lang="scss">
-.Container-AddTaskInside {
+.Container-EditTask {
   // border: 1px solid red;
   width: 100%;
   .breadcrumb {
@@ -321,56 +305,47 @@ export default {
         background: #fff;
         border-radius: 20px;
         box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
-        padding: 10px 30px 20px 30px;
-        .part1 {
+        padding: 10px 20px 20px 20px;
+        .part {
           display: flex;
-          justify-content: flex-start;
+          justify-content: space-evenly;
+          align-items: flex-start;
           width: 100%;
-          // border: 1px solid red;
-        }
-        .part2 {
-          // border: 1px solid red;
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-        }
-        .inputStyle {
-          width: 100%;
-        }
-        .el-form-item {
-          margin: 0;
-        }
-        .Device {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-self: flex-start;
-        }
-        // 设备名称
-        .DeviceName {
-          margin-left: 0;
-          display: flex;
-          // border: 1px solid red;
-        }
-        // 设备类别
-        .DeviceClazz {
-          margin-left: 20px;
-        }
-        // 保养周期
-        .TaskTime {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-self: flex-start;
-          .TaskTime_exp {
+          .part_left {
             display: flex;
-            .TaskTime-select {
-              width: 120px;
-              margin-left: 10px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 48%;
+            padding-bottom: 20px;
+            // border: 1px solid #409eff;
+            .part_left_0 {
+              width: 95%;
+              // border: 1px solid red;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              .task {
+                width: 48%;
+              }
             }
-            .TaskTime-input {
-              width: 500px;
-              margin-left: 10px;
+          }
+          .part_right {
+            // border: 1px solid red;
+            width: 48%;
+            padding: 0 5px 20px 5px;
+            .el-button {
+              float: right;
+              width: 70px;
+              background: linear-gradient(-270deg, #6eb5fc, #409eff);
+              color: #fff;
+              border: 0;
+              padding: 10px;
+              font-size: 15px;
+              border-radius: 5px;
+              &:hover {
+                opacity: 0.9;
+              }
             }
           }
         }
@@ -412,6 +387,9 @@ export default {
         }
       }
     }
+  }
+  .el-dialog {
+    width: 400px;
   }
 }
 </style>

@@ -95,7 +95,7 @@
         </el-form>
       </div>
     </div>
-    <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+    <el-dialog title="保养内容" :visible.sync="dialogFormVisible">
       <el-form :model="TaskInfo">
         <el-form-item label="标题">
           <el-input v-model="TaskInfo.title"></el-input>
@@ -304,7 +304,7 @@ export default {
         background: #fff;
         border-radius: 20px;
         box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
-        // padding: 10px 20px 20px 20px;
+        padding: 10px 20px 20px 20px;
         .part {
           display: flex;
           justify-content: space-evenly;

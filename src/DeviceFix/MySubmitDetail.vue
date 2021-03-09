@@ -9,7 +9,6 @@
     </el-breadcrumb>
     <div class="Task-container">
       <div class="backbtn">
-        <el-button @click="back">返回</el-button>
         <div class="backbtn_right" v-if="reporterid == userid">
           <el-button @click="confirm" class="confirm">确认</el-button>
           <el-button @click="refuse" class="refuse">拒绝</el-button>
@@ -147,9 +146,6 @@ export default {
     };
   },
   methods: {
-    back() {
-      this.$router.push("./mySubmit");
-    },
     confirm() {},
     refuse() {},
   },

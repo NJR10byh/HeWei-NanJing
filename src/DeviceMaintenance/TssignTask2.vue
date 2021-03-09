@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="Container-TssignTask2"
-    v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
-  >
+  <div class="Container-TssignTask2">
     <div style="padding-bottom:20px;width:100%;">
       <!-- 面包屑 -->
       <el-breadcrumb class="Breadcrumb">
@@ -12,7 +9,12 @@
     </div>
     <div class="datepicker">
       开始日期：
-      <el-date-picker v-model="value1" type="date" placeholder="选择日期">
+      <el-date-picker
+        v-model="value1"
+        type="date"
+        placeholder="选择日期"
+        value-format="yyyy-MM-dd"
+      >
       </el-date-picker>
     </div>
     <div class="chuansuo">
@@ -46,31 +48,23 @@ export default {
   created: function() {
     let that = this;
     console.log(that.$route.query);
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-      that.userID = res.data.id;
-    });
-    setTimeout(function() {
-      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-        // 获取全部 OPERATOR 员工
-        axios
-          .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i]);
-              let obj = {};
-              obj.key = res.data.content[i].id;
-              obj.label = res.data.content[i].username;
-              that.data2.unshift(obj);
-            }
-          });
-      }
-    }, 200);
+    that.selectedTaskid = that.$route.query.taskid;
+    that.selectedDeviceid = that.$route.query.deviceid;
+    // 获取全部 OPERATOR 员工
+    axios
+      .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
+      .then((res) => {
+        for (var i = 0; i < res.data.content.length; i++) {
+          // console.log(res.data.content[i]);
+          let obj = {};
+          obj.key = res.data.content[i].id;
+          obj.label = res.data.content[i].username;
+          that.data2.unshift(obj);
+        }
+      });
   },
   data() {
     return {
-      userRole: "", //用户类型
       // 选择框 2
       data2: [],
       value2: [],
@@ -89,7 +83,9 @@ export default {
       let that = this;
       console.log(res);
       for (var i = 0; i < res.length; i++) {
-        that.selectedUserid.push(res[i]);
+        that.selectedUserid.push({
+          id: res[i],
+        });
       }
     },
     Back() {
@@ -99,65 +95,39 @@ export default {
     },
     SubTssign() {
       let that = this;
-      console.log(that.selectedTaskid);
-      console.log(that.selectedUserid);
       if (that.selectedTaskid.length == 0) {
         that.$message({
           message: "请将信息填写完整",
           type: "warning",
         });
       } else {
-        console.log(that.selectedUserid);
-        console.log(that.selectedDeviceid);
-        let opsid = [];
-        let deviceid = [];
-        for (var p = 0; p < that.selectedUserid.length; p++) {
-          opsid.push({ id: that.selectedUserid[p] });
-        }
-        for (var q = 0; q < that.selectedDeviceid.length; q++) {
-          deviceid.push({ id: that.selectedDeviceid[q] });
-        }
-        console.log(opsid);
-        console.log(deviceid);
         for (var a = 0; a < that.selectedTaskid.length; a++) {
           let url =
             "http://47.102.214.37:8080/ops/schedule/detail/" +
             that.selectedTaskid[a];
           axios.get(url).then((res) => {
             console.log(res.data);
-            let acceptedStandard = res.data.acceptedStandard;
-            let content = res.data.content;
-            let id = res.data.id;
-            let name = res.data.name;
-            let parent = res.data.parent;
-            let remark = res.data.remark;
-            let scheduleDay = res.data.scheduleDay;
-            let scheduleType = res.data.scheduleType;
-            let side = res.data.side;
-            let tools = res.data.tools;
+            let obj = {};
+            obj.acceptedStandard = res.data.acceptedStandard;
+            obj.content = res.data.content;
+            obj.id = res.data.id;
+            obj.name = res.data.name;
+            obj.remark = res.data.remark;
+            obj.scheduleDay = that.value1;
+            obj.scheduleType = res.data.scheduleType;
+            obj.side = res.data.side;
+            obj.tools = res.data.tools;
+            obj.deviceid = that.selectedDeviceid;
+            obj.ops = that.selectedUserid;
+            console.log(obj);
             setTimeout(function() {
-              axios
-                .put(url, {
-                  acceptedStandard: acceptedStandard,
-                  content: content,
-                  device: deviceid,
-                  id: id,
-                  name: name,
-                  ops: opsid,
-                  parent: parent,
-                  remark: remark,
-                  scheduleDay: scheduleDay,
-                  scheduleType: scheduleType,
-                  side: side,
-                  tools: tools,
-                })
-                .then((res) => {
-                  console.log(res);
-                  that.$message({
-                    message: "分配成功",
-                    type: "success",
-                  });
+              axios.put(url, obj).then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "分配成功",
+                  type: "success",
                 });
+              });
             }, 200);
           });
         }
