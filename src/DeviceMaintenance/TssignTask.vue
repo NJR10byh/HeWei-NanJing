@@ -21,16 +21,6 @@
         >
         </el-transfer>
       </div>
-      <div class="kuang kuang2">
-        <el-transfer
-          filterable
-          v-model="value2"
-          :data="data2"
-          :titles="titles2"
-          @change="change2"
-        >
-        </el-transfer>
-      </div>
       <div class="kuang kuang3">
         <el-transfer
           filterable
@@ -43,10 +33,7 @@
       </div>
       <div class="Btns">
         <div class="sub-btn">
-          <el-button @click="SubTssign">保存</el-button>
-        </div>
-        <div class="del-btn">
-          <el-button>删除</el-button>
+          <el-button @click="Next">下一步</el-button>
         </div>
       </div>
     </div>
@@ -78,18 +65,6 @@ export default {
               that.data1.unshift(obj);
             }
           });
-        // 获取全部 OPERATOR 员工
-        axios
-          .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i]);
-              let obj = {};
-              obj.key = res.data.content[i].id;
-              obj.label = res.data.content[i].username;
-              that.data2.unshift(obj);
-            }
-          });
         // 获取全部设备
         axios
           .get("http://47.102.214.37:8080/device/query?name=!")
@@ -117,103 +92,56 @@ export default {
       data1: [],
       value1: [],
       titles1: ["任务名称", "已选择任务"],
-      // 选择框 2
-      data2: [],
-      value2: [],
-      titles2: ["人员列表", "已选择人员"],
       // 选择框 3
       data3: [],
       value3: [],
       titles3: ["设备列表", "已选择设备"],
       selectedTaskid: [],
-      selectedUserid: [],
       selectedDeviceid: [],
     };
   },
   methods: {
     change1(res) {
       let that = this;
+      that.selectedTaskid = [];
       console.log(res);
       for (var i = 0; i < res.length; i++) {
         that.selectedTaskid.push(res[i]);
       }
     },
-    change2(res) {
-      let that = this;
-      console.log(res);
-      for (var i = 0; i < res.length; i++) {
-        that.selectedUserid.push(res[i]);
-      }
-    },
     change3(res) {
       let that = this;
+      that.selectedDeviceid = [];
       console.log(res);
       for (var i = 0; i < res.length; i++) {
         that.selectedDeviceid.push(res[i]);
       }
     },
-    SubTssign() {
+    Next() {
       let that = this;
-      console.log(that.selectedTaskid);
-      console.log(that.selectedUserid);
-      if (that.selectedTaskid.length == 0) {
+      if (
+        that.selectedTaskid.length == 0 ||
+        that.selectedDeviceid.length == 0
+      ) {
         that.$message({
           message: "请将信息填写完整",
           type: "warning",
         });
       } else {
-        console.log(that.selectedUserid);
-        console.log(that.selectedDeviceid);
-        let opsid = [];
-        let deviceid = [];
-        for (var p = 0; p < that.selectedUserid.length; p++) {
-          opsid.push({ id: that.selectedUserid[p] });
-        }
-        for (var q = 0; q < that.selectedDeviceid.length; q++) {
-          deviceid.push({ id: that.selectedDeviceid[q] });
-        }
-        console.log(opsid);
-        console.log(deviceid);
-        for (var a = 0; a < that.selectedTaskid.length; a++) {
-          let url =
-            "http://47.102.214.37:8080/ops/schedule/detail/" +
-            that.selectedTaskid[a];
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            let acceptedStandard = res.data.acceptedStandard;
-            let content = res.data.content;
-            let id = res.data.id;
-            let name = res.data.name;
-            let parent = res.data.parent;
-            let remark = res.data.remark;
-            let scheduleDay = res.data.scheduleDay;
-            let scheduleType = res.data.scheduleType;
-            let side = res.data.side;
-            let tools = res.data.tools;
-            setTimeout(function() {
-              axios
-                .put(url, {
-                  acceptedStandard: acceptedStandard,
-                  content: content,
-                  device: deviceid,
-                  id: id,
-                  name: name,
-                  ops: opsid,
-                  parent: parent,
-                  remark: remark,
-                  scheduleDay: scheduleDay,
-                  scheduleType: scheduleType,
-                  side: side,
-                  tools: tools,
-                })
-                .then((res) => {
-                  console.log(res);
-                  that.$message({
-                    message: "分配成功",
-                    type: "success",
-                  });
-                });
-            }, 200);
+        if (that.selectedDeviceid.length > 1) {
+          that.$message({
+            message: "一次只允许选择一台设备",
+            type: "warning",
+          });
+        } else {
+          console.log(that.selectedTaskid);
+          console.log(that.selectedDeviceid);
+          let obj = {};
+          obj.taskid = that.selectedTaskid;
+          obj.deviceid = that.selectedDeviceid;
+          this.$router.push({
+            path: "./tssignTask2",
+            query: obj,
           });
         }
       }
@@ -254,13 +182,6 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     padding-bottom: 10px;
-    // overflow: hidden;
-    .kuang {
-      // border: 1px solid red;
-    }
-    .kuang2 {
-      margin-top: 10px;
-    }
     .kuang3 {
       margin-top: 10px;
     }
@@ -268,27 +189,12 @@ export default {
   .Btns {
     display: flex;
     justify-content: space-between;
-    width: 180px;
     margin-top: 20px;
     // border: 1px solid red;
     .sub-btn {
       .el-button {
         width: 80px;
         background: linear-gradient(-270deg, #6eb5fc, #409eff);
-        color: #fff;
-        border: 0;
-        padding: 10px;
-        font-size: 15px;
-        border-radius: 5px;
-        &:hover {
-          opacity: 0.9;
-        }
-      }
-    }
-    .del-btn {
-      .el-button {
-        width: 80px;
-        background: linear-gradient(-270deg, #fca4a4, #f96b6c);
         color: #fff;
         border: 0;
         padding: 10px;

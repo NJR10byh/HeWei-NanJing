@@ -17,6 +17,7 @@ import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
+import TssignTask2 from "@/DeviceMaintenance/TssignTask2"; // 任务分配2
 /* 设备维修*/
 import FixApply from "@/DeviceFix/FixApply"; // 维修诊断
 import AllError from "@/DeviceFix/AllError"; // 维修诊断
@@ -112,6 +113,11 @@ var routes = [
       {
         path: "/tssignTask",
         component: TssignTask,
+      },
+      // 任务分配2
+      {
+        path: "/tssignTask2",
+        component: TssignTask2,
       },
       /* 设备维修*/
       // 全部异常
