@@ -41,8 +41,13 @@
         <div class="part1 Clazz" style="width: 50%;">
           <div class="Text">设备编号</div>
           <div class="Info" v-if="deviceNo == ''">暂无</div>
-          <div class="Info" v-else>
-            {{ deviceNo }}
+          <div
+            class="Info"
+            v-else
+            v-for="(item, index) in deviceNo"
+            :key="index"
+          >
+            {{ item.deviceNoinfo }}
           </div>
         </div>
       </div>
@@ -52,7 +57,7 @@
           <el-input
             type="textarea"
             :rows="3"
-            v-model="textarea1"
+            v-model="descriptionPic"
             style="width:85%;margin-top: 5px;"
           ></el-input>
         </div>
@@ -60,7 +65,7 @@
           <div class="Text">异常处理请求</div>
           <el-input
             type="textarea"
-            v-model="textarea2"
+            v-model="content"
             :rows="3"
             style="width:85%;margin-top: 5px;"
           ></el-input>
@@ -111,7 +116,7 @@ export default {
     });
     // 获取全部设备
     axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       for (var i = 0; i < res.data.content.length; i++) {
         // console.log(res.data.content[i]);
         let obj = {};
@@ -121,12 +126,12 @@ export default {
         that.options1.push(obj);
       }
     });
-    // 获取全部OPERATOR
+    // 获取全部SUPERVISOR
     axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       setTimeout(function() {
         for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "OPERATOR") {
+          if (res.data.content[i].role == "SUPERVISOR") {
             that.options2[0].options.push({
               value: res.data.content[i].id,
               label:
@@ -145,18 +150,18 @@ export default {
       reporter: "", // 报告人员
       userid: "",
       // 设备选择
-      device: "",
+      device: [],
       options1: [],
-      textarea1: "",
-      textarea2: "",
+      descriptionPic: "",
+      content: "",
 
       // 设备编号
-      deviceNo: "",
+      deviceNo: [],
       // 报告接受人
       assignee: "",
       options2: [
         {
-          label: "OPERATOR",
+          label: "SUPERVISOR",
           options: [],
         },
       ],
@@ -165,15 +170,20 @@ export default {
   methods: {
     change(res) {
       let that = this;
+      that.deviceNo = [];
       if (res == "") {
         return;
       } else {
         console.log(res);
-        let url = "http://47.102.214.37:8080/device/" + res;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.deviceNo = res.data.deviceNo;
-        });
+        for (let i = 0; i < res.length; i++) {
+          let url = "http://47.102.214.37:8080/device/" + res[i];
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            that.deviceNo.push({
+              deviceNoinfo: res.data.deviceNo,
+            });
+          });
+        }
       }
     },
     clear() {
@@ -182,19 +192,37 @@ export default {
     submit() {
       let that = this;
       console.log(that.device);
-      let obj = {
-        assignee: { id: that.assignee },
-        closed: false,
-        content: that.textarea2,
-        descriptionPic: null,
-        device: { id: that.device },
-        reporter: { id: that.userid },
-        record: null,
-      };
-      console.log(obj);
-      axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
-        console.log(res);
-      });
+      let device = [];
+      if (
+        that.assignee == "" ||
+        that.device == [] ||
+        that.descriptionPic == "" ||
+        that.content == ""
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
+        });
+      } else {
+        for (let i = 0; i < that.device.length; i++) {
+          device.push({
+            id: that.device[i],
+          });
+        }
+        console.log(device);
+        let obj = {
+          assignee: { id: that.assignee },
+          closed: false,
+          content: that.content,
+          descriptionPic: that.descriptionPic,
+          device: device,
+          reporter: { id: that.userid },
+        };
+        console.log(obj);
+        axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
+          console.log(res);
+        });
+      }
     },
   },
 };

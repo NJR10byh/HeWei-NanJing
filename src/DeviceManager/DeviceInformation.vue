@@ -157,26 +157,17 @@
             :width="item.width"
           ></el-table-column>
         </template>
-        <el-table-column prop="setting" label="操作" width="150">
+        <el-table-column prop="setting" label="操作" width="180">
           <template slot-scope="scope">
-            <el-tooltip content="修改" effect="light" :enterable="false">
-              <el-button
-                icon="iconfont icon-bianji"
-                @click="handleEdit(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="生成编码" effect="light" :enterable="false">
-              <el-button
-                icon="iconfont icon-tiaoxingma"
-                @click="handleCode(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除" :enterable="false">
-              <el-button
-                icon="iconfont icon-shanchu"
-                @click="handleDelete(scope.$index, scope.row)"
-              ></el-button>
-            </el-tooltip>
+            <el-button @click="handleEdit(scope.$index, scope.row)"
+              >修改</el-button
+            >
+            <el-button @click="handleCode(scope.$index, scope.row)"
+              >编码</el-button
+            >
+            <el-button @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -988,19 +979,13 @@ export default {
       padding: 3px;
       background: transparent;
       &:first-child:hover {
-        .iconfont {
-          color: #409eff;
-        }
+        color: #409eff;
       }
       &:nth-child(2):hover {
-        .iconfont {
-          color: #409eff;
-        }
+        color: #409eff;
       }
       &:nth-child(3):hover {
-        .iconfont {
-          color: #f96b6c;
-        }
+        color: #f96b6c;
       }
     }
   }

@@ -16,10 +16,10 @@
             >以此为模版新增</el-button
           >
           <el-button class="btn btn2" @click="editTask(index)"
-            >编辑模版</el-button
+            >编辑任务</el-button
           >
           <el-button class="btn btn3" @click="deleteTask(index)"
-            >删除模版</el-button
+            >删除任务</el-button
           >
         </div>
       </div>
@@ -44,7 +44,7 @@ export default {
           // console.log(res);
           for (var i = 0; i < res.data.content.length; i++) {
             // console.log(res.data.content[i]);
-            that.taskData.unshift({
+            that.taskData.push({
               taskID: res.data.content[i].id,
               taskname: res.data.content[i].name,
             });

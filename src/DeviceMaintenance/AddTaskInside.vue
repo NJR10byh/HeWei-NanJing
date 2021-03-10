@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">新增模版</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">新增任务</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-box">
@@ -73,7 +73,7 @@
                 <!-- <el-button></el-button> -->
                 <div style="margin-top:50px;">
                   <el-collapse
-                    v-for="(item, index) in collapseinfo"
+                    v-for="(item, index) in TaskInfo.content"
                     :key="index"
                   >
                     <el-collapse-item :title="item.title" :name="index">
@@ -129,25 +129,13 @@ export default {
         this.$route.query.taskID;
       axios.get(url).then((res) => {
         console.log(res.data);
-        console.log(res.data.content[0]);
         that.TaskInfo.scheduleType = res.data.scheduleType;
         that.TaskInfo.name = res.data.name;
         that.TaskInfo.side = res.data.side;
         that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
         that.TaskInfo.tools = res.data.tools;
         that.TaskInfo.remark = res.data.remark;
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.TaskInfo.content.push({
-            title: res.data.content[i].title,
-            detail: res.data.content[i].detail,
-          });
-        }
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.collapseinfo.push({
-            title: res.data.content[i].title,
-            detail: res.data.content[i].detail,
-          });
-        }
+        that.TaskInfo.content = res.data.content;
       });
     } else {
       console.log("bbb");
@@ -166,7 +154,6 @@ export default {
         detail: "",
         content: [],
       },
-      collapseinfo: [],
       tasktime: [
         {
           value: "Predictability",
@@ -209,7 +196,6 @@ export default {
         title: this.TaskInfo.title,
         detail: this.TaskInfo.detail,
       });
-      this.collapseinfo = this.TaskInfo.content;
       console.log(this.TaskInfo);
     },
     // 保存编辑并提交
@@ -233,6 +219,7 @@ export default {
         obj.scheduleType = that.TaskInfo.scheduleType;
         obj.name = that.TaskInfo.name;
         obj.side = that.TaskInfo.side;
+        obj.acceptedStandard = that.TaskInfo.acceptedStandard;
         obj.tools = that.TaskInfo.tools;
         obj.remark = that.TaskInfo.remark;
         obj.content = that.TaskInfo.content;
@@ -244,6 +231,9 @@ export default {
               message: "新增成功",
               type: "success",
             });
+          })
+          .catch((res) => {
+            console.log(res.response.data.message);
           });
       }
       console.log(obj);

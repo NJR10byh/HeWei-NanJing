@@ -57,18 +57,12 @@
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
       >
         <template slot-scope="scope">
-          <el-tooltip content="修改" effect="light" :enterable="false">
-            <el-button
-              icon="iconfont icon-bianji"
-              @click="handleEdit(scope.$index, scope.row)"
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip content="删除" :enterable="false">
-            <el-button
-              icon="iconfont icon-shanchu"
-              @click="handleDelete(scope.$index, scope.row)"
-            ></el-button>
-          </el-tooltip>
+          <el-button @click="handleEdit(scope.$index, scope.row)"
+            >修改</el-button
+          >
+          <el-button @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -548,14 +542,10 @@ export default {
         padding: 5px 10px;
         background: transparent;
         &:first-child:hover {
-          .iconfont {
-            color: #409eff;
-          }
+          color: #409eff;
         }
         &:nth-child(2):hover {
-          .iconfont {
-            color: #f96b6c;
-          }
+          color: #f96b6c;
         }
       }
     }
