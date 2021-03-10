@@ -245,12 +245,6 @@ export default {
     search() {
       let that = this;
       that.query = 0;
-      that.query_value = [];
-      that.tableData = [];
-      console.log(that.devicename);
-      console.log(that.devicebrand);
-      console.log(that.devicetype);
-      console.log(that.deviceclazz);
       if (that.devicename != "") {
         that.query++;
       }
@@ -263,183 +257,211 @@ export default {
       if (that.deviceclazz != "") {
         that.query++;
       }
-      console.log(that.query);
-      switch (that.query) {
-        case 1:
-          if (that.devicename != "") {
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?name==" + that.devicename;
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?name==" +
-              that.devicename;
-          } else if (that.devicebrand != "") {
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?brand==" +
-              that.devicebrand;
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?name==" +
-              that.devicebrand;
-          } else if (that.devicetype != "") {
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?type==" + that.devicetype;
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?name==" +
-              that.devicetype;
-          } else if (that.deviceclazz != "") {
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?clazz==" +
-              that.deviceclazz;
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?name==" +
-              that.deviceclazz;
-          }
-          break;
-        case 2:
-          if (that.devicename != "") {
-            that.query_value.push({
-              name: "name",
-              value: that.devicename,
-            });
-          }
-          if (that.devicebrand != "") {
-            that.query_value.push({
-              name: "brand",
-              value: that.devicebrand,
-            });
-          }
-          if (that.devicetype != "") {
-            that.query_value.push({
-              name: "type",
-              value: that.devicetype,
-            });
-          }
-          if (that.deviceclazz != "") {
-            that.query_value.push({
-              name: "clazz",
-              value: that.deviceclazz,
-            });
-          }
-          console.log(that.query_value);
-          that.searchurl =
-            "http://47.102.214.37:8080/device/query?" +
-            that.query_value[0].name +
-            "==" +
-            that.query_value[0].value +
-            "&" +
-            that.query_value[1].name +
-            "==" +
-            that.query_value[1].value;
-          that.exporturl =
-            "http://47.102.214.37:8080/device/export?" +
-            that.query_value[0].name +
-            "==" +
-            that.query_value[0].value +
-            "&" +
-            that.query_value[1].name +
-            "==" +
-            that.query_value[1].value;
-          break;
-        case 3:
-          if (that.devicename != "") {
-            that.query_value.push({
-              name: "name",
-              value: that.devicename,
-            });
-          }
-          if (that.devicebrand != "") {
-            that.query_value.push({
-              name: "brand",
-              value: that.devicebrand,
-            });
-          }
-          if (that.devicetype != "") {
-            that.query_value.push({
-              name: "type",
-              value: that.devicetype,
-            });
-          }
-          if (that.deviceclazz != "") {
-            that.query_value.push({
-              name: "clazz",
-              value: that.deviceclazz,
-            });
-          }
-          console.log(that.query_value);
-          that.searchurl =
-            "http://47.102.214.37:8080/device/query?" +
-            that.query_value[0].name +
-            "==" +
-            that.query_value[0].value +
-            "&" +
-            that.query_value[1].name +
-            "==" +
-            that.query_value[1].value +
-            "&" +
-            that.query_value[2].name +
-            "==" +
-            that.query_value[2].value;
-          that.exporturl =
-            "http://47.102.214.37:8080/device/export?" +
-            that.query_value[0].name +
-            "==" +
-            that.query_value[0].value +
-            "&" +
-            that.query_value[1].name +
-            "==" +
-            that.query_value[1].value +
-            "&" +
-            that.query_value[2].name +
-            "==" +
-            that.query_value[2].value;
-          break;
-        case 4:
-          that.searchurl =
-            "http://47.102.214.37:8080/device/query?name==" +
-            that.devicename +
-            "&brand==" +
-            that.devicebrand +
-            "&type==" +
-            that.devicetype +
-            "&clazz==" +
-            that.deviceclazz;
-          that.exporturl =
-            "http://47.102.214.37:8080/device/export?name==" +
-            that.devicename +
-            "&brand==" +
-            that.devicebrand +
-            "&type==" +
-            that.devicetype +
-            "&clazz==" +
-            that.deviceclazz;
-          break;
-        default:
-          break;
-      }
-      console.log(that.searchurl);
-      axios.get(that.searchurl).then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.name = res.data.content[i].name;
-          obj["brand"] = res.data.content[i].brand;
-          obj.type = res.data.content[i].type;
-          obj.deviceNo = res.data.content[i].deviceNo;
-          if (res.data.content[i].extra.length != 0) {
-            for (let j = 0; j < res.data.content[i].extra.length; j++) {
-              obj[res.data.content[i].extra[j].field.id] =
-                res.data.content[i].extra[j].value;
+      if (that.query == 0) {
+        that.$message({
+          message: "请输入搜索信息",
+          type: "warning",
+        });
+      } else {
+        that.query_value = [];
+        that.tableData = [];
+        console.log(that.devicename);
+        console.log(that.devicebrand);
+        console.log(that.devicetype);
+        console.log(that.deviceclazz);
+        console.log(that.query);
+        switch (that.query) {
+          case 1:
+            if (that.devicename != "") {
+              that.searchurl =
+                "http://47.102.214.37:8080/device/query?name=L" +
+                that.devicename +
+                "%25";
+              that.exporturl =
+                "http://47.102.214.37:8080/device/query?name=L" +
+                that.devicename +
+                "%25";
+            } else if (that.devicebrand != "") {
+              that.searchurl =
+                "http://47.102.214.37:8080/device/query?brand=L" +
+                that.devicebrand +
+                "%25";
+              that.exporturl =
+                "http://47.102.214.37:8080/device/export?name=L" +
+                that.devicebrand +
+                "%25";
+            } else if (that.devicetype != "") {
+              that.searchurl =
+                "http://47.102.214.37:8080/device/query?type=L" +
+                that.devicetype.toUpperCase() +
+                "%25";
+              that.exporturl =
+                "http://47.102.214.37:8080/device/export?name=L" +
+                that.devicetype.toUpperCase() +
+                "%25";
+            } else if (that.deviceclazz != "") {
+              that.searchurl =
+                "http://47.102.214.37:8080/device/query?clazz=L" +
+                that.deviceclazz +
+                "%25";
+              that.exporturl =
+                "http://47.102.214.37:8080/device/export?name=L" +
+                that.deviceclazz +
+                "%25";
             }
-          }
-          if (res.data.content[i].crux == true) {
-            obj.crux = "Y";
-          } else if (res.data.content[i].crux == false) {
-            obj.crux = "N";
-          }
-          obj.clazz = res.data.content[i].clazz;
-          that.tableData.push(obj);
+            break;
+          case 2:
+            if (that.devicename != "") {
+              that.query_value.push({
+                name: "name",
+                value: that.devicename,
+              });
+            }
+            if (that.devicebrand != "") {
+              that.query_value.push({
+                name: "brand",
+                value: that.devicebrand,
+              });
+            }
+            if (that.devicetype != "") {
+              that.query_value.push({
+                name: "type",
+                value: that.devicetype.toUpperCase(),
+              });
+            }
+            if (that.deviceclazz != "") {
+              that.query_value.push({
+                name: "clazz",
+                value: that.deviceclazz,
+              });
+            }
+            console.log(that.query_value);
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?" +
+              that.query_value[0].name +
+              "=L" +
+              that.query_value[0].value +
+              "%25&" +
+              that.query_value[1].name +
+              "=L" +
+              that.query_value[1].value +
+              "%25";
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?" +
+              that.query_value[0].name +
+              "=L" +
+              that.query_value[0].value +
+              "%25&" +
+              that.query_value[1].name +
+              "=L" +
+              that.query_value[1].value +
+              "%25";
+            break;
+          case 3:
+            if (that.devicename != "") {
+              that.query_value.push({
+                name: "name",
+                value: that.devicename,
+              });
+            }
+            if (that.devicebrand != "") {
+              that.query_value.push({
+                name: "brand",
+                value: that.devicebrand,
+              });
+            }
+            if (that.devicetype != "") {
+              that.query_value.push({
+                name: "type",
+                value: that.devicetype.toUpperCase(),
+              });
+            }
+            if (that.deviceclazz != "") {
+              that.query_value.push({
+                name: "clazz",
+                value: that.deviceclazz,
+              });
+            }
+            console.log(that.query_value);
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?" +
+              that.query_value[0].name +
+              "=L" +
+              that.query_value[0].value +
+              "%25&" +
+              that.query_value[1].name +
+              "=L" +
+              that.query_value[1].value +
+              "%25&" +
+              that.query_value[2].name +
+              "=L" +
+              that.query_value[2].value +
+              "%25";
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?" +
+              that.query_value[0].name +
+              "=L" +
+              that.query_value[0].value +
+              "%25&" +
+              that.query_value[1].name +
+              "=L" +
+              that.query_value[1].value +
+              "%25&" +
+              that.query_value[2].name +
+              "=L" +
+              that.query_value[2].value +
+              "%25";
+            break;
+          case 4:
+            that.searchurl =
+              "http://47.102.214.37:8080/device/query?name==" +
+              that.devicename +
+              "&brand==" +
+              that.devicebrand +
+              "&type==" +
+              that.devicetype.toUpperCase() +
+              "&clazz==" +
+              that.deviceclazz;
+            that.exporturl =
+              "http://47.102.214.37:8080/device/export?name=L" +
+              that.devicename +
+              "%25&brand=L" +
+              that.devicebrand +
+              "%25&type=L" +
+              that.devicetype.toUpperCase() +
+              "%25&clazz=L" +
+              that.deviceclazz +
+              "%25";
+            break;
+          default:
+            break;
         }
-      });
+        console.log(that.searchurl);
+        axios.get(that.searchurl).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            obj.name = res.data.content[i].name;
+            obj["brand"] = res.data.content[i].brand;
+            obj.type = res.data.content[i].type;
+            obj.deviceNo = res.data.content[i].deviceNo;
+            if (res.data.content[i].extra.length != 0) {
+              for (let j = 0; j < res.data.content[i].extra.length; j++) {
+                obj[res.data.content[i].extra[j].field.id] =
+                  res.data.content[i].extra[j].value;
+              }
+            }
+            if (res.data.content[i].crux == true) {
+              obj.crux = "Y";
+            } else if (res.data.content[i].crux == false) {
+              obj.crux = "N";
+            }
+            obj.clazz = res.data.content[i].clazz;
+            that.tableData.push(obj);
+          }
+        });
+      }
     },
     // 获取全部全部信息
     getAllDevice() {
@@ -537,7 +559,7 @@ export default {
       if (
         that.devicename == "" &&
         that.devicebrand == "" &&
-        that.devicetype == "" &&
+        that.devicetype== "" &&
         that.deviceclazz == ""
       ) {
         that.exporturl = "http://47.102.214.37:8080/device/export?name=!";

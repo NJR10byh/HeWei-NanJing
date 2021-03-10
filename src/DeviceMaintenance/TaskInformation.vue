@@ -3,6 +3,7 @@
     <div class="calendar">
       <FullCalendar
         class="demo-app-calendar"
+        id="FullCalendar"
         :options="calendarOptions"
       ></FullCalendar>
     </div>
@@ -16,6 +17,11 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
+// import jquery from "jquery";
+
+document.getElementsByClassName("fc-next-button").onclick = function() {
+  console.log("aaa");
+};
 
 export default {
   name: "DeviceInformation",

@@ -27,7 +27,6 @@ axios.defaults.withCredentials = true;
 import qs from "qs";
 export default {
   created: function() {
-    console.log(localStorage.getItem("token"));
     if (localStorage.getItem("token") != null) {
       axios
         .get("http://47.102.214.37:8080/user/me")
