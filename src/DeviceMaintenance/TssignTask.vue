@@ -106,7 +106,7 @@ export default {
       that.selectedTaskid = [];
       console.log(res);
       for (var i = 0; i < res.length; i++) {
-        that.selectedTaskid.push(res[i]);
+        that.selectedTaskid.push({ id: res[i] });
       }
     },
     change3(res) {
@@ -131,8 +131,16 @@ export default {
         console.log(that.selectedTaskid);
         console.log(that.selectedDeviceid);
         let obj = {};
-        obj.taskid = that.selectedTaskid;
-        obj.deviceid = that.selectedDeviceid;
+        obj.taskid = [];
+        obj.deviceid = [];
+        // obj.taskid = that.selectedTaskid;
+        for (let i = 0; i < that.selectedTaskid.length; i++) {
+          obj.taskid.push({ id: that.selectedTaskid[i].id });
+        }
+        for (let j = 0; j < that.selectedDeviceid.length; j++) {
+          obj.deviceid.push({ id: that.selectedDeviceid[j].id });
+        }
+        console.log(obj);
         this.$router.push({
           path: "./tssignTask2",
           query: obj,

@@ -7,16 +7,6 @@
         <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="datepicker">
-      开始日期：
-      <el-date-picker
-        v-model="value1"
-        type="date"
-        placeholder="选择日期"
-        value-format="yyyy-MM-dd"
-      >
-      </el-date-picker>
-    </div>
     <div class="chuansuo">
       <div class="kuang kuang2">
         <el-transfer
@@ -44,12 +34,14 @@
 <script>
 import axios from "axios";
 export default {
-  name: "AddTaskInside",
   created: function() {
     let that = this;
     console.log(that.$route.query);
     that.selectedTaskid = that.$route.query.taskid;
     that.selectedDeviceid = that.$route.query.deviceid;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      that.userid = res.data.id;
+    });
     // 获取全部 OPERATOR 员工
     axios
       .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
@@ -65,13 +57,11 @@ export default {
   },
   data() {
     return {
+      userid: "",
       // 选择框 2
       data2: [],
       value2: [],
       titles2: ["人员列表", "已选择人员"],
-
-      // 日期选择
-      value1: "",
 
       selectedTaskid: [],
       selectedUserid: [],
@@ -104,21 +94,31 @@ export default {
         for (var a = 0; a < that.selectedTaskid.length; a++) {
           let url =
             "http://47.102.214.37:8080/ops/schedule/detail/" +
-            that.selectedTaskid[a];
+            that.selectedTaskid[a].id;
+          console.log(url);
           axios.get(url).then((res) => {
             console.log(res.data);
             let obj = {};
+            let ops = [];
+            let deviceid = [];
+            for (let i = 0; i < that.selectedDeviceid.length; i++) {
+              deviceid.push({ id: that.selectedDeviceid[i].id });
+            }
+            console.log(that.selectedUserid);
+            for (let j = 0; j < that.selectedUserid.length; j++) {
+              ops.push({ id: that.selectedUserid[j].id });
+            }
             obj.acceptedStandard = res.data.acceptedStandard;
             obj.content = res.data.content;
             obj.id = res.data.id;
             obj.name = res.data.name;
             obj.remark = res.data.remark;
-            obj.scheduleDay = that.value1;
             obj.scheduleType = res.data.scheduleType;
             obj.side = res.data.side;
             obj.tools = res.data.tools;
-            obj.deviceid = that.selectedDeviceid;
-            obj.ops = that.selectedUserid;
+            obj.device = deviceid;
+            obj.ops = ops;
+            obj.manager = { id: that.userid };
             console.log(obj);
             setTimeout(function() {
               axios.put(url, obj).then((res) => {

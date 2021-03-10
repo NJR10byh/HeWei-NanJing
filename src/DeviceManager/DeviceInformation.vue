@@ -149,11 +149,6 @@
           label="设备分类"
           width="120"
         ></el-table-column>
-        <el-table-column
-          prop="fixnumber"
-          label="维护保养标准编号"
-          width="160"
-        ></el-table-column>
         <template v-for="(item, index) in tableHead">
           <el-table-column
             :prop="item.prop"
@@ -559,7 +554,7 @@ export default {
       if (
         that.devicename == "" &&
         that.devicebrand == "" &&
-        that.devicetype== "" &&
+        that.devicetype == "" &&
         that.deviceclazz == ""
       ) {
         that.exporturl = "http://47.102.214.37:8080/device/export?name=!";

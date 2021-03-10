@@ -17,6 +17,7 @@
             v-model="device"
             filterable
             clearable
+            multiple
             placeholder="请选择"
             @change="change"
             @clear="clear"
@@ -30,9 +31,10 @@
               <span style="float: left;font-size:13px;">{{
                 item.devicename
               }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px;">{{
-                item.devicenumber
-              }}</span>
+              <span
+                style="float: right; color: #8492a6;font-size: 13px;margin-right:15px;"
+                >{{ item.devicenumber }}</span
+              >
             </el-option>
           </el-select>
         </div>

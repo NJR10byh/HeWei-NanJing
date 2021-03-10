@@ -229,12 +229,12 @@ export default {
           obj.id = res.data.id;
           obj.name = that.TaskInfo.name;
           obj.remark = that.TaskInfo.remark;
-          obj.scheduleDay = that.value1;
+          obj.startDate = res.data.startDate;
           obj.scheduleType = that.TaskInfo.scheduleType;
           obj.side = that.TaskInfo.side;
           obj.tools = that.TaskInfo.tools;
-          obj.deviceid = that.selectedDeviceid;
-          obj.ops = that.selectedUserid;
+          obj.device = res.data.device;
+          obj.ops = res.data.ops;
           console.log(obj);
           setTimeout(function() {
             axios.put(url, obj).then((res) => {
