@@ -340,7 +340,7 @@ export default {
                 type: "success",
               });
             });
-            location.reload();
+            // location.reload();
           }, 200);
         });
       }
