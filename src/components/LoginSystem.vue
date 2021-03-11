@@ -69,9 +69,7 @@ export default {
             message: "登录成功",
             type: "success",
           });
-          setTimeout(() => {
-            this.$router.push("/users");
-          }, 1000);
+          this.$router.push("/users");
         })
         .catch((res) => {
           console.log(res.response);

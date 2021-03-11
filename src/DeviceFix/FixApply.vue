@@ -214,14 +214,23 @@ export default {
           assignee: { id: that.assignee },
           closed: false,
           content: that.content,
-          descriptionPic: that.descriptionPic,
+          descriptionPic: null,
           device: device,
           reporter: { id: that.userid },
         };
         console.log(obj);
-        axios.post("http://47.102.214.37:8080/issue", obj).then((res) => {
-          console.log(res);
-        });
+        axios
+          .post("http://47.102.214.37:8080/issue", obj)
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((res) => {
+            console.log(res.response);
+            this.$message({
+              message: "申请失败",
+              type: "error",
+            });
+          });
       }
     },
   },

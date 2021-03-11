@@ -43,20 +43,18 @@ axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
   created: function() {
     if (localStorage.getItem("token") != null) {
-      axios
-        .get("http://47.102.214.37:8080/user/me")
-        .then((res) => {
-          console.log(res.data);
-          this.uesrInfo = res.data;
-          this.userRole = res.data.role;
-        })
-        .catch(() => {
-          axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-            console.log(res.data);
-            this.uesrInfo = res.data;
-            this.userRole = res.data.role;
-          });
-        });
+      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+        console.log(res.data);
+        this.uesrInfo = res.data;
+        this.userRole = res.data.role;
+      });
+    }
+  },
+  // 让页面只刷新一次
+  mounted: function() {
+    if (location.href.indexOf("#reloaded") == -1) {
+      location.href = location.href + "#reloaded";
+      location.reload();
     }
   },
   data() {

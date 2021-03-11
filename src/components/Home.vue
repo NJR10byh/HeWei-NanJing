@@ -11,7 +11,7 @@
           <i class="iconfont icon-caidan1"></i>
         </div>
       </div>
-      <div class="title">合为企业设备管理系统</div>
+      <div class="title" @click="aaa">合为企业设备管理系统</div>
       <div class="user_info">
         <div class="user_info_icon">
           <img src="../assets/img/login-success.png" />
@@ -175,11 +175,15 @@
 </template>
 
 <script>
-// import nowTime from "./Timer";
+import globaldata from "../GlobalData/globaldata";
 import axios from "axios";
 export default {
   created() {
-    this.getMycount();
+    console.log(globaldata.refresh);
+    if (globaldata.refresh) {
+      // location.reload();
+      globaldata.refresh = false;
+    }
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
@@ -187,6 +191,13 @@ export default {
       this.userid = res.data.id;
       this.name = res.data.name;
     });
+  },
+  // 让页面只刷新一次
+  mounted: function() {
+    if (location.href.indexOf("#reloaded") == -1) {
+      location.href = location.href + "#reloaded";
+      location.reload();
+    }
   },
   data() {
     return {
@@ -581,6 +592,9 @@ export default {
     };
   },
   methods: {
+    aaa() {
+      location.reload();
+    },
     // 切换菜单的折叠展开
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
@@ -591,17 +605,17 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
-    getMycount: function() {
-      let that = this;
-      let date = new Date();
-      if (date.getHours() >= 0 && date.getHours() < 12) {
-        that.timeTip = "AM";
-      } else if (date.getHours() >= 12 && date.getHours() < 18) {
-        that.timeTip = "PM";
-      } else {
-        that.timeTip = "PM";
-      }
-    },
+    // getMycount: function() {
+    //   let that = this;
+    //   let date = new Date();
+    //   if (date.getHours() >= 0 && date.getHours() < 12) {
+    //     that.timeTip = "AM";
+    //   } else if (date.getHours() >= 12 && date.getHours() < 18) {
+    //     that.timeTip = "PM";
+    //   } else {
+    //     that.timeTip = "PM";
+    //   }
+    // },
   },
   components: {},
 };

@@ -273,7 +273,6 @@ export default {
   },
   methods: {
     handleEventClick(clickInfo) {
-      console.log(clickInfo);
       let obj = {
         id: clickInfo.event.id,
       };
