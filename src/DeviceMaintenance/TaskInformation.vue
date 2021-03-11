@@ -46,13 +46,17 @@ export default {
   },
   created() {
     let that = this;
-    // console.log(new Date().getMonth() + 1);
+    // console.log(new Date().getFullYear());
     that.thismonth = new Date().getMonth() + 1;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-    });
+    that.thisyear = new Date().getFullYear();
+    // axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+    //   console.log(res.data);
+    // });
     let url =
-      "http://47.102.214.37:8080/ops/dates/2021/" + (new Date().getMonth() + 1);
+      "http://47.102.214.37:8080/ops/dates/" +
+      new Date().getFullYear() +
+      "/" +
+      (new Date().getMonth() + 1);
     axios.get(url).then((res) => {
       console.log(res);
       for (let i = 0; i < res.data.length; i++) {
@@ -82,6 +86,7 @@ export default {
   data() {
     return {
       thismonth: null, // 当前月
+      thisyear: null, // 当前年
 
       calendarApi: null,
       calendarOptions: {
@@ -121,7 +126,10 @@ export default {
               that.thismonth--;
               that.calendarOptions.events = [];
               let url =
-                "http://47.102.214.37:8080/ops/dates/2021/" + that.thismonth;
+                "http://47.102.214.37:8080/ops/dates/" +
+                that.thisyear +
+                "/" +
+                that.thismonth;
               axios.get(url).then((res) => {
                 console.log(res);
                 for (let i = 0; i < res.data.length; i++) {
@@ -146,7 +154,10 @@ export default {
               that.thismonth++;
               that.calendarOptions.events = [];
               let url =
-                "http://47.102.214.37:8080/ops/dates/2021/" + that.thismonth;
+                "http://47.102.214.37:8080/ops/dates/" +
+                that.thisyear +
+                "/" +
+                that.thismonth;
               axios.get(url).then((res) => {
                 console.log(res);
                 for (let i = 0; i < res.data.length; i++) {
@@ -168,9 +179,67 @@ export default {
               this.calendarApi.today();
               let that = this;
               that.thismonth = new Date().getMonth() + 1;
+              that.thisyear = new Date().getFullYear();
               that.calendarOptions.events = [];
               let url =
-                "http://47.102.214.37:8080/ops/dates/2021/" + that.thismonth;
+                "http://47.102.214.37:8080/ops/dates/" +
+                that.thisyear +
+                "/" +
+                that.thismonth;
+              axios.get(url).then((res) => {
+                console.log(res);
+                for (let i = 0; i < res.data.length; i++) {
+                  that.calendarOptions.events.push({
+                    id: res.data[i].schedule.id,
+                    title: res.data[i].schedule.name,
+                    start: res.data[i].date,
+                    backgroundColor: "#409eff",
+                    borderColor: "#409eff",
+                    textColor: "#fff",
+                  });
+                }
+              });
+            },
+          },
+          prevYear: {
+            click: () => {
+              this.calendarApi.prevYear();
+              let that = this;
+              that.thisyear--;
+              that.calendarOptions.events = [];
+              console.log(that.thisyear);
+              let url =
+                "http://47.102.214.37:8080/ops/dates/" +
+                that.thisyear +
+                "/" +
+                that.thismonth;
+              axios.get(url).then((res) => {
+                console.log(res);
+                for (let i = 0; i < res.data.length; i++) {
+                  that.calendarOptions.events.push({
+                    id: res.data[i].schedule.id,
+                    title: res.data[i].schedule.name,
+                    start: res.data[i].date,
+                    backgroundColor: "#409eff",
+                    borderColor: "#409eff",
+                    textColor: "#fff",
+                  });
+                }
+              });
+            },
+          },
+          nextYear: {
+            click: () => {
+              this.calendarApi.nextYear();
+              let that = this;
+              that.thisyear++;
+              that.calendarOptions.events = [];
+              console.log(that.thisyear);
+              let url =
+                "http://47.102.214.37:8080/ops/dates/" +
+                that.thisyear +
+                "/" +
+                that.thismonth;
               axios.get(url).then((res) => {
                 console.log(res);
                 for (let i = 0; i < res.data.length; i++) {

@@ -69,10 +69,14 @@
             </div>
             <div class="part_right">
               <el-form-item label="保养内容">
-                <el-button @click="dialogFormVisible = true">新增</el-button>
+                <i
+                  class="el-icon-circle-plus-outline addicon"
+                  @click="addcontent = true"
+                ></i>
                 <!-- <el-button></el-button> -->
-                <div style="margin-top:50px;">
+                <div style="margin-top:0px;">
                   <el-collapse
+                    @change="handleChange"
                     v-for="(item, index) in TaskInfo.content"
                     :key="index"
                   >
@@ -95,7 +99,7 @@
         </el-form>
       </div>
     </div>
-    <el-dialog title="保养内容" :visible.sync="dialogFormVisible">
+    <el-dialog title="新增保养内容" :visible.sync="addcontent" width="400px">
       <el-form :model="TaskInfo">
         <el-form-item label="标题">
           <el-input v-model="TaskInfo.title"></el-input>
@@ -109,9 +113,40 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="addcontent = false">取 消</el-button>
         <el-button type="primary" @click="submitcontent">确 定</el-button>
       </div>
+    </el-dialog>
+    <el-dialog title="修改保养内容" :visible.sync="fixcontent" width="400px">
+      <el-form :model="TaskInfo">
+        <el-form-item label="标题">
+          <el-input v-model="TaskInfo.title"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input
+            v-model="TaskInfo.detail"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 8 }"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="fixcontent = false">取 消</el-button>
+        <el-button type="primary" @click="submitfix">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="功能选择"
+      :visible.sync="confirmfunction"
+      width="350px"
+      center
+      class=""
+    >
+      <el-button type="primary" @click="confirmfunction = false"
+        >仅查看</el-button
+      >
+      <el-button type="warning" @click="editcontent">修改内容</el-button>
+      <el-button type="danger" @click="deletecontent">删除内容</el-button>
     </el-dialog>
   </div>
 </template>
@@ -180,18 +215,59 @@ export default {
           label: "每天",
         },
       ],
-      dialogFormVisible: false,
-      form: {
-        tltle: "",
-        content: "",
-      },
+      addcontent: false, // 新增内容弹窗
+      fixcontent: false, // 修改内容弹窗
+      confirmfunction: false, // 确认功能弹窗
+
+      contentindex: -1, // 用户展开的内容下标
     };
   },
   methods: {
-    // 新增保养内容
-    addcontent() {},
+    handleChange(val) {
+      console.log(this.TaskInfo.content[val]);
+      if (this.TaskInfo.content[val] != undefined) {
+        this.confirmfunction = true;
+      }
+      this.contentindex = val;
+    },
+    // 修改内容
+    editcontent() {
+      console.log(this.TaskInfo.content[this.contentindex]);
+      this.TaskInfo.title = this.TaskInfo.content[this.contentindex].title;
+      this.TaskInfo.detail = this.TaskInfo.content[this.contentindex].detail;
+      this.fixcontent = true;
+    },
+    // 提交修改
+    submitfix() {
+      this.TaskInfo.content.splice(this.contentindex, 1, {
+        title: this.TaskInfo.title,
+        detail: this.TaskInfo.detail,
+      });
+      this.fixcontent = false;
+      this.confirmfunction = false;
+      this.$message({
+        message: "修改成功",
+        type: "success",
+      });
+    },
+    // 删除内容
+    deletecontent() {
+      console.log(this.TaskInfo.content[this.contentindex]);
+      this.$confirm("确定要删除吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.TaskInfo.content.splice(this.contentindex, 1);
+          this.confirmfunction = false;
+        })
+        .catch(() => {
+          this.$message.info("已取消删除");
+        });
+    },
     submitcontent() {
-      this.dialogFormVisible = false;
+      this.addcontent = false;
       this.TaskInfo.content.push({
         title: this.TaskInfo.title,
         detail: this.TaskInfo.detail,
@@ -259,7 +335,7 @@ export default {
     overflow: hidden;
     font-size: 16px;
     // border: 1px solid red;
-    padding: 10px 0 20px 0;
+    padding: 10px 0;
     .el-breadcrumb__inner {
       font-weight: bold;
       margin-left: 10px;
@@ -294,7 +370,7 @@ export default {
         background: #fff;
         border-radius: 20px;
         box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
-        padding: 10px 20px 20px 20px;
+        padding: 15px 0;
         .part {
           display: flex;
           justify-content: space-evenly;
@@ -306,7 +382,6 @@ export default {
             justify-content: center;
             align-items: center;
             width: 48%;
-            padding-bottom: 20px;
             // border: 1px solid #409eff;
             .part_left_0 {
               width: 95%;
@@ -316,25 +391,24 @@ export default {
               align-items: center;
               .task {
                 width: 48%;
+                font-weight: 500;
               }
             }
           }
           .part_right {
             // border: 1px solid red;
             width: 48%;
-            padding: 0 5px 20px 5px;
-            .el-button {
-              float: right;
-              width: 70px;
-              background: linear-gradient(-270deg, #6eb5fc, #409eff);
-              color: #fff;
-              border: 0;
-              padding: 10px;
-              font-size: 15px;
-              border-radius: 5px;
-              &:hover {
-                opacity: 0.9;
-              }
+            font-weight: 500;
+            .addicon {
+              cursor: pointer;
+              transition: 0.5s;
+              font-size: 20px;
+              // border: 1px solid red;
+              padding-top: 10px;
+            }
+            .addicon:hover {
+              color: #409eff;
+              transition: 0.3s;
             }
           }
         }
@@ -376,9 +450,6 @@ export default {
         }
       }
     }
-  }
-  .el-dialog {
-    width: 400px;
   }
 }
 </style>
