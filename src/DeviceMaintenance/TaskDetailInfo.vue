@@ -8,9 +8,6 @@
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
-      <div class="backbtn">
-        <el-button @click="back">返回</el-button>
-      </div>
       <div class="Task-info">
         <div class="Users">
           <div class="part0" style="width: 40%;">
@@ -213,13 +210,7 @@ export default {
       remark: null, // 注意事项
     };
   },
-  methods: {
-    back() {
-      this.$router.push({
-        path: "/taskInformation",
-      });
-    },
-  },
+  methods: {},
 };
 </script>
 

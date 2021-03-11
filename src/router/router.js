@@ -16,6 +16,7 @@ import AddTaskInside from "@/DeviceMaintenance/AddTaskInside"; // 新增任务�
 import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
 import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
+import TotalTaskList from "@/DeviceMaintenance/TotalTaskList"; // 任务信息列表
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import TssignTask2 from "@/DeviceMaintenance/TssignTask2"; // 任务分配2
 /* 设备维修*/
@@ -108,6 +109,11 @@ var routes = [
       {
         path: "/taskDetailInfo",
         component: TaskDetailInfo,
+      },
+      // 任务信息列表
+      {
+        path: "/totalTaskList",
+        component: TotalTaskList,
       },
       // 任务分配
       {

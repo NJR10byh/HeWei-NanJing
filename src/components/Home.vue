@@ -257,11 +257,16 @@ export default {
             },
             {
               id: 33,
+              authName: "任务列表",
+              path: "totalTaskList",
+            },
+            {
+              id: 34,
               authName: "保养记录",
               path: "maintenanceNotes",
             },
             {
-              id: 34,
+              id: 3,
               authName: "保养查询",
               path: "searchMaintenance",
             },
@@ -375,11 +380,16 @@ export default {
             },
             {
               id: 33,
+              authName: "任务列表",
+              path: "totalTaskList",
+            },
+            {
+              id: 34,
               authName: "保养记录",
               path: "maintenanceNotes",
             },
             {
-              id: 34,
+              id: 3,
               authName: "保养查询",
               path: "searchMaintenance",
             },
@@ -428,6 +438,11 @@ export default {
               id: 31,
               authName: "任务信息",
               path: "taskInformation",
+            },
+            {
+              id: 32,
+              authName: "任务列表",
+              path: "totalTaskList",
             },
             {
               id: 33,
@@ -515,6 +530,11 @@ export default {
               id: 31,
               authName: "任务信息",
               path: "taskInformation",
+            },
+            {
+              id: 32,
+              authName: "任务列表",
+              path: "totalTaskList",
             },
             {
               id: 33,
