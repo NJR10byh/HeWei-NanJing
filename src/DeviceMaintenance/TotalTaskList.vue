@@ -87,58 +87,9 @@ export default {
       console.log(res.data);
       that.userRole = res.data.role;
     });
-    axios
-      .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
-      .then((res) => {
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (["ROOT", "ADMIN"].includes(that.userRole)) {
-            let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.name = res.data.content[i].name;
-            let url =
-              "http://47.102.214.37:8080/user/" + res.data.content[i].ops[0].id;
-            axios.get(url).then((res) => {
-              obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
-            });
-            setTimeout(() => {
-              let URL =
-                "http://47.102.214.37:8080/ops/schedule/status/" +
-                res.data.content[i].id;
-              axios.get(URL).then((res) => {
-                if (res.data.nextDate == null) {
-                  obj.nextDate = "暂无";
-                } else {
-                  obj.nextDate = res.data.nextDate;
-                }
-                if (res.data.nextDateDay == null) {
-                  obj.deadline = "暂无";
-                } else {
-                  obj.deadline = res.data.nextDateDay;
-                }
-              });
-              setTimeout(() => {
-                that.tableData.push(obj);
-                console.log(that.tableData);
-              }, 200);
-            }, 200);
-          } else {
-            let URL =
-              "http://47.102.214.37:8080/ops/schedule/status/" +
-              res.data.content[i].id;
-            axios.get(URL).then((res) => {
-              console.log(res.data);
-              that.nextDate = res.data.nextDate;
-              that.deadline = res.data.nextDateDay;
-            });
-            that.tableData.push({
-              id: res.data.content[i].id,
-              name: res.data.content[i].name,
-              nextDate: that.nextDate,
-              deadline: that.deadline,
-            });
-          }
-        }
-      });
+    setTimeout(() => {
+      that.refresh();
+    }, 300);
   },
   data() {
     return {
@@ -161,31 +112,65 @@ export default {
     // 刷新列表
     refresh() {
       let that = this;
-      let taskuser = "";
       that.tableData = [];
       axios
         .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
         .then((res) => {
           for (let i = 0; i < res.data.content.length; i++) {
             if (["ROOT", "ADMIN"].includes(that.userRole)) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
               let url =
                 "http://47.102.214.37:8080/user/" +
                 res.data.content[i].ops[0].id;
               axios.get(url).then((res) => {
-                taskuser = res.data.name + " ( ID：" + res.data.id + " )";
+                obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
               });
               setTimeout(() => {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  name: res.data.content[i].name,
-                  taskuser: taskuser,
+                let URL =
+                  "http://47.102.214.37:8080/ops/schedule/status/" +
+                  res.data.content[i].id;
+                axios.get(URL).then((res) => {
+                  if (res.data.nextDate == null) {
+                    obj.nextDate = "暂无";
+                  } else {
+                    obj.nextDate = res.data.nextDate;
+                  }
+                  if (res.data.nextDateDay == null) {
+                    obj.deadline = "暂无";
+                  } else {
+                    obj.deadline = res.data.nextDateDay;
+                  }
                 });
+                setTimeout(() => {
+                  that.tableData.push(obj);
+                  console.log(that.tableData);
+                }, 200);
               }, 200);
             } else {
-              that.tableData.push({
-                id: res.data.content[i].id,
-                name: res.data.content[i].name,
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.name = res.data.content[i].name;
+              let URL =
+                "http://47.102.214.37:8080/ops/schedule/status/" +
+                res.data.content[i].id;
+              axios.get(URL).then((res) => {
+                if (res.data.nextDate == null) {
+                  obj.nextDate = "暂无";
+                } else {
+                  obj.nextDate = res.data.nextDate;
+                }
+                if (res.data.nextDateDay == null) {
+                  obj.deadline = "暂无";
+                } else {
+                  obj.deadline = res.data.nextDateDay;
+                }
               });
+              setTimeout(() => {
+                that.tableData.push(obj);
+                console.log(that.tableData);
+              }, 200);
             }
           }
           that.$message({
