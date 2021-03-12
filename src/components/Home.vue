@@ -283,12 +283,12 @@ export default {
             },
             {
               id: 41,
-              authName: "全部异常",
+              authName: "全部报修",
               path: "allError",
             },
             {
               id: 42,
-              authName: "我发布的",
+              authName: "我申请的",
               path: "mySubmit",
             },
             {
@@ -460,6 +460,11 @@ export default {
           id: 4,
           authName: "设备维修",
           children: [
+            {
+              id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
             {
               id: 41,
               authName: "维修诊断",

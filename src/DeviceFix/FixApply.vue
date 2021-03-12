@@ -54,12 +54,25 @@
       <div class="Description-Request">
         <div class="part2" style="width: 50%;">
           <div class="Text">异常描述</div>
-          <el-input
-            type="textarea"
-            :rows="3"
-            v-model="descriptionPic"
-            style="width:85%;margin-top: 5px;"
-          ></el-input>
+          <el-upload
+            list-type="picture"
+            action=""
+            accept=".jpg, .png"
+            :auto-upload="false"
+            :on-change="getFile"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleUploadRemove"
+          >
+            <el-button size="small" type="primary" style="margin-top:5px;"
+              >选择图片上传</el-button
+            >
+            <span slot="tip" style="font-size:13px;margin-left:10px;"
+              >只能上传一张 jpg/png 文件</span
+            >
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible" append-to-body>
+            <img width="100%" :src="dialogImageUrl" alt />
+          </el-dialog>
         </div>
         <div class="part2 Side" style="width: 50%;">
           <div class="Text">异常处理请求</div>
@@ -102,6 +115,7 @@ import axios from "axios";
 export default {
   created: function() {
     let that = this;
+    let userRole = "";
     // 获取当前登录用户基本信息
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
@@ -113,37 +127,76 @@ export default {
         " | 用户ID：" +
         res.data.id;
       that.userid = res.data.id;
+      userRole = res.data.role;
     });
-    // 获取全部设备
-    axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
-      // console.log(res.data);
-      for (var i = 0; i < res.data.content.length; i++) {
-        // console.log(res.data.content[i]);
-        let obj = {};
-        obj.value = res.data.content[i].id;
-        obj.devicename = res.data.content[i].name;
-        obj.devicenumber = res.data.content[i].deviceNo;
-        that.options1.push(obj);
-      }
-    });
-    // 获取全部SUPERVISOR
-    axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-      // console.log(res.data);
-      setTimeout(function() {
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "SUPERVISOR") {
-            that.options2[0].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
+    setTimeout(() => {
+      console.log(userRole);
+      if (userRole != "OPERATOR") {
+        // 获取全部设备
+        axios
+          .get("http://47.102.214.37:8080/device/query?name=!")
+          .then((res) => {
+            // console.log(res.data);
+            for (var i = 0; i < res.data.content.length; i++) {
+              // console.log(res.data.content[i]);
+              let obj = {};
+              obj.value = res.data.content[i].id;
+              obj.devicename = res.data.content[i].name;
+              obj.devicenumber = res.data.content[i].deviceNo;
+              that.options1.push(obj);
+            }
+          });
+        // 获取全部SUPERVISOR
+        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+          // console.log(res.data);
+          setTimeout(function() {
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "SUPERVISOR") {
+                that.options2[0].options.push({
+                  value: res.data.content[i].id,
+                  label:
+                    res.data.content[i].name +
+                    " (用户名：" +
+                    res.data.content[i].username +
+                    ")",
+                });
+              }
+            }
+          }, 200);
+        });
+      } else if (userRole == "OPERATOR") {
+        // 获取全部分配到自己的设备
+        axios.get("http://47.102.214.37:8080/my/device").then((res) => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            // console.log(res.data.content[i]);
+            let obj = {};
+            obj.value = res.data[i].id;
+            obj.devicename = res.data[i].name;
+            obj.devicenumber = res.data[i].deviceNo;
+            that.options1.push(obj);
           }
-        }
-      }, 200);
-    });
+        });
+        // 获取全部SUPERVISOR
+        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+          // console.log(res.data);
+          setTimeout(function() {
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "SUPERVISOR") {
+                that.options2[0].options.push({
+                  value: res.data.content[i].id,
+                  label:
+                    res.data.content[i].name +
+                    " (用户名：" +
+                    res.data.content[i].username +
+                    ")",
+                });
+              }
+            }
+          }, 200);
+        });
+      }
+    }, 300);
   },
   data() {
     return {
@@ -152,11 +205,17 @@ export default {
       // 设备选择
       device: [],
       options1: [],
-      descriptionPic: "",
       content: "",
 
       // 设备编号
       deviceNo: [],
+
+      // base64图片上传
+      dialogVisible: false,
+      dialogImageUrl: "",
+      file: null,
+      descriptionPic: [],
+
       // 报告接受人
       assignee: "",
       options2: [
@@ -189,49 +248,110 @@ export default {
     clear() {
       this.deviceNo = "";
     },
-    submit() {
-      let that = this;
-      console.log(that.device);
-      let device = [];
-      if (
-        that.assignee == "" ||
-        that.device == [] ||
-        that.descriptionPic == "" ||
-        that.content == ""
-      ) {
-        that.$message({
-          message: "请将信息填写完整",
-          type: "warning",
-        });
-      } else {
-        for (let i = 0; i < that.device.length; i++) {
-          device.push({
-            id: that.device[i],
+    // 通过getFile方法获取文件信息
+    getFile(file) {
+      this.getBase64(file.raw).then((res) => {
+        const params = res.split(",");
+        console.log(params, "params");
+        if (params.length > 0) {
+          this.descriptionPic.push({
+            base64: params[1],
           });
         }
-        console.log(device);
-        let obj = {
-          assignee: { id: that.assignee },
-          closed: false,
-          content: that.content,
-          descriptionPic: null,
-          device: device,
-          reporter: { id: that.userid },
+      });
+    },
+    // 获取图片转base64
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
         };
-        console.log(obj);
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
+    },
+    // 预览和删除
+    handleUploadRemove() {
+      this.dialogImageUrl = "";
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+    // 提交异常报告
+    submit() {
+      let that = this;
+      let Images = "";
+      console.log(that.descriptionPic);
+      for (let i = 0; i < that.descriptionPic.length; i++) {
+        let base64img = that.descriptionPic[i].base64;
+        // console.log(base64img);
         axios
-          .post("http://47.102.214.37:8080/issue", obj)
-          .then((res) => {
-            console.log(res);
+          .post("http://47.102.214.37:8080/pic", base64img, {
+            headers: {
+              //头部信息
+              "Content-Type": "text/plain",
+            },
           })
-          .catch((res) => {
-            console.log(res.response);
-            this.$message({
-              message: "申请失败",
-              type: "error",
-            });
+          .then((res) => {
+            console.log(res.data);
+            Images = Images + res.data + "\n";
           });
       }
+      setTimeout(function() {
+        console.log(Images);
+        let device = [];
+        if (
+          that.assignee == "" ||
+          that.device == [] ||
+          Images == "" ||
+          that.content == ""
+        ) {
+          that.$message({
+            message: "请将信息填写完整",
+            type: "warning",
+          });
+        } else {
+          for (let i = 0; i < that.device.length; i++) {
+            device.push({
+              id: that.device[i],
+            });
+          }
+          // console.log(descriptionPic);
+          let obj = {
+            assignee: { id: that.assignee },
+            closed: false,
+            content: that.content,
+            descriptionPic: Images,
+            device: device,
+            reporter: { id: that.userid },
+          };
+          console.log(obj);
+          axios
+            .post("http://47.102.214.37:8080/issue", obj)
+            .then((res) => {
+              console.log(res);
+              that.$message({
+                message: "申请成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              console.log(res.response);
+              this.$message({
+                message: "申请失败",
+                type: "error",
+              });
+            });
+        }
+      }, 300);
     },
   },
 };
@@ -239,15 +359,14 @@ export default {
 <style lang="scss">
 .ErrorTask-container {
   height: 100%;
-  //   border: 1px solid red;
-  padding: 10px 0;
+  // border: 1px solid red;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   .Task-info {
-    width: 40%;
-    // height: 80%;
+    width: 60%;
+    min-height: 65%;
     background: #fff;
     border-radius: 15px;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;

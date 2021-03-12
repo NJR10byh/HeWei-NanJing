@@ -44,8 +44,13 @@
         <div class="Errordescription-Errorcontent">
           <div class="part3 Errordescription" style="width: 40%;">
             <div class="Text">异常描述</div>
-            <div class="Info">
-              {{ errordescription }}
+            <div class="Info" v-for="(item, index) in Images" :key="index">
+              <img
+                :src="item.image"
+                alt=""
+                @click="imgurl(item.image)"
+                width="60"
+              />
             </div>
           </div>
           <div class="part3 Errorcontent" style="width: 40%;">
@@ -77,6 +82,9 @@
         </div>
       </div>
     </div>
+    <el-dialog :visible.sync="dialogVisible" append-to-body>
+      <img width="100%" :src="dialogImageUrl" alt />
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -125,10 +133,21 @@ export default {
           });
         });
       }
+      // 异常图片
+      if (res.data.descriptionPic != null) {
+        for (
+          let i = 0;
+          i < res.data.descriptionPic.split("\n").length - 1;
+          i++
+        ) {
+          that.Images.push({
+            image:
+              "http://47.102.214.37:8080/pic/" +
+              res.data.descriptionPic.split("\n")[i],
+          });
+        }
+      }
     });
-    setTimeout(() => {
-      console.log(that.assigneeid, that.userid);
-    }, 200);
   },
   data() {
     return {
@@ -143,11 +162,21 @@ export default {
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施
       exceptionType: "", // 异常类型
+
+      // 异常描述图片
+      Images: [],
+      dialogVisible: false,
+      dialogImageUrl: "",
     };
   },
   methods: {
     confirm() {},
     refuse() {},
+    // 预览图片
+    imgurl(url) {
+      this.dialogImageUrl = url;
+      this.dialogVisible = true;
+    },
   },
 };
 </script>
