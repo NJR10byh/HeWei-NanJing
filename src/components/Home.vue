@@ -146,7 +146,7 @@
         >
           <el-submenu
             :index="item.id + ''"
-            v-for="item in menuList3"
+            v-for="item in menuList4"
             :key="item.id"
           >
             <template slot="title">
@@ -175,15 +175,9 @@
 </template>
 
 <script>
-import globaldata from "../GlobalData/globaldata";
 import axios from "axios";
 export default {
   created() {
-    console.log(globaldata.refresh);
-    if (globaldata.refresh) {
-      // location.reload();
-      globaldata.refresh = false;
-    }
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
@@ -400,9 +394,14 @@ export default {
           authName: "设备维修",
           children: [
             {
+              id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
+            {
               id: 41,
-              authName: "维修诊断",
-              path: "fixDiagnosis",
+              authName: "全部报修",
+              path: "allError",
             },
             {
               id: 42,
@@ -467,8 +466,8 @@ export default {
             },
             {
               id: 41,
-              authName: "维修诊断",
-              path: "fixDiagnosis",
+              authName: "分配到我的",
+              path: "alreadyFixOp",
             },
             {
               id: 42,
@@ -558,17 +557,27 @@ export default {
           authName: "设备维修",
           children: [
             {
+              id: 40,
+              authName: "报修申请",
+              path: "fixApply",
+            },
+            {
               id: 41,
-              authName: "维修诊断",
-              path: "fixDiagnosis",
+              authName: "全部报修",
+              path: "allError",
             },
             {
               id: 42,
+              authName: "分配到我的",
+              path: "alreadyFixSu",
+            },
+            {
+              id: 43,
               authName: "我发布的",
               path: "mySubmit",
             },
             {
-              id: 43,
+              id: 44,
               authName: "维修查询",
               path: "fixSearch",
             },

@@ -22,7 +22,9 @@ import TssignTask2 from "@/DeviceMaintenance/TssignTask2"; // 任务分配2
 /* 设备维修*/
 import FixApply from "@/DeviceFix/FixApply"; // 维修诊断
 import AllError from "@/DeviceFix/AllError"; // 维修诊断
-import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
+// import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
+import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 维修诊断
+import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 维修诊断
 import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
 import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
 import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
@@ -135,10 +137,15 @@ var routes = [
         path: "/fixApply",
         component: FixApply,
       },
-      // 维修诊断
+      // 分配给我的（OPERATOR）
       {
-        path: "/fixDiagnosis",
-        component: FixDiagnosis,
+        path: "/alreadyFixOp",
+        component: AlreadyFixOp,
+      },
+      // 分配给我的（SUPERVISOR）
+      {
+        path: "/alreadyFixSu",
+        component: AlreadyFixSu,
       },
       // 异常详情
       {

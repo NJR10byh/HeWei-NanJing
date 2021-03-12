@@ -9,6 +9,14 @@
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-info">
+        <div class="part">
+          <div
+            class="Text"
+            style="font-size:20px;font-weight: 600;color:#409eff;"
+          >
+            任务卡
+          </div>
+        </div>
         <div class="Users">
           <div class="part0" style="width: 40%;">
             <div class="Text">维护人员</div>
@@ -77,6 +85,40 @@
           <div class="part3 Attention">
             <div class="Text">注意事项</div>
             <div class="Info">{{ remark }}</div>
+          </div>
+        </div>
+      </div>
+      <!-- 保养记录 -->
+      <div class="Task-info Tasknotes-info">
+        <div class="Users">
+          <div class="part0" style="width: 40%;">
+            <div class="Text" style="font-size:20px;color:#409eff;">
+              保养记录
+            </div>
+          </div>
+        </div>
+        <div class="Side-Standard">
+          <div class="part1" style="width: 40%;">
+            <div class="Text">自我修复记录</div>
+            <div class="Info">{{ name }}</div>
+          </div>
+          <div class="part1 Side" style="width: 40%;">
+            <div class="Text">是否存在「不能自我修复」的异常</div>
+            <div class="Info">{{ side }}</div>
+          </div>
+        </div>
+        <div class="Name-Clazz-Time">
+          <div class="part2 Name" style="width: 40%;">
+            <div class="Text">完成记录</div>
+            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
+              {{ item.deviceName }}
+            </div>
+          </div>
+          <div class="part2 Clazz" style="width: 40%;">
+            <div class="Text">异常报告</div>
+            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
+              {{ item.deviceClazz }}
+            </div>
           </div>
         </div>
       </div>
@@ -219,7 +261,6 @@ export default {
   // border: 1px solid red;
   width: 100%;
   height: 100%;
-  padding-bottom: 10px;
   .breadcrumb {
     width: 100%;
     height: 30px;
@@ -271,10 +312,16 @@ export default {
       padding: 10px 20px;
       margin-top: 10px;
       // border: 1px solid red;
+      .part {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        display: flex;
+        justify-content: flex-start;
+      }
       .Users {
         // border: 1px solid red;
         border-bottom: 1px solid #ddd;
-        padding-bottom: 10px;
+        padding: 10px 0;
         display: flex;
         justify-content: flex-start;
         .part0 {
@@ -377,6 +424,9 @@ export default {
           }
         }
       }
+    }
+    .Tasknotes-info {
+      margin-bottom: 20px;
     }
   }
 }

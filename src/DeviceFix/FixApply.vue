@@ -67,7 +67,7 @@
               >选择图片上传</el-button
             >
             <span slot="tip" style="font-size:13px;margin-left:10px;"
-              >只能上传一张 jpg/png 文件</span
+              >只能上传 jpg/png 文件</span
             >
           </el-upload>
           <el-dialog :visible.sync="dialogVisible" append-to-body>
@@ -130,7 +130,6 @@ export default {
       userRole = res.data.role;
     });
     setTimeout(() => {
-      console.log(userRole);
       if (userRole != "OPERATOR") {
         // 获取全部设备
         axios
@@ -180,20 +179,18 @@ export default {
         // 获取全部SUPERVISOR
         axios.get("http://47.102.214.37:8080/user/query").then((res) => {
           // console.log(res.data);
-          setTimeout(function() {
-            for (let i = 0; i < res.data.content.length; i++) {
-              if (res.data.content[i].role == "SUPERVISOR") {
-                that.options2[0].options.push({
-                  value: res.data.content[i].id,
-                  label:
-                    res.data.content[i].name +
-                    " (用户名：" +
-                    res.data.content[i].username +
-                    ")",
-                });
-              }
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "SUPERVISOR") {
+              that.options2[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
             }
-          }, 200);
+          }
         });
       }
     }, 300);
@@ -307,9 +304,10 @@ export default {
       }
       setTimeout(function() {
         console.log(Images);
+        let assignee = [];
         let device = [];
         if (
-          that.assignee == "" ||
+          that.assignee == [] ||
           that.device == [] ||
           Images == "" ||
           that.content == ""
@@ -324,9 +322,12 @@ export default {
               id: that.device[i],
             });
           }
+          assignee.push({
+            id: that.assignee,
+          });
           // console.log(descriptionPic);
           let obj = {
-            assignee: { id: that.assignee },
+            assignee: assignee,
             closed: false,
             content: that.content,
             descriptionPic: Images,

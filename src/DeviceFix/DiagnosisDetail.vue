@@ -9,8 +9,12 @@
     </el-breadcrumb>
     <div class="Task-container">
       <div class="backbtn">
-        <el-button @click="back">返回</el-button>
-        <el-button @click="submitbtn" class="submit">提交诊断</el-button>
+        <el-button @click="TssignFix" v-if="userRole == 'SUPERVISOR'"
+          >分配此申请</el-button
+        >
+        <el-button @click="submitbtn" v-if="userRole == 'OPERATOR'"
+          >提交诊断</el-button
+        >
       </div>
       <div class="Task-info">
         <div class="Users">
@@ -94,6 +98,28 @@
     <el-dialog :visible.sync="dialogVisible" append-to-body>
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
+    <el-dialog title="选择维修人" :visible.sync="dialogFixVisible">
+      <el-select v-model="assigneeOp" placeholder="请选择">
+        <el-option-group
+          v-for="group in options"
+          :key="group.label"
+          :label="group.label"
+        >
+          <el-option
+            v-for="item in group.options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            :disabled="item.disabled"
+          >
+          </el-option>
+        </el-option-group>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFixVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitTssign">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -103,12 +129,18 @@ export default {
     let that = this;
     console.log(that.$route.query);
     that.errorid = that.$route.query.errorid;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      that.userRole = res.data.role;
+    });
     let url = "http://47.102.214.37:8080/issue/" + that.$route.query.errorid;
     axios.get(url).then((res) => {
       console.log(res.data);
       let usersid = {};
-      usersid.fixusersid = res.data.assignee.id;
+      if (res.data.assignee.length == 2) {
+        usersid.fixusersid = res.data.assignee[1].id;
+      }
       usersid.applyusersid = res.data.reporter.id;
+      that.applyusersid = res.data.reporter.id;
       that.errorcontent = res.data.content;
       setTimeout(() => {
         // 报修人员
@@ -124,17 +156,19 @@ export default {
           });
         });
         // 维修人员
-        let searchops =
-          "http://47.102.214.37:8080/user/query?id==" + usersid.fixusersid;
-        axios.get(searchops).then((res) => {
-          that.fixusers.push({
-            fixusersName:
-              res.data.content[0].name +
-              "（ id：" +
-              res.data.content[0].id +
-              " ）",
+        if (usersid.fixusersid != undefined) {
+          let searchops =
+            "http://47.102.214.37:8080/user/query?id==" + usersid.fixusersid;
+          axios.get(searchops).then((res) => {
+            that.fixusers.push({
+              fixusersName:
+                res.data.content[0].name +
+                "（ id：" +
+                res.data.content[0].id +
+                " ）",
+            });
           });
-        });
+        }
       }, 200);
       // 设备名称
       for (let i = 0; i < res.data.device.length; i++) {
@@ -162,9 +196,43 @@ export default {
         }
       }
     });
+    setTimeout(() => {
+      // 获取全部OPERATOR
+      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+        // console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "OPERATOR") {
+            // 禁用报修人为维修人
+            if (res.data.content[i].id == that.applyusersid) {
+              that.options[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+                disabled: true,
+              });
+            } else {
+              that.options[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+            }
+          }
+        }
+      });
+    }, 300);
   },
   data() {
     return {
+      userRole: "",
+      applyusersid: "",
+
       errorid: "",
       applyusers: [], // 报修人员
       fixusers: [], // 维修人员
@@ -179,16 +247,68 @@ export default {
       Images: [],
       dialogVisible: false,
       dialogImageUrl: "",
+
+      // 报告接受人
+      dialogFixVisible: false,
+      assigneeOp: "",
+      options: [
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+      ],
     };
   },
   methods: {
-    back() {
-      this.$router.push("./fixDiagnosis");
-    },
     // 预览图片
     imgurl(url) {
       this.dialogImageUrl = url;
       this.dialogVisible = true;
+    },
+    // 分配维修
+    TssignFix() {
+      this.dialogFixVisible = true;
+    },
+    // 提交分配
+    submitTssign() {
+      console.log(this.assigneeOp);
+      let that = this;
+      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        let obj = {};
+        obj.assignee = res.data.assignee;
+        obj.closed = res.data.closed;
+        obj.content = res.data.content;
+        obj.descriptionPic = res.data.descriptionPic;
+        obj.device = res.data.device;
+        obj.exceptionType = res.data.exceptionType;
+        obj.id = res.data.id;
+        obj.reason = res.data.reason;
+        obj.record = res.data.record;
+        obj.reporter = res.data.reporter;
+        obj.solution = res.data.solution;
+        obj.assignee.push({
+          id: that.assigneeOp,
+        });
+        console.log(res.data.assignee);
+        // axios
+        //   .put(url)
+        //   .then((res) => {
+        //     console.log(res);
+        //     that.$message({
+        //       message: "分配成功",
+        //       type: "success",
+        //     });
+        //     that.dialogFixVisible = false;
+        //   })
+        //   .catch(() => {
+        //     that.$message({
+        //       message: "分配失败",
+        //       type: "error",
+        //     });
+        //   });
+      });
     },
     // 提交诊断
     submitbtn() {
@@ -258,7 +378,7 @@ export default {
     .backbtn {
       width: 85%;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       // border: 1px solid red;
       .el-button {
@@ -268,10 +388,7 @@ export default {
         color: #fff;
         border: 0;
         font-size: 15px;
-        padding: 8px 15px;
-      }
-      .submit {
-        background: #5ed100;
+        padding: 8px 10px;
       }
     }
     .Task-info {
