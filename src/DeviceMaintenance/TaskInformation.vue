@@ -284,19 +284,37 @@ export default {
     // 点击当天日期回调函数
     handleDateClick(dateClickInfo) {
       if (dateClickInfo.date.getMonth() + 1 < 10) {
-        this.clickdate =
-          dateClickInfo.date.getFullYear() +
-          "-0" +
-          (dateClickInfo.date.getMonth() + 1) +
-          "-" +
-          dateClickInfo.date.getDate();
+        if (dateClickInfo.date.getDate() < 10) {
+          this.clickdate =
+            dateClickInfo.date.getFullYear() +
+            "-0" +
+            (dateClickInfo.date.getMonth() + 1) +
+            "-0" +
+            dateClickInfo.date.getDate();
+        } else {
+          this.clickdate =
+            dateClickInfo.date.getFullYear() +
+            "-0" +
+            (dateClickInfo.date.getMonth() + 1) +
+            "-" +
+            dateClickInfo.date.getDate();
+        }
       } else {
-        this.clickdate =
-          dateClickInfo.date.getFullYear() +
-          "-" +
-          (dateClickInfo.date.getMonth() + 1) +
-          "-" +
-          dateClickInfo.date.getDate();
+        if (dateClickInfo.date.getDate() < 10) {
+          this.clickdate =
+            dateClickInfo.date.getFullYear() +
+            "-" +
+            (dateClickInfo.date.getMonth() + 1) +
+            "-0" +
+            dateClickInfo.date.getDate();
+        } else {
+          this.clickdate =
+            dateClickInfo.date.getFullYear() +
+            "-" +
+            (dateClickInfo.date.getMonth() + 1) +
+            "-" +
+            dateClickInfo.date.getDate();
+        }
       }
       this.dialogFormVisible = true;
     },

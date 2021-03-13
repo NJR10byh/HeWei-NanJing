@@ -35,7 +35,7 @@
       <el-table-column prop="deadline" label="剩余天数"></el-table-column>
       <el-table-column
         prop="taskuser"
-        label="保养人员"
+        label="保养人员代表"
         v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
       ></el-table-column>
       <el-table-column
@@ -113,14 +113,12 @@ export default {
     refresh() {
       let that = this;
       that.tableData = [];
-      axios
-        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
-        .then((res) => {
-          console.log(res.data.content);
-          for (let i = 0; i < res.data.content.length; i++) {
-            if (
-              ["ROOT", "ADMIN", "CREATOR", "SUPERVISOR"].includes(that.userRole)
-            ) {
+      if (["ROOT", "ADMIN", "CREATOR", "SUPERVISOR"].includes(that.userRole)) {
+        axios
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
+          .then((res) => {
+            console.log(res.data.content);
+            for (let i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
               obj.name = res.data.content[i].name;
@@ -128,7 +126,6 @@ export default {
                 "http://47.102.214.37:8080/user/query?id==" +
                 res.data.content[i].ops[0].id;
               axios.get(url).then((res) => {
-                console.log(res.data);
                 obj.taskuser =
                   res.data.content[0].name +
                   " ( ID：" +
@@ -136,7 +133,9 @@ export default {
                   " )";
               });
               setTimeout(() => {
-                let URL = "http://47.102.214.37:8080/my/schedule";
+                let URL =
+                  "http://47.102.214.37:8080/ops/schedule/status/" +
+                  res.data.content[i].id;
                 axios.get(URL).then((res) => {
                   if (res.data.nextDate == null) {
                     obj.nextDate = "暂无";
@@ -152,15 +151,38 @@ export default {
                 setTimeout(() => {
                   that.tableData.push(obj);
                 }, 200);
-              }, 200);
-            } else {
-              let obj = {};
-              obj.id = res.data.content[i].id;
-              obj.name = res.data.content[i].name;
+              }, 300);
+            }
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          });
+      } else {
+        let URL = "http://47.102.214.37:8080/my/schedule";
+        axios.get(URL).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.length; i++) {
+            let obj = {};
+            obj.id = res.data[i].id;
+            obj.name = res.data[i].name;
+            let url =
+              "http://47.102.214.37:8080/user/query?id==" +
+              res.data[i].ops[0].id;
+            axios.get(url).then((res) => {
+              console.log(res.data);
+              obj.taskuser =
+                res.data.content[0].name +
+                " ( ID：" +
+                res.data.content[0].id +
+                " )";
+            });
+            setTimeout(() => {
               let URL =
                 "http://47.102.214.37:8080/ops/schedule/status/" +
-                res.data.content[i].id;
+                res.data[i].id;
               axios.get(URL).then((res) => {
+                console.log(res.data);
                 if (res.data.nextDate == null) {
                   obj.nextDate = "暂无";
                 } else {
@@ -175,13 +197,10 @@ export default {
               setTimeout(() => {
                 that.tableData.push(obj);
               }, 200);
-            }
+            }, 300);
           }
-          that.$message({
-            message: "刷新成功",
-            type: "success",
-          });
         });
+      }
     },
     // 任务详情
     handleDetail(index) {

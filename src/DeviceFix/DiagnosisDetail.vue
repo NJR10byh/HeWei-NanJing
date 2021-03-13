@@ -142,6 +142,9 @@ export default {
       usersid.applyusersid = res.data.reporter.id;
       that.applyusersid = res.data.reporter.id;
       that.errorcontent = res.data.content;
+      that.reason = res.data.reason;
+      that.solution = res.data.solution;
+      that.exceptionType = res.data.exceptionType;
       setTimeout(() => {
         // 报修人员
         let searchreporters =
@@ -291,23 +294,23 @@ export default {
         obj.assignee.push({
           id: that.assigneeOp,
         });
-        console.log(res.data.assignee);
-        // axios
-        //   .put(url)
-        //   .then((res) => {
-        //     console.log(res);
-        //     that.$message({
-        //       message: "分配成功",
-        //       type: "success",
-        //     });
-        //     that.dialogFixVisible = false;
-        //   })
-        //   .catch(() => {
-        //     that.$message({
-        //       message: "分配失败",
-        //       type: "error",
-        //     });
-        //   });
+        console.log(res.data);
+        axios
+          .put(url, obj)
+          .then((res) => {
+            console.log(res);
+            that.$message({
+              message: "分配成功",
+              type: "success",
+            });
+            that.dialogFixVisible = false;
+          })
+          .catch(() => {
+            that.$message({
+              message: "分配失败",
+              type: "error",
+            });
+          });
       });
     },
     // 提交诊断

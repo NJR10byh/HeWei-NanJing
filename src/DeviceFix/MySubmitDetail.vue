@@ -17,7 +17,7 @@
         </el-steps>
       </div>
       <div class="backbtn">
-        <div class="backbtn_right" v-if="reporterid == userid">
+        <div class="backbtn_right" v-if="reporterid == userid && !closed">
           <el-button @click="confirm" class="confirm">确认</el-button>
           <el-button @click="refuse" class="refuse">拒绝</el-button>
         </div>
@@ -121,6 +121,11 @@ export default {
       that.reason = res.data.reason;
       that.solution = res.data.solution;
       that.exceptionType = res.data.exceptionType;
+      that.closed = res.data.closed;
+      console.log(that.closed);
+      if (res.data.closed == true) {
+        that.active = 3;
+      }
       let usersid = {};
       if (res.data.assignee.length == 2) {
         usersid.fixusersid = res.data.assignee[1].id;
@@ -191,6 +196,7 @@ export default {
       applyusersid: "",
       // 步骤条
       active: 0,
+      closed: false, // 是否确认
 
       errorid: "",
       userid: "", // 当前登录人员
@@ -212,8 +218,62 @@ export default {
     };
   },
   methods: {
-    confirm() {},
-    refuse() {},
+    confirm() {
+      let that = this;
+      that
+        .$confirm("确定接受处理吗？", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+        .then(() => {
+          let url =
+            "http://47.102.214.37:8080/issue/close/" +
+            that.$route.query.errorid +
+            "?closed=true";
+          axios.post(url).then((res) => {
+            console.log(res.data);
+            that.$message({
+              message: "接受处理成功",
+              type: "success",
+            });
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消",
+          });
+        });
+    },
+    refuse() {
+      let that = this;
+      that
+        .$confirm("确定拒绝处理吗？", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+        .then(() => {
+          let url =
+            "http://47.102.214.37:8080/issue/close/" +
+            that.$route.query.errorid +
+            "?closed=false";
+          axios.post(url).then((res) => {
+            console.log(res.data);
+            that.$message({
+              message: "拒绝处理成功",
+              type: "success",
+            });
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消",
+          });
+        });
+    },
     // 预览图片
     imgurl(url) {
       this.dialogImageUrl = url;
