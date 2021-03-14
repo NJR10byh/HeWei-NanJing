@@ -19,6 +19,7 @@
     "file-saver": "^2.0.5",
     "fullcalendar": "^5.5.1",
     "jquery": "^3.6.0",
+    "tiptap": "^1.32.1",
     "vue": "^2.6.11",
     "vue-fullcalendar": "^1.0.9",
     "vue-router": "^3.4.9",

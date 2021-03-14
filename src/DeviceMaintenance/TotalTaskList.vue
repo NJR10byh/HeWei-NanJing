@@ -117,40 +117,37 @@ export default {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
           .then((res) => {
-            console.log(res.data.content);
             for (let i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
               obj.name = res.data.content[i].name;
-              let url =
-                "http://47.102.214.37:8080/user/query?id==" +
-                res.data.content[i].ops[0].id;
-              axios.get(url).then((res) => {
-                obj.taskuser =
-                  res.data.content[0].name +
-                  " ( ID：" +
-                  res.data.content[0].id +
-                  " )";
-              });
               setTimeout(() => {
-                let URL =
-                  "http://47.102.214.37:8080/ops/schedule/status/" +
-                  res.data.content[i].id;
-                axios.get(URL).then((res) => {
-                  if (res.data.nextDate == null) {
-                    obj.nextDate = "暂无";
-                  } else {
-                    obj.nextDate = res.data.nextDate;
-                  }
-                  if (res.data.nextDateDay == null) {
-                    obj.deadline = "暂无";
-                  } else {
-                    obj.deadline = res.data.nextDateDay;
-                  }
+                let url =
+                  "http://47.102.214.37:8080/user/" +
+                  res.data.content[i].ops[0].id;
+                axios.get(url).then((res) => {
+                  obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
                 });
                 setTimeout(() => {
-                  that.tableData.push(obj);
-                }, 200);
+                  let URL =
+                    "http://47.102.214.37:8080/ops/schedule/status/" +
+                    res.data.content[i].id;
+                  axios.get(URL).then((res) => {
+                    if (res.data.nextDate == null) {
+                      obj.nextDate = "暂无";
+                    } else {
+                      obj.nextDate = res.data.nextDate;
+                    }
+                    if (res.data.nextDateDay == null) {
+                      obj.deadline = "暂无";
+                    } else {
+                      obj.deadline = res.data.nextDateDay;
+                    }
+                  });
+                  setTimeout(() => {
+                    that.tableData.push(obj);
+                  }, 400);
+                }, 300);
               }, 300);
             }
             that.$message({

@@ -78,8 +78,8 @@
           </div>
           <div class="part3 Tools">
             <div class="Text">保养工具及备件</div>
-            <div class="Info" v-for="(item, index) in tools" :key="index">
-              {{ item.toolsinfo }}
+            <div class="Info">
+              {{ remark }}
             </div>
           </div>
           <div class="part3 Attention">
@@ -209,11 +209,8 @@ export default {
         }
       }
       if (res.data.tools != "") {
-        for (let b = 0; b < res.data.content.length; b++) {
-          that.tools.push({
-            toolsinfo: res.data.tools[b],
-          });
-        }
+        console.log(res.data.tools);
+        that.tools = res.data.tools;
       }
       if (res.data.remark != "") {
         that.remark = res.data.remark;
@@ -291,7 +288,7 @@ export default {
       scheduleType_info: null,
       /* part3 */
       content: [], // 保养内容
-      tools: [], // 保养工具及备件
+      tools: null, // 保养工具及备件
       remark: null, // 注意事项
 
       /* 保养记录 */

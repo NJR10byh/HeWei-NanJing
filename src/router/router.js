@@ -14,7 +14,6 @@ import Code from "@/DeviceManager/Code"; // 生成编码
 import AddTask from "@/DeviceMaintenance/AddTask"; // 新增任务
 import AddTaskInside from "@/DeviceMaintenance/AddTaskInside"; // 新增任务详情页
 import EditTask from "@/DeviceMaintenance/EditTask"; // 编辑任务（模版）
-import TaskInformation from "@/DeviceMaintenance/TaskInformation"; // 任务信息
 import TaskDetailInfo from "@/DeviceMaintenance/TaskDetailInfo"; // 任务信息详情
 import TotalTaskList from "@/DeviceMaintenance/TotalTaskList"; // 任务信息列表
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
@@ -101,11 +100,6 @@ var routes = [
       {
         path: "/editTask",
         component: EditTask,
-      },
-      // 任务信息
-      {
-        path: "/taskInformation",
-        component: TaskInformation,
       },
       // 任务信息详情
       {

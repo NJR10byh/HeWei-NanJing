@@ -245,11 +245,6 @@ export default {
               path: "tssignTask",
             },
             {
-              id: 32,
-              authName: "任务信息",
-              path: "taskInformation",
-            },
-            {
               id: 33,
               authName: "任务列表",
               path: "totalTaskList",
@@ -368,11 +363,6 @@ export default {
               path: "tssignTask",
             },
             {
-              id: 32,
-              authName: "任务信息",
-              path: "taskInformation",
-            },
-            {
               id: 33,
               authName: "任务列表",
               path: "totalTaskList",
@@ -433,11 +423,6 @@ export default {
           id: 3,
           authName: "设备保养",
           children: [
-            {
-              id: 31,
-              authName: "任务信息",
-              path: "taskInformation",
-            },
             {
               id: 32,
               authName: "任务列表",
@@ -530,11 +515,6 @@ export default {
           id: 3,
           authName: "设备保养",
           children: [
-            {
-              id: 31,
-              authName: "任务信息",
-              path: "taskInformation",
-            },
             {
               id: 32,
               authName: "任务列表",
