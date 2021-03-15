@@ -151,17 +151,35 @@ export default {
       // 任务名称
       that.name = res.data.name;
       if (that.scheduleType == null) {
-        that.scheduleType = res.data.scheduleType;
+        switch (res.data.scheduleType) {
+          case "Yearly":
+            that.scheduleType = "年保养";
+            break;
+          case "Seasonly":
+            that.scheduleType = "季度保养";
+            break;
+          case "Monthly":
+            that.scheduleType = "月保养";
+            break;
+          case "Weekly":
+            that.scheduleType = "周保养";
+            break;
+          case "Daily":
+            that.scheduleType = "日保养";
+            break;
+          default:
+            break;
+        }
       }
       // 保养天数
-      if (that.scheduleDay == null) {
-        that.scheduleDay = res.data.scheduleDay;
+      if (that.startDate == null) {
+        that.startDate = res.data.startDate;
       }
-      if (that.scheduleType == "Daily") {
+      if (that.scheduleType == "日保养") {
         that.scheduleType_info = "天";
       }
-      if (that.scheduleType == "Weekly") {
-        switch (that.scheduleDay) {
+      if (that.scheduleType == "周保养") {
+        switch (that.startDate) {
           case 1:
             that.scheduleType_info = "周一";
             break;
@@ -186,10 +204,10 @@ export default {
           default:
             break;
         }
-      } else if (that.scheduleType == "Monthly") {
-        that.scheduleType_info = "月" + that.scheduleDay + "号";
-      } else if (that.scheduleType == "Yearly") {
-        that.scheduleType_info = "年第" + that.scheduleDay + "天";
+      } else if (that.scheduleType == "月保养") {
+        that.scheduleType_info = "月 " + that.startDate.split("-")[2] + " 号";
+      } else if (that.scheduleType == "年保养") {
+        that.scheduleType_info = "年第" + that.startDate + "天";
       }
       // 保养部位
       if (that.side == null) {
@@ -209,7 +227,6 @@ export default {
         }
       }
       if (res.data.tools != "") {
-        console.log(res.data.tools);
         that.tools = res.data.tools;
       }
       if (res.data.remark != "") {
@@ -228,16 +245,10 @@ export default {
       }
       // 维护人员
       for (let i = 0; i < res.data.ops.length; i++) {
-        let searchops =
-          "http://47.102.214.37:8080/user/query?id==" + res.data.ops[i].id;
+        let searchops = "http://47.102.214.37:8080/user/" + res.data.ops[i].id;
         axios.get(searchops).then((res) => {
-          console.log(res.data.content[0]);
           that.users.push({
-            usersName:
-              res.data.content[0].name +
-              "（ id：" +
-              res.data.content[0].id +
-              " ）",
+            usersName: res.data.name + "（ id：" + res.data.id + " ）",
           });
         });
       }
@@ -249,7 +260,6 @@ export default {
         "http://47.102.214.37:8080/ops/record/schedule/" +
         that.$route.query.id +
         "?page=0&size=100";
-      console.log(URL);
       axios.get(URL).then((res) => {
         console.log(res.data);
         that.active = res.data.content.length - 1;
@@ -284,7 +294,7 @@ export default {
       deviceinfo: [],
       // 周期
       scheduleType: null,
-      scheduleDay: null,
+      startDate: null,
       scheduleType_info: null,
       /* part3 */
       content: [], // 保养内容

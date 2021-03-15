@@ -50,6 +50,15 @@
           >
           </el-option>
         </el-select>
+        <el-switch v-model="more" active-text="批量注册" @change="moreswitch">
+        </el-switch>
+        <el-input
+          class="userinfoinput"
+          type="number"
+          v-model="piliang"
+          placeholder="批量注册个数"
+          v-if="more"
+        ></el-input>
       </div>
       <div class="login-btn">
         <el-button @click="register">注册</el-button>
@@ -231,9 +240,17 @@ export default {
       ],
       value1: [],
       value2: "",
+
+      //批量注册
+      more: false,
+      piliang: "",
     };
   },
   methods: {
+    // 批量注册
+    moreswitch(res) {
+      this.more = res;
+    },
     register() {
       let that = this;
       if (
@@ -253,13 +270,35 @@ export default {
           message: "两次密码输入不一致",
           type: "error",
         });
+      } else if (that.more == true) {
+        console.log(that.piliang);
+        let i = 0;
+        for (i = 0; i < that.piliang; i++) {
+          axios
+            .post("http://47.102.214.37:8080/user/register", {
+              name: that.name,
+              username: that.username,
+              email: that.email,
+              password: that.confirmpassword,
+              role: that.value_left,
+            })
+            .then(() => {
+              that.name = "";
+              that.username = "";
+              that.email = "";
+              that.password = "";
+              that.confirmpassword = "";
+              that.value_left = "";
+              that.piliang = "";
+            });
+        }
+        if (i == that.piliang) {
+          that.$message({
+            message: "批量注册成功",
+            type: "success",
+          });
+        }
       } else {
-        console.log(that.name);
-        console.log(that.username);
-        console.log(that.email);
-        console.log(that.password);
-        console.log(that.confirmpassword);
-        console.log(that.value_left);
         axios
           .post("http://47.102.214.37:8080/user/register", {
             name: that.name,

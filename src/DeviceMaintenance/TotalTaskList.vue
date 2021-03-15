@@ -150,10 +150,12 @@ export default {
                 }, 300);
               }, 300);
             }
-            that.$message({
-              message: "刷新成功",
-              type: "success",
-            });
+            setTimeout(() => {
+              that.$message({
+                message: "刷新成功",
+                type: "success",
+              });
+            }, 800);
           });
       } else {
         let URL = "http://47.102.214.37:8080/my/schedule";
