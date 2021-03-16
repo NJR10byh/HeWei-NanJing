@@ -7,6 +7,15 @@
         <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
+    <div style="text-align:center;">
+      <el-date-picker
+        v-model="datevalue"
+        type="date"
+        placeholder="选择日期"
+        value-format="yyyy-MM-dd"
+      >
+      </el-date-picker>
+    </div>
     <div class="chuansuo">
       <div class="kuang kuang2">
         <el-transfer
@@ -58,6 +67,8 @@ export default {
   data() {
     return {
       userid: "",
+      // 日期选择
+      datevalue: "",
       // 选择框 2
       data2: [],
       value2: [],
@@ -85,7 +96,7 @@ export default {
     },
     SubTssign() {
       let that = this;
-      if (that.selectedTaskid.length == 0) {
+      if (that.selectedUserid.length == 0 || that.datevalue == "") {
         that.$message({
           message: "请将信息填写完整",
           type: "warning",
@@ -114,6 +125,7 @@ export default {
             obj.name = res.data.name;
             obj.remark = res.data.remark;
             obj.scheduleType = res.data.scheduleType;
+            obj.startDate = that.datevalue;
             obj.side = res.data.side;
             obj.tools = res.data.tools;
             obj.device = deviceid;

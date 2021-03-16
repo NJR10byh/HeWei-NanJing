@@ -249,16 +249,6 @@ export default {
               authName: "任务列表",
               path: "totalTaskList",
             },
-            {
-              id: 34,
-              authName: "保养记录",
-              path: "maintenanceNotes",
-            },
-            {
-              id: 3,
-              authName: "保养查询",
-              path: "searchMaintenance",
-            },
           ],
         },
         {
@@ -279,11 +269,6 @@ export default {
               id: 42,
               authName: "我申请的",
               path: "mySubmit",
-            },
-            {
-              id: 43,
-              authName: "维修查询",
-              path: "fixSearch",
             },
           ],
         },
@@ -367,16 +352,6 @@ export default {
               authName: "任务列表",
               path: "totalTaskList",
             },
-            {
-              id: 34,
-              authName: "保养记录",
-              path: "maintenanceNotes",
-            },
-            {
-              id: 3,
-              authName: "保养查询",
-              path: "searchMaintenance",
-            },
           ],
         },
         {
@@ -397,11 +372,6 @@ export default {
               id: 42,
               authName: "我发布的",
               path: "mySubmit",
-            },
-            {
-              id: 43,
-              authName: "维修查询",
-              path: "fixSearch",
             },
           ],
         },
@@ -428,16 +398,6 @@ export default {
               authName: "任务列表",
               path: "totalTaskList",
             },
-            {
-              id: 33,
-              authName: "保养记录",
-              path: "maintenanceNotes",
-            },
-            {
-              id: 34,
-              authName: "保养查询",
-              path: "searchMaintenance",
-            },
           ],
         },
         {
@@ -458,11 +418,6 @@ export default {
               id: 42,
               authName: "我发布的",
               path: "mySubmit",
-            },
-            {
-              id: 43,
-              authName: "维修查询",
-              path: "fixSearch",
             },
           ],
         },
@@ -520,16 +475,6 @@ export default {
               authName: "任务列表",
               path: "totalTaskList",
             },
-            {
-              id: 33,
-              authName: "保养记录",
-              path: "maintenanceNotes",
-            },
-            {
-              id: 34,
-              authName: "保养查询",
-              path: "searchMaintenance",
-            },
           ],
         },
         {
@@ -555,11 +500,6 @@ export default {
               id: 43,
               authName: "我发布的",
               path: "mySubmit",
-            },
-            {
-              id: 44,
-              authName: "维修查询",
-              path: "fixSearch",
             },
           ],
         },

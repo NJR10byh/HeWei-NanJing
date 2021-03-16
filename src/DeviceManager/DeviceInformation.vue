@@ -9,20 +9,35 @@
       <!-- 搜索 -->
       <div class="head-btn">
         <div class="oper-btns-left">
-          <div class="input" style="margin-left:0;">
-            <el-input placeholder="设备名称" v-model="devicename"></el-input>
+          <div class="select">
+            <el-select
+              v-model="selectvalue"
+              placeholder="请选择搜索字段"
+              filterable
+              clearable
+              @change="selectchange"
+            >
+              <el-option-group
+                v-for="group in selectoptions"
+                :key="group.label"
+                :label="group.label"
+              >
+                <el-option
+                  v-for="item in group.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-option-group>
+            </el-select>
           </div>
-          <div class="input">
-            <el-input placeholder="设备品牌" v-model="devicebrand"></el-input>
-          </div>
-          <div class="input">
-            <el-input
-              placeholder="设备型号/规格"
-              v-model="devicetype"
-            ></el-input>
-          </div>
-          <div class="input">
-            <el-input placeholder="设备编号" v-model="deviceclazz"></el-input>
+          <div
+            v-for="(item, index) in selectInfo"
+            :key="index"
+            style="margin-left:5px;"
+          >
+            <span>{{ item.ziduan }}: {{ item.value }} |</span>
           </div>
           <div class="search">
             <el-button icon="el-icon-search" @click="search">搜索</el-button>
@@ -79,6 +94,21 @@
             </div>
           </div>
         </el-dialog>
+        <!-- 搜索条件 -->
+        <el-dialog
+          title="搜索条件"
+          :visible.sync="dialogSearchVisible"
+          width="35%"
+        >
+          <el-input
+            v-model="selectmodel"
+            placeholder="请输入搜索内容"
+          ></el-input>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogSearchVisible = false">取 消</el-button>
+            <el-button type="primary" @click="submitselect">确 定</el-button>
+          </span>
+        </el-dialog>
       </div>
       <!-- table -->
       <el-table
@@ -92,33 +122,7 @@
         id="outTable"
         @selection-change="handleDetailSelectionChange"
       >
-        <el-table-column type="expand" width="25">
-          <template slot-scope="props">
-            <el-form label-position="left" inline class="Demo-table-expand">
-              关键信息:
-              <el-form-item label="设备名称">
-                <span>{{ props.row.name }}</span>
-              </el-form-item>
-              <el-form-item label="设备品牌">
-                <span>{{ props.row.brand }}</span>
-              </el-form-item>
-              <el-form-item label="设备型号/规格">
-                <span>{{ props.row.type }}</span>
-              </el-form-item>
-              <el-form-item label="设备编号">
-                <span>{{ props.row.deviceNo }}</span>
-              </el-form-item>
-              <el-form-item label="是否为关键设备">
-                <span>{{ props.row.crux }}</span>
-              </el-form-item>
-              <el-form-item label="设备分类">
-                <span>{{ props.row.clazz }}</span>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column type="selection" width="50"></el-table-column>
-        <el-table-column prop="id" label="ID" width="60"></el-table-column>
+        <el-table-column type="selection" width="44"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
@@ -152,7 +156,7 @@
         <template v-for="(item, index) in tableHead">
           <el-table-column
             :prop="item.prop"
-            :label="item.lable"
+            :label="item.label"
             :key="index"
             :width="item.width"
           ></el-table-column>
@@ -196,9 +200,49 @@ export default {
   components: {},
   data() {
     return {
-      dialogVisible: false, //对话框
+      selectoptions: [
+        {
+          label: "基本字段",
+          options: [
+            {
+              value: "name",
+              label: "设备名称",
+            },
+            {
+              value: "brand",
+              label: "设备品牌",
+            },
+            {
+              value: "type",
+              label: "设备型号/规格",
+            },
+            {
+              value: "deviceNo",
+              label: "设备编号",
+            },
+            {
+              value: "crux",
+              label: "是否为关键设备",
+            },
+            {
+              value: "clazz",
+              label: "设备分类",
+            },
+          ],
+        },
+        {
+          label: "附加字段",
+          options: [],
+        },
+      ],
+      selectvalue: "",
+      selectmodel: "",
+      dialogSearchVisible: false,
+      selectInfo: [],
+
+      /* 上传、导出 */
+      dialogVisible: false, //上传文件对话框
       fileList: [], //上传文件列表
-      searchurl: "", // 导出URL
       exporturl: "", // 导出URL
       userRole: "", //用户类型
       //选择框
@@ -213,13 +257,6 @@ export default {
       page: 1,
       size: 10,
       total: 0,
-      // 搜索
-      devicename: "",
-      devicebrand: "",
-      devicetype: "",
-      deviceclazz: "",
-      query: 0,
-      query_value: [],
     };
   },
   methods: {
@@ -227,205 +264,34 @@ export default {
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
     },
+    selectchange() {
+      this.dialogSearchVisible = true;
+    },
+    submitselect() {
+      this.dialogSearchVisible = false;
+      this.selectInfo.push({
+        ziduan: this.selectvalue,
+        value: this.selectmodel,
+      });
+    },
     // 搜索
     search() {
       let that = this;
-      that.query = 0;
-      if (that.devicename != "") {
-        that.query++;
-      }
-      if (that.devicebrand != "") {
-        that.query++;
-      }
-      if (that.devicetype != "") {
-        that.query++;
-      }
-      if (that.deviceclazz != "") {
-        that.query++;
-      }
-      if (that.query == 0) {
-        that.$message({
-          message: "请输入搜索信息",
-          type: "warning",
-        });
-      } else {
-        that.query_value = [];
-        that.tableData = [];
-        console.log(that.devicename);
-        console.log(that.devicebrand);
-        console.log(that.devicetype);
-        console.log(that.deviceclazz);
-        console.log(that.query);
-        switch (that.query) {
-          case 1:
-            if (that.devicename != "") {
-              that.searchurl =
-                "http://47.102.214.37:8080/device/query?name=L" +
-                that.devicename +
-                "%25";
-              that.exporturl =
-                "http://47.102.214.37:8080/device/query?name=L" +
-                that.devicename +
-                "%25";
-            } else if (that.devicebrand != "") {
-              that.searchurl =
-                "http://47.102.214.37:8080/device/query?brand=L" +
-                that.devicebrand +
-                "%25";
-              that.exporturl =
-                "http://47.102.214.37:8080/device/export?name=L" +
-                that.devicebrand +
-                "%25";
-            } else if (that.devicetype != "") {
-              that.searchurl =
-                "http://47.102.214.37:8080/device/query?type=L" +
-                that.devicetype.toUpperCase() +
-                "%25";
-              that.exporturl =
-                "http://47.102.214.37:8080/device/export?name=L" +
-                that.devicetype.toUpperCase() +
-                "%25";
-            } else if (that.deviceclazz != "") {
-              that.searchurl =
-                "http://47.102.214.37:8080/device/query?clazz=L" +
-                that.deviceclazz +
-                "%25";
-              that.exporturl =
-                "http://47.102.214.37:8080/device/export?name=L" +
-                that.deviceclazz +
-                "%25";
-            }
-            break;
-          case 2:
-            if (that.devicename != "") {
-              that.query_value.push({
-                name: "name",
-                value: that.devicename,
-              });
-            }
-            if (that.devicebrand != "") {
-              that.query_value.push({
-                name: "brand",
-                value: that.devicebrand,
-              });
-            }
-            if (that.devicetype != "") {
-              that.query_value.push({
-                name: "type",
-                value: that.devicetype.toUpperCase(),
-              });
-            }
-            if (that.deviceclazz != "") {
-              that.query_value.push({
-                name: "clazz",
-                value: that.deviceclazz,
-              });
-            }
-            console.log(that.query_value);
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?" +
-              that.query_value[0].name +
-              "=L" +
-              that.query_value[0].value +
-              "%25&" +
-              that.query_value[1].name +
-              "=L" +
-              that.query_value[1].value +
-              "%25";
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?" +
-              that.query_value[0].name +
-              "=L" +
-              that.query_value[0].value +
-              "%25&" +
-              that.query_value[1].name +
-              "=L" +
-              that.query_value[1].value +
-              "%25";
-            break;
-          case 3:
-            if (that.devicename != "") {
-              that.query_value.push({
-                name: "name",
-                value: that.devicename,
-              });
-            }
-            if (that.devicebrand != "") {
-              that.query_value.push({
-                name: "brand",
-                value: that.devicebrand,
-              });
-            }
-            if (that.devicetype != "") {
-              that.query_value.push({
-                name: "type",
-                value: that.devicetype.toUpperCase(),
-              });
-            }
-            if (that.deviceclazz != "") {
-              that.query_value.push({
-                name: "clazz",
-                value: that.deviceclazz,
-              });
-            }
-            console.log(that.query_value);
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?" +
-              that.query_value[0].name +
-              "=L" +
-              that.query_value[0].value +
-              "%25&" +
-              that.query_value[1].name +
-              "=L" +
-              that.query_value[1].value +
-              "%25&" +
-              that.query_value[2].name +
-              "=L" +
-              that.query_value[2].value +
-              "%25";
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?" +
-              that.query_value[0].name +
-              "=L" +
-              that.query_value[0].value +
-              "%25&" +
-              that.query_value[1].name +
-              "=L" +
-              that.query_value[1].value +
-              "%25&" +
-              that.query_value[2].name +
-              "=L" +
-              that.query_value[2].value +
-              "%25";
-            break;
-          case 4:
-            that.searchurl =
-              "http://47.102.214.37:8080/device/query?name==" +
-              that.devicename +
-              "&brand==" +
-              that.devicebrand +
-              "&type==" +
-              that.devicetype.toUpperCase() +
-              "&clazz==" +
-              that.deviceclazz;
-            that.exporturl =
-              "http://47.102.214.37:8080/device/export?name=L" +
-              that.devicename +
-              "%25&brand=L" +
-              that.devicebrand +
-              "%25&type=L" +
-              that.devicetype.toUpperCase() +
-              "%25&clazz=L" +
-              that.deviceclazz +
-              "%25";
-            break;
-          default:
-            break;
-        }
-        console.log(that.searchurl);
-        axios.get(that.searchurl).then((res) => {
+      let url =
+        "http://47.102.214.37:8080/device/query?" +
+        that.selectInfo[0].ziduan +
+        "=L" +
+        that.selectInfo[0].value +
+        "%25";
+      if (that.selectInfo.length == 1) {
+        that.exporturl = url;
+        console.log(that.exporturl);
+        axios.get(url).then((res) => {
           console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
+          that.tableData = [];
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
             obj.name = res.data.content[i].name;
@@ -433,7 +299,7 @@ export default {
             obj.type = res.data.content[i].type;
             obj.deviceNo = res.data.content[i].deviceNo;
             if (res.data.content[i].extra.length != 0) {
-              for (let j = 0; j < res.data.content[i].extra.length; j++) {
+              for (var j = 0; j < res.data.content[i].extra.length; j++) {
                 obj[res.data.content[i].extra[j].field.id] =
                   res.data.content[i].extra[j].value;
               }
@@ -446,6 +312,61 @@ export default {
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
           }
+          that.$message({
+            message: "查询成功",
+            type: "success",
+          });
+
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+        });
+      } else {
+        for (let i = 1; i < that.selectInfo.length; i++) {
+          url =
+            url +
+            "&" +
+            that.selectInfo[i].ziduan +
+            "=L" +
+            that.selectInfo[i].value +
+            "%25";
+        }
+        that.exporturl = url;
+        console.log(that.exporturl);
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          that.tableData = [];
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          for (var i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            obj.name = res.data.content[i].name;
+            obj["brand"] = res.data.content[i].brand;
+            obj.type = res.data.content[i].type;
+            obj.deviceNo = res.data.content[i].deviceNo;
+            if (res.data.content[i].extra.length != 0) {
+              for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                obj[res.data.content[i].extra[j].field.id] =
+                  res.data.content[i].extra[j].value;
+              }
+            }
+            if (res.data.content[i].crux == true) {
+              obj.crux = "Y";
+            } else if (res.data.content[i].crux == false) {
+              obj.crux = "N";
+            }
+            obj.clazz = res.data.content[i].clazz;
+            that.tableData.push(obj);
+          }
+          that.$message({
+            message: "查询成功",
+            type: "success",
+          });
+
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
         });
       }
     },
@@ -542,14 +463,7 @@ export default {
       // return wbout;
       /* 后段导出 */
       let that = this;
-      if (
-        that.devicename == "" &&
-        that.devicebrand == "" &&
-        that.devicetype == "" &&
-        that.deviceclazz == ""
-      ) {
-        that.exporturl = "http://47.102.214.37:8080/device/export?name=!";
-      }
+      console.log(that.exporturl);
       axios
         .get(that.exporturl, {
           responseType: "blob", // 二进制流
@@ -750,20 +664,26 @@ export default {
     setTimeout(function() {
       // 获取所有附加字段
       axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         for (let i = 0; i < res.data.length; i++) {
           let obj = {};
-          obj.lable = res.data[i].name;
+          obj.label = res.data[i].name;
           obj.width = "130";
           obj.prop = res.data[i].id;
           that.tableHead.push(obj);
+        }
+        for (let i = 0; i < res.data.length; i++) {
+          that.selectoptions[1].options.push({
+            value: res.data[i].id,
+            label: res.data[i].name,
+          });
         }
       });
       // 获取所有设备
       axios
         .get("http://47.102.214.37:8080/device?page=0&size=10")
         .then((res) => {
-          // console.log(res);
+          // console.log(res.data);
           that.total = res.data.totalElements;
           for (let i = 0; i < res.data.content.length; i++) {
             let obj = {};
@@ -837,14 +757,6 @@ export default {
           margin-left: 10px;
         }
       }
-      .input {
-        // border: 1px solid red;
-        margin-left: 10px;
-        .el-input__inner {
-          width: 120px;
-          height: 35px;
-        }
-      }
       .search {
         .el-button {
           height: 35px;
@@ -906,22 +818,12 @@ export default {
       background-color: #fafafa;
       border-right: 1px solid #e9ecf2;
       &:first-child {
-        border-right: none;
+        border-right: 1px solid #e9ecf2;
       }
       &:nth-child(2) {
-        border-right: none;
-        .cell {
-          padding-right: 0;
-        }
-      }
-      &:nth-child(3) {
-        // border: 1px solid red;
-        .cell {
-          padding-left: 0;
-        }
+        border-right: 1px solid #e9ecf2;
       }
       .cell {
-        padding: 0 20px;
         font-size: 14px;
       }
     }
@@ -936,42 +838,15 @@ export default {
   .el-checkbox__inner::after {
     left: 5px;
   }
-  .Demo-table-expand {
-    // border: 1px solid red;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 0;
-    padding: 0;
-    label {
-      width: 130px;
-      color: #99a9bf;
-    }
-    .el-form-item {
-      // border: 1px solid red;
-      height: 35px;
-      margin-bottom: 0;
-    }
-  }
   .el-table__body {
     td {
       text-align: center;
       border-bottom: none;
       &:nth-child(2) {
         border-right: none;
-        .cell {
-          padding-right: 0;
-          overflow: auto;
-        }
-      }
-      &:nth-child(3) {
-        .cell {
-          padding-left: 0;
-        }
       }
       .cell {
-        padding: 0 20px;
-        color: #444444;
+        color: #333;
       }
     }
     .el-button {
