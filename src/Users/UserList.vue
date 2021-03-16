@@ -149,7 +149,6 @@ export default {
     //单选框选中数据
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
-      console.log(this.checkedDetail);
     },
     // 刷新列表
     refresh() {

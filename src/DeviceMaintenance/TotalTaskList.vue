@@ -1,5 +1,5 @@
 <template>
-  <div class="Container-Register">
+  <div class="Container-TotalTaskList">
     <!-- 搜索 -->
     <div class="head-btn">
       <div class="oper-btns-left">
@@ -186,6 +186,15 @@
           </el-option>
         </el-option-group>
       </el-select>
+
+      <el-date-picker
+        v-model="datevalue"
+        type="date"
+        placeholder="选择日期"
+        value-format="yyyy-MM-dd"
+        v-if="selectvalue == 'startDate'"
+      >
+      </el-date-picker>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogSearchVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitselect">确 定</el-button>
@@ -270,6 +279,10 @@ export default {
               value: "ops",
               label: "人员",
             },
+            {
+              value: "startDate",
+              label: "开始时间",
+            },
           ],
         },
       ],
@@ -325,6 +338,10 @@ export default {
           options: [],
         },
       ],
+
+      // 开始时间
+      datevalue: "",
+
       // 分页
       currentPage: 1,
       page: 1,
@@ -358,6 +375,12 @@ export default {
         this.selectInfo.push({
           ziduan: this.selectvalue,
           value: this.opsvalue,
+        });
+      } else if (this.selectvalue == "startDate") {
+        console.log(this.opsvalue);
+        this.selectInfo.push({
+          ziduan: this.selectvalue,
+          value: this.datevalue,
         });
       } else {
         this.selectInfo.push({
@@ -764,7 +787,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.Container-Register {
+.Container-TotalTaskList {
   width: 100%;
   padding: 10px 0;
   // border: 1px solid red;
