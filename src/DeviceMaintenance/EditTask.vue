@@ -73,7 +73,6 @@
                   class="el-icon-circle-plus-outline addicon"
                   @click="addcontent = true"
                 ></i>
-                <!-- <el-button></el-button> -->
                 <div style="margin-top:0px;">
                   <el-collapse
                     @change="handleChange"
@@ -81,7 +80,9 @@
                     :key="index"
                   >
                     <el-collapse-item :title="item.title" :name="index">
-                      {{ item.detail }}
+                      <div class="ql-snow">
+                        <div class="ql-editor" v-html="item.detail"></div>
+                      </div>
                     </el-collapse-item>
                   </el-collapse>
                 </div>
@@ -99,38 +100,44 @@
         </el-form>
       </div>
     </div>
-    <el-dialog title="新增保养内容" :visible.sync="addcontent" width="400px">
+    <el-dialog title="新增保养内容" :visible.sync="addcontent" width="670px">
       <el-form :model="TaskInfo">
         <el-form-item label="标题">
           <el-input v-model="TaskInfo.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
-          <el-input
-            v-model="TaskInfo.detail"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 8 }"
-          ></el-input>
-        </el-form-item>
       </el-form>
-      <div slot="footer">
+      <div>
+        内容<br />
+        <quill-editor
+          ref="myTextEditor"
+          v-model="TaskInfo.detail"
+          :options="editorOption"
+          style="height:180px;"
+          @change="onEditorChange($event)"
+        ></quill-editor>
+      </div>
+      <div slot="footer" style="margin-top:40px;">
         <el-button @click="addcontent = false">取 消</el-button>
         <el-button type="primary" @click="submitcontent">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="修改保养内容" :visible.sync="fixcontent" width="400px">
+    <el-dialog title="修改保养内容" :visible.sync="fixcontent" width="670px">
       <el-form :model="TaskInfo">
         <el-form-item label="标题">
           <el-input v-model="TaskInfo.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
-          <el-input
-            v-model="TaskInfo.detail"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 8 }"
-          ></el-input>
-        </el-form-item>
       </el-form>
-      <div slot="footer">
+      <div>
+        内容<br />
+        <quill-editor
+          ref="myTextEditor"
+          v-model="TaskInfo.detail"
+          :options="editorOption"
+          style="height:180px;"
+          @change="onEditorChange($event)"
+        ></quill-editor>
+      </div>
+      <div slot="footer" style="margin-top:40px;">
         <el-button @click="fixcontent = false">取 消</el-button>
         <el-button type="primary" @click="submitfix">确 定</el-button>
       </div>
@@ -153,7 +160,17 @@
 
 <script>
 import axios from "axios";
+import { quillEditor } from "vue-quill-editor";
+// require styles
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+import "../assets/css/quill.css";
+
 export default {
+  components: {
+    quillEditor,
+  },
   created: function() {
     let that = this;
     console.log(this.$route.query);
@@ -222,6 +239,10 @@ export default {
 
       contentindex: -1, // 用户展开的内容下标
       contentid: -1, // 用户展开的内容id
+
+      editorOption: {
+        placeholder: "请输入保养内容",
+      },
     };
   },
   methods: {
@@ -230,6 +251,12 @@ export default {
         this.confirmfunction = true;
       }
       this.contentindex = val;
+    },
+
+    // 富文本编辑器内容改变
+    onEditorChange({ html }) {
+      console.log(html);
+      this.TaskInfo.detail = html;
     },
     // 修改内容
     editcontent() {

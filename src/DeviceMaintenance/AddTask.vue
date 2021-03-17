@@ -8,6 +8,9 @@
     <div class="head-btn">
       <div class="oper-btns-left">
         <div class="refresh">
+          <el-button icon="el-icon-plus" @click="addNewTask"
+            >新增任务
+          </el-button>
           <el-button icon="el-icon-refresh" @click="refresh"
             >刷新列表
           </el-button>
