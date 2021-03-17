@@ -208,9 +208,19 @@ export default {
           authName: "用户管理",
           children: [
             {
-              id: 10,
-              authName: "用户",
-              path: "users",
+              id: 11,
+              authName: "用户列表",
+              path: "userList",
+            },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
+            },
+            {
+              id: 13,
+              authName: "人员管理",
+              path: "authorize",
             },
           ],
         },
@@ -311,9 +321,14 @@ export default {
           authName: "用户管理",
           children: [
             {
-              id: 10,
-              authName: "用户",
-              path: "users",
+              id: 11,
+              authName: "用户列表",
+              path: "userList",
+            },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
             },
           ],
         },
@@ -383,9 +398,14 @@ export default {
           authName: "用户管理",
           children: [
             {
-              id: 10,
-              authName: "用户",
-              path: "users",
+              id: 11,
+              authName: "用户列表",
+              path: "userList",
+            },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
             },
           ],
         },
@@ -460,9 +480,14 @@ export default {
           authName: "用户管理",
           children: [
             {
-              id: 10,
-              authName: "用户",
-              path: "users",
+              id: 11,
+              authName: "用户列表",
+              path: "userList",
+            },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
             },
           ],
         },

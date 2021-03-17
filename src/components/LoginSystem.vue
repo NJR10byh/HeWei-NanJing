@@ -35,7 +35,7 @@ export default {
             message: "登录成功",
             type: "success",
           });
-          this.$router.push("/users");
+          this.$router.push("/userList");
         })
         .catch((res) => {
           console.log(res.response);
@@ -69,7 +69,7 @@ export default {
             message: "登录成功",
             type: "success",
           });
-          this.$router.push("/users");
+          this.$router.push("/userList");
         })
         .catch((res) => {
           console.log(res.response);

@@ -1,7 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 /* 用户管理 */
-import Users from "@/Users/Users";
 import UserList from "@/Users/UserList"; // 注册
 import Authorize from "@/Users/Authorize"; // 授权
 import Edituser from "@/Users/Edituser"; // 编辑用户信息
@@ -42,13 +41,9 @@ var routes = [
   {
     path: "/",
     component: Home,
-    redirect: "/users",
+    redirect: "/userList",
     children: [
       /* 用户管理 */
-      {
-        path: "/users",
-        component: Users,
-      },
       // 注册用户
       {
         path: "/userList",
