@@ -123,8 +123,13 @@ export default {
         that.active = 3;
       }
       let usersid = {};
-      if (res.data.assignee.length == 2) {
-        usersid.fixusersid = res.data.assignee[1].id;
+      usersid.fixusersid = [];
+      if (res.data.assignee.length != 1) {
+        for (let i = 1; i < res.data.assignee.length; i++) {
+          usersid.fixusersid.push({
+            assigneeid: res.data.assignee[i].id,
+          });
+        }
       }
       usersid.applyusersid = res.data.reporter.id;
       that.applyusersid = res.data.reporter.id;
@@ -146,18 +151,21 @@ export default {
         });
         // 维修人员
         if (usersid.fixusersid != undefined) {
-          let searchops =
-            "http://47.102.214.37:8080/user/query?id==" + usersid.fixusersid;
-          axios.get(searchops).then((res) => {
-            that.fixusers.push({
-              fixusersName:
-                res.data.content[0].name +
-                "（ id：" +
-                res.data.content[0].id +
-                " ）",
+          for (let i = 0; i < usersid.fixusersid.length; i++) {
+            let searchops =
+              "http://47.102.214.37:8080/user/query?id==" +
+              usersid.fixusersid[i].assigneeid;
+            axios.get(searchops).then((res) => {
+              that.fixusers.push({
+                fixusersName:
+                  res.data.content[0].name +
+                  "（ id：" +
+                  res.data.content[0].id +
+                  " ）",
+              });
             });
-            that.active++;
-          });
+          }
+          that.active++;
         }
       }, 200);
       // 设备名称

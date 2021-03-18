@@ -19,8 +19,8 @@
     >
       <el-table-column
         prop="errorid"
-        label="异常ID"
-        width="100"
+        label="报修流水号"
+        width="200"
       ></el-table-column>
       <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
       <el-table-column prop="reporterid" label="报修人员"></el-table-column>

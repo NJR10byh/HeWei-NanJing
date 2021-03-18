@@ -203,18 +203,6 @@ export default {
     };
   },
   methods: {
-    // 通过getFile方法获取文件信息
-    getFile(file) {
-      this.getBase64(file.raw).then((res) => {
-        const params = res.split(",");
-        console.log(params, "params");
-        if (params.length > 0) {
-          this.descriptionPic.push({
-            base64: params[1],
-          });
-        }
-      });
-    },
     // 富文本编辑器内容改变
     onEditorChange({ html }) {
       console.log(html);

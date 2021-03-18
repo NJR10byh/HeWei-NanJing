@@ -50,6 +50,7 @@ export default {
     };
   },
   methods: {
+    // 用户登录
     Sign_In() {
       let that = this;
       let params = qs.stringify({

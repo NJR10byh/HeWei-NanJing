@@ -19,8 +19,8 @@
     >
       <el-table-column
         prop="errorid"
-        label="异常ID"
-        width="100"
+        label="报修流水号"
+        width="200"
       ></el-table-column>
       <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
       <el-table-column prop="reporterid" label="报修人员"></el-table-column>
@@ -53,7 +53,7 @@ export default {
           console.log(res.data);
           for (let i = 0; i < res.data.content.length; i++) {
             let assigneeid = "";
-            for (let j = 0; j < res.data.content[i].assignee.length; j++) {
+            for (let j = 1; j < res.data.content[i].assignee.length; j++) {
               assigneeid =
                 assigneeid +
                 "id：" +
