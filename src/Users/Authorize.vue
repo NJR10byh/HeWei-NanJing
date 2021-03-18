@@ -376,7 +376,7 @@ export default {
   background: #fff;
   .box {
     width: 30%;
-    height: 55%;
+    height: 50%;
     border-radius: 10px;
     // border: 1px solid red;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
@@ -457,7 +457,7 @@ export default {
     }
   }
   .register {
-    width: 35%;
+    width: 50%;
     height: 85%;
   }
 }

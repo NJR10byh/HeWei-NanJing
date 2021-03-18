@@ -73,7 +73,9 @@
                 >
                 {{ item.contentinfotitle }}
               </div>
-              <div style="font-size:13px;">{{ item.contentinfotext }}</div>
+              <div class="ql-snow">
+                <div class="ql-editor" v-html="item.contentinfotext"></div>
+              </div>
             </div>
           </div>
           <div class="part3 Tools">

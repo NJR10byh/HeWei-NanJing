@@ -18,13 +18,13 @@
       </div>
       <div class="Task-info">
         <div class="Users">
-          <div class="part0" style="width: 40%;">
+          <div class="part0" style="width: 35%;">
             <div class="Text">报修人员</div>
             <div class="Info" v-for="(item, index) in applyusers" :key="index">
               {{ item.applyusersName }}
             </div>
           </div>
-          <div class="part0" style="width: 40%;">
+          <div class="part0" style="width: 35%;">
             <div class="Text">维修人员</div>
             <div class="Info" v-for="(item, index) in fixusers" :key="index">
               {{ item.fixusersName }}
@@ -32,11 +32,11 @@
           </div>
         </div>
         <div class="Error-name-clazz">
-          <div class="part1" style="width: 40%;">
+          <div class="part1" style="width: 35%;">
             <div class="Text">异常ID</div>
             <div class="Info">{{ errorid }}</div>
           </div>
-          <div class="part1 Name" style="width: 40%;">
+          <div class="part1 Name" style="width: 35%;">
             <div class="Text">设备名称</div>
             <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
               {{ item.deviceName }}
@@ -50,21 +50,31 @@
           </div>
         </div>
         <div class="Errordescription-Errorcontent">
-          <div class="part3 Errordescription" style="width: 40%;">
+          <div class="part3 Errordescription" style="width: 35%;">
             <div class="Text">异常描述</div>
-            <div class="Info" v-for="(item, index) in Images" :key="index">
-              <img :src="item.image" alt="" @click="imgurl(item.image)" />
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="errordescription"></div>
             </div>
           </div>
-          <div class="part3 Errorcontent" style="width: 40%;">
+          <div class="part3 Errorcontent" style="width: 35%;">
             <div class="Text">异常处理请求</div>
             <div class="Info">
               {{ errorcontent }}
             </div>
           </div>
+          <div class="part3 Errorcontent">
+            <div class="Text">异常处理结果</div>
+            <quill-editor
+              ref="myTextEditor"
+              v-model="errorrecord"
+              :options="editorOption"
+              style="height:70%;margin-top: 5px;"
+              @change="onEditorChange($event)"
+            ></quill-editor>
+          </div>
         </div>
         <div class="Type-Reason-Solution">
-          <div class="part4 Reason" style="width: 40%;">
+          <div class="part4 Reason" style="width: 35%;">
             <div class="Text">异常发生原因</div>
             <el-input
               type="textarea"
@@ -74,7 +84,7 @@
               placeholder="异常发生原因"
             ></el-input>
           </div>
-          <div class="part4 Solution" style="width: 40%;">
+          <div class="part4 Solution" style="width: 35%;">
             <div class="Text">异常解决措施</div>
             <el-input
               type="textarea"
@@ -124,7 +134,16 @@
 </template>
 <script>
 import axios from "axios";
+import { quillEditor } from "vue-quill-editor";
+// require styles
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+
 export default {
+  components: {
+    quillEditor,
+  },
   created: function() {
     let that = this;
     console.log(that.$route.query);
@@ -142,6 +161,8 @@ export default {
       usersid.applyusersid = res.data.reporter.id;
       that.applyusersid = res.data.reporter.id;
       that.errorcontent = res.data.content;
+      that.errordescription = res.data.descriptionPic;
+      that.errorrecord = res.data.record;
       that.reason = res.data.reason;
       that.solution = res.data.solution;
       that.exceptionType = res.data.exceptionType;
@@ -183,20 +204,6 @@ export default {
             deviceClazz: res.data.clazz,
           });
         });
-      }
-      // 异常图片
-      if (res.data.descriptionPic != null) {
-        for (
-          let i = 0;
-          i < res.data.descriptionPic.split("\n").length - 1;
-          i++
-        ) {
-          that.Images.push({
-            image:
-              "http://47.102.214.37:8080/pic/" +
-              res.data.descriptionPic.split("\n")[i],
-          });
-        }
       }
     });
     setTimeout(() => {
@@ -242,6 +249,7 @@ export default {
       deviceinfo: [], // 维修设备
       errordescription: "", // 异常描述
       errorcontent: "", // 异常处理请求
+      errorrecord: "", // 异常处理结果
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施
       exceptionType: "", // 异常类型
@@ -260,13 +268,18 @@ export default {
           options: [],
         },
       ],
+
+      // 富文本编辑器
+      editorOption: {
+        placeholder: "请输入保养内容",
+      },
     };
   },
   methods: {
-    // 预览图片
-    imgurl(url) {
-      this.dialogImageUrl = url;
-      this.dialogVisible = true;
+    // 富文本编辑器内容改变
+    onEditorChange({ html }) {
+      console.log(html);
+      this.descriptionPic = html;
     },
     // 分配维修
     TssignFix() {

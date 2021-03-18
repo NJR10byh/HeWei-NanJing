@@ -112,7 +112,7 @@
           ref="myTextEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;"
+          style="height:180px;margin-top: 5px;"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>
@@ -133,7 +133,7 @@
           ref="myTextEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;"
+          style="height:180px;margin-top: 5px;"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>

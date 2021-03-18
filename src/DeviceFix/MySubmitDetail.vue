@@ -10,10 +10,10 @@
     <div class="Task-container">
       <div class="Step">
         <el-steps :active="active" finish-status="success" align-center>
-          <el-step title="申请"></el-step>
-          <el-step title="分配"></el-step>
-          <el-step title="修复"></el-step>
-          <el-step title="完成"></el-step>
+          <el-step title="申请" :description="applytime"></el-step>
+          <el-step title="分配" :description="assigntime"></el-step>
+          <el-step title="修复" :description="fixtime"></el-step>
+          <el-step title="完成" :description="completetime"></el-step>
         </el-steps>
       </div>
       <div class="backbtn">
@@ -58,13 +58,8 @@
         <div class="Errordescription-Errorcontent">
           <div class="part3 Errordescription" style="width: 40%;">
             <div class="Text">异常描述</div>
-            <div class="Info" v-for="(item, index) in Images" :key="index">
-              <img
-                :src="item.image"
-                alt=""
-                @click="imgurl(item.image)"
-                width="60"
-              />
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="errordescription"></div>
             </div>
           </div>
           <div class="part3 Errorcontent" style="width: 40%;">
@@ -96,9 +91,6 @@
         </div>
       </div>
     </div>
-    <el-dialog :visible.sync="dialogVisible" append-to-body>
-      <img width="100%" :src="dialogImageUrl" alt />
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -118,11 +110,15 @@ export default {
       console.log(res.data);
       that.reporterid = res.data.reporter.id;
       that.errorcontent = res.data.content;
+      that.errordescription = res.data.descriptionPic;
       that.reason = res.data.reason;
       that.solution = res.data.solution;
       that.exceptionType = res.data.exceptionType;
       that.closed = res.data.closed;
-      console.log(that.closed);
+      that.applytime = that.renderTime(res.data.createdAt);
+      that.assigntime = that.renderTime(res.data.assignedAt);
+      that.fixtime = that.renderTime(res.data.fixedAt);
+      that.completetime = that.renderTime(res.data.closedAt);
       if (res.data.closed == true) {
         that.active = 3;
       }
@@ -175,20 +171,6 @@ export default {
           });
         });
       }
-      // 异常图片
-      if (res.data.descriptionPic != null) {
-        for (
-          let i = 0;
-          i < res.data.descriptionPic.split("\n").length - 1;
-          i++
-        ) {
-          that.Images.push({
-            image:
-              "http://47.102.214.37:8080/pic/" +
-              res.data.descriptionPic.split("\n")[i],
-          });
-        }
-      }
     });
   },
   data() {
@@ -211,13 +193,26 @@ export default {
       solution: "", // 异常解决措施
       exceptionType: "", // 异常类型
 
-      // 异常描述图片
-      Images: [],
-      dialogVisible: false,
-      dialogImageUrl: "",
+      // 时间线
+      applytime: "",
+      assigntime: "",
+      fixtime: "",
+      completetime: "",
     };
   },
   methods: {
+    // 处理时间格式
+    renderTime(date) {
+      if (date == null) {
+        return "暂无";
+      } else {
+        var dateee = new Date(date).toJSON();
+        return new Date(+new Date(dateee) + 8 * 3600 * 1000)
+          .toISOString()
+          .replace(/T/g, " ")
+          .replace(/\.[\d]{3}Z/, "");
+      }
+    },
     confirm() {
       let that = this;
       that
@@ -337,6 +332,7 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-top: 10px;
       }
       .confirm {
         background: #5ed100;

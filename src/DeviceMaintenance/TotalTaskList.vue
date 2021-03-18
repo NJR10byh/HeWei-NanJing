@@ -546,6 +546,7 @@ export default {
         axios
           .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
           .then((res) => {
+            console.log(res.data);
             for (let i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;

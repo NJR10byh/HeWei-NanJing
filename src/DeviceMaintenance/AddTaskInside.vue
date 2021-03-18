@@ -111,7 +111,7 @@
           ref="myTextEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;"
+          style="height:180px;margin-top: 5px;"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>
@@ -132,7 +132,7 @@
           ref="myTextEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;"
+          style="height:180px;margin-top: 5px;"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>
@@ -164,7 +164,6 @@ import { quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
-import "../assets/css/quill.css";
 
 export default {
   name: "AddTaskInside",

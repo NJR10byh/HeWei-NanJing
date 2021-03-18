@@ -5,35 +5,38 @@
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
       <el-breadcrumb-item class="active">我发布的</el-breadcrumb-item>
     </el-breadcrumb>
-    <div class="Tasks">
-      <div class="card" v-for="(item, index) in taskData" :key="index">
-        <div class="content">
-          <h2>异常ID：{{ item.errorid }}</h2>
-          <div class="Btns">
-            <el-button class="btn btn1" @click="errordetail(index)"
-              >查看异常</el-button
-            >
-          </div>
-        </div>
-      </div>
+    <div class="refresh">
+      <el-button icon="el-icon-refresh" @click="refresh">刷新列表 </el-button>
     </div>
+    <!-- table -->
+    <el-table
+      ref="multipleTable"
+      :data="taskData"
+      stripe
+      border
+      style="width:100%;"
+      class="extraTable"
+    >
+      <el-table-column
+        prop="errorid"
+        label="异常ID"
+        width="100"
+      ></el-table-column>
+      <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
+      <el-table-column prop="reporterid" label="报修人员"></el-table-column>
+      <el-table-column prop="setting" label="操作">
+        <template slot-scope="scope">
+          <el-button @click="errordetail(scope.$index)">查看详情</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 <script>
 import axios from "axios";
 export default {
   created: function() {
-    let that = this;
-    axios
-      .get("http://47.102.214.37:8080/issue/reporter?page=0&size=10")
-      .then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.taskData.unshift({
-            errorid: res.data.content[i].id,
-          });
-        }
-      });
+    this.refresh();
   },
   data() {
     return {
@@ -41,6 +44,34 @@ export default {
     };
   },
   methods: {
+    refresh() {
+      let that = this;
+      that.taskData = [];
+      axios
+        .get("http://47.102.214.37:8080/issue/reporter?page=0&size=10")
+        .then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            let assigneeid = "";
+            for (let j = 0; j < res.data.content[i].assignee.length; j++) {
+              assigneeid =
+                assigneeid +
+                "id：" +
+                res.data.content[i].assignee[j].id +
+                " / ";
+            }
+            that.taskData.unshift({
+              errorid: res.data.content[i].id,
+              assigneeid: assigneeid,
+              reporterid: "id：" + res.data.content[i].reporter.id,
+            });
+          }
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        });
+    },
     errordetail(index) {
       let that = this;
       console.log(that.taskData[index]);
@@ -72,64 +103,50 @@ export default {
       font-size: 20px;
     }
   }
-  .Tasks {
-    width: 100%;
-    // border: 1px solid red;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-    .card {
-      position: relative;
-      width: 220px;
-      height: 250px;
-      border-radius: 15px;
-      background: #fff;
-      transition: 0.5s;
-      transform: scale(0.9);
-      box-shadow: 5px 5px 20px rgb(231, 231, 231),
-        -5px 5px 20px rgb(231, 231, 231);
-      .content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: center;
-        transition: 0.5s;
-        // border: 1px solid red;
-        h2 {
-          font-size: 1.6em;
-          padding: 0 10px;
-        }
-        .Btns {
-          // border: 1px solid red;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding-top: 10px;
-          .btn {
-            padding: 10px;
-            width: 90px;
-            background: #409eff;
-            color: #fff;
-            border: 0;
-            border-radius: 5px;
-            font-size: 15px;
-            font-weight: bold;
+  .refresh {
+    .el-button {
+      padding: 0 10px;
+      height: 30px;
+      border-radius: 5px;
+      font-size: 12px;
+      width: 85px;
+      border: 1px solid #409eff;
+      color: #409eff;
+      margin-left: 10px;
+    }
+  }
+  .extraTable {
+    margin-top: 5px;
+    .el-table__header {
+      th {
+        background: #fafafa;
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
           }
         }
       }
     }
-    .card:hover {
-      transition: 0.5s;
-      transform: scale(1);
-      background: #000;
-      .content {
-        color: #fff;
+    .el-table__body {
+      td {
+        &:nth-child(2) {
+          .cell {
+            padding-right: 0;
+            overflow: auto;
+          }
+        }
+      }
+      .el-button {
+        border: none;
+        padding: 5px 10px;
+        background: transparent;
+        &:first-child:hover {
+          color: #409eff;
+        }
+        &:nth-child(2):hover {
+          color: #f96b6c;
+        }
       }
     }
   }
