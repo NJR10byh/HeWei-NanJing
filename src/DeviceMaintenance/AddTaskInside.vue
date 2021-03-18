@@ -15,7 +15,6 @@
                   <el-select
                     clearable
                     placeholder="请选择保养周期"
-                    class="TaskTime-select"
                     v-model="TaskInfo.scheduleType"
                   >
                     <el-option
@@ -418,6 +417,7 @@ export default {
               .task {
                 width: 48%;
                 font-weight: 500;
+                // border: 1px solid red;
               }
             }
           }

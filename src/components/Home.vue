@@ -13,6 +13,11 @@
       </div>
       <div class="title" @click="aaa">合为企业设备管理系统</div>
       <div class="user_info">
+        <div class="refresh">
+          <el-button icon="el-icon-switch-button" @click="loginOut"
+            >注销
+          </el-button>
+        </div>
         <div class="user_info_icon">
           <img src="../assets/img/login-success.png" />
         </div>
@@ -584,6 +589,21 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
+    // 注销账户
+    loginOut() {
+      let that = this;
+      this.$confirm("您确定要退出吗?", "退出管理平台", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      })
+        .then(() => {
+          window.localStorage.removeItem("token");
+          setTimeout(function() {
+            that.$router.push({ path: "/" });
+          }, 1000);
+        })
+        .catch(() => {});
+    },
     // getMycount: function() {
     //   let that = this;
     //   let date = new Date();
@@ -623,7 +643,7 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 260px;
+      width: 320px;
       padding-left: 10px;
       // border: 1px solid red;
       .logo {
@@ -635,10 +655,8 @@ export default {
         }
       }
       .toggle-button {
-        text-align: center;
         // border: 1px solid red;
         cursor: pointer;
-        margin-left: 35px;
         .iconfont {
           font-size: 25px;
           color: #666;
@@ -669,8 +687,22 @@ export default {
       display: flex;
       justify-content: space-evenly;
       align-items: center;
-      width: 260px;
+      width: 320px;
       // border: 1px solid red;
+      .refresh {
+        .el-button {
+          padding: 0 10px;
+          height: 30px;
+          border-radius: 5px;
+          font-size: 15px;
+          width: 80px;
+          border: 1px solid #f96b6c;
+          color: #f96b6c;
+        }
+        .el-button:hover {
+          background: #ffcccc;
+        }
+      }
       .user_info_icon {
         border-right: 1px solid #aaa;
         padding-right: 20px;
