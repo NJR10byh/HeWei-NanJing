@@ -23,69 +23,135 @@
         </div>
       </div>
       <div class="Task-info">
-        <div class="Users">
-          <div class="part0" style="width: 40%;">
-            <div class="Text">报修人员</div>
-            <div class="Info" v-for="(item, index) in applyusers" :key="index">
-              {{ item.applyusersName }}
-            </div>
-          </div>
-          <div class="part0" style="width: 40%;">
-            <div class="Text">维修人员</div>
-            <div class="Info" v-for="(item, index) in fixusers" :key="index">
-              {{ item.fixusersName }}
+        <div class="Part">
+          <div class="part">
+            <div
+              class="Text"
+              style="color:#409eff;font-size:30px;font-weight:normal;"
+            >
+              申请
             </div>
           </div>
         </div>
-        <div class="Error-name-clazz">
-          <div class="part1" style="width: 40%;">
+        <div class="Part">
+          <div class="part" style="width: 50%;">
             <div class="Text">异常ID</div>
             <div class="Info">{{ errorid }}</div>
           </div>
-          <div class="part1 Name" style="width: 40%;">
-            <div class="Text">设备名称</div>
-            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
-              {{ item.deviceName }}
-            </div>
-          </div>
-          <div class="part1 Clazz">
-            <div class="Text">设备类别</div>
-            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
-              {{ item.deviceClazz }}
-            </div>
+          <div class="part" style="width: 50%;">
+            <div class="Text">报修人员</div>
+            <user
+              v-for="(item, index) in applyusers"
+              :key="index"
+              :name="item.name"
+              :username="item.username"
+              :useremail="item.useremail"
+              style="margin-top:10px;"
+            ></user>
           </div>
         </div>
-        <div class="Errordescription-Errorcontent">
-          <div class="part3 Errordescription" style="width: 40%;">
+        <div class="Part lastpart">
+          <div class="part" style="width: 50%;">
             <div class="Text">异常描述</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errordescription"></div>
             </div>
           </div>
-          <div class="part3 Errorcontent" style="width: 40%;">
+          <div class="part" style="width: 50%;">
             <div class="Text">异常处理请求</div>
-            <div class="Info">
-              {{ errorcontent }}
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="errorcontent"></div>
             </div>
           </div>
         </div>
-        <div class="Type-Reason-Solution">
-          <div class="part4 Reason" style="width: 40%;">
-            <div class="Text">异常发生原因</div>
-            <div class="Info">
-              {{ reason }}
+      </div>
+      <div class="Task-info">
+        <div class="Part">
+          <div class="part">
+            <div
+              class="Text"
+              style="color:#409eff;font-size:30px;font-weight:normal;"
+            >
+              分配
             </div>
           </div>
-          <div class="part4 Solution" style="width: 40%;">
-            <div class="Text">异常解决措施</div>
-            <div class="Info">
-              {{ solution }}
+        </div>
+        <div class="Part">
+          <div class="part" style="width: 50%;">
+            <div class="Text">维修人员-Supervisor</div>
+            <user
+              v-for="(item, index) in supervisor"
+              :key="index"
+              :name="item.name"
+              :username="item.username"
+              :useremail="item.useremail"
+              style="margin-top:10px;"
+            ></user>
+          </div>
+          <div class="part" style="width: 50%;">
+            <div class="Text">维修人员-Operator</div>
+            <user
+              v-for="(item, index) in operator"
+              :key="index"
+              :name="item.name"
+              :username="item.username"
+              :useremail="item.useremail"
+              style="margin-top:10px;"
+            ></user>
+          </div>
+        </div>
+        <div class="Part lastpart">
+          <div class="part" style="width: 100%;">
+            <div class="Text">报修设备</div>
+            <el-table
+              :data="devicetableData"
+              stripe
+              border
+              style="margin-top:10px;width:100%;"
+              class="extraTable"
+            >
+              <el-table-column prop="id" label="设备ID"></el-table-column>
+              <el-table-column prop="name" label="设备名称"></el-table-column>
+              <el-table-column prop="brand" label="设备品牌"></el-table-column>
+              <el-table-column
+                prop="deviceNo"
+                label="设备编号"
+              ></el-table-column>
+              <el-table-column prop="clazz" label="设备分类"></el-table-column>
+            </el-table>
+          </div>
+        </div>
+      </div>
+      <div class="Task-info Last">
+        <div class="Part">
+          <div class="part">
+            <div
+              class="Text"
+              style="color:#409eff;font-size:30px;font-weight:normal;"
+            >
+              修复
             </div>
           </div>
-          <div class="part4 ExceptionType">
+        </div>
+        <div class="Part">
+          <div class="part" style="width: 33%;">
             <div class="Text">异常类型</div>
-            <div class="Info">
-              {{ exceptionType }}
+            <div class="Info">{{ exceptionType }}</div>
+          </div>
+          <div class="part" style="width: 33%;">
+            <div class="Text">发生原因</div>
+            <div class="Info">{{ reason }}</div>
+          </div>
+          <div class="part" style="width: 33%;">
+            <div class="Text">异常解决措施</div>
+            <div class="Info">{{ solution }}</div>
+          </div>
+        </div>
+        <div class="Part">
+          <div class="part" style="width: 100%;">
+            <div class="Text">异常处理结果</div>
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="result"></div>
             </div>
           </div>
         </div>
@@ -95,6 +161,8 @@
 </template>
 <script>
 import axios from "axios";
+import User from "../components/Userinfo";
+
 export default {
   created: function() {
     let that = this;
@@ -125,25 +193,22 @@ export default {
       let usersid = {};
       usersid.fixusersid = [];
       if (res.data.assignee.length != 1) {
-        for (let i = 1; i < res.data.assignee.length; i++) {
+        for (let i = 0; i < res.data.assignee.length; i++) {
           usersid.fixusersid.push({
             assigneeid: res.data.assignee[i].id,
           });
         }
       }
       usersid.applyusersid = res.data.reporter.id;
-      that.applyusersid = res.data.reporter.id;
       setTimeout(() => {
         // 报修人员
         let searchreporters =
           "http://47.102.214.37:8080/user/query?id==" + usersid.applyusersid;
         axios.get(searchreporters).then((res) => {
           that.applyusers.push({
-            applyusersName:
-              res.data.content[0].name +
-              "（ id：" +
-              res.data.content[0].id +
-              " ）",
+            name: res.data.content[0].name,
+            username: res.data.content[0].username,
+            useremail: res.data.content[0].email,
           });
           setTimeout(() => {
             that.active++;
@@ -152,54 +217,76 @@ export default {
         // 维修人员
         if (usersid.fixusersid != undefined) {
           for (let i = 0; i < usersid.fixusersid.length; i++) {
-            let searchops =
-              "http://47.102.214.37:8080/user/query?id==" +
-              usersid.fixusersid[i].assigneeid;
-            axios.get(searchops).then((res) => {
-              that.fixusers.push({
-                fixusersName:
-                  res.data.content[0].name +
-                  "（ id：" +
-                  res.data.content[0].id +
-                  " ）",
+            if (i == 0) {
+              let searchops =
+                "http://47.102.214.37:8080/user/query?id==" +
+                usersid.fixusersid[i].assigneeid;
+              axios.get(searchops).then((res) => {
+                that.supervisor.push({
+                  name: res.data.content[0].name,
+                  username: res.data.content[0].username,
+                  useremail: res.data.content[0].email,
+                });
               });
-            });
+            } else {
+              let searchops =
+                "http://47.102.214.37:8080/user/query?id==" +
+                usersid.fixusersid[i].assigneeid;
+              axios.get(searchops).then((res) => {
+                that.operator.push({
+                  name: res.data.content[0].name,
+                  username: res.data.content[0].username,
+                  useremail: res.data.content[0].email,
+                });
+              });
+            }
           }
           that.active++;
         }
       }, 200);
-      // 设备名称
+      // 设备信息
       for (let i = 0; i < res.data.device.length; i++) {
         let searchdevice =
           "http://47.102.214.37:8080/device/" + res.data.device[i].id;
         axios.get(searchdevice).then((res) => {
-          that.deviceinfo.push({
-            deviceName: res.data.name,
-            deviceClazz: res.data.clazz,
-          });
+          let obj = {};
+          obj.id = res.data.id;
+          obj.name = res.data.name;
+          obj.brand = res.data.brand;
+          obj.deviceNo = res.data.deviceNo;
+          obj.clazz = res.data.clazz;
+          that.devicetableData.push(obj);
         });
       }
     });
   },
   data() {
     return {
-      applyusersid: "",
+      userid: "", // 当前登录人员id
+      reporterid: "",
       // 步骤条
       active: 0,
       closed: false, // 是否确认
 
+      /* 申请 */
       errorid: "",
-      userid: "", // 当前登录人员
-      assigneeid: "", // 接受人员
-      reporterid: "", // 报修人员
-      fixusers: [], // 维修人员
-      applyusers: [],
-      deviceinfo: [], // 维修设备
+      applyusers: [], // 报修人员
       errordescription: "", // 异常描述
       errorcontent: "", // 异常处理请求
+
+      /* 分配 */
+      fixusers: [], // 维修人员
+      assigneeid: "", // 接受人员
+      supervisor: [],
+      operator: [],
+      devicetableData: [],
+      deviceinfo: [], // 维修设备
+
+      /* 修复 */
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施
       exceptionType: "", // 异常类型
+      result: "", // 异常处理结果
 
       // 时间线
       applytime: "",
@@ -283,6 +370,9 @@ export default {
       this.dialogVisible = true;
     },
   },
+  components: {
+    User,
+  },
 };
 </script>
 <style lang="scss">
@@ -357,13 +447,14 @@ export default {
       padding: 10px 20px;
       margin-top: 10px;
       // border: 1px solid red;
-      .Users {
+      .Part {
         // border: 1px solid red;
         border-bottom: 1px solid #ddd;
         padding-bottom: 10px;
+        padding: 10px 0;
         display: flex;
         justify-content: flex-start;
-        .part0 {
+        .part {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
@@ -382,105 +473,13 @@ export default {
           }
         }
       }
-      .Error-name-clazz {
-        // border: 1px solid red;
-        border-bottom: 1px solid #ddd;
-        padding: 10px 0;
-        display: flex;
-        justify-content: flex-start;
-        .part1 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-          }
-        }
-      }
-      .Name-Clazz-Time {
-        padding: 10px 0;
-        border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: flex-start;
-        .part2 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-          }
-        }
-      }
-      .Errordescription-Errorcontent {
-        padding: 10px 0;
-        border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: flex-start;
-        .part3 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          // border: 1px solid red;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-            padding-right: 10px;
-          }
-        }
-      }
-      .Type-Reason-Solution {
-        padding: 10px 0;
-        // border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: flex-start;
-        .part4 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          // border: 1px solid red;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-            padding-bottom: 10px;
-          }
-        }
-        .ExceptionType {
-          .el-input__inner {
-            width: 80%;
-          }
-        }
+      .lastpart {
+        border-bottom: 0;
       }
     }
+  }
+  .Last {
+    margin-bottom: 20px;
   }
 }
 </style>

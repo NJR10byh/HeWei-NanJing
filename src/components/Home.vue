@@ -13,19 +13,17 @@
       </div>
       <div class="title" @click="aaa">合为企业设备管理系统</div>
       <div class="user_info">
-        <div class="refresh">
+        <div class="loginout">
           <el-button icon="el-icon-switch-button" @click="loginOut"
             >注销
           </el-button>
         </div>
-        <div class="user_info_icon">
-          <img src="../assets/img/login-success.png" />
-        </div>
-        <div class="user_info_detail">
-          <div class="info name"><span>姓名：</span>{{ name }}</div>
-          <div class="info username"><span>用户名：</span>{{ username }}</div>
-          <div class="info userid"><span>用户ID：</span>{{ userid }}</div>
-        </div>
+        <user
+          :name="name"
+          :username="username"
+          :useremail="useremail"
+          style="margin-left:20px;"
+        ></user>
       </div>
     </el-header>
     <el-container v-if="['ROOT', 'ADMIN'].includes(userRole)">
@@ -181,13 +179,14 @@
 
 <script>
 import axios from "axios";
+import User from "../components/Userinfo";
 export default {
   created() {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
       this.username = res.data.username;
-      this.userid = res.data.id;
+      this.useremail = res.data.email;
       this.name = res.data.name;
     });
   },
@@ -203,7 +202,7 @@ export default {
       isCollapse: false,
       name: "",
       username: "",
-      userid: "",
+      useremail: "",
       userRole: "",
       timeTip: "",
       // ROOT，ADMIN权限
@@ -616,7 +615,9 @@ export default {
     //   }
     // },
   },
-  components: {},
+  components: {
+    User,
+  },
 };
 </script>
 
@@ -643,7 +644,7 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 320px;
+      width: 400px;
       padding-left: 10px;
       // border: 1px solid red;
       .logo {
@@ -687,9 +688,9 @@ export default {
       display: flex;
       justify-content: space-evenly;
       align-items: center;
-      width: 320px;
+      width: 400px;
       // border: 1px solid red;
-      .refresh {
+      .loginout {
         .el-button {
           padding: 0 10px;
           height: 30px;
@@ -701,30 +702,6 @@ export default {
         }
         .el-button:hover {
           background: #ffcccc;
-        }
-      }
-      .user_info_icon {
-        border-right: 1px solid #aaa;
-        padding-right: 20px;
-        img {
-          width: 40px;
-          height: 40px;
-        }
-      }
-      .user_info_detail {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        // border: 1px solid red;
-        .info {
-          color: #409eff;
-          font-size: 13px;
-          font-weight: bold;
-          span {
-            color: #111;
-            font-weight: normal;
-          }
         }
       }
     }

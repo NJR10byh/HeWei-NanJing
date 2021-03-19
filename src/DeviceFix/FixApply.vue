@@ -5,9 +5,12 @@
       <div class="Users-Name">
         <div class="part0" style="width: 50%;">
           <div class="Text">报告人员</div>
-          <div class="Info">
-            {{ reporter }}
-          </div>
+          <user
+            :name="reporter.name"
+            :username="reporter.username"
+            :useremail="reporter.useremail"
+            style="margin-top:5px;"
+          ></user>
         </div>
         <div class="part0" style="width: 50%;">
           <div class="Text">设备名称</div>
@@ -39,26 +42,29 @@
       <div class="Description">
         <div class="part2" style="width: 100%;">
           <div class="Text">异常描述</div>
+          <!-- 富文本编辑器 -->
           <quill-editor
-            ref="myTextEditor"
             v-model="descriptionPic"
-            :options="editorOption"
-            style="height:70%;margin-top: 5px;"
+            :options="editorOption1"
+            style="height:70%;margin-top: 5px;width:100%;"
             @change="onEditorChange($event)"
           ></quill-editor>
         </div>
       </div>
-      <div class="Request-SelectOpreator ">
-        <div class="part3" style="width: 50%;">
+      <div class="Request">
+        <div class="part3" style="width: 100%;">
           <div class="Text">异常处理请求</div>
-          <el-input
-            type="textarea"
+          <!-- 富文本编辑器 -->
+          <quill-editor
             v-model="content"
-            :rows="3"
-            style="width:85%;margin-top: 5px;"
-          ></el-input>
+            :options="editorOption2"
+            style="height:70%;margin-top: 5px;width:100%;"
+            @change="onEditorChange($event)"
+          ></quill-editor>
         </div>
-        <div class="part3" style="width: 50%;">
+      </div>
+      <div class="SelectOpreator ">
+        <div class="part3">
           <div class="Text">选择报告接受人</div>
           <el-select v-model="assignee" placeholder="请选择">
             <el-option-group
@@ -85,6 +91,7 @@
 </template>
 <script>
 import axios from "axios";
+import User from "../components/Userinfo";
 import { quillEditor } from "vue-quill-editor";
 // require styles
 import "quill/dist/quill.core.css";
@@ -94,6 +101,7 @@ import "quill/dist/quill.bubble.css";
 export default {
   components: {
     quillEditor,
+    User,
   },
   created: function() {
     let that = this;
@@ -101,15 +109,10 @@ export default {
     // 获取当前登录用户基本信息
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
-      that.reporter =
-        "姓名：" +
-        res.data.name +
-        " | 用户名：" +
-        res.data.username +
-        " | 用户ID：" +
-        res.data.id;
-      that.userid = res.data.id;
-      userRole = res.data.role;
+      that.reporter.name = res.data.name;
+      that.reporter.username = res.data.username;
+      that.reporter.useremail = res.data.email;
+      that.userRole = res.data.role;
     });
     setTimeout(() => {
       if (userRole != "OPERATOR") {
@@ -177,15 +180,13 @@ export default {
   },
   data() {
     return {
-      reporter: "", // 报告人员
+      reporter: {}, // 报告人员
       userid: "",
       // 设备选择
       device: [],
       options1: [],
-      content: "",
-
-      // 异常描述
-      descriptionPic: "",
+      content: "", // 异常处理请求
+      descriptionPic: "", // 异常描述
 
       // 报告接受人
       assignee: "",
@@ -197,8 +198,11 @@ export default {
       ],
 
       // 富文本编辑器
-      editorOption: {
-        placeholder: "请输入保养内容",
+      editorOption1: {
+        placeholder: "请输入异常描述",
+      },
+      editorOption2: {
+        placeholder: "请输入异常处理请求",
       },
     };
   },
@@ -274,8 +278,8 @@ export default {
   justify-content: center;
   align-items: center;
   .Task-info {
-    width: 80%;
-    height: 700px;
+    width: 90%;
+    height: 1000px;
     background: #fff;
     border-radius: 5px;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
@@ -345,9 +349,28 @@ export default {
         }
       }
     }
-    .Request-SelectOpreator {
+    .Request {
+      height: 100%;
       padding: 10px 0;
-      // border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-start;
+      .part3 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        .Text {
+          // border: 1px solid red;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        .el-select {
+          margin-top: 5px;
+        }
+      }
+    }
+    .SelectOpreator {
+      padding: 10px 0;
       display: flex;
       justify-content: flex-start;
       .part3 {

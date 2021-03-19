@@ -7,141 +7,101 @@
         >任务名称：{{ name }}
       </el-breadcrumb-item>
     </el-breadcrumb>
-    <div class="Task-container">
-      <div class="Task-info">
-        <div class="part">
-          <div
-            class="Text"
-            style="font-size:20px;font-weight: 600;color:#409eff;"
-          >
-            任务卡
-          </div>
-        </div>
-        <div class="Users">
-          <div class="part0" style="width: 40%;">
-            <div class="Text">维护人员</div>
-            <div class="Info" v-for="(item, index) in users" :key="index">
-              {{ item.usersName }}
-            </div>
-          </div>
-        </div>
-        <div class="Side-Standard">
-          <div class="part1">
-            <div class="Text">任务名称</div>
-            <div class="Info">{{ name }}</div>
-          </div>
-          <div class="part1 Side">
-            <div class="Text">保养部位</div>
-            <div class="Info">{{ side }}</div>
-          </div>
-          <div class="part1 Standard">
-            <div class="Text">接受标准</div>
-            <div class="Info">{{ acceptedStandard }}</div>
-          </div>
-        </div>
-        <div class="Name-Clazz-Time">
-          <div class="part2 Name">
-            <div class="Text">设备名称</div>
-            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
-              {{ item.deviceName }}
-            </div>
-          </div>
-          <div class="part2 Clazz">
-            <div class="Text">设备类别</div>
-            <div class="Info" v-for="(item, index) in deviceinfo" :key="index">
-              {{ item.deviceClazz }}
-            </div>
-          </div>
-          <div class="part2 Time">
-            <div class="Text">保养周期</div>
-            <div class="Info">
-              {{ scheduleType }}<span>（每{{ scheduleType_info }}）</span>
-            </div>
-          </div>
-        </div>
-        <div class="Content-Tools-Attention">
-          <div class="part3 Content">
-            <div class="Text">保养内容</div>
-            <div
-              class="Info contentInfo"
-              v-for="(item, index) in content"
-              :key="index"
-            >
-              <div style="font-size:18px;font-weight:bold;">
-                <span style="font-size:15px;font-weight:bolder;color:#409eff;"
-                  >|</span
-                >
-                {{ item.contentinfotitle }}
+    <div class="Tabs">
+      <el-tabs tab-position="top" v-model="tabsActiveName">
+        <el-tab-pane label="基本信息" name="first">
+          <div class="BaseInfo_1">
+            <div class="Info_part1">
+              <div style="width:50%;">
+                <div class="Title">保养部位</div>
+                <div class="Info">{{ side }}</div>
               </div>
-              <div class="ql-snow">
-                <div class="ql-editor" v-html="item.contentinfotext"></div>
+              <div>
+                <div class="Title">接受标准</div>
+                <div class="Info">{{ acceptedStandard }}</div>
+              </div>
+            </div>
+            <div class="Info_part2">
+              <div style="width:50%;">
+                <div class="Title">开始时间</div>
+                <div class="Info">{{ startDate }}</div>
+                <div></div>
+              </div>
+              <div>
+                <div class="Title">保养周期</div>
+                <div class="Info">{{ scheduleType_info }}</div>
               </div>
             </div>
           </div>
-          <div class="part3 Tools">
-            <div class="Text">保养工具及备件</div>
-            <div class="Info">
-              {{ remark }}
-            </div>
-          </div>
-          <div class="part3 Attention">
-            <div class="Text">注意事项</div>
-            <div class="Info">{{ remark }}</div>
-          </div>
-        </div>
-      </div>
-      <!-- 保养记录 -->
-      <div class="Task-info Tasknotes-info">
-        <div class="Users">
-          <div class="part0" style="width: 40%;">
-            <div class="Text" style="font-size:20px;color:#409eff;">
-              保养记录
-            </div>
-          </div>
-        </div>
-        <div class="Side-Standard">
-          <div class="part1" style="width: 45%;">
-            <div class="Text">自我修复记录</div>
-            <div class="Info">{{ fix }}</div>
-          </div>
-          <div class="part1 Side" style="width: 45%;">
-            <div class="Text">是否存在「不能自我修复」的异常</div>
-            <div class="Info">{{ hasException }}</div>
-          </div>
-        </div>
-        <div class="Name-Clazz-Time">
-          <div class="part2 Name" style="width: 45%;">
-            <div class="Text">完成记录</div>
-            <div class="Info" :style="aaa">
-              <el-steps
-                direction="vertical"
-                :active="active"
-                finish-status="success"
-              >
-                <el-step
-                  v-for="(item, index) in records"
-                  :title="item.record"
+          <div class="BaseInfo_1 BaseInfo_2">
+            <div class="Info_part1">
+              <div style="width:50%;">
+                <div class="Title">人员信息</div>
+                <user
+                  v-for="(item, index) in users"
                   :key="index"
+                  :name="item.name"
+                  :username="item.username"
+                  :useremail="item.useremail"
+                  style="margin-top:20px;"
+                ></user>
+              </div>
+              <div>
+                <div class="Title">设备信息</div>
+                <el-table
+                  :data="devicetableData"
+                  stripe
+                  border
+                  style="margin-top:10px;width:100%;"
+                  class="extraTable"
                 >
-                  <img :src="item.imgUrl"
-                /></el-step>
-              </el-steps>
+                  <el-table-column prop="id" label="设备ID"></el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="设备名称"
+                  ></el-table-column>
+                  <el-table-column
+                    prop="brand"
+                    label="设备品牌"
+                  ></el-table-column>
+                  <el-table-column
+                    prop="deviceNo"
+                    label="设备编号"
+                  ></el-table-column>
+                  <el-table-column
+                    prop="clazz"
+                    label="设备分类"
+                  ></el-table-column>
+                </el-table>
+              </div>
             </div>
           </div>
-          <div class="part2 Clazz" style="width: 45%;">
-            <div class="Text">异常报告</div>
-            <div class="Info" v-for="(item, index) in reports" :key="index">
-              {{ item.report }}
+        </el-tab-pane>
+        <el-tab-pane label="保养内容" name="second">
+          <div v-for="(item, index) in content" :key="index" class="content">
+            <div class="title">
+              <span style="margin-left:5px;">{{ item.contentinfotitle }}</span>
+            </div>
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="item.contentinfodetail"></div>
             </div>
           </div>
-        </div>
-      </div>
+        </el-tab-pane>
+        <el-tab-pane label="工具及备件" name="third">
+          <div>{{ tools }}</div>
+        </el-tab-pane>
+        <el-tab-pane label="注意事项" name="fourth">
+          <div>{{ remark }}</div>
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import User from "../components/Userinfo";
+
 export default {
   created: function() {
     let that = this;
@@ -207,9 +167,10 @@ export default {
             break;
         }
       } else if (that.scheduleType == "月保养") {
-        that.scheduleType_info = "月 " + that.startDate.split("-")[2] + " 号";
+        that.scheduleType_info =
+          "月保养（每月 " + that.startDate.split("-")[2] + " 号）";
       } else if (that.scheduleType == "年保养") {
-        that.scheduleType_info = "年第" + that.startDate + "天";
+        that.scheduleType_info = "年保养（每年第" + that.startDate + "天）";
       }
       // 保养部位
       if (that.side == null) {
@@ -224,7 +185,7 @@ export default {
         for (let a = 0; a < res.data.content.length; a++) {
           that.content.push({
             contentinfotitle: res.data.content[a].title,
-            contentinfotext: res.data.content[a].detail,
+            contentinfodetail: res.data.content[a].detail,
           });
         }
       }
@@ -239,10 +200,13 @@ export default {
         let searchdevice =
           "http://47.102.214.37:8080/device/" + res.data.device[i].id;
         axios.get(searchdevice).then((res) => {
-          that.deviceinfo.push({
-            deviceName: res.data.name,
-            deviceClazz: res.data.clazz,
-          });
+          let obj = {};
+          obj.id = res.data.id;
+          obj.name = res.data.name;
+          obj.brand = res.data.brand;
+          obj.deviceNo = res.data.deviceNo;
+          obj.clazz = res.data.clazz;
+          that.devicetableData.push(obj);
         });
       }
       // 维护人员
@@ -250,7 +214,9 @@ export default {
         let searchops = "http://47.102.214.37:8080/user/" + res.data.ops[i].id;
         axios.get(searchops).then((res) => {
           that.users.push({
-            usersName: res.data.name + "（ id：" + res.data.id + " ）",
+            name: res.data.name,
+            username: res.data.username,
+            useremail: res.data.email,
           });
         });
       }
@@ -286,35 +252,33 @@ export default {
   data() {
     return {
       taskid: "", //任务ID
-      /* part1 */
-      users: [], // 维护人员
       name: null, // 任务名称
+      tabsActiveName: "first", // 进入打开第一个栏目
+
+      /* 基本信息 */
+      users: [], // 维护人员
       side: null, // 保养部位
       acceptedStandard: null, // 接受标准
-      /* part2 */
+      scheduleType: null, // 保养周期
+      startDate: null, // 保养开始时间
+      scheduleType_info: null, // 保养周期具体信息
       // 设备信息
-      deviceinfo: [],
-      // 周期
-      scheduleType: null,
-      startDate: null,
-      scheduleType_info: null,
-      /* part3 */
-      content: [], // 保养内容
-      tools: null, // 保养工具及备件
-      remark: null, // 注意事项
+      devicetableData: [],
 
-      /* 保养记录 */
-      // Part1
-      fix: "", // 自我修复记录
-      hasException: false, // 是否存在「不能自我修复」的异常
-      records: [], // 完成记录
-      aaa: "",
-      active: 0,
-      reports: [], // 异常报告
-      // Part2
+      /* 保养内容 */
+      content: [], // 保养内容
+
+      /* 工具及备件 */
+      tools: null, // 保养工具及备件
+
+      /* 注意事项 */
+      remark: null, // 注意事项
     };
   },
   methods: {},
+  components: {
+    User,
+  },
 };
 </script>
 
@@ -323,6 +287,7 @@ export default {
   // border: 1px solid red;
   width: 100%;
   height: 100%;
+  background: #fafafa;
   .breadcrumb {
     width: 100%;
     height: 30px;
@@ -343,159 +308,54 @@ export default {
       font-size: 20px;
     }
   }
-  .Task-container {
-    // height: 80%;
+  .Tabs {
     // border: 1px solid red;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    .backbtn {
-      width: 85%;
+    margin: 0 10px;
+    .BaseInfo_1 {
+      width: 100%;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      // border: 1px solid red;
-      .el-button {
-        display: flex;
-        align-self: flex-start;
-        background: #409eff;
-        color: #fff;
-        border: 0;
-        font-size: 15px;
-        padding: 8px 15px;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 1px solid #aaa;
+      .Title {
+        font-size: 25px;
+        font-weight: bold;
+        color: #00438b;
       }
-    }
-    .Task-info {
-      width: 85%;
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
-      padding: 10px 20px;
-      margin-top: 10px;
-      // border: 1px solid red;
-      .part {
-        border-bottom: 1px solid #ddd;
+      .Info {
+        // border: 1px solid red;
+        margin-top: 10px;
+        font-size: 16px;
+      }
+      .Info_part1 {
+        width: 100%;
         padding-bottom: 10px;
         display: flex;
         justify-content: flex-start;
       }
-      .Users {
-        // border: 1px solid red;
-        border-bottom: 1px solid #ddd;
-        padding: 10px 0;
-        display: flex;
-        justify-content: flex-start;
-        .part0 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-          }
-        }
-      }
-      .Side-Standard {
-        // border: 1px solid red;
-        border-bottom: 1px solid #ddd;
-        padding: 10px 0;
-        display: flex;
-        justify-content: flex-start;
+      .Info_part2 {
         width: 100%;
-        .part1 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          width: 33%;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-          }
-        }
-      }
-      .Name-Clazz-Time {
         padding: 10px 0;
-        border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: flex-start;
-        width: 100%;
-        .part2 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          // border: 1px solid red;
-          width: 33%;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-          }
-        }
-      }
-      .Content-Tools-Attention {
         // border: 1px solid red;
-        padding-top: 10px;
         display: flex;
         justify-content: flex-start;
-        width: 100%;
-        .part3 {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          width: 33%;
-          .Text {
-            // border: 1px solid red;
-            font-size: 18px;
-            font-weight: 600;
-          }
-          .Info {
-            // border: 1px solid red;
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            font-size: 14px;
-            font-weight: 400;
-            padding-right: 10px;
-          }
-          .contentInfo {
-            // border: 1px solid red;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
+      }
+    }
+    .BaseInfo_2 {
+      margin-top: 10px;
+      border-bottom: 0;
+      .extraTable {
+        .el-table__header {
+          th {
+            background: #fafafa;
           }
         }
       }
     }
-    .Tasknotes-info {
-      margin-bottom: 20px;
+  }
+  .content {
+    .title {
+      border-left: 3px solid #409eff;
     }
   }
 }
