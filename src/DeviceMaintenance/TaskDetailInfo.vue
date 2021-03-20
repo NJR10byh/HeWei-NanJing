@@ -347,7 +347,7 @@ export default {
       .extraTable {
         .el-table__header {
           th {
-            background: #fafafa;
+            background: #f5f5f5;
           }
         }
       }

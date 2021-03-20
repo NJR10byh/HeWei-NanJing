@@ -76,7 +76,7 @@ export default {
       let that = this;
       console.log(that.taskData[index]);
       that.$router.push({
-        path: "./diagnosisDetail",
+        path: "./errorDetail",
         query: that.taskData[index],
       });
     },

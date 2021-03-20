@@ -47,7 +47,7 @@
             v-model="descriptionPic"
             :options="editorOption1"
             style="height:70%;margin-top: 5px;width:100%;"
-            @change="onEditorChange($event)"
+            @change="onEditorChange1($event)"
           ></quill-editor>
         </div>
       </div>
@@ -59,7 +59,7 @@
             v-model="content"
             :options="editorOption2"
             style="height:70%;margin-top: 5px;width:100%;"
-            @change="onEditorChange($event)"
+            @change="onEditorChange2($event)"
           ></quill-editor>
         </div>
       </div>
@@ -106,16 +106,19 @@ export default {
   created: function() {
     let that = this;
     let userRole = "";
+    console.log();
     // 获取当前登录用户基本信息
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      userRole = res.data.role;
       console.log(res.data);
+      that.reporter.id = res.data.id;
       that.reporter.name = res.data.name;
       that.reporter.username = res.data.username;
       that.reporter.useremail = res.data.email;
-      that.userRole = res.data.role;
     });
     setTimeout(() => {
-      if (userRole != "OPERATOR") {
+      // 如果当前登录用户不是 OPERATOR ，则获取全部设备
+      if (userRole != "" && userRole != "OPERATOR") {
         // 获取全部设备
         axios
           .get("http://47.102.214.37:8080/device/query?name=!")
@@ -144,9 +147,11 @@ export default {
                 });
               }
             }
-          }, 200);
+          }, 300);
         });
-      } else if (userRole == "OPERATOR") {
+      }
+      // 如果当前登录用户是 OPERATOR ，则获取与他关联的设备
+      else if (userRole != "" && userRole == "OPERATOR") {
         // 获取全部分配到自己的设备
         axios.get("http://47.102.214.37:8080/my/device").then((res) => {
           console.log(res.data);
@@ -181,7 +186,6 @@ export default {
   data() {
     return {
       reporter: {}, // 报告人员
-      userid: "",
       // 设备选择
       device: [],
       options1: [],
@@ -208,9 +212,13 @@ export default {
   },
   methods: {
     // 富文本编辑器内容改变
-    onEditorChange({ html }) {
+    onEditorChange1({ html }) {
       console.log(html);
       this.descriptionPic = html;
+    },
+    onEditorChange2({ html }) {
+      console.log(html);
+      this.content = html;
     },
 
     // 提交异常报告
@@ -245,7 +253,7 @@ export default {
           content: that.content,
           descriptionPic: that.descriptionPic,
           device: device,
-          reporter: { id: that.userid },
+          reporter: { id: that.reporter.id },
         };
         console.log(obj);
         axios
@@ -279,7 +287,7 @@ export default {
   align-items: center;
   .Task-info {
     width: 90%;
-    height: 1000px;
+    height: 1200px;
     background: #fff;
     border-radius: 5px;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;

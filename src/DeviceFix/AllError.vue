@@ -276,7 +276,7 @@ export default {
       let that = this;
       console.log(that.taskData[index]);
       that.$router.push({
-        path: "./mySubmitDetail",
+        path: "./errorDetail",
         query: that.taskData[index],
       });
     },

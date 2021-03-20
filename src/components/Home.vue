@@ -180,6 +180,7 @@
 <script>
 import axios from "axios";
 import User from "../components/Userinfo";
+
 export default {
   created() {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {

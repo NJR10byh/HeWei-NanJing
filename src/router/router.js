@@ -20,7 +20,7 @@ import TssignTask2 from "@/DeviceMaintenance/TssignTask2"; // 任务分配2
 /* 设备维修*/
 import FixApply from "@/DeviceFix/FixApply"; // 维修诊断
 import AllError from "@/DeviceFix/AllError"; // 维修诊断
-// import FixDiagnosis from "@/DeviceFix/FixDiagnosis"; // 维修诊断
+import ErrorDetail from "@/DeviceFix/ErrorDetail"; // 维修诊断
 import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 维修诊断
 import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 维修诊断
 import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
@@ -122,6 +122,12 @@ var routes = [
         path: "/allError",
         component: AllError,
       },
+      // 异常详情
+      {
+        path: "/errorDetail",
+        component: ErrorDetail,
+      },
+      // 维修申请
       {
         path: "/fixApply",
         component: FixApply,

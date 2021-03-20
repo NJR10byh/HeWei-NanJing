@@ -1,5 +1,5 @@
 <template>
-  <div class="Container-MySubmitDetail">
+  <div class="Container-ErrorDetail">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
@@ -115,6 +115,12 @@
             </el-table>
           </div>
         </div>
+        <div class="Part lastpart TssignFixBtn" v-if="userRole == 'SUPERVISOR'">
+          <div class="part" style="width: 100%;">
+            <div class="Text">分配申请</div>
+            <el-button @click="TssignFix">分配此申请</el-button>
+          </div>
+        </div>
       </div>
       <div class="Task-info Last">
         <div class="Part">
@@ -130,53 +136,84 @@
         <div class="Part">
           <div class="part" style="width: 33%;">
             <div class="Text">异常类型</div>
-            <div class="Info">{{ exceptionType }}</div>
+            <el-input
+              type="text"
+              v-model="exceptionType"
+              placeholder="异常类型"
+            ></el-input>
           </div>
           <div class="part" style="width: 33%;">
             <div class="Text">发生原因</div>
-            <div class="Info">{{ reason }}</div>
+            <el-input
+              type="text"
+              v-model="reason"
+              placeholder="发生原因"
+            ></el-input>
           </div>
           <div class="part" style="width: 33%;">
             <div class="Text">异常解决措施</div>
-            <div class="Info">{{ solution }}</div>
+            <el-input
+              type="text"
+              v-model="solution"
+              placeholder="异常解决措施"
+            ></el-input>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
-            <div class="Text">异常处理结果</div>
-            <div class="ql-snow">
-              <div class="ql-editor" v-html="result"></div>
-            </div>
+          <div class="part result" style="width: 100%;">
+            <div class="Text ">异常处理结果</div>
+            <quill-editor
+              ref="myTextEditor"
+              v-model="result"
+              :options="editorOption"
+              style="margin-top: 5px;"
+              @change="onEditorChange($event)"
+            ></quill-editor>
           </div>
         </div>
-      </div>
-      <div class="Task-info Last" v-if="reporterid == userid && !closed">
-        <div class="Part">
-          <div class="part">
-            <div
-              class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+        <div class="Part lastpart TssignFixBtn" v-if="userRole == 'OPERATOR' && !closed">
+          <div class="part" style="width: 100%;">
+            <div class="Text">提交诊断</div>
+            <el-button
+              @click="submitbtn"
+              >提交诊断</el-button
             >
-              完成
-            </div>
-          </div>
-        </div>
-        <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
-            <div class="Text ">接受维修处理</div>
-            <div class="backbtn_right">
-              <el-button @click="confirm" class="confirm">确认</el-button>
-              <el-button @click="refuse" class="refuse">拒绝</el-button>
-            </div>
           </div>
         </div>
       </div>
     </div>
+    <el-dialog title="选择维修人" :visible.sync="dialogFixVisible">
+      <el-select v-model="assigneeOp" placeholder="请选择">
+        <el-option-group
+          v-for="group in options"
+          :key="group.label"
+          :label="group.label"
+        >
+          <el-option
+            v-for="item in group.options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            :disabled="item.disabled"
+          >
+          </el-option>
+        </el-option-group>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFixVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitTssign">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import axios from "axios";
 import User from "../components/Userinfo";
+import { quillEditor } from "vue-quill-editor";
+// require styles
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
 
 export default {
   created: function() {
@@ -187,6 +224,7 @@ export default {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userid = res.data.id;
+      this.userRole = res.data.role;
     });
     let url = "http://47.102.214.37:8080/issue/" + that.$route.query.errorid;
     axios.get(url).then((res) => {
@@ -280,10 +318,42 @@ export default {
         });
       }
     });
+    setTimeout(() => {
+      // 获取全部OPERATOR
+      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+        // console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "OPERATOR") {
+            // 禁用报修人为维修人
+            if (res.data.content[i].id == that.applyusersid) {
+              that.options[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+                disabled: true,
+              });
+            } else {
+              that.options[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+            }
+          }
+        }
+      });
+    }, 300);
   },
   data() {
     return {
       userid: "", // 当前登录人员id
+      userRole: "", // 当前登录人员Role
       reporterid: "",
       // 步骤条
       active: 0,
@@ -302,12 +372,25 @@ export default {
       operator: [],
       devicetableData: [],
       deviceinfo: [], // 维修设备
+      // 报告接受人
+      dialogFixVisible: false,
+      assigneeOp: "",
+      options: [
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+      ],
 
       /* 修复 */
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施
       exceptionType: "", // 异常类型
       result: "", // 异常处理结果
+      // 富文本编辑器
+      editorOption: {
+        placeholder: "请输入保养内容",
+      },
 
       // 时间线
       applytime: "",
@@ -329,78 +412,96 @@ export default {
           .replace(/\.[\d]{3}Z/, "");
       }
     },
-    confirm() {
+    // 分配维修
+    TssignFix() {
+      this.dialogFixVisible = true;
+    },
+    // 富文本编辑器内容改变
+    onEditorChange({ html }) {
+      console.log(html);
+      this.result = html;
+    },
+    // 提交分配
+    submitTssign() {
+      console.log(this.assigneeOp);
       let that = this;
-      that
-        .$confirm("确定接受处理吗？", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        })
-        .then(() => {
-          let url =
-            "http://47.102.214.37:8080/issue/close/" +
-            that.$route.query.errorid +
-            "?closed=true";
-          axios.post(url).then((res) => {
-            console.log(res.data);
+      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        let obj = {};
+        obj.assignee = res.data.assignee;
+        obj.closed = res.data.closed;
+        obj.content = res.data.content;
+        obj.descriptionPic = res.data.descriptionPic;
+        obj.device = res.data.device;
+        obj.exceptionType = res.data.exceptionType;
+        obj.id = res.data.id;
+        obj.reason = res.data.reason;
+        obj.record = res.data.record;
+        obj.reporter = res.data.reporter;
+        obj.solution = res.data.solution;
+        obj.assignee.push({
+          id: that.assigneeOp,
+        });
+        axios
+          .put(url, obj)
+          .then((res) => {
+            console.log(res);
             that.$message({
-              message: "接受处理成功",
+              message: "分配成功",
               type: "success",
             });
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
-    },
-    refuse() {
-      let that = this;
-      that
-        .$confirm("确定拒绝处理吗？", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        })
-        .then(() => {
-          let url =
-            "http://47.102.214.37:8080/issue/close/" +
-            that.$route.query.errorid +
-            "?closed=false";
-          axios.post(url).then((res) => {
-            console.log(res.data);
+            that.dialogFixVisible = false;
+          })
+          .catch(() => {
             that.$message({
-              message: "拒绝处理成功",
-              type: "success",
+              message: "分配失败",
+              type: "error",
             });
           });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
+      });
+    },
+    // 提交诊断
+    submitbtn() {
+      let that = this;
+      let obj = {};
+      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        obj.assignee = res.data.assignee;
+        obj.closed = res.data.closed;
+        obj.content = res.data.content;
+        obj.descriptionPic = res.data.descriptionPic;
+        obj.device = res.data.device;
+        obj.exceptionType = that.exceptionType;
+        obj.id = res.data.id;
+        obj.reason = that.reason;
+        obj.record = res.data.record;
+        obj.reporter = res.data.reporter;
+        obj.solution = that.solution;
+      });
+      setTimeout(() => {
+        console.log(obj);
+        axios.put(url, obj).then((res) => {
+          console.log(res);
+          that.$message({
+            message: "提交成功",
+            type: "success",
           });
         });
-    },
-    // 预览图片
-    imgurl(url) {
-      this.dialogImageUrl = url;
-      this.dialogVisible = true;
+      }, 200);
     },
   },
   components: {
     User,
+    quillEditor,
   },
 };
 </script>
 <style lang="scss">
-.Container-MySubmitDetail {
+.Container-ErrorDetail {
   // border: 1px solid red;
   width: 100%;
-  height: 100%;
   .breadcrumb {
     width: 100%;
     height: 30px;
@@ -432,38 +533,10 @@ export default {
       width: 100%;
       margin-top: 10px;
     }
-    .backbtn {
-      width: 85%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      // border: 1px solid red;
-      .el-button {
-        display: flex;
-        align-self: flex-start;
-        background: #409eff;
-        color: #fff;
-        border: 0;
-        font-size: 15px;
-        padding: 8px 15px;
-      }
-      .backbtn_right {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10px;
-      }
-      .confirm {
-        background: #5ed100;
-      }
-      .refuse {
-        background: #ff6060;
-      }
-    }
     .Task-info {
       width: 85%;
       background: #fff;
-      border-radius: 15px;
+      border-radius: 10px;
       box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
       padding: 10px 20px;
       margin-top: 10px;
@@ -479,6 +552,11 @@ export default {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
+          .el-input {
+            // border: 1px solid red;
+            margin-top: 5px;
+            width: 80%;
+          }
           .Text {
             // border: 1px solid red;
             font-size: 18px;
@@ -499,31 +577,25 @@ export default {
               }
             }
           }
-          .backbtn_right {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-            .el-button {
-              display: flex;
-              align-self: flex-start;
-              background: #409eff;
-              color: #fff;
-              border: 0;
-              font-size: 15px;
-              padding: 8px 15px;
-            }
-            .confirm {
-              background: #5ed100;
-            }
-            .refuse {
-              background: #ff6060;
-            }
-          }
+        }
+        .result {
+          height: 200px;
         }
       }
       .lastpart {
         border-bottom: 0;
+      }
+      .TssignFixBtn {
+        .el-button {
+          display: flex;
+          align-self: flex-start;
+          background: #409eff;
+          color: #fff;
+          border: 0;
+          font-size: 15px;
+          padding: 8px 10px;
+          margin-top: 10px;
+        }
       }
     }
   }
