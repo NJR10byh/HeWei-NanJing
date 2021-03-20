@@ -45,14 +45,8 @@
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 50%;">
-            <div class="Text">异常描述</div>
-            <div class="ql-snow">
-              <div class="ql-editor" v-html="errordescription"></div>
-            </div>
-          </div>
-          <div class="part" style="width: 50%;">
-            <div class="Text">异常处理请求</div>
+          <div class="part" style="width: 100%;">
+            <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
             </div>
@@ -128,24 +122,20 @@
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 33%;">
+          <div class="part" style="width: 50%;">
             <div class="Text">异常类型</div>
             <div class="Info">{{ exceptionType }}</div>
           </div>
-          <div class="part" style="width: 33%;">
+          <div class="part" style="width: 50%;">
             <div class="Text">发生原因</div>
             <div class="Info">{{ reason }}</div>
-          </div>
-          <div class="part" style="width: 33%;">
-            <div class="Text">异常解决措施</div>
-            <div class="Info">{{ solution }}</div>
           </div>
         </div>
         <div class="Part lastpart">
           <div class="part" style="width: 100%;">
-            <div class="Text">异常处理结果</div>
+            <div class="Text">异常解决措施和处理结果</div>
             <div class="ql-snow">
-              <div class="ql-editor" v-html="result"></div>
+              <div class="ql-editor" v-html="solution"></div>
             </div>
           </div>
         </div>
@@ -202,9 +192,6 @@ export default {
       that.assigntime = that.renderTime(res.data.assignedAt);
       that.fixtime = that.renderTime(res.data.fixedAt);
       that.completetime = that.renderTime(res.data.closedAt);
-      if (res.data.closed == true) {
-        that.active = 3;
-      }
       let usersid = {};
       usersid.fixusersid = [];
       for (let i = 0; i < res.data.assignee.length; i++) {
@@ -223,7 +210,6 @@ export default {
             username: res.data.content[0].username,
             useremail: res.data.content[0].email,
           });
-          that.active++;
         });
         // 维修人员
         if (usersid.fixusersid != undefined) {
@@ -260,9 +246,6 @@ export default {
               });
             }
           }
-          if (usersid.fixusersid.length > 1) {
-            that.active++;
-          }
         }
       }, 200);
       // 设备信息
@@ -292,8 +275,7 @@ export default {
       /* 申请 */
       errorid: "",
       applyusers: [], // 报修人员
-      errordescription: "", // 异常描述
-      errorcontent: "", // 异常处理请求
+      errorcontent: "", // 异常内容
 
       /* 分配 */
       fixusers: [], // 维修人员
@@ -305,9 +287,8 @@ export default {
 
       /* 修复 */
       reason: "", // 异常发生原因
-      solution: "", // 异常解决措施
+      solution: "", // 异常解决措施和处理结果
       exceptionType: "", // 异常类型
-      result: "", // 异常处理结果
 
       // 时间线
       applytime: "",
@@ -323,6 +304,7 @@ export default {
         return "暂无";
       } else {
         var dateee = new Date(date).toJSON();
+        this.active++;
         return new Date(+new Date(dateee) + 8 * 3600 * 1000)
           .toISOString()
           .replace(/T/g, " ")

@@ -23,7 +23,7 @@ import AllError from "@/DeviceFix/AllError"; // 维修诊断
 import ErrorDetail from "@/DeviceFix/ErrorDetail"; // 维修诊断
 import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 维修诊断
 import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 维修诊断
-import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
+// import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
 import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
 import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
 
@@ -142,11 +142,11 @@ var routes = [
         path: "/alreadyFixSu",
         component: AlreadyFixSu,
       },
-      // 异常详情
-      {
-        path: "/diagnosisDetail",
-        component: DiagnosisDetail,
-      },
+      // // 异常详情
+      // {
+      //   path: "/diagnosisDetail",
+      //   component: DiagnosisDetail,
+      // },
       // 我发布的
       {
         path: "/mySubmit",

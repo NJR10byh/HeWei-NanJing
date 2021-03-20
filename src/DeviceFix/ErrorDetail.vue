@@ -45,14 +45,8 @@
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 50%;">
-            <div class="Text">异常描述</div>
-            <div class="ql-snow">
-              <div class="ql-editor" v-html="errordescription"></div>
-            </div>
-          </div>
-          <div class="part" style="width: 50%;">
-            <div class="Text">异常处理请求</div>
+          <div class="part" style="width: 100%;">
+            <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
             </div>
@@ -134,7 +128,7 @@
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 33%;">
+          <div class="part" style="width: 50%;">
             <div class="Text">异常类型</div>
             <el-input
               type="text"
@@ -142,7 +136,7 @@
               placeholder="异常类型"
             ></el-input>
           </div>
-          <div class="part" style="width: 33%;">
+          <div class="part" style="width: 50%;">
             <div class="Text">发生原因</div>
             <el-input
               type="text"
@@ -150,34 +144,26 @@
               placeholder="发生原因"
             ></el-input>
           </div>
-          <div class="part" style="width: 33%;">
-            <div class="Text">异常解决措施</div>
-            <el-input
-              type="text"
-              v-model="solution"
-              placeholder="异常解决措施"
-            ></el-input>
-          </div>
         </div>
         <div class="Part lastpart">
           <div class="part result" style="width: 100%;">
-            <div class="Text ">异常处理结果</div>
+            <div class="Text ">异常解决措施和处理结果</div>
             <quill-editor
               ref="myTextEditor"
-              v-model="result"
+              v-model="solution"
               :options="editorOption"
               style="margin-top: 5px;"
               @change="onEditorChange($event)"
             ></quill-editor>
           </div>
         </div>
-        <div class="Part lastpart TssignFixBtn" v-if="userRole == 'OPERATOR' && !closed">
+        <div
+          class="Part lastpart TssignFixBtn"
+          v-if="userRole == 'OPERATOR' && !closed"
+        >
           <div class="part" style="width: 100%;">
             <div class="Text">提交诊断</div>
-            <el-button
-              @click="submitbtn"
-              >提交诊断</el-button
-            >
+            <el-button @click="submitbtn">提交诊断</el-button>
           </div>
         </div>
       </div>
@@ -231,7 +217,6 @@ export default {
       console.log(res.data);
       that.reporterid = res.data.reporter.id;
       that.errorcontent = res.data.content;
-      that.errordescription = res.data.descriptionPic;
       that.reason = res.data.reason;
       that.solution = res.data.solution;
       that.exceptionType = res.data.exceptionType;
@@ -240,9 +225,9 @@ export default {
       that.assigntime = that.renderTime(res.data.assignedAt);
       that.fixtime = that.renderTime(res.data.fixedAt);
       that.completetime = that.renderTime(res.data.closedAt);
-      if (res.data.closed == true) {
-        that.active = 3;
-      }
+      // if (res.data.closed == true) {
+      //   that.active = 3;
+      // }
       let usersid = {};
       usersid.fixusersid = [];
       for (let i = 0; i < res.data.assignee.length; i++) {
@@ -261,7 +246,6 @@ export default {
             username: res.data.content[0].username,
             useremail: res.data.content[0].email,
           });
-          that.active++;
         });
         // 维修人员
         if (usersid.fixusersid != undefined) {
@@ -298,9 +282,6 @@ export default {
               });
             }
           }
-          if (usersid.fixusersid.length > 1) {
-            that.active++;
-          }
         }
       }, 200);
       // 设备信息
@@ -324,27 +305,14 @@ export default {
         // console.log(res.data);
         for (let i = 0; i < res.data.content.length; i++) {
           if (res.data.content[i].role == "OPERATOR") {
-            // 禁用报修人为维修人
-            if (res.data.content[i].id == that.applyusersid) {
-              that.options[0].options.push({
-                value: res.data.content[i].id,
-                label:
-                  res.data.content[i].name +
-                  " (用户名：" +
-                  res.data.content[i].username +
-                  ")",
-                disabled: true,
-              });
-            } else {
-              that.options[0].options.push({
-                value: res.data.content[i].id,
-                label:
-                  res.data.content[i].name +
-                  " (用户名：" +
-                  res.data.content[i].username +
-                  ")",
-              });
-            }
+            that.options[0].options.push({
+              value: res.data.content[i].id,
+              label:
+                res.data.content[i].name +
+                " (用户名：" +
+                res.data.content[i].username +
+                ")",
+            });
           }
         }
       });
@@ -362,8 +330,7 @@ export default {
       /* 申请 */
       errorid: "",
       applyusers: [], // 报修人员
-      errordescription: "", // 异常描述
-      errorcontent: "", // 异常处理请求
+      errorcontent: "", // 异常内容
 
       /* 分配 */
       fixusers: [], // 维修人员
@@ -384,9 +351,8 @@ export default {
 
       /* 修复 */
       reason: "", // 异常发生原因
-      solution: "", // 异常解决措施
+      solution: "", // 异常解决措施和处理结果
       exceptionType: "", // 异常类型
-      result: "", // 异常处理结果
       // 富文本编辑器
       editorOption: {
         placeholder: "请输入保养内容",
@@ -406,6 +372,7 @@ export default {
         return "暂无";
       } else {
         var dateee = new Date(date).toJSON();
+        this.active++;
         return new Date(+new Date(dateee) + 8 * 3600 * 1000)
           .toISOString()
           .replace(/T/g, " ")

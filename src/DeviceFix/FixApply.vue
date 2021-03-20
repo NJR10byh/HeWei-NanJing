@@ -39,27 +39,15 @@
           </el-select>
         </div>
       </div>
-      <div class="Description">
+      <div class="Content">
         <div class="part2" style="width: 100%;">
-          <div class="Text">异常描述</div>
-          <!-- 富文本编辑器 -->
-          <quill-editor
-            v-model="descriptionPic"
-            :options="editorOption1"
-            style="height:70%;margin-top: 5px;width:100%;"
-            @change="onEditorChange1($event)"
-          ></quill-editor>
-        </div>
-      </div>
-      <div class="Request">
-        <div class="part3" style="width: 100%;">
-          <div class="Text">异常处理请求</div>
+          <div class="Text">异常描述和异常处理请求</div>
           <!-- 富文本编辑器 -->
           <quill-editor
             v-model="content"
-            :options="editorOption2"
+            :options="editorOption"
             style="height:70%;margin-top: 5px;width:100%;"
-            @change="onEditorChange2($event)"
+            @change="onEditorChange1($event)"
           ></quill-editor>
         </div>
       </div>
@@ -189,8 +177,7 @@ export default {
       // 设备选择
       device: [],
       options1: [],
-      content: "", // 异常处理请求
-      descriptionPic: "", // 异常描述
+      content: "", // 异常内容
 
       // 报告接受人
       assignee: "",
@@ -212,11 +199,7 @@ export default {
   },
   methods: {
     // 富文本编辑器内容改变
-    onEditorChange1({ html }) {
-      console.log(html);
-      this.descriptionPic = html;
-    },
-    onEditorChange2({ html }) {
+    onEditorChange({ html }) {
       console.log(html);
       this.content = html;
     },
@@ -287,7 +270,7 @@ export default {
   align-items: center;
   .Task-info {
     width: 90%;
-    height: 1200px;
+    height: 700px;
     background: #fff;
     border-radius: 5px;
     box-shadow: 5px 5px 20px #eeeeee, -5px 5px 20px #eeeeee;
@@ -331,7 +314,7 @@ export default {
         }
       }
     }
-    .Description {
+    .Content {
       // border: 1px solid red;
       height: 100%;
       padding: 10px 0;
@@ -354,26 +337,6 @@ export default {
           justify-content: flex-start;
           font-size: 14px;
           font-weight: 400;
-        }
-      }
-    }
-    .Request {
-      height: 100%;
-      padding: 10px 0;
-      border-bottom: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: flex-start;
-      .part3 {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        .Text {
-          // border: 1px solid red;
-          font-size: 18px;
-          font-weight: 600;
-        }
-        .el-select {
-          margin-top: 5px;
         }
       }
     }
