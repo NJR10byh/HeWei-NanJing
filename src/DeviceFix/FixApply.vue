@@ -47,7 +47,7 @@
             v-model="content"
             :options="editorOption"
             style="height:70%;margin-top: 5px;width:100%;"
-            @change="onEditorChange1($event)"
+            @change="onEditorChange($event)"
           ></quill-editor>
         </div>
       </div>
@@ -189,18 +189,14 @@ export default {
       ],
 
       // 富文本编辑器
-      editorOption1: {
-        placeholder: "请输入异常描述",
-      },
-      editorOption2: {
-        placeholder: "请输入异常处理请求",
+      editorOption: {
+        placeholder: "请输入异常描述和异常处理请求",
       },
     };
   },
   methods: {
     // 富文本编辑器内容改变
     onEditorChange({ html }) {
-      console.log(html);
       this.content = html;
     },
 

@@ -109,14 +109,18 @@
             </el-table>
           </div>
         </div>
-        <div class="Part lastpart TssignFixBtn" v-if="userRole == 'SUPERVISOR'">
+        <div
+          class="Part lastpart TssignFixBtn"
+          v-if="userRole == 'SUPERVISOR' && assigned == false"
+        >
           <div class="part" style="width: 100%;">
             <div class="Text">分配申请</div>
             <el-button @click="TssignFix">分配此申请</el-button>
           </div>
         </div>
       </div>
-      <div class="Task-info Last">
+      <!-- 是维修人员且未完成 -->
+      <div class="Task-info Last" v-if="assigned && opstofix && !closed">
         <div class="Part">
           <div class="part">
             <div
@@ -152,7 +156,7 @@
               ref="myTextEditor"
               v-model="solution"
               :options="editorOption"
-              style="margin-top: 5px;"
+              style="height:70%;margin-top: 5px;width:100%;"
               @change="onEditorChange($event)"
             ></quill-editor>
           </div>
@@ -164,6 +168,40 @@
           <div class="part" style="width: 100%;">
             <div class="Text">提交诊断</div>
             <el-button @click="submitbtn">提交诊断</el-button>
+          </div>
+        </div>
+      </div>
+      <!-- 不是维修人员或以完成 -->
+      <div
+        class="Task-info Last"
+        v-if="(assigned && !opstofix) || (assigned && closed)"
+      >
+        <div class="Part">
+          <div class="part">
+            <div
+              class="Text"
+              style="color:#409eff;font-size:30px;font-weight:normal;"
+            >
+              修复
+            </div>
+          </div>
+        </div>
+        <div class="Part">
+          <div class="part" style="width: 50%;">
+            <div class="Text">异常类型</div>
+            <div class="Info">{{ exceptionType }}</div>
+          </div>
+          <div class="part" style="width: 50%;">
+            <div class="Text">发生原因</div>
+            <div class="Info">{{ reason }}</div>
+          </div>
+        </div>
+        <div class="Part lastpart">
+          <div class="part" style="width: 100%;">
+            <div class="Text ">异常解决措施和处理结果</div>
+            <div class="ql-snow">
+              <div class="ql-editor" v-html="solution"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -268,11 +306,16 @@ export default {
               useremail: "暂未分配",
             });
           } else {
+            that.assigned = true;
             for (let i = 1; i < usersid.fixusersid.length; i++) {
               // operator
+              if (usersid.fixusersid[i].assigneeid == this.userid) {
+                that.opstofix = true;
+              }
               let searchops =
                 "http://47.102.214.37:8080/user/query?id==" +
                 usersid.fixusersid[i].assigneeid;
+
               axios.get(searchops).then((res) => {
                 that.operator.push({
                   name: res.data.content[0].name,
@@ -323,6 +366,8 @@ export default {
       userid: "", // 当前登录人员id
       userRole: "", // 当前登录人员Role
       reporterid: "",
+      assigned: false, // 是否已分配
+      opstofix: false, // 是否是维修人员
       // 步骤条
       active: 0,
       closed: false, // 是否确认
@@ -419,6 +464,9 @@ export default {
               type: "success",
             });
             that.dialogFixVisible = false;
+            setTimeout(() => {
+              location.reload(); // 成功后更新UI
+            }, 300);
           })
           .catch(() => {
             that.$message({
@@ -455,6 +503,9 @@ export default {
             message: "提交成功",
             type: "success",
           });
+          setTimeout(() => {
+            location.reload(); // 成功后更新UI
+          }, 300);
         });
       }, 200);
     },

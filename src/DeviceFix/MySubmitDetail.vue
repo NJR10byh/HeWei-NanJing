@@ -330,6 +330,9 @@ export default {
               message: "接受处理成功",
               type: "success",
             });
+            setTimeout(() => {
+              location.reload(); // 成功后更新UI
+            }, 300);
           });
         })
         .catch(() => {
@@ -358,6 +361,9 @@ export default {
               message: "拒绝处理成功",
               type: "success",
             });
+            setTimeout(() => {
+              location.reload(); // 成功后更新UI
+            }, 300);
           });
         })
         .catch(() => {
