@@ -4,7 +4,7 @@
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
       <el-breadcrumb-item class="active"
-        >异常ID：{{ errorid }}
+        >报修流水号：{{ errorid }}
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
@@ -29,7 +29,7 @@
         </div>
         <div class="Part">
           <div class="part" style="width: 50%;">
-            <div class="Text">异常ID</div>
+            <div class="Text">报修流水号</div>
             <div class="Info">{{ errorid }}</div>
           </div>
           <div class="part" style="width: 50%;">

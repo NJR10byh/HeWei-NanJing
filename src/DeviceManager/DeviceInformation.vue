@@ -32,12 +32,16 @@
               </el-option-group>
             </el-select>
           </div>
-          <div
-            v-for="(item, index) in selectInfo"
-            :key="index"
-            style="margin-left:5px;"
-          >
-            <span>{{ item.ziduan }}: {{ item.value }} |</span>
+          <div>
+            <el-tag
+              :key="tag"
+              v-for="tag in dynamicTags"
+              closable
+              @close="handleClose(tag)"
+              style="margin-left:5px;"
+            >
+              {{ tag }}
+            </el-tag>
           </div>
           <div class="search">
             <el-button icon="el-icon-search" @click="search">搜索</el-button>
@@ -239,6 +243,7 @@ export default {
       selectmodel: "",
       dialogSearchVisible: false,
       selectInfo: [],
+      dynamicTags: [], // 搜索标签
 
       /* 上传、导出 */
       dialogVisible: false, //上传文件对话框
@@ -273,6 +278,12 @@ export default {
         ziduan: this.selectvalue,
         value: this.selectmodel,
       });
+      this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+    },
+    // 标签移除
+    handleClose(tag) {
+      // console.log(this.dynamicTags.indexOf(tag));
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     },
     // 搜索
     search() {
@@ -364,9 +375,11 @@ export default {
             type: "success",
           });
 
+          // 清空搜索条件，等待下次搜索
           that.selectInfo = [];
           that.selectvalue = "";
           that.selectmodel = "";
+          that.dynamicTags = [];
         });
       }
     },

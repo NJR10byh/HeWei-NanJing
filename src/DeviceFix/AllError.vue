@@ -32,12 +32,16 @@
             </el-option-group>
           </el-select>
         </div>
-        <div
-          v-for="(item, index) in selectInfo"
-          :key="index"
-          style="margin-left:5px;"
-        >
-          <span>{{ item.ziduan }}: {{ item.value }} |</span>
+        <div>
+          <el-tag
+            :key="tag"
+            v-for="tag in dynamicTags"
+            closable
+            @close="handleClose(tag)"
+            style="margin-left:5px;"
+          >
+            {{ tag }}
+          </el-tag>
         </div>
         <div class="search">
           <el-button icon="el-icon-search" @click="search">搜索</el-button>
@@ -103,7 +107,6 @@
 
       <!-- 报修人员 -->
       <el-select
-        v-model="scheduleTypevalue"
         placeholder="请选择报修人员"
         filterable
         clearable
@@ -126,7 +129,6 @@
 
       <!-- 维修人员 -->
       <el-select
-        v-model="scheduleTypevalue"
         placeholder="请选择维修人员"
         filterable
         clearable
@@ -212,6 +214,7 @@ export default {
           ],
         },
       ],
+      dynamicTags: [], // 搜索标签
 
       // 设备
       devicevalue: "",
@@ -237,13 +240,21 @@ export default {
           ziduan: this.selectvalue,
           value: this.devicevalue,
         });
+        this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
       } else {
         this.selectInfo.push({
           ziduan: this.selectvalue,
           value: this.selectmodel,
         });
+        this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
       }
     },
+    // 标签移除
+    handleClose(tag) {
+      // console.log(this.dynamicTags.indexOf(tag));
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    },
+    // 刷新
     refresh() {
       let that = this;
       that.taskData = [];
@@ -325,10 +336,13 @@ export default {
               });
             }, 200);
           }
+
+          // 清空搜索条件，等待下次搜索
           that.selectInfo = [];
           // that.exporturl = "";
           that.selectvalue = "";
           that.selectmodel = "";
+          that.dynamicTags = [];
         });
       } else {
         console.log("aaa");
