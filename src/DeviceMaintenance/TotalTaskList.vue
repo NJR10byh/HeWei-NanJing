@@ -151,6 +151,7 @@
         placeholder="请选择设备"
         filterable
         clearable
+        multiple
         v-if="selectvalue == 'device'"
       >
         <el-option-group
