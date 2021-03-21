@@ -164,7 +164,7 @@ export default {
           case "Yearly":
             that.scheduleType = "年保养";
             break;
-          case "Seasonly":
+          case "Seasonally":
             that.scheduleType = "季度保养";
             break;
           case "Monthly":
@@ -175,6 +175,9 @@ export default {
             break;
           case "Daily":
             that.scheduleType = "日保养";
+            break;
+          case "Predictability":
+            that.scheduleType = "未知";
             break;
           default:
             break;
@@ -216,8 +219,13 @@ export default {
       } else if (that.scheduleType == "月保养") {
         that.scheduleType_info =
           "月保养（每月 " + that.startDate.split("-")[2] + " 号）";
+      } else if (that.scheduleType == "季度保养") {
+        that.scheduleType_info =
+          "季度保养（每季度 " + that.startDate.split("-")[2] + " 号）";
       } else if (that.scheduleType == "年保养") {
         that.scheduleType_info = "年保养（每年第" + that.startDate + "天）";
+      } else if (that.scheduleType == "未知") {
+        that.scheduleType_info = "未知";
       }
       // 保养部位
       if (that.side == null) {
