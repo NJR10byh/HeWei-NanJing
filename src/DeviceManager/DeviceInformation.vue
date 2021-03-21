@@ -725,10 +725,6 @@ export default {
     .el-breadcrumb__inner {
       font-weight: bold;
     }
-    .el-breadcrumb__inner.is-link {
-      color: #666666;
-      font-weight: normal;
-    }
 
     .active {
       font-size: 20px;

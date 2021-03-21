@@ -48,7 +48,6 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    // border: 1px solid red;
     margin-left: 20px;
     .info {
       color: #409eff;

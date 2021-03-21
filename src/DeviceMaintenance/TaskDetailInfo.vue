@@ -36,7 +36,7 @@
           <div class="BaseInfo_1 BaseInfo_2">
             <div class="Info_part1">
               <div style="width:50%;">
-                <div class="Title">人员信息</div>
+                <div class="Title">维护人员信息</div>
                 <user
                   v-for="(item, index) in users"
                   :key="index"
@@ -93,6 +93,53 @@
         <el-tab-pane label="注意事项" name="fourth">
           <div>{{ remark }}</div>
         </el-tab-pane>
+        <el-tab-pane label="保养记录" name="fifth">
+          <div>
+            <el-table
+              :data="taskrecordtableData"
+              stripe
+              border
+              style="width:100%;"
+              class="extraTable"
+            >
+              <el-table-column type="expand">
+                <template slot-scope="props">
+                  <el-form
+                    label-position="left"
+                    inline
+                    class="demo-table-expand"
+                  >
+                    <el-form-item label="「自我修复」的异常修复过程">
+                      <span>{{ props.row.fix }}</span>
+                    </el-form-item>
+                    <el-form-item label="是否存在「不能自我修复」的异常">
+                      <span>{{ props.row.hasException }}</span>
+                    </el-form-item>
+                    <el-form-item label="完成记录">
+                      <span>{{ props.row.record }}</span>
+                    </el-form-item>
+                    <el-form-item label="异常报告">
+                      <span>{{ props.row.report }}</span>
+                    </el-form-item>
+                    <el-form-item label="图片记录">
+                      <img :src="props.row.pic" v-if="props.row.ifpicexist" />
+                      <span v-if="!props.row.ifpicexist">暂无</span>
+                    </el-form-item>
+                  </el-form>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="id"
+                label="记录ID"
+                width="70"
+              ></el-table-column>
+              <el-table-column
+                prop="hasException"
+                label="是否存在「不能自我修复」的异常"
+              ></el-table-column>
+            </el-table>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -138,30 +185,30 @@ export default {
         that.startDate = res.data.startDate;
       }
       if (that.scheduleType == "日保养") {
-        that.scheduleType_info = "天";
+        that.scheduleType_info = "日保养（每天）";
       }
       if (that.scheduleType == "周保养") {
         switch (that.startDate) {
           case 1:
-            that.scheduleType_info = "周一";
+            that.scheduleType_info = "周保养（周一）";
             break;
           case 2:
-            that.scheduleType_info = "周二";
+            that.scheduleType_info = "周保养（周二）";
             break;
           case 3:
-            that.scheduleType_info = "周三";
+            that.scheduleType_info = "周保养（周三）";
             break;
           case 4:
-            that.scheduleType_info = "周四";
+            that.scheduleType_info = "周保养（周四）";
             break;
           case 5:
-            that.scheduleType_info = "周五";
+            that.scheduleType_info = "周保养（周五）";
             break;
           case 6:
-            that.scheduleType_info = "周六";
+            that.scheduleType_info = "周保养（周六）";
             break;
           case 7:
-            that.scheduleType_info = "周日";
+            that.scheduleType_info = "周保养（周日）";
             break;
           default:
             break;
@@ -230,21 +277,27 @@ export default {
         "?page=0&size=100";
       axios.get(URL).then((res) => {
         console.log(res.data);
-        that.active = res.data.content.length - 1;
-        that.aaa = "height: " + (res.data.content.length - 1) * 70 + "px;";
         for (let i = 0; i < res.data.content.length; i++) {
-          that.records.push({
-            record: res.data.content[i].record,
-            imgUrl: "http://47.102.214.37:8080/pic/" + res.data.content[i].pic,
-          });
-          that.reports.push({
-            report: res.data.content[i].report,
-          });
-          if (i == res.data.content.length - 1) {
-            console.log(res.data.content[i]);
-            that.fix = res.data.content[i].fix;
-            that.hasException = res.data.content[i].hasException;
-          }
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          res.data.content[i].fix == null
+            ? (obj.fix = "暂无")
+            : (obj.fix = res.data.content[i].fix);
+          res.data.content[i].hasException == false
+            ? (obj.hasException = "否")
+            : (obj.hasException = "是");
+          res.data.content[i].record == null
+            ? (obj.record = "暂无")
+            : (obj.record = res.data.content[i].record);
+          res.data.content[i].report == null
+            ? (obj.report = "暂无")
+            : (obj.report = res.data.content[i].report);
+          obj.ifpicexist = true;
+          res.data.content[i].pic == null
+            ? (obj.ifpicexist = false)
+            : (obj.pic =
+                "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+          that.taskrecordtableData.unshift(obj);
         }
       });
     }, 300);
@@ -273,6 +326,9 @@ export default {
 
       /* 注意事项 */
       remark: null, // 注意事项
+
+      /* 保养记录 */
+      taskrecordtableData: [], // 保养记录
     };
   },
   methods: {},
@@ -295,14 +351,10 @@ export default {
     overflow: hidden;
     font-size: 16px;
     // border: 1px solid red;
-    padding: 10px 0 10px 0;
+    padding: 10px 0;
     .el-breadcrumb__inner {
       font-weight: bold;
       margin-left: 10px;
-    }
-    .el-breadcrumb__inner.is-link {
-      color: #666666;
-      font-weight: normal;
     }
     .active {
       font-size: 20px;
@@ -344,18 +396,38 @@ export default {
     .BaseInfo_2 {
       margin-top: 10px;
       border-bottom: 0;
-      .extraTable {
-        .el-table__header {
-          th {
-            background: #f5f5f5;
-          }
-        }
-      }
     }
   }
   .content {
     .title {
       border-left: 3px solid #409eff;
+    }
+  }
+  .extraTable {
+    .el-table__header {
+      th {
+        background: #f6f6f6;
+      }
+    }
+    .demo-table-expand {
+      label {
+        color: #99a9bf;
+      }
+      .el-form-item {
+        width: 100%;
+        // border: 1px solid #409eff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
+    .el-button {
+      border: none;
+      padding: 5px 0;
+      background: transparent;
+      &:hover {
+        color: #409eff;
+      }
     }
   }
 }
