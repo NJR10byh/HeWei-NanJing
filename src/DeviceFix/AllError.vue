@@ -157,6 +157,8 @@
 </template>
 <script>
 import axios from "axios";
+import globaldata from "../GlobalData/globaldata";
+
 export default {
   created: function() {
     let that = this;
@@ -164,9 +166,15 @@ export default {
       console.log(res.data);
       that.userRole = res.data.role;
     });
-    setTimeout(() => {
-      that.refresh();
-    }, 200);
+    if (globaldata.fixselectInfo.length != 0) {
+      that.selectInfo = globaldata.fixselectInfo;
+      that.dynamicTags = globaldata.fixdynamicTags;
+      that.search();
+    } else {
+      setTimeout(() => {
+        that.refresh();
+      }, 200);
+    }
 
     // 获取全部设备
     axios({
@@ -251,8 +259,10 @@ export default {
     },
     // 标签移除
     handleClose(tag) {
-      // console.log(this.dynamicTags.indexOf(tag));
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      let index = this.dynamicTags.indexOf(tag);
+      console.log(index);
+      this.dynamicTags.splice(index, 1);
+      this.selectInfo.splice(index, 1);
     },
     // 刷新
     refresh() {
@@ -282,6 +292,13 @@ export default {
             type: "success",
           });
         });
+      // 清空搜索条件，等待下次搜索
+      that.selectInfo = [];
+      that.selectvalue = "";
+      that.selectmodel = "";
+      that.dynamicTags = [];
+      globaldata.fixselectInfo = [];
+      globaldata.fixdynamicTags = [];
     },
     errordetail(index) {
       let that = this;
@@ -329,6 +346,10 @@ export default {
                 reporterid: "id：" + res.data.content[i].reporter.id,
               });
             }
+            // 搜索条件存入全局变量
+            globaldata.fixselectInfo = that.selectInfo;
+            globaldata.fixdynamicTags = that.dynamicTags;
+
             setTimeout(() => {
               that.$message({
                 message: "查询成功",
@@ -336,16 +357,12 @@ export default {
               });
             }, 200);
           }
-
-          // 清空搜索条件，等待下次搜索
-          that.selectInfo = [];
-          // that.exporturl = "";
-          that.selectvalue = "";
-          that.selectmodel = "";
-          that.dynamicTags = [];
         });
       } else {
         console.log("aaa");
+        // 搜索条件存入全局变量
+        globaldata.fixselectInfo = that.selectInfo;
+        globaldata.fixdynamicTags = that.dynamicTags;
       }
     },
   },

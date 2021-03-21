@@ -199,6 +199,8 @@
 import axios from "axios";
 // import XLSX from "xlsx";
 // import FileSaver from "file-saver";
+import globaldata from "../GlobalData/globaldata";
+
 export default {
   name: "DeviceInformation",
   components: {},
@@ -282,8 +284,10 @@ export default {
     },
     // 标签移除
     handleClose(tag) {
-      // console.log(this.dynamicTags.indexOf(tag));
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      let index = this.dynamicTags.indexOf(tag);
+      console.log(index);
+      this.dynamicTags.splice(index, 1);
+      this.selectInfo.splice(index, 1);
     },
     // 搜索
     search() {
@@ -328,9 +332,9 @@ export default {
             type: "success",
           });
 
-          that.selectInfo = [];
-          that.selectvalue = "";
-          that.selectmodel = "";
+          // 搜索条件存入全局变量
+          globaldata.deviceselectInfo = that.selectInfo;
+          globaldata.devicedynamicTags = that.dynamicTags;
         });
       } else {
         for (let i = 1; i < that.selectInfo.length; i++) {
@@ -375,11 +379,9 @@ export default {
             type: "success",
           });
 
-          // 清空搜索条件，等待下次搜索
-          that.selectInfo = [];
-          that.selectvalue = "";
-          that.selectmodel = "";
-          that.dynamicTags = [];
+          // 搜索条件存入全局变量
+          globaldata.deviceselectInfo = that.selectInfo;
+          globaldata.devicedynamicTags = that.dynamicTags;
         });
       }
     },
@@ -419,6 +421,13 @@ export default {
             message: "已获取全部设备",
             type: "success",
           });
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          globaldata.deviceselectInfo = [];
+          globaldata.devicedynamicTags = [];
         })
         .catch((err) => {
           console.log(err);
@@ -674,53 +683,34 @@ export default {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       that.userRole = res.data.role;
     });
-    setTimeout(function() {
-      // 获取所有附加字段
-      axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < res.data.length; i++) {
-          let obj = {};
-          obj.label = res.data[i].name;
-          obj.width = "130";
-          obj.prop = res.data[i].id;
-          that.tableHead.push(obj);
-        }
-        for (let i = 0; i < res.data.length; i++) {
-          that.selectoptions[1].options.push({
-            value: res.data[i].id,
-            label: res.data[i].name,
-          });
-        }
-      });
-      // 获取所有设备
-      axios
-        .get("http://47.102.214.37:8080/device?page=0&size=10")
-        .then((res) => {
-          // console.log(res.data);
-          that.total = res.data.totalElements;
-          for (let i = 0; i < res.data.content.length; i++) {
+    // 先检查是否有搜索记录
+    if (globaldata.deviceselectInfo.length != 0) {
+      console.log(globaldata.deviceselectInfo);
+      that.selectInfo = globaldata.deviceselectInfo;
+      that.dynamicTags = globaldata.devicedynamicTags;
+      that.search();
+    } else {
+      setTimeout(function() {
+        // 获取所有附加字段
+        axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+          for (let i = 0; i < res.data.length; i++) {
             let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.name = res.data.content[i].name;
-            obj["brand"] = res.data.content[i].brand;
-            obj.type = res.data.content[i].type;
-            obj.deviceNo = res.data.content[i].deviceNo;
-            if (res.data.content[i].extra.length != 0) {
-              for (let j = 0; j < res.data.content[i].extra.length; j++) {
-                obj[res.data.content[i].extra[j].field.id] =
-                  res.data.content[i].extra[j].value;
-              }
-            }
-            if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
-            } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
-            }
-            obj.clazz = res.data.content[i].clazz;
-            that.tableData.push(obj);
+            obj.label = res.data[i].name;
+            obj.width = "130";
+            obj.prop = res.data[i].id;
+            that.tableHead.push(obj);
+          }
+          for (let i = 0; i < res.data.length; i++) {
+            that.selectoptions[1].options.push({
+              value: res.data[i].id,
+              label: res.data[i].name,
+            });
           }
         });
-    }, 200);
+        // 获取所有设备
+        that.getAllDevice();
+      }, 200);
+    }
   },
 };
 </script>
