@@ -298,9 +298,14 @@ export default {
         "=L" +
         that.selectInfo[0].value +
         "%25";
+      let exportURL =
+        "http://47.102.214.37:8080/device/export?" +
+        that.selectInfo[0].ziduan +
+        "=L" +
+        that.selectInfo[0].value +
+        "%25";
       if (that.selectInfo.length == 1) {
-        that.exporturl = url;
-        console.log(that.exporturl);
+        that.exporturl = exportURL;
         axios.get(url).then((res) => {
           console.log(res.data);
           that.tableData = [];
@@ -345,9 +350,15 @@ export default {
             "=L" +
             that.selectInfo[i].value +
             "%25";
+          exportURL =
+            exportURL +
+            "&" +
+            that.selectInfo[i].ziduan +
+            "=L" +
+            that.selectInfo[i].value +
+            "%25";
         }
-        that.exporturl = url;
-        console.log(that.exporturl);
+        that.exporturl = exportURL;
         axios.get(url).then((res) => {
           console.log(res.data);
           that.tableData = [];
@@ -428,6 +439,9 @@ export default {
           that.dynamicTags = [];
           globaldata.deviceselectInfo = [];
           globaldata.devicedynamicTags = [];
+
+          // 改变导出url
+          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
         })
         .catch((err) => {
           console.log(err);

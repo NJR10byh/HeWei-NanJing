@@ -175,6 +175,7 @@
         placeholder="请选择保养人员"
         filterable
         clearable
+        multiple
         v-if="selectvalue == 'ops'"
       >
         <el-option-group
@@ -421,33 +422,160 @@ export default {
     search() {
       let that = this;
       let url = "";
-      if (that.selectInfo[0].ziduan == "name") {
-        url =
-          "http://47.102.214.37:8080/ops/query?" +
-          that.selectInfo[0].ziduan +
-          "=L" +
-          that.selectInfo[0].value +
-          "%25";
+      if (that.selectInfo.length == 0) {
+        that.$message({
+          message: "请输入搜索字段",
+          type: "warning",
+        });
       } else {
-        url =
-          "http://47.102.214.37:8080/ops/query?" +
-          that.selectInfo[0].ziduan +
-          "==" +
-          that.selectInfo[0].value;
-      }
-      if (that.selectInfo.length == 1) {
-        // that.exporturl = url;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.tableData = [];
-          that.total = res.data.totalElements;
-          that.currentPage = 1;
-          if (res.data.content.length == 0) {
-            that.$message({
-              message: "无结果",
-              type: "warning",
-            });
+        // 确定第一部分
+        if (that.selectInfo[0].ziduan == "name") {
+          url =
+            "http://47.102.214.37:8080/ops/query?" +
+            that.selectInfo[0].ziduan +
+            "=L" +
+            that.selectInfo[0].value +
+            "%25";
+        } else {
+          console.log(that.selectInfo[0]);
+          // 设备、人员支持多选
+          if (
+            that.selectInfo[0].ziduan == "device" ||
+            that.selectInfo[0].ziduan == "ops"
+          ) {
+            if (that.selectInfo[0].value.length > 1) {
+              url =
+                "http://47.102.214.37:8080/ops/query?" +
+                that.selectInfo[0].ziduan +
+                "=I" +
+                that.selectInfo[0].value[0];
+              for (let i = 1; i < that.selectInfo[0].value.length; i++) {
+                url = url + "," + that.selectInfo[0].value[i];
+              }
+            } else {
+              url =
+                "http://47.102.214.37:8080/ops/query?" +
+                that.selectInfo[0].ziduan +
+                "==" +
+                that.selectInfo[0].value;
+            }
           } else {
+            url =
+              "http://47.102.214.37:8080/ops/query?" +
+              that.selectInfo[0].ziduan +
+              "==" +
+              that.selectInfo[0].value;
+          }
+        }
+        if (that.selectInfo.length == 1) {
+          // that.exporturl = url;
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            that.tableData = [];
+            that.total = res.data.totalElements;
+            that.currentPage = 1;
+            if (res.data.content.length == 0) {
+              that.$message({
+                message: "无结果",
+                type: "warning",
+              });
+            } else {
+              for (let i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.name = res.data.content[i].name;
+                setTimeout(() => {
+                  let url =
+                    "http://47.102.214.37:8080/user/" +
+                    res.data.content[i].ops[0].id;
+                  axios.get(url).then((res) => {
+                    obj.taskuser =
+                      res.data.name + " ( ID：" + res.data.id + " )";
+                  });
+                  setTimeout(() => {
+                    let URL =
+                      "http://47.102.214.37:8080/ops/schedule/status/" +
+                      res.data.content[i].id;
+                    axios.get(URL).then((res) => {
+                      if (res.data.nextDate == null) {
+                        obj.nextDate = "暂无";
+                      } else {
+                        obj.nextDate = res.data.nextDate;
+                      }
+                      if (res.data.nextDateDay == null) {
+                        obj.deadline = "暂无";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
+                    });
+                    setTimeout(() => {
+                      that.tableData.push(obj);
+                    }, 400);
+                  }, 300);
+                }, 300);
+              }
+              // 搜索条件存入全局变量
+              globaldata.taskselectInfo = that.selectInfo;
+              globaldata.taskdynamicTags = that.dynamicTags;
+
+              setTimeout(() => {
+                that.$message({
+                  message: "查询成功",
+                  type: "success",
+                });
+              }, 800);
+            }
+          });
+        } else {
+          console.log(that.selectInfo);
+          for (let i = 1; i < that.selectInfo.length; i++) {
+            if (that.selectInfo[i].ziduan == "name") {
+              url =
+                url +
+                "&" +
+                that.selectInfo[i].ziduan +
+                "=L" +
+                that.selectInfo[i].value +
+                "%25";
+            } else {
+              if (
+                that.selectInfo[i].ziduan == "device" ||
+                that.selectInfo[i].ziduan == "ops"
+              ) {
+                if (that.selectInfo[i].value.length > 1) {
+                  url =
+                    url +
+                    "&" +
+                    that.selectInfo[i].ziduan +
+                    "=I" +
+                    that.selectInfo[i].value[0];
+                  for (let j = 1; j < that.selectInfo[i].value.length; j++) {
+                    url = url + "," + that.selectInfo[i].value[j];
+                  }
+                } else {
+                  url =
+                    url +
+                    "&" +
+                    that.selectInfo[i].ziduan +
+                    "==" +
+                    that.selectInfo[i].value;
+                }
+              } else {
+                url =
+                  url +
+                  "&" +
+                  that.selectInfo[i].ziduan +
+                  "==" +
+                  that.selectInfo[i].value;
+              }
+            }
+          }
+          // that.exporturl = url;
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            that.tableData = [];
+            that.total = res.data.totalElements;
+            that.currentPage = 1;
             for (let i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
@@ -491,77 +619,8 @@ export default {
                 type: "success",
               });
             }, 800);
-          }
-        });
-      } else {
-        for (let i = 1; i < that.selectInfo.length; i++) {
-          if (that.selectInfo[i].ziduan == "name") {
-            url =
-              url +
-              "&" +
-              that.selectInfo[i].ziduan +
-              "=L" +
-              that.selectInfo[i].value +
-              "%25";
-          } else {
-            url =
-              url +
-              "&" +
-              that.selectInfo[i].ziduan +
-              "==" +
-              that.selectInfo[i].value;
-          }
+          });
         }
-        // that.exporturl = url;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.tableData = [];
-          that.total = res.data.totalElements;
-          that.currentPage = 1;
-          for (let i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.name = res.data.content[i].name;
-            setTimeout(() => {
-              let url =
-                "http://47.102.214.37:8080/user/" +
-                res.data.content[i].ops[0].id;
-              axios.get(url).then((res) => {
-                obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
-              });
-              setTimeout(() => {
-                let URL =
-                  "http://47.102.214.37:8080/ops/schedule/status/" +
-                  res.data.content[i].id;
-                axios.get(URL).then((res) => {
-                  if (res.data.nextDate == null) {
-                    obj.nextDate = "暂无";
-                  } else {
-                    obj.nextDate = res.data.nextDate;
-                  }
-                  if (res.data.nextDateDay == null) {
-                    obj.deadline = "暂无";
-                  } else {
-                    obj.deadline = res.data.nextDateDay;
-                  }
-                });
-                setTimeout(() => {
-                  that.tableData.push(obj);
-                }, 400);
-              }, 300);
-            }, 300);
-          }
-          // 搜索条件存入全局变量
-          globaldata.taskselectInfo = that.selectInfo;
-          globaldata.taskdynamicTags = that.dynamicTags;
-
-          setTimeout(() => {
-            that.$message({
-              message: "查询成功",
-              type: "success",
-            });
-          }, 800);
-        });
       }
     },
 

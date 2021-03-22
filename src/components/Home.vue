@@ -292,11 +292,6 @@ export default {
           authName: "数据分析",
           children: [
             {
-              id: 50,
-              authName: "故障分析",
-              path: "faultAnalysis",
-            },
-            {
               id: 51,
               authName: "保养分析",
               path: "maintenanceAnalysis",
@@ -310,11 +305,6 @@ export default {
               id: 53,
               authName: "使用日志",
               path: "useLogs",
-            },
-            {
-              id: 54,
-              authName: "维修日志",
-              path: "fixLogs",
             },
           ],
         },
@@ -451,11 +441,6 @@ export default {
           authName: "数据分析",
           children: [
             {
-              id: 50,
-              authName: "故障分析",
-              path: "faultAnalysis",
-            },
-            {
               id: 51,
               authName: "保养分析",
               path: "maintenanceAnalysis",
@@ -469,11 +454,6 @@ export default {
               id: 53,
               authName: "使用日志",
               path: "useLogs",
-            },
-            {
-              id: 54,
-              authName: "维修日志",
-              path: "fixLogs",
             },
           ],
         },
@@ -538,11 +518,6 @@ export default {
           authName: "数据分析",
           children: [
             {
-              id: 50,
-              authName: "故障分析",
-              path: "faultAnalysis",
-            },
-            {
               id: 51,
               authName: "保养分析",
               path: "maintenanceAnalysis",
@@ -556,11 +531,6 @@ export default {
               id: 53,
               authName: "使用日志",
               path: "useLogs",
-            },
-            {
-              id: 54,
-              authName: "维修日志",
-              path: "fixLogs",
             },
           ],
         },

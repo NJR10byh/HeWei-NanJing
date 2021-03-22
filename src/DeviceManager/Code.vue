@@ -21,6 +21,7 @@ export default {
     };
   },
   methods: {
+    // 将图片保留在本地
     downloadIamge(imgsrc, name) {
       //下载图片地址和图片名
       var image = new Image();
