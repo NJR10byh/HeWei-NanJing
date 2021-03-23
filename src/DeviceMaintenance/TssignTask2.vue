@@ -7,8 +7,11 @@
         <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
+
     <div style="text-align:center;">
+      保养开始日期：
       <el-date-picker
+        style="margin-left:30px;"
         v-model="datevalue"
         type="date"
         placeholder="选择日期"

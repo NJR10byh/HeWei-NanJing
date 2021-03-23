@@ -79,6 +79,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
+    <div>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="5"
+        layout="sizes,total, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
     <!-- 搜索条件 -->
     <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
       <!-- <el-input v-model="selectmodel" placeholder="请输入搜索内容"></el-input> -->
@@ -88,6 +100,7 @@
         placeholder="请选择设备"
         filterable
         clearable
+        multiple
         v-if="selectvalue == 'device'"
       >
         <el-option-group
@@ -107,13 +120,15 @@
 
       <!-- 报修人员 -->
       <el-select
+        v-model="reportervalue"
         placeholder="请选择报修人员"
         filterable
         clearable
+        multiple
         v-if="selectvalue == 'reporter'"
       >
         <el-option-group
-          v-for="group in scheduleTypeoptions"
+          v-for="group in reporteroptions"
           :key="group.label"
           :label="group.label"
         >
@@ -129,13 +144,15 @@
 
       <!-- 维修人员 -->
       <el-select
+        v-model="assigneevalue"
         placeholder="请选择维修人员"
         filterable
         clearable
+        multiple
         v-if="selectvalue == 'assignee'"
       >
         <el-option-group
-          v-for="group in scheduleTypeoptions"
+          v-for="group in assigneeoptions"
           :key="group.label"
           :label="group.label"
         >
@@ -196,6 +213,61 @@ export default {
       .catch((err) => {
         console.log(err);
       });
+    setTimeout(() => {
+      // 获取全部OPERATOR
+      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+        // console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "ROOT") {
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")";
+            that.reporteroptions[0].options.push(obj);
+          } else if (res.data.content[i].role == "ADMIN") {
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")";
+            that.reporteroptions[1].options.push(obj);
+          } else if (res.data.content[i].role == "CREATER") {
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")";
+            that.reporteroptions[2].options.push(obj);
+          } else if (res.data.content[i].role == "SUPERVISOR") {
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")";
+            that.reporteroptions[3].options.push(obj);
+          } else if (res.data.content[i].role == "OPERATOR") {
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")";
+            that.reporteroptions[4].options.push(obj);
+            that.assigneeoptions[0].options.push(obj);
+          }
+        }
+      });
+    }, 300);
   },
   data() {
     return {
@@ -232,9 +304,50 @@ export default {
           options: [],
         },
       ],
+
+      // 维修人员
+      assigneevalue: "",
+      assigneeoptions: [
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+      ],
+
+      // 报修人员
+      reportervalue: "",
+      reporteroptions: [
+        {
+          label: "ROOT",
+          options: [],
+        },
+        {
+          label: "ADMIN",
+          options: [],
+        },
+        {
+          label: "CREATER",
+          options: [],
+        },
+        {
+          label: "SUPERVISOR",
+          options: [],
+        },
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+      ],
+
       selectvalue: "",
       selectInfo: [],
       dialogSearchVisible: false,
+
+      // 分页
+      currentPage: 1, // 起始页数
+      page: 1, // 当前页数
+      size: 5, // 每页显示条数
+      total: 0,
     };
   },
   methods: {
@@ -249,12 +362,18 @@ export default {
           value: this.devicevalue,
         });
         this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
-      } else {
+      } else if (this.selectvalue == "assignee") {
         this.selectInfo.push({
           ziduan: this.selectvalue,
-          value: this.selectmodel,
+          value: this.assigneevalue,
         });
-        this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+        this.dynamicTags.push(this.selectvalue + " / " + this.assigneevalue);
+      } else if (this.selectvalue == "reporter") {
+        this.selectInfo.push({
+          ziduan: this.selectvalue,
+          value: this.reportervalue,
+        });
+        this.dynamicTags.push(this.selectvalue + " / " + this.reportervalue);
       }
     },
     // 标签移除
@@ -272,6 +391,7 @@ export default {
         .get("http://47.102.214.37:8080/issue?page=0&size=10")
         .then((res) => {
           console.log(res.data);
+          that.total = res.data.totalElements;
           for (let i = 0; i < res.data.content.length; i++) {
             let assigneeid = "";
             for (let j = 1; j < res.data.content[i].assignee.length; j++) {
@@ -313,16 +433,41 @@ export default {
     search() {
       let that = this;
       let url = "";
-      url =
-        "http://47.102.214.37:8080/issue/query?" +
-        that.selectInfo[0].ziduan +
-        "==" +
-        that.selectInfo[0].value;
+      that.taskData = [];
+      that.currentPage = 1;
+      if (
+        that.selectInfo[0].ziduan == "device" ||
+        that.selectInfo[0].ziduan == "reporter" ||
+        that.selectInfo[0].ziduan == "assignee"
+      ) {
+        if (that.selectInfo[0].value.length > 1) {
+          url =
+            "http://47.102.214.37:8080/issue/query?" +
+            that.selectInfo[0].ziduan +
+            "=I" +
+            that.selectInfo[0].value[0];
+          for (let i = 1; i < that.selectInfo[0].value.length; i++) {
+            url = url + "," + that.selectInfo[0].value[i];
+          }
+        } else {
+          url =
+            "http://47.102.214.37:8080/issue/query?" +
+            that.selectInfo[0].ziduan +
+            "==" +
+            that.selectInfo[0].value;
+        }
+      } else {
+        url =
+          "http://47.102.214.37:8080/issue/query?" +
+          that.selectInfo[0].ziduan +
+          "==" +
+          that.selectInfo[0].value;
+      }
       if (that.selectInfo.length == 1) {
         // that.exporturl = url;
         axios.get(url).then((res) => {
           console.log(res.data);
-          that.taskData = [];
+          that.total = res.data.totalElements;
           // that.total = res.data.totalElements;
           // that.currentPage = 1;
           if (res.data.content.length == 0) {
@@ -347,23 +492,159 @@ export default {
               });
             }
             // 搜索条件存入全局变量
-            globaldata.fixselectInfo = that.selectInfo;
-            globaldata.fixdynamicTags = that.dynamicTags;
+            globaldata.taskselectInfo = that.selectInfo;
+            globaldata.taskdynamicTags = that.dynamicTags;
 
             setTimeout(() => {
               that.$message({
                 message: "查询成功",
                 type: "success",
               });
-            }, 200);
+            }, 300);
           }
         });
       } else {
-        console.log("aaa");
-        // 搜索条件存入全局变量
-        globaldata.fixselectInfo = that.selectInfo;
-        globaldata.fixdynamicTags = that.dynamicTags;
+        console.log(that.selectInfo);
+        for (let i = 1; i < that.selectInfo.length; i++) {
+          if (that.selectInfo[i].ziduan == "name") {
+            url =
+              url +
+              "&" +
+              that.selectInfo[i].ziduan +
+              "=L" +
+              that.selectInfo[i].value +
+              "%25";
+          } else {
+            if (
+              that.selectInfo[i].ziduan == "device" ||
+              that.selectInfo[i].ziduan == "ops"
+            ) {
+              if (that.selectInfo[i].value.length > 1) {
+                url =
+                  url +
+                  "&" +
+                  that.selectInfo[i].ziduan +
+                  "=I" +
+                  that.selectInfo[i].value[0];
+                for (let j = 1; j < that.selectInfo[i].value.length; j++) {
+                  url = url + "," + that.selectInfo[i].value[j];
+                }
+              } else {
+                url =
+                  url +
+                  "&" +
+                  that.selectInfo[i].ziduan +
+                  "==" +
+                  that.selectInfo[i].value;
+              }
+            } else {
+              url =
+                url +
+                "&" +
+                that.selectInfo[i].ziduan +
+                "==" +
+                that.selectInfo[i].value;
+            }
+          }
+        }
+        // that.exporturl = url;
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let assigneeid = "";
+            for (let j = 1; j < res.data.content[i].assignee.length; j++) {
+              assigneeid =
+                assigneeid +
+                "id：" +
+                res.data.content[i].assignee[j].id +
+                " / ";
+            }
+            that.taskData.unshift({
+              errorid: res.data.content[i].id,
+              assigneeid: assigneeid,
+              reporterid: "id：" + res.data.content[i].reporter.id,
+            });
+          }
+          // 搜索条件存入全局变量
+          globaldata.fixselectInfo = that.selectInfo;
+          globaldata.fixdynamicTags = that.dynamicTags;
+
+          setTimeout(() => {
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
+          }, 300);
+        });
       }
+    },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      console.log(val);
+      that.size = val;
+      let url = "http://47.102.214.37:8080/issue?page=0" + "&size=" + that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.taskData = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          let assigneeid = "";
+          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
+            assigneeid =
+              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
+          }
+          that.taskData.unshift({
+            errorid: res.data.content[i].id,
+            assigneeid: assigneeid,
+            reporterid: "id：" + res.data.content[i].reporter.id,
+          });
+        }
+        setTimeout(() => {
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        }, 300);
+      });
+    },
+    // // 页变化
+    handleCurrentChange(val) {
+      let that = this;
+      that.page = val;
+      that.currentPage = val;
+      console.log(val);
+      let url =
+        "http://47.102.214.37:8080/issue?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.taskData = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          let assigneeid = "";
+          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
+            assigneeid =
+              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
+          }
+          that.taskData.unshift({
+            errorid: res.data.content[i].id,
+            assigneeid: assigneeid,
+            reporterid: "id：" + res.data.content[i].reporter.id,
+          });
+        }
+        setTimeout(() => {
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        }, 300);
+      });
     },
   },
 };

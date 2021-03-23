@@ -71,11 +71,11 @@
       <el-table-column prop="name" label="任务名称"></el-table-column>
       <el-table-column prop="nextDate" label="下次保养时间"></el-table-column>
       <el-table-column prop="deadline" label="剩余天数"></el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="taskuser"
         label="保养人员代表"
         v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
-      ></el-table-column>
+      ></el-table-column> -->
       <el-table-column
         prop="setting"
         label="操作"
@@ -103,17 +103,17 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <!-- <div class="block">
+    <div>
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[10, 20, 30, 40]"
-        :page-size="10"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="5"
         layout="sizes,total, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
-    </div> -->
+    </div>
     <!-- 搜索条件 -->
     <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
       <el-input
@@ -358,9 +358,9 @@ export default {
       datevalue: "",
 
       // 分页
-      currentPage: 1,
-      page: 1,
-      size: 10,
+      currentPage: 1, // 起始页数
+      page: 1, // 当前页数
+      size: 5, // 每页显示条数
       total: 0,
     };
   },
@@ -422,6 +422,8 @@ export default {
     search() {
       let that = this;
       let url = "";
+      that.tableData = [];
+      that.currentPage = 1;
       if (that.selectInfo.length == 0) {
         that.$message({
           message: "请输入搜索字段",
@@ -471,9 +473,7 @@ export default {
           // that.exporturl = url;
           axios.get(url).then((res) => {
             console.log(res.data);
-            that.tableData = [];
             that.total = res.data.totalElements;
-            that.currentPage = 1;
             if (res.data.content.length == 0) {
               that.$message({
                 message: "无结果",
@@ -485,33 +485,24 @@ export default {
                 obj.id = res.data.content[i].id;
                 obj.name = res.data.content[i].name;
                 setTimeout(() => {
-                  let url =
-                    "http://47.102.214.37:8080/user/" +
-                    res.data.content[i].ops[0].id;
-                  axios.get(url).then((res) => {
-                    obj.taskuser =
-                      res.data.name + " ( ID：" + res.data.id + " )";
+                  let URL =
+                    "http://47.102.214.37:8080/ops/schedule/status/" +
+                    res.data.content[i].id;
+                  axios.get(URL).then((res) => {
+                    if (res.data.nextDate == null) {
+                      obj.nextDate = "暂无";
+                    } else {
+                      obj.nextDate = res.data.nextDate;
+                    }
+                    if (res.data.nextDateDay == null) {
+                      obj.deadline = "暂无";
+                    } else {
+                      obj.deadline = res.data.nextDateDay;
+                    }
                   });
                   setTimeout(() => {
-                    let URL =
-                      "http://47.102.214.37:8080/ops/schedule/status/" +
-                      res.data.content[i].id;
-                    axios.get(URL).then((res) => {
-                      if (res.data.nextDate == null) {
-                        obj.nextDate = "暂无";
-                      } else {
-                        obj.nextDate = res.data.nextDate;
-                      }
-                      if (res.data.nextDateDay == null) {
-                        obj.deadline = "暂无";
-                      } else {
-                        obj.deadline = res.data.nextDateDay;
-                      }
-                    });
-                    setTimeout(() => {
-                      that.tableData.push(obj);
-                    }, 400);
-                  }, 300);
+                    that.tableData.push(obj);
+                  }, 400);
                 }, 300);
               }
               // 搜索条件存入全局变量
@@ -523,7 +514,7 @@ export default {
                   message: "查询成功",
                   type: "success",
                 });
-              }, 800);
+              }, 300);
             }
           });
         } else {
@@ -581,32 +572,24 @@ export default {
               obj.id = res.data.content[i].id;
               obj.name = res.data.content[i].name;
               setTimeout(() => {
-                let url =
-                  "http://47.102.214.37:8080/user/" +
-                  res.data.content[i].ops[0].id;
-                axios.get(url).then((res) => {
-                  obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
+                let URL =
+                  "http://47.102.214.37:8080/ops/schedule/status/" +
+                  res.data.content[i].id;
+                axios.get(URL).then((res) => {
+                  if (res.data.nextDate == null) {
+                    obj.nextDate = "暂无";
+                  } else {
+                    obj.nextDate = res.data.nextDate;
+                  }
+                  if (res.data.nextDateDay == null) {
+                    obj.deadline = "暂无";
+                  } else {
+                    obj.deadline = res.data.nextDateDay;
+                  }
                 });
                 setTimeout(() => {
-                  let URL =
-                    "http://47.102.214.37:8080/ops/schedule/status/" +
-                    res.data.content[i].id;
-                  axios.get(URL).then((res) => {
-                    if (res.data.nextDate == null) {
-                      obj.nextDate = "暂无";
-                    } else {
-                      obj.nextDate = res.data.nextDate;
-                    }
-                    if (res.data.nextDateDay == null) {
-                      obj.deadline = "暂无";
-                    } else {
-                      obj.deadline = res.data.nextDateDay;
-                    }
-                  });
-                  setTimeout(() => {
-                    that.tableData.push(obj);
-                  }, 400);
-                }, 300);
+                  that.tableData.push(obj);
+                }, 400);
               }, 300);
             }
             // 搜索条件存入全局变量
@@ -618,7 +601,7 @@ export default {
                 message: "查询成功",
                 type: "success",
               });
-            }, 800);
+            }, 300);
           });
         }
       }
@@ -628,42 +611,36 @@ export default {
     refresh() {
       let that = this;
       that.tableData = [];
+      that.currentPage = 1;
       if (["ROOT", "ADMIN", "CREATOR", "SUPERVISOR"].includes(that.userRole)) {
         axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=5")
           .then((res) => {
             console.log(res.data);
+            that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
               let obj = {};
               obj.id = res.data.content[i].id;
               obj.name = res.data.content[i].name;
               setTimeout(() => {
-                let url =
-                  "http://47.102.214.37:8080/user/" +
-                  res.data.content[i].ops[0].id;
-                axios.get(url).then((res) => {
-                  obj.taskuser = res.data.name + " ( ID：" + res.data.id + " )";
+                let URL =
+                  "http://47.102.214.37:8080/ops/schedule/status/" +
+                  res.data.content[i].id;
+                axios.get(URL).then((res) => {
+                  if (res.data.nextDate == null) {
+                    obj.nextDate = "暂无";
+                  } else {
+                    obj.nextDate = res.data.nextDate;
+                  }
+                  if (res.data.nextDateDay == null) {
+                    obj.deadline = "暂无";
+                  } else {
+                    obj.deadline = res.data.nextDateDay;
+                  }
                 });
                 setTimeout(() => {
-                  let URL =
-                    "http://47.102.214.37:8080/ops/schedule/status/" +
-                    res.data.content[i].id;
-                  axios.get(URL).then((res) => {
-                    if (res.data.nextDate == null) {
-                      obj.nextDate = "暂无";
-                    } else {
-                      obj.nextDate = res.data.nextDate;
-                    }
-                    if (res.data.nextDateDay == null) {
-                      obj.deadline = "暂无";
-                    } else {
-                      obj.deadline = res.data.nextDateDay;
-                    }
-                  });
-                  setTimeout(() => {
-                    that.tableData.push(obj);
-                  }, 400);
-                }, 300);
+                  that.tableData.push(obj);
+                }, 400);
               }, 300);
             }
             setTimeout(() => {
@@ -671,7 +648,7 @@ export default {
                 message: "刷新成功",
                 type: "success",
               });
-            }, 800);
+            }, 300);
           });
       } else {
         let URL = "http://47.102.214.37:8080/my/schedule";
@@ -681,17 +658,6 @@ export default {
             let obj = {};
             obj.id = res.data[i].id;
             obj.name = res.data[i].name;
-            let url =
-              "http://47.102.214.37:8080/user/query?id==" +
-              res.data[i].ops[0].id;
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              obj.taskuser =
-                res.data.content[0].name +
-                " ( ID：" +
-                res.data.content[0].id +
-                " )";
-            });
             setTimeout(() => {
               let URL =
                 "http://47.102.214.37:8080/ops/schedule/status/" +
@@ -805,78 +771,99 @@ export default {
           });
       }
     },
-    // // 表格方法
-    // handleSizeChange(val) {
-    //   // console.log(`每页 ${val} 条`);
-    //   let that = this;
-    //   console.log(val);
-    //   that.size = val;
-    //   let url =
-    //     "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
-    //   console.log(url);
-    //   axios.get(url).then((res) => {
-    //     console.log(res.data);
-    //     that.tableData = [];
-    //     for (var i = 0; i < res.data.content.length; i++) {
-    //       let obj = {};
-    //       obj.id = res.data.content[i].id;
-    //       obj.name = res.data.content[i].name;
-    //       obj["brand"] = res.data.content[i].brand;
-    //       obj.type = res.data.content[i].type;
-    //       obj.deviceNo = res.data.content[i].deviceNo;
-    //       if (res.data.content[i].extra.length != 0) {
-    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
-    //           obj[res.data.content[i].extra[j].field.id] =
-    //             res.data.content[i].extra[j].value;
-    //         }
-    //       }
-    //       if (res.data.content[i].crux == true) {
-    //         obj.crux = "Y";
-    //       } else if (res.data.content[i].crux == false) {
-    //         obj.crux = "N";
-    //       }
-    //       obj.clazz = res.data.content[i].clazz;
-    //       that.tableData.push(obj);
-    //     }
-    //   });
-    // },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      console.log(val);
+      that.size = val;
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=0" + "&size=" + that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          setTimeout(() => {
+            let URL =
+              "http://47.102.214.37:8080/ops/schedule/status/" +
+              res.data.content[i].id;
+            axios.get(URL).then((res) => {
+              if (res.data.nextDate == null) {
+                obj.nextDate = "暂无";
+              } else {
+                obj.nextDate = res.data.nextDate;
+              }
+              if (res.data.nextDateDay == null) {
+                obj.deadline = "暂无";
+              } else {
+                obj.deadline = res.data.nextDateDay;
+              }
+            });
+            setTimeout(() => {
+              that.tableData.push(obj);
+            }, 400);
+          }, 300);
+        }
+        setTimeout(() => {
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        }, 300);
+      });
+    },
     // // 页变化
-    // handleCurrentChange(val) {
-    //   let that = this;
-    //   that.page = val;
-    //   that.currentPage = val;
-    //   console.log(val);
-    //   let url =
-    //     "http://47.102.214.37:8080/device?page=" +
-    //     (that.page - 1) +
-    //     "&size=" +
-    //     that.size;
-    //   axios.get(url).then((res) => {
-    //     // console.log(res.data);
-    //     that.tableData = [];
-    //     for (var i = 0; i < res.data.content.length; i++) {
-    //       let obj = {};
-    //       obj.id = res.data.content[i].id;
-    //       obj.name = res.data.content[i].name;
-    //       obj["brand"] = res.data.content[i].brand;
-    //       obj.type = res.data.content[i].type;
-    //       obj.deviceNo = res.data.content[i].deviceNo;
-    //       if (res.data.content[i].extra.length != 0) {
-    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
-    //           obj[res.data.content[i].extra[j].field.id] =
-    //             res.data.content[i].extra[j].value;
-    //         }
-    //       }
-    //       if (res.data.content[i].crux == true) {
-    //         obj.crux = "Y";
-    //       } else if (res.data.content[i].crux == false) {
-    //         obj.crux = "N";
-    //       }
-    //       obj.clazz = res.data.content[i].clazz;
-    //       that.tableData.push(obj);
-    //     }
-    //   });
-    // },
+    handleCurrentChange(val) {
+      let that = this;
+      that.page = val;
+      that.currentPage = val;
+      console.log(val);
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.tableData = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.name = res.data.content[i].name;
+          setTimeout(() => {
+            let URL =
+              "http://47.102.214.37:8080/ops/schedule/status/" +
+              res.data.content[i].id;
+            axios.get(URL).then((res) => {
+              if (res.data.nextDate == null) {
+                obj.nextDate = "暂无";
+              } else {
+                obj.nextDate = res.data.nextDate;
+              }
+              if (res.data.nextDateDay == null) {
+                obj.deadline = "暂无";
+              } else {
+                obj.deadline = res.data.nextDateDay;
+              }
+            });
+            setTimeout(() => {
+              that.tableData.push(obj);
+            }, 400);
+          }, 300);
+        }
+        setTimeout(() => {
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        }, 300);
+      });
+    },
   },
 };
 </script>
