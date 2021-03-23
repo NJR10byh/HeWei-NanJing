@@ -430,6 +430,7 @@ export default {
     return {
       taskid: "", //任务ID
       name: null, // 任务名称
+      opUserid: "", // 维护人员id
       tabsActiveName: "first", // 进入打开第一个栏目
 
       /* 基本信息 */
@@ -508,35 +509,52 @@ export default {
     },
     submitrecord() {
       let that = this;
-      if (
-        that.form.fix == "" ||
-        that.form.record == "" ||
-        that.form.report == "" ||
-        that.form.hasException == "" ||
-        that.form.pic == ""
-      ) {
-        that.$message({
-          message: "请将信息填写完整",
-          type: "warning",
-        });
-      } else {
-        let obj = {};
-        obj.fix = that.form.fix;
-        obj.record = that.form.record;
-        obj.report = that.form.report;
-        obj.hasException = that.form.hasException;
-        obj.pic = that.form.pic;
-        obj.id = that.$route.query.id * 1;
-        console.log(obj);
-        axios.get("http://47.102.214.37:8080/ops/record").then((res) => {
-          console.log(res);
+      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+        console.log(res.data);
+        that.opUserid = res.data.id;
+      });
+      setTimeout(() => {
+        if (
+          that.form.fix == "" ||
+          that.form.record == "" ||
+          that.form.report == "" ||
+          that.form.hasException == "" ||
+          that.form.pic == ""
+        ) {
           that.$message({
-            message: "新增成功",
-            type: "success",
+            message: "请将信息填写完整",
+            type: "warning",
           });
-          that.dialogAddRecord = false;
-        });
-      }
+        } else {
+          let obj = {};
+          obj.fix = that.form.fix;
+          obj.record = that.form.record;
+          obj.report = that.form.report;
+          // obj.hasException = that.form.hasException;
+          if (that.form.hasException == "false") {
+            obj.hasException = false;
+          } else {
+            obj.hasException = true;
+          }
+          obj.pic = that.form.pic;
+          obj.id = that.$route.query.id * 1;
+          obj.opUser = { id: that.opUserid };
+          console.log(obj);
+          axios
+            .post("http://47.102.214.37:8080/ops/record", obj)
+            .then((res) => {
+              console.log(res);
+              that.$message({
+                message: "新增成功",
+                type: "success",
+              });
+              that.dialogAddRecord = false;
+            })
+            .catch((res) => {
+              console.log(res.response);
+            });
+        }
+      }, 300);
     },
     // 表格方法
     handleSizeChange(val) {
