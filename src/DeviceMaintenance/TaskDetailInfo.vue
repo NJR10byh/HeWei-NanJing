@@ -315,7 +315,7 @@ export default {
         that.scheduleType_info =
           "季度保养（每季度 " + that.startDate.split("-")[2] + " 号）";
       } else if (that.scheduleType == "年保养") {
-        that.scheduleType_info = "年保养（每年第" + that.startDate + "天）";
+        that.scheduleType_info = "年度保养";
       } else if (that.scheduleType == "未知") {
         that.scheduleType_info = "未知";
       }
@@ -527,32 +527,46 @@ export default {
           });
         } else {
           let obj = {};
+          let picurl = "http://47.102.214.37:8080/pic";
           obj.fix = that.form.fix;
           obj.record = that.form.record;
           obj.report = that.form.report;
-          // obj.hasException = that.form.hasException;
           if (that.form.hasException == "false") {
             obj.hasException = false;
           } else {
             obj.hasException = true;
           }
-          obj.pic = that.form.pic;
-          obj.id = that.$route.query.id * 1;
+          obj.schedule = { id: that.$route.query.id * 1 };
           obj.opUser = { id: that.opUserid };
-          console.log(obj);
-          axios
-            .post("http://47.102.214.37:8080/ops/record", obj)
-            .then((res) => {
+          setTimeout(() => {
+            axios({
+              url: picurl,
+              method: "post",
+              data: that.form.pic,
+              headers: {
+                "Content-Type": "text/plain",
+              },
+            }).then((res) => {
               console.log(res);
-              that.$message({
-                message: "新增成功",
-                type: "success",
-              });
-              that.dialogAddRecord = false;
-            })
-            .catch((res) => {
-              console.log(res.response);
+              obj.pic = res.data;
             });
+            setTimeout(() => {
+              console.log(obj);
+              axios
+                .post("http://47.102.214.37:8080/ops/record", obj)
+                .then((res) => {
+                  console.log(res);
+                  that.$message({
+                    message: "新增成功",
+                    type: "success",
+                  });
+                  that.dialogAddRecord = false;
+                })
+                .catch((res) => {
+                  console.log(res.response);
+                });
+            }, 300);
+          }, 300);
         }
       }, 300);
     },

@@ -67,7 +67,7 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="id" label="任务ID" width="100"></el-table-column>
+      <el-table-column prop="id" label="任务编号" width="80"></el-table-column>
       <el-table-column prop="name" label="任务名称"></el-table-column>
       <el-table-column prop="nextDate" label="下次保养时间"></el-table-column>
       <el-table-column prop="deadline" label="剩余天数"></el-table-column>

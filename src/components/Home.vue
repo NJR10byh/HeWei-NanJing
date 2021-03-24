@@ -261,7 +261,7 @@ export default {
             },
             {
               id: 33,
-              authName: "任务列表",
+              authName: "保养列表",
               path: "totalTaskList",
             },
           ],
@@ -292,19 +292,19 @@ export default {
           authName: "数据分析",
           children: [
             {
+              id: 50,
+              authName: "使用日志",
+              path: "dailyRecord",
+            },
+            {
               id: 51,
               authName: "保养分析",
-              path: "maintenanceAnalysis",
+              path: "taskAnalysis",
             },
             {
               id: 52,
               authName: "维修分析",
               path: "fixAnalysis",
-            },
-            {
-              id: 53,
-              authName: "使用日志",
-              path: "useLogs",
             },
           ],
         },
@@ -359,7 +359,7 @@ export default {
             },
             {
               id: 33,
-              authName: "任务列表",
+              authName: "保养列表",
               path: "totalTaskList",
             },
           ],
@@ -410,7 +410,7 @@ export default {
           children: [
             {
               id: 32,
-              authName: "任务列表",
+              authName: "保养列表",
               path: "totalTaskList",
             },
           ],
@@ -441,19 +441,19 @@ export default {
           authName: "数据分析",
           children: [
             {
+              id: 50,
+              authName: "使用日志",
+              path: "dailyRecord",
+            },
+            {
               id: 51,
               authName: "保养分析",
-              path: "maintenanceAnalysis",
+              path: "taskAnalysis",
             },
             {
               id: 52,
               authName: "维修分析",
               path: "fixAnalysis",
-            },
-            {
-              id: 53,
-              authName: "使用日志",
-              path: "useLogs",
             },
           ],
         },
@@ -482,7 +482,7 @@ export default {
           children: [
             {
               id: 32,
-              authName: "任务列表",
+              authName: "保养列表",
               path: "totalTaskList",
             },
           ],
@@ -518,19 +518,19 @@ export default {
           authName: "数据分析",
           children: [
             {
+              id: 50,
+              authName: "使用日志",
+              path: "dailyRecord",
+            },
+            {
               id: 51,
               authName: "保养分析",
-              path: "maintenanceAnalysis",
+              path: "taskAnalysis",
             },
             {
               id: 52,
               authName: "维修分析",
               path: "fixAnalysis",
-            },
-            {
-              id: 53,
-              authName: "使用日志",
-              path: "useLogs",
             },
           ],
         },

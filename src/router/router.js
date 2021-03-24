@@ -18,14 +18,17 @@ import TotalTaskList from "@/DeviceMaintenance/TotalTaskList"; // 任务信息�
 import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import TssignTask2 from "@/DeviceMaintenance/TssignTask2"; // 任务分配2
 /* 设备维修*/
-import FixApply from "@/DeviceFix/FixApply"; // 维修诊断
-import AllError from "@/DeviceFix/AllError"; // 维修诊断
-import ErrorDetail from "@/DeviceFix/ErrorDetail"; // 维修诊断
-import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 维修诊断
-import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 维修诊断
-// import DiagnosisDetail from "@/DeviceFix/DiagnosisDetail"; // 异常详情
+import FixApply from "@/DeviceFix/FixApply"; // 报修申请
+import AllError from "@/DeviceFix/AllError"; // 全部报修
+import ErrorDetail from "@/DeviceFix/ErrorDetail"; // 报修详情
+import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 分配到我的（OPERATOR）
+import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 分配到我的（SUPERVISOR）
 import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
 import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
+/* 数据分析 */
+import DailyRecord from "@/Analysis/DailyRecord"; // 使用日志
+import FixAnalysis from "@/Analysis/FixAnalysis"; // 维修分析
+import TaskAnalysis from "@/Analysis/TaskAnalysis"; // 保养分析
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -80,6 +83,7 @@ var routes = [
         path: "/code",
         component: Code,
       },
+
       /* 设备保养 */
       // 新增任务
       {
@@ -116,6 +120,7 @@ var routes = [
         path: "/tssignTask2",
         component: TssignTask2,
       },
+
       /* 设备维修*/
       // 全部异常
       {
@@ -142,11 +147,6 @@ var routes = [
         path: "/alreadyFixSu",
         component: AlreadyFixSu,
       },
-      // // 异常详情
-      // {
-      //   path: "/diagnosisDetail",
-      //   component: DiagnosisDetail,
-      // },
       // 我发布的
       {
         path: "/mySubmit",
@@ -156,6 +156,20 @@ var routes = [
       {
         path: "/mySubmitDetail",
         component: MySubmitDetail,
+      },
+
+      /* 数据分析 */
+      {
+        path: "/dailyRecord",
+        component: DailyRecord,
+      },
+      {
+        path: "/fixAnalysis",
+        component: FixAnalysis,
+      },
+      {
+        path: "/taskAnalysis",
+        component: TaskAnalysis,
       },
     ],
   },
