@@ -62,6 +62,12 @@
           width="100"
         ></el-table-column>
         <el-table-column prop="times" label="保养总数"></el-table-column>
+
+        <el-table-column
+          prop="overdueTimes"
+          label="未按时保养次数"
+        ></el-table-column>
+        <el-table-column prop="recordTimes" label="记录次数"></el-table-column>
         <el-table-column
           prop="incompleteTimes"
           label="保养准点率"
@@ -70,11 +76,6 @@
           prop="completeRate"
           label="保养完成率"
         ></el-table-column>
-        <el-table-column
-          prop="overdueTimes"
-          label="未按时保养次数"
-        ></el-table-column>
-        <el-table-column prop="recordTimes" label="记录次数"></el-table-column>
       </el-table>
     </div>
   </div>
@@ -109,6 +110,13 @@ export default {
       endDate: "", // 结束时间
 
       taskAnalysisData: [],
+
+      // 统计总计
+      timesTotal: 0,
+      overdueTimesTotal: 0,
+      recordTimesTotal: 0,
+      incompleteTimesTotal: 0,
+      completeRateTotal: 0,
     };
   },
   methods: {
@@ -127,51 +135,83 @@ export default {
           typeo: "warning",
         });
       } else {
-        if (that.task.length <= 1) {
-          let url =
-            "http://47.102.214.37:8080/analysis/schedule?sid=" +
-            that.task[0] +
-            "&start=" +
-            that.startDate +
-            "&end=" +
-            that.endDate;
-          axios.get(url).then((res) => {
-            let obj = {};
-            obj.taskid = that.task[0];
-            obj.times = res.data[that.task[0]].times;
-            obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
-            obj.completeRate = res.data[that.task[0]].completeRate;
-            obj.overdueTimes = res.data[that.task[0]].overdueTimes;
-            obj.recordTimes = res.data[that.task[0]].recordTimes;
-            console.log(obj);
-            that.taskAnalysisData.push(obj);
+        if (
+          new Date(this.startDate).getTime() >= new Date(this.endDate).getTime()
+        ) {
+          that.$message({
+            message: "结束时间必须大于开始时间",
+            type: "warning",
+          });
+        } else if (new Date(this.endDate).getTime() > new Date().getTime()) {
+          that.$message({
+            message: "结束时间必须小于今天",
+            type: "warning",
           });
         } else {
-          let i = 0;
-          let url =
-            "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
-          for (i = 1; i < that.task.length; i++) {
-            url = url + "," + that.task[i];
-          }
-          if (i == that.task.length) {
-            console.log(i);
-            url = url + "&start=" + that.startDate + "&end=" + that.endDate;
-            console.log(url);
-          }
-          axios.get(url).then((res) => {
-            console.log(res);
-            for (let i = 0; i < that.task.length; i++) {
+          if (that.task.length <= 1) {
+            let url =
+              "http://47.102.214.37:8080/analysis/schedule?sid=" +
+              that.task[0] +
+              "&start=" +
+              that.startDate +
+              "&end=" +
+              that.endDate;
+            axios.get(url).then((res) => {
               let obj = {};
-              obj.taskid = that.task[i];
-              obj.times = res.data[that.task[i]].times;
-              obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
-              obj.completeRate = res.data[that.task[i]].completeRate;
-              obj.overdueTimes = res.data[that.task[i]].overdueTimes;
-              obj.recordTimes = res.data[that.task[i]].recordTimes;
+              obj.taskid = that.task[0];
+              obj.times = res.data[that.task[0]].times;
+              that.timesTotal = res.data[that.task[0]].times;
+              obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+              obj.completeRate = res.data[that.task[0]].completeRate;
+              obj.overdueTimes = res.data[that.task[0]].overdueTimes;
+              that.overdueTimesTotal = res.data[that.task[0]].overdueTimes;
+              obj.recordTimes = res.data[that.task[0]].recordTimes;
+              that.recordTimesTotal = res.data[that.task[0]].recordTimes;
+
               console.log(obj);
               that.taskAnalysisData.push(obj);
+            });
+          } else {
+            let i = 0;
+            let url =
+              "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
+            for (i = 1; i < that.task.length; i++) {
+              url = url + "," + that.task[i];
             }
-          });
+            if (i == that.task.length) {
+              console.log(i);
+              url = url + "&start=" + that.startDate + "&end=" + that.endDate;
+              console.log(url);
+            }
+            axios.get(url).then((res) => {
+              console.log(res);
+              for (let i = 0; i < that.task.length; i++) {
+                let obj = {};
+                obj.taskid = that.task[0];
+                obj.times = res.data[that.task[0]].times;
+                that.timesTotal = res.data[that.task[0]].times;
+                obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+                obj.completeRate = res.data[that.task[0]].completeRate;
+                obj.overdueTimes = res.data[that.task[0]].overdueTimes;
+                that.overdueTimesTotal = res.data[that.task[0]].overdueTimes;
+                obj.recordTimes = res.data[that.task[0]].recordTimes;
+                that.recordTimesTotal = res.data[that.task[0]].recordTimes;
+
+                console.log(obj);
+                that.taskAnalysisData.push(obj);
+              }
+              // 总计
+              if (i == that.task.length) {
+                let obj = {};
+                obj.taskid = "总计";
+                obj.times = that.timesTotal;
+                obj.recordTimes = that.recordTimesTotal;
+                obj.overdueTimes = that.overdueTimesTotal;
+                console.log(obj);
+                that.taskAnalysisData.unshift(obj);
+              }
+            });
+          }
         }
       }
     },

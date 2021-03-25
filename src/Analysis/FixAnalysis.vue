@@ -107,6 +107,12 @@ export default {
       endDate: "", // 结束时间
 
       deviceAnalysisData: [],
+
+      // 统计总计
+      avgFixPeriodTotal: 0,
+      avgIssuePeriodTotal: 0,
+      unhealthyTimeTotal: 0,
+      issueCountTotal: 0,
     };
   },
   methods: {
@@ -125,50 +131,86 @@ export default {
           typeo: "warning",
         });
       } else {
-        if (that.device.length <= 1) {
-          let url =
-            "http://47.102.214.37:8080/analysis/device?did=" +
-            that.device[0] +
-            "&start=" +
-            that.startDate +
-            "&end=" +
-            that.endDate;
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            let obj = {};
-            obj.deviceid = that.device[0];
-            obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
-            obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
-            obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
-            obj.issueCount = res.data[that.device[0]].issueCount;
-            console.log(obj);
-            that.deviceAnalysisData.push(obj);
+        // 判断开始时间以及结束时间
+        // 结束时间不得早于开始时间
+        // 结束时间不得超过今天
+        if (
+          new Date(this.startDate).getTime() >= new Date(this.endDate).getTime()
+        ) {
+          that.$message({
+            message: "结束时间必须大于开始时间",
+            type: "warning",
+          });
+        } else if (new Date(this.endDate).getTime() > new Date().getTime()) {
+          that.$message({
+            message: "结束时间必须小于今天",
+            type: "warning",
           });
         } else {
-          let i = 0;
-          let url =
-            "http://47.102.214.37:8080/analysis/device?did=" + that.device[0];
-          for (i = 1; i < that.device.length; i++) {
-            url = url + "," + that.device[i];
-          }
-          if (i == that.device.length) {
-            console.log(i);
-            url = url + "&start=" + that.startDate + "&end=" + that.endDate;
-            console.log(url);
-          }
-          axios.get(url).then((res) => {
-            console.log(res);
-            for (let i = 0; i < that.device.length; i++) {
+          if (that.device.length <= 1) {
+            let url =
+              "http://47.102.214.37:8080/analysis/device?did=" +
+              that.device[0] +
+              "&start=" +
+              that.startDate +
+              "&end=" +
+              that.endDate;
+            axios.get(url).then((res) => {
+              console.log(res.data);
               let obj = {};
-              obj.deviceid = that.device[i];
-              obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
-              obj.avgIssuePeriod = res.data[that.device[i]].avgIssuePeriod;
-              obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
-              obj.issueCount = res.data[that.device[i]].issueCount;
+              obj.deviceid = that.device[0];
+              obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
+              obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
+              obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
+              obj.issueCount = res.data[that.device[0]].issueCount;
               console.log(obj);
               that.deviceAnalysisData.push(obj);
+            });
+          } else {
+            let i = 0;
+            let url =
+              "http://47.102.214.37:8080/analysis/device?did=" + that.device[0];
+            for (i = 1; i < that.device.length; i++) {
+              url = url + "," + that.device[i];
             }
-          });
+            if (i == that.device.length) {
+              console.log(i);
+              url = url + "&start=" + that.startDate + "&end=" + that.endDate;
+              console.log(url);
+            }
+            axios.get(url).then((res) => {
+              console.log(res);
+              let i = 0;
+              for (i = 0; i < that.device.length; i++) {
+                let obj = {};
+                obj.deviceid = that.device[i];
+                obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
+                that.avgFixPeriodTotal += res.data[that.device[i]].avgFixPeriod;
+                obj.avgIssuePeriod = res.data[that.device[i]].avgIssuePeriod;
+                that.avgIssuePeriodTotal +=
+                  res.data[that.device[i]].avgIssuePeriod;
+                obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
+                that.unhealthyTimeTotal +=
+                  res.data[that.device[i]].unhealthyTime;
+                obj.issueCount = res.data[that.device[i]].issueCount;
+                that.issueCountTotal += res.data[that.device[i]].issueCount;
+                console.log(obj);
+                that.deviceAnalysisData.push(obj);
+              }
+              // 总计
+              if (i == that.device.length) {
+                console.log(that.avgFixPeriodTotal);
+                let obj = {};
+                obj.deviceid = "总计";
+                obj.avgFixPeriod = that.avgFixPeriodTotal;
+                obj.avgIssuePeriod = that.avgIssuePeriodTotal;
+                obj.unhealthyTime = that.unhealthyTimeTotal;
+                obj.issueCount = that.issueCountTotal;
+                console.log(obj);
+                that.deviceAnalysisData.unshift(obj);
+              }
+            });
+          }
         }
       }
     },
