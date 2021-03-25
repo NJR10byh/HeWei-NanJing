@@ -657,7 +657,7 @@ export default {
                     .then((res) => {
                       console.log(res.data);
                       obj.device +=
-                        res.data.name + "（" + res.data.deviceNo + "）";
+                        res.data.name + "（" + res.data.deviceNo + "） / ";
                     })
                     .catch(() => {
                       obj.device = "获取失败";
