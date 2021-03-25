@@ -1,9 +1,9 @@
 <template>
-  <div class="Container-AddTaskInside">
+  <div class="Container-AddTaskContent">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">新增标准</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">修改标准</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-box">
@@ -26,7 +26,7 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="标准名称" class="task taskname">
+                <el-form-item label="任务名称" class="task taskname">
                   <el-input
                     v-model="TaskInfo.name"
                     placeholder="请输入任务名称"
@@ -301,7 +301,6 @@ export default {
     // 保存编辑并提交
     submittask() {
       let that = this;
-      let obj = {};
       if (
         that.TaskInfo.scheduleType == "" ||
         that.TaskInfo.name == "" ||
@@ -316,27 +315,36 @@ export default {
           type: "warning",
         });
       } else {
-        obj.scheduleType = that.TaskInfo.scheduleType;
-        obj.name = that.TaskInfo.name;
-        obj.side = that.TaskInfo.side;
-        obj.acceptedStandard = that.TaskInfo.acceptedStandard;
-        obj.tools = that.TaskInfo.tools;
-        obj.remark = that.TaskInfo.remark;
-        obj.content = that.TaskInfo.content;
-        axios
-          .post("http://47.102.214.37:8080/ops/schedule", obj)
-          .then((res) => {
-            console.log(res);
-            that.$message({
-              message: "新增成功",
-              type: "success",
+        let url =
+          "http://47.102.214.37:8080/ops/schedule/detail/" +
+          that.$route.query.taskID;
+        axios.get(url).then((res) => {
+          let obj = {};
+          obj.acceptedStandard = that.TaskInfo.acceptedStandard;
+          obj.content = that.TaskInfo.content;
+          obj.id = res.data.id;
+          obj.name = that.TaskInfo.name;
+          obj.remark = that.TaskInfo.remark;
+          obj.startDate = that.TaskInfo.startDate;
+          obj.scheduleType = that.TaskInfo.scheduleType;
+          obj.side = that.TaskInfo.side;
+          obj.tools = that.TaskInfo.tools;
+          obj.device = res.data.device;
+          obj.ops = res.data.ops;
+          axios
+            .put(url, obj)
+            .then((res) => {
+              console.log(res);
+              that.$message({
+                message: "修改成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              console.log(res.response.data.message);
             });
-          })
-          .catch((res) => {
-            console.log(res.response.data.message);
-          });
+        });
       }
-      console.log(obj);
     },
     // 取消编辑
     cancel() {
@@ -349,20 +357,20 @@ export default {
 </script>
 
 <style lang="scss">
-.Container-AddTaskInside {
+.Container-AddTaskContent {
   // border: 1px solid red;
   width: 100%;
+  display: flex;
+  flex-direction: column;
   .breadcrumb {
-    width: 100%;
     height: 30px;
     line-height: 30px;
     overflow: hidden;
     font-size: 16px;
     // border: 1px solid red;
-    padding: 10px 0;
+    padding: 10px 10px 5px 10px;
     .el-breadcrumb__inner {
       font-weight: bold;
-      margin-left: 10px;
     }
     .el-breadcrumb__inner.is-link {
       color: #666666;

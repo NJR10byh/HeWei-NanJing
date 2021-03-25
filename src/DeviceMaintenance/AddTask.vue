@@ -2,14 +2,14 @@
   <div class="Container-AddTask">
     <el-breadcrumb class="breadcrumb-top" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">新增任务</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">新增标准</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 搜索 -->
     <div class="head-btn">
       <div class="oper-btns-left">
         <div class="refresh">
           <el-button icon="el-icon-plus" @click="addNewTask"
-            >新增任务
+            >新增标准
           </el-button>
           <el-button icon="el-icon-refresh" @click="refresh"
             >刷新列表
@@ -36,12 +36,8 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column
-        prop="taskID"
-        label="任务ID"
-        width="100"
-      ></el-table-column>
-      <el-table-column prop="name" label="任务名称"></el-table-column>
+      <el-table-column prop="name" label="标准名称"></el-table-column>
+      <el-table-column prop="number" label="标准编号"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
@@ -98,7 +94,7 @@ export default {
     },
     editTask(index) {
       this.$router.push({
-        path: "/editTask",
+        path: "/alterTaskcontent",
         query: this.taskData[index],
       });
     },

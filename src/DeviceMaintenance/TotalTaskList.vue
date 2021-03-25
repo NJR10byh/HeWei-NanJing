@@ -67,17 +67,14 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="id" label="任务编号" width="80"></el-table-column>
-      <el-table-column prop="name" label="任务名称"></el-table-column>
+      <el-table-column prop="index" label="序号" width="50"></el-table-column>
+      <el-table-column prop="devicename" label="设备名称"></el-table-column>
+      <el-table-column prop="deviceNo" label="设备编号"></el-table-column>
+      <el-table-column prop="acccept" label="保养标准"></el-table-column>
+      <el-table-column prop="tasknumber" label="保养编号"></el-table-column>
       <el-table-column prop="nextDate" label="下次保养时间"></el-table-column>
-      <el-table-column prop="deadline" label="剩余天数"></el-table-column>
-      <el-table-column prop="device" label="设备"></el-table-column>
       <el-table-column prop="opuser" label="人员"></el-table-column>
-      <!-- <el-table-column
-        prop="taskuser"
-        label="保养人员代表"
-        v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
-      ></el-table-column> -->
+      <el-table-column prop="deadline" label="剩余天数"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
@@ -615,6 +612,7 @@ export default {
       let that = this;
       that.tableData = [];
       that.currentPage = 1;
+      let index = 1;
       if (["ROOT", "ADMIN", "CREATOR", "SUPERVISOR"].includes(that.userRole)) {
         let url =
           "http://47.102.214.37:8080/ops/schedule?page=0&size=" +
@@ -625,8 +623,9 @@ export default {
           for (let i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.opuser = "";
-            obj.device = "";
-            obj.id = res.data.content[i].id;
+            obj.devicename = "";
+            obj.deviceNo = "";
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             let URL =
               "http://47.102.214.37:8080/ops/schedule/status/" +
@@ -646,7 +645,8 @@ export default {
             // 获取设备信息
             setTimeout(() => {
               if (res.data.content[i].device.length == 0) {
-                obj.device = "暂未分配";
+                obj.devicename = "暂未分配";
+                obj.deviceNo = "暂未分配";
               } else {
                 for (let j = 0; j < res.data.content[i].device.length; j++) {
                   let url =
@@ -656,8 +656,8 @@ export default {
                     .get(url)
                     .then((res) => {
                       console.log(res.data);
-                      obj.device +=
-                        res.data.name + "（" + res.data.deviceNo + "） / ";
+                      obj.devicename += res.data.name + " / ";
+                      obj.deviceNo += res.data.deviceNo + " / ";
                     })
                     .catch(() => {
                       obj.device = "获取失败";
@@ -702,15 +702,17 @@ export default {
         let URL = "http://47.102.214.37:8080/my/schedule";
         axios.get(URL).then((res) => {
           console.log(res.data);
-          that.total = res.data.length;
-          for (let i = 0; i < res.data.length; i++) {
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.opuser = "";
-            obj.device = "";
-            obj.id = res.data[i].id;
-            obj.name = res.data[i].name;
+            obj.devicename = "";
+            obj.deviceNo = "";
+            obj.index = index++;
+            obj.name = res.data.content[i].name;
             let URL =
-              "http://47.102.214.37:8080/ops/schedule/status/" + res.data[i].id;
+              "http://47.102.214.37:8080/ops/schedule/status/" +
+              res.data.content[i].id;
             axios.get(URL).then((res) => {
               if (res.data.nextDate == null) {
                 obj.nextDate = "暂无";
@@ -725,19 +727,20 @@ export default {
             });
             // 获取设备信息
             setTimeout(() => {
-              if (res.data[i].device.length == 0) {
-                obj.device = "暂未分配";
+              if (res.data.content[i].device.length == 0) {
+                obj.devicename = "暂未分配";
+                obj.deviceNo = "暂未分配";
               } else {
-                for (let j = 0; j < res.data[i].device.length; j++) {
+                for (let j = 0; j < res.data.content[i].device.length; j++) {
                   let url =
                     "http://47.102.214.37:8080/device/" +
-                    res.data[i].device[j].id;
+                    res.data.content[i].device[j].id;
                   axios
                     .get(url)
                     .then((res) => {
                       console.log(res.data);
-                      obj.device +=
-                        res.data.name + "（" + res.data.deviceNo + "）";
+                      obj.devicename += res.data.name + " / ";
+                      obj.deviceNo += res.data.deviceNo + " / ";
                     })
                     .catch(() => {
                       obj.device = "获取失败";
@@ -747,12 +750,13 @@ export default {
 
               // 获取人员信息
               setTimeout(() => {
-                if (res.data[i].ops.length == 0) {
+                if (res.data.content[i].ops.length == 0) {
                   obj.opuser = "暂未分配";
                 } else {
-                  for (let k = 0; k < res.data[i].ops.length; k++) {
+                  for (let k = 0; k < res.data.content[i].ops.length; k++) {
                     let searchops =
-                      "http://47.102.214.37:8080/user/" + res.data[i].ops[k].id;
+                      "http://47.102.214.37:8080/user/" +
+                      res.data.content[i].ops[k].id;
                     axios
                       .get(searchops)
                       .then((res) => {
@@ -871,6 +875,7 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      let index = 1;
       that.tableData = [];
       that.currentPage = 1;
       console.log(val);
@@ -885,8 +890,9 @@ export default {
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
           obj.opuser = "";
-          obj.device = "";
-          obj.id = res.data.content[i].id;
+          obj.devicename = "";
+          obj.deviceNo = "";
+          obj.index = index++;
           obj.name = res.data.content[i].name;
           let URL =
             "http://47.102.214.37:8080/ops/schedule/status/" +
@@ -906,7 +912,8 @@ export default {
           // 获取设备信息
           setTimeout(() => {
             if (res.data.content[i].device.length == 0) {
-              obj.device = "暂未分配";
+              obj.devicename = "暂未分配";
+              obj.deviceNo = "暂未分配";
             } else {
               for (let j = 0; j < res.data.content[i].device.length; j++) {
                 let url =
@@ -916,8 +923,8 @@ export default {
                   .get(url)
                   .then((res) => {
                     console.log(res.data);
-                    obj.device +=
-                      res.data.name + "（" + res.data.deviceNo + "）";
+                    obj.devicename += res.data.name + " / ";
+                    obj.deviceNo += res.data.deviceNo + " / ";
                   })
                   .catch(() => {
                     obj.device = "获取失败";
@@ -962,6 +969,7 @@ export default {
     // // 页变化
     handleCurrentChange(val) {
       let that = this;
+      let index = 1;
       that.tableData = [];
       that.page = val;
       that.currentPage = val;
@@ -977,8 +985,9 @@ export default {
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
           obj.opuser = "";
-          obj.device = "";
-          obj.id = res.data.content[i].id;
+          obj.devicename = "";
+          obj.deviceNo = "";
+          obj.index = index++;
           obj.name = res.data.content[i].name;
           let URL =
             "http://47.102.214.37:8080/ops/schedule/status/" +
@@ -998,7 +1007,8 @@ export default {
           // 获取设备信息
           setTimeout(() => {
             if (res.data.content[i].device.length == 0) {
-              obj.device = "暂未分配";
+              obj.devicename = "暂未分配";
+              obj.deviceNo = "暂未分配";
             } else {
               for (let j = 0; j < res.data.content[i].device.length; j++) {
                 let url =
@@ -1008,8 +1018,8 @@ export default {
                   .get(url)
                   .then((res) => {
                     console.log(res.data);
-                    obj.device +=
-                      res.data.name + "（" + res.data.deviceNo + "）";
+                    obj.devicename += res.data.name + " / ";
+                    obj.deviceNo += res.data.deviceNo + " / ";
                   })
                   .catch(() => {
                     obj.device = "获取失败";
