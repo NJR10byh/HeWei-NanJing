@@ -115,6 +115,7 @@ export default {
       timesTotal: 0,
       overdueTimesTotal: 0,
       recordTimesTotal: 0,
+
       incompleteTimesTotal: 0,
       completeRateTotal: 0,
     };
@@ -122,6 +123,11 @@ export default {
   methods: {
     Search() {
       let that = this;
+      that.timesTotal = 0;
+      that.overdueTimesTotal = 0;
+      that.recordTimesTotal = 0;
+      that.incompleteTimesTotal = 0;
+      that.completeRateTotal = 0;
       that.taskAnalysisData = [];
       if (
         that.task.length == 0 ||
@@ -162,7 +168,10 @@ export default {
               obj.times = res.data[that.task[0]].times;
               that.timesTotal = res.data[that.task[0]].times;
               obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+              that.incompleteTimesTotal =
+                res.data[that.task[0]].incompleteTimes;
               obj.completeRate = res.data[that.task[0]].completeRate;
+              that.completeRateTotal = res.data[that.task[0]].completeRate;
               obj.overdueTimes = res.data[that.task[0]].overdueTimes;
               that.overdueTimesTotal = res.data[that.task[0]].overdueTimes;
               obj.recordTimes = res.data[that.task[0]].recordTimes;
@@ -187,26 +196,35 @@ export default {
               console.log(res);
               for (let i = 0; i < that.task.length; i++) {
                 let obj = {};
-                obj.taskid = that.task[0];
-                obj.times = res.data[that.task[0]].times;
-                that.timesTotal = res.data[that.task[0]].times;
-                obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
-                obj.completeRate = res.data[that.task[0]].completeRate;
-                obj.overdueTimes = res.data[that.task[0]].overdueTimes;
-                that.overdueTimesTotal = res.data[that.task[0]].overdueTimes;
-                obj.recordTimes = res.data[that.task[0]].recordTimes;
-                that.recordTimesTotal = res.data[that.task[0]].recordTimes;
+                obj.taskid = that.task[i];
+                obj.times = res.data[that.task[i]].times;
+                that.timesTotal += res.data[that.task[i]].times;
+                obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
+                that.incompleteTimesTotal =
+                  res.data[that.task[i]].incompleteTimes;
+                obj.completeRate = res.data[that.task[i]].completeRate;
+                that.completeRateTotal += res.data[that.task[i]].completeRate;
+
+                obj.overdueTimes = res.data[that.task[i]].overdueTimes;
+                that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
+                obj.recordTimes = res.data[that.task[i]].recordTimes;
+                that.recordTimesTotal += res.data[that.task[i]].recordTimes;
 
                 console.log(obj);
                 that.taskAnalysisData.push(obj);
               }
               // 总计
+              console.log(that.incompleteTimesTotal);
+              console.log(that.completeRateTotal);
               if (i == that.task.length) {
                 let obj = {};
                 obj.taskid = "总计";
                 obj.times = that.timesTotal;
                 obj.recordTimes = that.recordTimesTotal;
                 obj.overdueTimes = that.overdueTimesTotal;
+                obj.incompleteTimes =
+                  that.incompleteTimesTotal / that.task.length;
+                obj.completeRate = that.completeRateTotal / that.task.length;
                 console.log(obj);
                 that.taskAnalysisData.unshift(obj);
               }
@@ -277,17 +295,6 @@ export default {
             }
           }
         }
-        .el-button {
-          border: none;
-          padding: 5px 10px;
-          background: transparent;
-          &:first-child:hover {
-            color: #409eff;
-          }
-          &:nth-child(2):hover {
-            color: #f96b6c;
-          }
-        }
       }
     }
   }
@@ -299,9 +306,10 @@ export default {
     padding: 10px;
     font-size: 15px;
     border-radius: 5px;
-    &:hover {
-      opacity: 0.9;
-    }
+  }
+  .el-button:hover {
+    color: #fff;
+    opacity: 0.8;
   }
 }
 </style>

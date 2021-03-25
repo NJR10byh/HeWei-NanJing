@@ -276,17 +276,6 @@ export default {
             }
           }
         }
-        .el-button {
-          border: none;
-          padding: 5px 10px;
-          background: transparent;
-          &:first-child:hover {
-            color: #409eff;
-          }
-          &:nth-child(2):hover {
-            color: #f96b6c;
-          }
-        }
       }
     }
   }
@@ -298,9 +287,10 @@ export default {
     padding: 10px;
     font-size: 15px;
     border-radius: 5px;
-    &:hover {
-      opacity: 0.9;
-    }
+  }
+  .el-button:hover {
+    color: #fff;
+    opacity: 0.8;
   }
 }
 </style>
