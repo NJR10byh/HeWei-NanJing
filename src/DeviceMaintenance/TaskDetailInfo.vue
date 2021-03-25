@@ -155,8 +155,8 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
-                :page-sizes="[5, 10, 15, 20]"
-                :page-size="5"
+                :page-sizes="[5, 10, 15]"
+                :page-size="page_size"
                 layout="sizes,total, prev, pager, next, jumper"
                 :total="total"
               ></el-pagination>
@@ -374,7 +374,8 @@ export default {
       let URL =
         "http://47.102.214.37:8080/ops/record/schedule/" +
         that.$route.query.id +
-        "?page=0&size=100";
+        "?page=0&size=" +
+        that.page_size;
       axios.get(URL).then((res) => {
         console.log(res.data);
         that.total = res.data.totalElements;
@@ -469,10 +470,11 @@ export default {
       dialogVisible: false,
       dialogImageUrl: "",
       // 分页
-      currentPage: 1, // 起始页数
+      currentPage: 1, //  页面显示的当前页数
+      page_size: 5, //  页面显示的每页显示条数
       page: 1, // 当前页数
       size: 5, // 每页显示条数
-      total: 0,
+      total: 0, // 总数
     };
   },
   methods: {

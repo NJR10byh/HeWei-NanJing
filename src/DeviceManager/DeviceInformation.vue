@@ -185,8 +185,8 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[10, 20, 30, 40]"
-          :page-size="10"
+          :page-sizes="[5, 10, 15]"
+          :page-size="page_size"
           layout="sizes,total, prev, pager, next, jumper"
           :total="total"
         ></el-pagination>
@@ -260,10 +260,11 @@ export default {
       tableData: [],
       multipleSelection: [],
       // 分页
-      currentPage: 1,
-      page: 1,
-      size: 10,
-      total: 0,
+      currentPage: 1, //  页面显示的当前页数
+      page_size: 10, //  页面显示的每页显示条数
+      page: 1, // 当前页数
+      size: 5, // 每页显示条数
+      total: 0, // 总数
     };
   },
   methods: {
@@ -399,9 +400,11 @@ export default {
     // 获取全部全部信息
     getAllDevice() {
       let that = this;
+      let url =
+        "http://47.102.214.37:8080/device?page=0&size=" + that.page_size;
       axios({
         method: "GET",
-        url: "http://47.102.214.37:8080/device?page=0&size=10",
+        url: url,
       })
         .then((res) => {
           that.tableData = [];
@@ -623,36 +626,59 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      that.tableData = [];
       console.log(val);
       that.size = val;
+      that.page_size = val;
       let url =
         "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.tableData = [];
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.name = res.data.content[i].name;
-          obj["brand"] = res.data.content[i].brand;
-          obj.type = res.data.content[i].type;
-          obj.deviceNo = res.data.content[i].deviceNo;
-          if (res.data.content[i].extra.length != 0) {
-            for (var j = 0; j < res.data.content[i].extra.length; j++) {
-              obj[res.data.content[i].extra[j].field.id] =
-                res.data.content[i].extra[j].value;
+      axios({
+        method: "GET",
+        url: url,
+      })
+        .then((res) => {
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          for (var i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            obj.name = res.data.content[i].name;
+            obj["brand"] = res.data.content[i].brand;
+            obj.type = res.data.content[i].type;
+            obj.deviceNo = res.data.content[i].deviceNo;
+            if (res.data.content[i].extra.length != 0) {
+              for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                obj[res.data.content[i].extra[j].field.id] =
+                  res.data.content[i].extra[j].value;
+              }
             }
+            if (res.data.content[i].crux == true) {
+              obj.crux = "Y";
+            } else if (res.data.content[i].crux == false) {
+              obj.crux = "N";
+            }
+            obj.clazz = res.data.content[i].clazz;
+            that.tableData.push(obj);
           }
-          if (res.data.content[i].crux == true) {
-            obj.crux = "Y";
-          } else if (res.data.content[i].crux == false) {
-            obj.crux = "N";
-          }
-          obj.clazz = res.data.content[i].clazz;
-          that.tableData.push(obj);
-        }
-      });
+          this.$message({
+            message: "已获取全部设备",
+            type: "success",
+          });
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          globaldata.deviceselectInfo = [];
+          globaldata.devicedynamicTags = [];
+
+          // 改变导出url
+          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     // 页变化
     handleCurrentChange(val) {
@@ -665,31 +691,53 @@ export default {
         (that.page - 1) +
         "&size=" +
         that.size;
-      axios.get(url).then((res) => {
-        // console.log(res.data);
-        that.tableData = [];
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.name = res.data.content[i].name;
-          obj["brand"] = res.data.content[i].brand;
-          obj.type = res.data.content[i].type;
-          obj.deviceNo = res.data.content[i].deviceNo;
-          if (res.data.content[i].extra.length != 0) {
-            for (var j = 0; j < res.data.content[i].extra.length; j++) {
-              obj[res.data.content[i].extra[j].field.id] =
-                res.data.content[i].extra[j].value;
+      axios({
+        method: "GET",
+        url: url,
+      })
+        .then((res) => {
+          that.tableData = [];
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          for (var i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            obj.name = res.data.content[i].name;
+            obj["brand"] = res.data.content[i].brand;
+            obj.type = res.data.content[i].type;
+            obj.deviceNo = res.data.content[i].deviceNo;
+            if (res.data.content[i].extra.length != 0) {
+              for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                obj[res.data.content[i].extra[j].field.id] =
+                  res.data.content[i].extra[j].value;
+              }
             }
+            if (res.data.content[i].crux == true) {
+              obj.crux = "Y";
+            } else if (res.data.content[i].crux == false) {
+              obj.crux = "N";
+            }
+            obj.clazz = res.data.content[i].clazz;
+            that.tableData.push(obj);
           }
-          if (res.data.content[i].crux == true) {
-            obj.crux = "Y";
-          } else if (res.data.content[i].crux == false) {
-            obj.crux = "N";
-          }
-          obj.clazz = res.data.content[i].clazz;
-          that.tableData.push(obj);
-        }
-      });
+          this.$message({
+            message: "已获取全部设备",
+            type: "success",
+          });
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          globaldata.deviceselectInfo = [];
+          globaldata.devicedynamicTags = [];
+
+          // 改变导出url
+          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
   created: function() {

@@ -85,8 +85,8 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[5, 10, 15, 20]"
-        :page-size="5"
+        :page-sizes="[5, 10, 15]"
+        :page-size="page_size"
         layout="sizes,total, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
@@ -344,10 +344,11 @@ export default {
       dialogSearchVisible: false,
 
       // 分页
-      currentPage: 1, // 起始页数
+      currentPage: 1, //  页面显示的当前页数
+      page_size: 5, //  页面显示的每页显示条数
       page: 1, // 当前页数
       size: 5, // 每页显示条数
-      total: 0,
+      total: 0, // 总数
     };
   },
   methods: {
@@ -387,31 +388,27 @@ export default {
     refresh() {
       let that = this;
       that.taskData = [];
-      axios
-        .get("http://47.102.214.37:8080/issue?page=0&size=10")
-        .then((res) => {
-          console.log(res.data);
-          that.total = res.data.totalElements;
-          for (let i = 0; i < res.data.content.length; i++) {
-            let assigneeid = "";
-            for (let j = 1; j < res.data.content[i].assignee.length; j++) {
-              assigneeid =
-                assigneeid +
-                "id：" +
-                res.data.content[i].assignee[j].id +
-                " / ";
-            }
-            that.taskData.unshift({
-              errorid: res.data.content[i].id,
-              assigneeid: assigneeid,
-              reporterid: "id：" + res.data.content[i].reporter.id,
-            });
+      let url = "http://47.102.214.37:8080/issue?page=0&size=" + that.page_size;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.total = res.data.totalElements;
+        for (let i = 0; i < res.data.content.length; i++) {
+          let assigneeid = "";
+          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
+            assigneeid =
+              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
           }
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+          that.taskData.unshift({
+            errorid: res.data.content[i].id,
+            assigneeid: assigneeid,
+            reporterid: "id：" + res.data.content[i].reporter.id,
           });
+        }
+        that.$message({
+          message: "刷新成功",
+          type: "success",
         });
+      });
       // 清空搜索条件，等待下次搜索
       that.selectInfo = [];
       that.selectvalue = "";
@@ -584,13 +581,14 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      that.taskData = [];
       console.log(val);
       that.size = val;
+      that.page_size = val;
       let url = "http://47.102.214.37:8080/issue?page=0" + "&size=" + that.size;
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);
-        that.taskData = [];
         for (let i = 0; i < res.data.content.length; i++) {
           let assigneeid = "";
           for (let j = 1; j < res.data.content[i].assignee.length; j++) {
