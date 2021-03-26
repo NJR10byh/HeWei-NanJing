@@ -9,6 +9,14 @@ var taskdynamicTags = [];
 // 维修查询
 var fixselectInfo = [];
 var fixdynamicTags = [];
+
+// 保养分析
+var taskAnalysisInfo = [];
+var taskAnalysisdynamicTags = [];
+
+// 维修查询
+var fixAnalysisInfo = [];
+var fixAnalysisdynamicTags = [];
 export default {
   deviceselectInfo,
   devicedynamicTags,
@@ -18,4 +26,10 @@ export default {
 
   fixselectInfo,
   fixdynamicTags,
+
+  taskAnalysisInfo,
+  taskAnalysisdynamicTags,
+
+  fixAnalysisInfo,
+  fixAnalysisdynamicTags,
 };

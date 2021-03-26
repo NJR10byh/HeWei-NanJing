@@ -68,13 +68,41 @@
     >
       <el-table-column type="selection"></el-table-column>
       <el-table-column prop="index" label="序号" width="50"></el-table-column>
-      <el-table-column prop="devicename" label="设备名称"></el-table-column>
-      <el-table-column prop="deviceNo" label="设备编号"></el-table-column>
-      <el-table-column prop="taskname" label="保养标准"></el-table-column>
-      <el-table-column prop="tasknumber" label="保养编号"></el-table-column>
-      <el-table-column prop="nextDate" label="下次保养时间"></el-table-column>
-      <el-table-column prop="opuser" label="人员"></el-table-column>
-      <el-table-column prop="deadline" label="剩余天数"></el-table-column>
+      <el-table-column
+        prop="devicename"
+        label="设备名称"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        prop="deviceNo"
+        label="设备编号"
+        :width="200"
+      ></el-table-column>
+      <el-table-column
+        prop="taskname"
+        label="保养标准"
+        :width="tablewidth"
+      ></el-table-column>
+      <el-table-column
+        prop="tasknumber"
+        label="保养编号"
+        :width="tablewidth"
+      ></el-table-column>
+      <el-table-column
+        prop="nextDate"
+        label="下次保养时间"
+        :width="tablewidth"
+      ></el-table-column>
+      <el-table-column
+        prop="opuser"
+        label="人员"
+        :width="tablewidth"
+      ></el-table-column>
+      <el-table-column
+        prop="deadline"
+        label="剩余天数"
+        :width="tablewidth"
+      ></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
@@ -270,6 +298,7 @@ export default {
     return {
       userRole: "",
       tableData: [],
+      tablewidth: "150",
       checkedDetail: [],
       /* 搜索 */
       selectoptions: [
@@ -689,7 +718,7 @@ export default {
                 }
                 setTimeout(() => {
                   that.tableData.push(obj);
-                }, 300);
+                }, 600);
               }, 300);
             }, 300);
           }

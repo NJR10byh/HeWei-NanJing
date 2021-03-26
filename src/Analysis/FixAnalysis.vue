@@ -6,44 +6,62 @@
       <el-breadcrumb-item class="active">维修分析</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Search">
-      <div>
+      <div class="searchtask">
         <el-select
-          clearable
+          v-model="selectvalue"
+          placeholder="请选择搜索字段"
           filterable
-          multiple
-          collapse-tags
-          placeholder="请选择设备"
-          v-model="device"
+          clearable
+          @change="selectchange"
         >
-          <el-option
-            v-for="item in Devices"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+          <el-option-group
+            v-for="group in selectoptions"
+            :key="group.label"
+            :label="group.label"
           >
-          </el-option>
+            <el-option
+              v-for="item in group.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-option-group>
         </el-select>
+        <div>
+          <el-tag
+            :key="tag"
+            v-for="tag in dynamicTags"
+            closable
+            @close="handleClose(tag)"
+            style="margin-left:5px;"
+          >
+            {{ tag }}
+          </el-tag>
+        </div>
       </div>
-      <div>
-        <el-date-picker
-          v-model="startDate"
-          type="date"
-          placeholder="开始日期"
-          value-format="yyyy-MM-dd"
-        >
-        </el-date-picker>
-      </div>
-      <div>
-        <el-date-picker
-          v-model="endDate"
-          type="date"
-          placeholder="结束日期"
-          value-format="yyyy-MM-dd"
-        >
-        </el-date-picker>
-      </div>
-      <div>
-        <el-button @click="Search">查询</el-button>
+      <div class="searchpart">
+        <div>
+          <el-date-picker
+            v-model="startDate"
+            type="date"
+            placeholder="开始日期"
+            value-format="yyyy-MM-dd"
+          >
+          </el-date-picker>
+        </div>
+        <div style="margin-left:10px;">
+          <el-date-picker
+            v-model="endDate"
+            type="date"
+            placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+          >
+          </el-date-picker>
+        </div>
+        <div style="margin-left:10px;">
+          <el-button @click="search">查询</el-button>
+        </div>
       </div>
     </div>
     <div class="Result">
@@ -76,31 +94,82 @@
         ></el-table-column>
       </el-table>
     </div>
+    <!-- 搜索条件 -->
+    <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
+      <el-input v-model="selectmodel" placeholder="请输入搜索内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogSearchVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitselect">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import globaldata from "../GlobalData/globaldata";
 
 export default {
   components: {},
   created: function() {
     let that = this;
-    // 获取全部设备
-    axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
-      for (var i = 0; i < res.data.content.length; i++) {
-        // console.log(res.data.content[i]);
-        let obj = {};
-        obj.value = res.data.content[i].id;
-        obj.label =
-          res.data.content[i].name + "（" + res.data.content[i].deviceNo + "）";
-        that.Devices.push(obj);
+    // 先检查是否有搜索记录
+    if (globaldata.fixAnalysisInfo.length != 0) {
+      that.selectInfo = globaldata.fixAnalysisInfo;
+      that.dynamicTags = globaldata.fixAnalysisdynamicTags;
+    }
+    // 获取所有附加字段
+    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+      for (let i = 0; i < res.data.length; i++) {
+        that.selectoptions[1].options.push({
+          value: res.data[i].id,
+          label: res.data[i].name,
+        });
       }
     });
   },
   data() {
     return {
-      Devices: [], // 所有设备列表
+      selectoptions: [
+        {
+          label: "基本字段",
+          options: [
+            {
+              value: "name",
+              label: "设备名称",
+            },
+            {
+              value: "brand",
+              label: "设备品牌",
+            },
+            {
+              value: "type",
+              label: "设备型号/规格",
+            },
+            {
+              value: "deviceNo",
+              label: "设备编号",
+            },
+            {
+              value: "crux",
+              label: "是否为关键设备",
+            },
+            {
+              value: "clazz",
+              label: "设备分类",
+            },
+          ],
+        },
+        {
+          label: "附加字段",
+          options: [],
+        },
+      ],
+      selectvalue: "",
+      selectmodel: "",
+      dialogSearchVisible: false,
+      selectInfo: [],
+      dynamicTags: [], // 搜索标签
       device: [], // 选择的设备
 
       startDate: "", // 开始时间
@@ -116,6 +185,275 @@ export default {
     };
   },
   methods: {
+    selectchange() {
+      this.dialogSearchVisible = true;
+    },
+    submitselect() {
+      this.dialogSearchVisible = false;
+      this.selectInfo.push({
+        ziduan: this.selectvalue,
+        value: this.selectmodel,
+      });
+      this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+    },
+    // 标签移除
+    handleClose(tag) {
+      let index = this.dynamicTags.indexOf(tag);
+      console.log(index);
+      this.dynamicTags.splice(index, 1);
+      this.selectInfo.splice(index, 1);
+    },
+    // 搜索
+    search() {
+      let that = this;
+      that.avgFixPeriodTotal = 0;
+      that.avgIssuePeriodTotal = 0;
+      that.unhealthyTimeTotal = 0;
+      that.issueCountTotal = 0;
+      that.device = [];
+      that.deviceAnalysisData = [];
+      if (
+        that.selectInfo.length == 0 ||
+        that.startDate == "" ||
+        that.endDate == "" ||
+        that.startDate == null ||
+        that.endDate == null
+      ) {
+        that.$message({
+          message: "请输入将查询信息填写完整",
+          type: "warning",
+        });
+      } else if (
+        new Date(this.startDate).getTime() >= new Date(this.endDate).getTime()
+      ) {
+        that.$message({
+          message: "结束时间必须大于开始时间",
+          type: "warning",
+        });
+      } else if (new Date(this.endDate).getTime() > new Date().getTime()) {
+        that.$message({
+          message: "结束时间必须小于今天",
+          type: "warning",
+        });
+      } else {
+        let url =
+          "http://47.102.214.37:8080/device/query?" +
+          that.selectInfo[0].ziduan +
+          "=L" +
+          that.selectInfo[0].value +
+          "%25";
+        let exportURL =
+          "http://47.102.214.37:8080/device/export?" +
+          that.selectInfo[0].ziduan +
+          "=L" +
+          that.selectInfo[0].value +
+          "%25";
+        if (that.selectInfo.length == 1) {
+          console.log(url);
+          axios.get(url).then((res) => {
+            if (res.data.content.length == 0) {
+              that.$message({
+                message: "无结果",
+                type: "warning",
+              });
+            } else {
+              console.log(res.data);
+              for (let a = 0; a < res.data.content.length; a++) {
+                that.device.push(res.data.content[a].id);
+              }
+              if (that.device.length <= 1) {
+                let url =
+                  "http://47.102.214.37:8080/analysis/device?did=" +
+                  that.device[0] +
+                  "&start=" +
+                  that.startDate +
+                  "&end=" +
+                  that.endDate;
+                axios.get(url).then((res) => {
+                  console.log(res.data);
+                  let obj = {};
+                  obj.deviceid = that.device[0];
+                  obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
+                  obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
+                  obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
+                  obj.issueCount = res.data[that.device[0]].issueCount;
+                  console.log(obj);
+                  that.deviceAnalysisData.push(obj);
+                });
+              } else {
+                let i = 0;
+                let url =
+                  "http://47.102.214.37:8080/analysis/device?did=" +
+                  that.device[0];
+                for (i = 1; i < that.device.length; i++) {
+                  url = url + "," + that.device[i];
+                }
+                if (i == that.device.length) {
+                  console.log(i);
+                  url =
+                    url + "&start=" + that.startDate + "&end=" + that.endDate;
+                  console.log(url);
+                }
+                axios.get(url).then((res) => {
+                  console.log(res);
+                  let i = 0;
+                  for (i = 0; i < that.device.length; i++) {
+                    let obj = {};
+                    obj.deviceid = that.device[i];
+                    obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
+                    that.avgFixPeriodTotal +=
+                      res.data[that.device[i]].avgFixPeriod;
+                    obj.avgIssuePeriod =
+                      res.data[that.device[i]].avgIssuePeriod;
+                    that.avgIssuePeriodTotal +=
+                      res.data[that.device[i]].avgIssuePeriod;
+                    obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
+                    that.unhealthyTimeTotal +=
+                      res.data[that.device[i]].unhealthyTime;
+                    obj.issueCount = res.data[that.device[i]].issueCount;
+                    that.issueCountTotal += res.data[that.device[i]].issueCount;
+                    console.log(obj);
+                    that.deviceAnalysisData.push(obj);
+                  }
+                  // 总计
+                  if (i == that.device.length) {
+                    console.log(that.avgFixPeriodTotal);
+                    let obj = {};
+                    obj.deviceid = "总计";
+                    obj.avgFixPeriod = that.avgFixPeriodTotal;
+                    obj.avgIssuePeriod = that.avgIssuePeriodTotal;
+                    obj.unhealthyTime = that.unhealthyTimeTotal;
+                    obj.issueCount = that.issueCountTotal;
+                    console.log(obj);
+                    that.deviceAnalysisData.unshift(obj);
+                  }
+                });
+              }
+              // 搜索条件存入全局变量
+              globaldata.fixAnalysisInfo = that.selectInfo;
+              globaldata.fixAnalysisdynamicTags = that.dynamicTags;
+
+              setTimeout(() => {
+                that.$message({
+                  message: "查询成功",
+                  type: "success",
+                });
+              }, 300);
+            }
+          });
+        } else {
+          for (let i = 1; i < that.selectInfo.length; i++) {
+            url =
+              url +
+              "&" +
+              that.selectInfo[i].ziduan +
+              "=L" +
+              that.selectInfo[i].value +
+              "%25";
+            exportURL =
+              exportURL +
+              "&" +
+              that.selectInfo[i].ziduan +
+              "=L" +
+              that.selectInfo[i].value +
+              "%25";
+          }
+          console.log(url);
+          axios.get(url).then((res) => {
+            if (res.data.content.length == 0) {
+              that.$message({
+                message: "无结果",
+                type: "warning",
+              });
+            } else {
+              console.log(res.data);
+              for (let a = 0; a < res.data.content.length; a++) {
+                that.device.push(res.data.content[a].id);
+              }
+              if (that.device.length <= 1) {
+                let url =
+                  "http://47.102.214.37:8080/analysis/device?did=" +
+                  that.device[0] +
+                  "&start=" +
+                  that.startDate +
+                  "&end=" +
+                  that.endDate;
+                axios.get(url).then((res) => {
+                  console.log(res.data);
+                  let obj = {};
+                  obj.deviceid = that.device[0];
+                  obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
+                  obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
+                  obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
+                  obj.issueCount = res.data[that.device[0]].issueCount;
+                  console.log(obj);
+                  that.deviceAnalysisData.push(obj);
+                });
+              } else {
+                let i = 0;
+                let url =
+                  "http://47.102.214.37:8080/analysis/device?did=" +
+                  that.device[0];
+                for (i = 1; i < that.device.length; i++) {
+                  url = url + "," + that.device[i];
+                }
+                if (i == that.device.length) {
+                  console.log(i);
+                  url =
+                    url + "&start=" + that.startDate + "&end=" + that.endDate;
+                  console.log(url);
+                }
+                axios.get(url).then((res) => {
+                  console.log(res);
+                  let i = 0;
+                  for (i = 0; i < that.device.length; i++) {
+                    let obj = {};
+                    obj.deviceid = that.device[i];
+                    obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
+                    that.avgFixPeriodTotal +=
+                      res.data[that.device[i]].avgFixPeriod;
+                    obj.avgIssuePeriod =
+                      res.data[that.device[i]].avgIssuePeriod;
+                    that.avgIssuePeriodTotal +=
+                      res.data[that.device[i]].avgIssuePeriod;
+                    obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
+                    that.unhealthyTimeTotal +=
+                      res.data[that.device[i]].unhealthyTime;
+                    obj.issueCount = res.data[that.device[i]].issueCount;
+                    that.issueCountTotal += res.data[that.device[i]].issueCount;
+                    console.log(obj);
+                    that.deviceAnalysisData.push(obj);
+                  }
+                  // 总计
+                  if (i == that.device.length) {
+                    console.log(that.avgFixPeriodTotal);
+                    let obj = {};
+                    obj.deviceid = "总计";
+                    obj.avgFixPeriod = that.avgFixPeriodTotal;
+                    obj.avgIssuePeriod = that.avgIssuePeriodTotal;
+                    obj.unhealthyTime = that.unhealthyTimeTotal;
+                    obj.issueCount = that.issueCountTotal;
+                    console.log(obj);
+                    that.deviceAnalysisData.unshift(obj);
+                  }
+                });
+              }
+              // 搜索条件存入全局变量
+              globaldata.fixAnalysisInfo = that.selectInfo;
+              globaldata.fixAnalysisdynamicTags = that.dynamicTags;
+
+              setTimeout(() => {
+                that.$message({
+                  message: "查询成功",
+                  type: "success",
+                });
+              }, 300);
+            }
+          });
+        }
+      }
+    },
+
     Search() {
       let that = this;
       that.deviceAnalysisData = [];
@@ -249,9 +587,28 @@ export default {
     width: 100%;
     border-bottom: 1px solid #000;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-bottom: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 0 20px 5px;
+    .searchtask {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .el-button {
+      width: 220px;
+      background: linear-gradient(-270deg, #6eb5fc, #409eff);
+      color: #fff;
+      border: 0;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    .searchpart {
+      display: flex;
+      width: 100%;
+      justify-content: flex-start;
+      margin-top: 10px;
+    }
   }
   .Result {
     margin-top: 20px;
@@ -278,19 +635,6 @@ export default {
         }
       }
     }
-  }
-  .el-button {
-    width: 80px;
-    background: linear-gradient(-270deg, #6eb5fc, #409eff);
-    color: #fff;
-    border: 0;
-    padding: 10px;
-    font-size: 15px;
-    border-radius: 5px;
-  }
-  .el-button:hover {
-    color: #fff;
-    opacity: 0.8;
   }
 }
 </style>

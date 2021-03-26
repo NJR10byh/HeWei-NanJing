@@ -70,19 +70,38 @@
       <el-table-column
         prop="errordevicename"
         label="故障设备名称"
+        width="200"
       ></el-table-column>
       <el-table-column
         prop="errordeviceNo"
         label="故障设备编号"
+        width="200"
       ></el-table-column>
-      <el-table-column prop="reporterid" label="报修人员"></el-table-column>
-      <el-table-column prop="reportertime" label="报修时间"></el-table-column>
-      <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
-      <el-table-column prop="assigneestatus" label="维修状态"></el-table-column>
+      <el-table-column
+        prop="reportername"
+        label="报修人员"
+        :width="tablewidth"
+      ></el-table-column>
+      <el-table-column
+        prop="reportertime"
+        label="报修时间"
+        width="180"
+      ></el-table-column>
+      <el-table-column
+        prop="assigneename"
+        label="维修人员"
+        width="180"
+      ></el-table-column>
+      <el-table-column
+        prop="assigneestatus"
+        label="维修状态"
+        :width="tablewidth"
+      ></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
+        width="180"
       >
         <template slot-scope="scope">
           <el-button @click="errordetail(scope.$index)">查看详情</el-button>
@@ -284,6 +303,7 @@ export default {
       userRole: "",
 
       taskData: [],
+      tablewidth: "150",
       /* 搜索 */
       selectoptions: [
         {
@@ -362,6 +382,19 @@ export default {
     };
   },
   methods: {
+    // 处理时间格式
+    renderTime(date) {
+      if (date == null) {
+        return "暂无";
+      } else {
+        var dateee = new Date(date).toJSON();
+        this.active++;
+        return new Date(+new Date(dateee) + 8 * 3600 * 1000)
+          .toISOString()
+          .replace(/T/g, " ")
+          .replace(/\.[\d]{3}Z/, "");
+      }
+    },
     selectchange() {
       this.dialogSearchVisible = true;
     },
@@ -403,21 +436,66 @@ export default {
         console.log(res.data);
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
-          let assigneeid = "";
-          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
-            assigneeid =
-              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
-          }
-          that.taskData.unshift({
-            errorid: res.data.content[i].id,
-            assigneeid: assigneeid,
-            reporterid: "id：" + res.data.content[i].reporter.id,
-          });
+          let obj = {};
+          obj.errorid = res.data.content[i].id;
+          obj.errordevicename = "";
+          obj.errordeviceNo = "";
+          obj.assigneename = "";
+          obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+          obj.assigneestatus = res.data.content[i].closed ? "已处理" : "未处理";
+          // 获取设备信息
+          setTimeout(() => {
+            for (let j = 0; j < res.data.content[i].device.length; j++) {
+              let deviceurl =
+                "http://47.102.214.37:8080/device/" +
+                res.data.content[i].device[j].id;
+              axios.get(deviceurl).then((res) => {
+                obj.errordevicename += res.data.name + " / ";
+                obj.errordeviceNo += res.data.deviceNo + " / ";
+              });
+            }
+            setTimeout(() => {
+              // 获取报修人员信息
+              let assigneeurl =
+                "http://47.102.214.37:8080/user/" +
+                res.data.content[i].assignee[0].id;
+              axios.get(assigneeurl).then((res) => {
+                console.log(res.data);
+                obj.reportername =
+                  res.data.name == undefined ? "未分配" : res.data.name;
+              });
+              // 获取维修人员信息
+              setTimeout(() => {
+                if (res.data.content[i].assignee.length == 1) {
+                  obj.assigneename = "未分配";
+                } else {
+                  for (
+                    let k = 1;
+                    k < res.data.content[i].assignee.length;
+                    k++
+                  ) {
+                    let assigneeurl =
+                      "http://47.102.214.37:8080/user/" +
+                      res.data.content[i].assignee[k].id;
+                    axios.get(assigneeurl).then((res) => {
+                      console.log(res.data);
+                      obj.assigneename += res.data.name + " / ";
+                    });
+                  }
+                }
+                setTimeout(() => {
+                  that.taskData.push(obj);
+                }, 800);
+              }, 300);
+            }, 300);
+          }, 300);
         }
-        that.$message({
-          message: "刷新成功",
-          type: "success",
-        });
+        setTimeout(() => {
+          that.$message({
+            message: "刷新成功",
+            type: "success",
+          });
+        }, 1000);
       });
       // 清空搜索条件，等待下次搜索
       that.selectInfo = [];
