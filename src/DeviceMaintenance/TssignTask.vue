@@ -7,7 +7,7 @@
       <!-- 面包屑 -->
       <el-breadcrumb class="Breadcrumb">
         <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-        <el-breadcrumb-item class="active">任务分配</el-breadcrumb-item>
+        <el-breadcrumb-item class="active">任务标准分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="chuansuo">
@@ -91,7 +91,7 @@ export default {
       // 选择框 1
       data1: [],
       value1: [],
-      titles1: ["任务名称", "已选择任务"],
+      titles1: ["标准名称", "已选择标准"],
       // 选择框 3
       data3: [],
       value3: [],

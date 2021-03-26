@@ -67,8 +67,18 @@
         label="报修流水号"
         width="200"
       ></el-table-column>
-      <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
+      <el-table-column
+        prop="errordevicename"
+        label="故障设备名称"
+      ></el-table-column>
+      <el-table-column
+        prop="errordeviceNo"
+        label="故障设备编号"
+      ></el-table-column>
       <el-table-column prop="reporterid" label="报修人员"></el-table-column>
+      <el-table-column prop="reportertime" label="报修时间"></el-table-column>
+      <el-table-column prop="assigneeid" label="维修人员"></el-table-column>
+      <el-table-column prop="assigneestatus" label="维修状态"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"

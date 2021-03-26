@@ -70,7 +70,7 @@
       <el-table-column prop="index" label="序号" width="50"></el-table-column>
       <el-table-column prop="devicename" label="设备名称"></el-table-column>
       <el-table-column prop="deviceNo" label="设备编号"></el-table-column>
-      <el-table-column prop="acccept" label="保养标准"></el-table-column>
+      <el-table-column prop="taskname" label="保养标准"></el-table-column>
       <el-table-column prop="tasknumber" label="保养编号"></el-table-column>
       <el-table-column prop="nextDate" label="下次保养时间"></el-table-column>
       <el-table-column prop="opuser" label="人员"></el-table-column>
@@ -626,7 +626,11 @@ export default {
             obj.devicename = "";
             obj.deviceNo = "";
             obj.index = index++;
-            obj.name = res.data.content[i].name;
+            obj.id = res.data.content[i].id;
+            obj.taskname =
+              res.data.content[i].name == null
+                ? "未分配"
+                : res.data.content[i].name;
             let URL =
               "http://47.102.214.37:8080/ops/schedule/status/" +
               res.data.content[i].id;
@@ -655,7 +659,6 @@ export default {
                   axios
                     .get(url)
                     .then((res) => {
-                      console.log(res.data);
                       obj.devicename += res.data.name + " / ";
                       obj.deviceNo += res.data.deviceNo + " / ";
                     })
@@ -677,7 +680,6 @@ export default {
                     axios
                       .get(searchops)
                       .then((res) => {
-                        console.log(res.data);
                         obj.opuser += res.data.name + " / ";
                       })
                       .catch(() => {
@@ -893,7 +895,10 @@ export default {
           obj.devicename = "";
           obj.deviceNo = "";
           obj.index = index++;
-          obj.name = res.data.content[i].name;
+          obj.taskname =
+            res.data.content[i].name == null
+              ? "未分配"
+              : res.data.content[i].name;
           let URL =
             "http://47.102.214.37:8080/ops/schedule/status/" +
             res.data.content[i].id;
@@ -988,7 +993,10 @@ export default {
           obj.devicename = "";
           obj.deviceNo = "";
           obj.index = index++;
-          obj.name = res.data.content[i].name;
+          obj.taskname =
+            res.data.content[i].name == null
+              ? "未分配"
+              : res.data.content[i].name;
           let URL =
             "http://47.102.214.37:8080/ops/schedule/status/" +
             res.data.content[i].id;

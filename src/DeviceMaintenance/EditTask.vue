@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">编辑模版</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">编辑标准</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Task-box">
