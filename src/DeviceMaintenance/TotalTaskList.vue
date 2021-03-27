@@ -84,7 +84,7 @@
         :width="tablewidth"
       ></el-table-column>
       <el-table-column
-        prop="tasknumber"
+        prop="taskno"
         label="保养编号"
         :width="tablewidth"
       ></el-table-column>
@@ -220,12 +220,32 @@
         </el-option-group>
       </el-select>
 
+      <!-- 开始时间 -->
       <el-date-picker
         v-model="datevalue"
         type="date"
         placeholder="选择日期"
         value-format="yyyy-MM-dd"
         v-if="selectvalue == 'startDate'"
+      >
+      </el-date-picker>
+
+      <!-- 时间范围 -->
+      <el-date-picker
+        v-model="start"
+        type="date"
+        placeholder="选择开始日期"
+        value-format="yyyy-MM-dd"
+        v-if="selectvalue == 'timeChoose'"
+      >
+      </el-date-picker>
+      <el-date-picker
+        v-model="end"
+        type="date"
+        placeholder="选择结束日期"
+        value-format="yyyy-MM-dd"
+        v-if="selectvalue == 'timeChoose'"
+        style="margin-top:20px;"
       >
       </el-date-picker>
       <span slot="footer" class="dialog-footer">
@@ -246,6 +266,13 @@ export default {
       console.log(res.data);
       that.userRole = res.data.role;
     });
+    // axios
+    //   .get(
+    //     "http://47.102.214.37:8080/ops/query?createdAt==2021-03-01&closedAt==2021-03-23"
+    //   )
+    //   .then((res) => {
+    //     console.log(res);
+    //   });
     if (globaldata.taskselectInfo.length != 0) {
       that.selectInfo = globaldata.taskselectInfo;
       that.dynamicTags = globaldata.taskdynamicTags;
@@ -259,7 +286,7 @@ export default {
     // 获取全部设备
     axios({
       method: "GET",
-      url: "http://47.102.214.37:8080/device?page=0&size=100",
+      url: "http://47.102.214.37:8080/device/query?name=!",
     })
       .then((res) => {
         for (var i = 0; i < res.data.content.length; i++) {
@@ -325,6 +352,10 @@ export default {
               value: "startDate",
               label: "开始时间",
             },
+            {
+              value: "timeChoose",
+              label: "时间范围",
+            },
           ],
         },
       ],
@@ -385,11 +416,15 @@ export default {
       // 开始时间
       datevalue: "",
 
+      /* 时间范围 */
+      // 开始
+      start: "",
+      // 结束
+      end: "",
       // 分页
       currentPage: 1, //  页面显示的当前页数
       page_size: 5, //  页面显示的每页显示条数
       page: 1, // 当前页数
-      size: 5, // 每页显示条数
       total: 0, // 总数
     };
   },
@@ -660,6 +695,10 @@ export default {
               res.data.content[i].name == null
                 ? "未分配"
                 : res.data.content[i].name;
+            obj.taskno =
+              res.data.content[i].no == null
+                ? "未分配"
+                : res.data.content[i].no;
             let URL =
               "http://47.102.214.37:8080/ops/schedule/status/" +
               res.data.content[i].id;
@@ -910,10 +949,11 @@ export default {
       that.tableData = [];
       that.currentPage = 1;
       console.log(val);
-      that.size = val;
       that.page_size = val;
       let url =
-        "http://47.102.214.37:8080/ops/schedule?page=0" + "&size=" + that.size;
+        "http://47.102.214.37:8080/ops/schedule?page=0" +
+        "&size=" +
+        that.page_size;
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);
@@ -1012,7 +1052,7 @@ export default {
         "http://47.102.214.37:8080/ops/schedule?page=" +
         (that.page - 1) +
         "&size=" +
-        that.size;
+        that.page_size;
       axios.get(url).then((res) => {
         console.log(res.data);
         that.total = res.data.totalElements;

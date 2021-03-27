@@ -37,7 +37,7 @@
     >
       <el-table-column type="selection"></el-table-column>
       <el-table-column prop="name" label="标准名称"></el-table-column>
-      <el-table-column prop="number" label="标准编号"></el-table-column>
+      <el-table-column prop="no" label="标准编号"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
@@ -57,7 +57,6 @@
 <script>
 import axios from "axios";
 export default {
-  name: "AddTask",
   created: function() {
     let that = this;
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
@@ -219,6 +218,7 @@ export default {
             that.taskData.push({
               taskID: res.data.content[i].id,
               name: res.data.content[i].name,
+              no: res.data.content[i].no,
             });
           }
           that.$message({

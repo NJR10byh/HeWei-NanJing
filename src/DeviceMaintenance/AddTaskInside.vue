@@ -10,7 +10,21 @@
         <el-form ref="form" :model="TaskInfo" label-position="left">
           <div class="part">
             <div class="part_left">
-              <div class="part_left_0 part_left_1">
+              <div class="part_left_0">
+                <el-form-item label="标准名称" class="task">
+                  <el-input
+                    v-model="TaskInfo.name"
+                    placeholder="请输入标准名称"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="标准编号" class="task">
+                  <el-input
+                    v-model="TaskInfo.no"
+                    placeholder="请输入标准编号"
+                  ></el-input>
+                </el-form-item>
+              </div>
+              <div class="part_left_0">
                 <el-form-item label="保养周期" class="task tasktime">
                   <el-select
                     clearable
@@ -26,28 +40,8 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="标准名称" class="task taskname">
-                  <el-input
-                    v-model="TaskInfo.name"
-                    placeholder="请输入任务名称"
-                  ></el-input>
-                </el-form-item>
               </div>
-              <div class="part_left_0 part_left_2">
-                <el-form-item label="保养部位" class="task side">
-                  <el-input
-                    v-model="TaskInfo.side"
-                    placeholder="请输入保养部位"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="接受标准" class="task acceptedStandard">
-                  <el-input
-                    v-model="TaskInfo.acceptedStandard"
-                    placeholder="请输入接受标准"
-                  ></el-input>
-                </el-form-item>
-              </div>
-              <div class="part_left_0 part_left_3">
+              <div class="part_left_0">
                 <el-form-item label="保养工具及备件" class="task tools">
                   <el-input
                     class="inputStyle"
@@ -181,8 +175,7 @@ export default {
         console.log(res.data);
         that.TaskInfo.scheduleType = res.data.scheduleType;
         that.TaskInfo.name = res.data.name;
-        that.TaskInfo.side = res.data.side;
-        that.TaskInfo.acceptedStandard = res.data.acceptedStandard;
+        that.TaskInfo.no = res.data.no;
         that.TaskInfo.tools = res.data.tools;
         that.TaskInfo.remark = res.data.remark;
         that.TaskInfo.content = res.data.content;
@@ -196,8 +189,7 @@ export default {
       TaskInfo: {
         scheduleType: "",
         name: "",
-        side: "",
-        acceptedStandard: "",
+        no: "",
         tools: "",
         remark: "",
         title: "",
@@ -305,8 +297,7 @@ export default {
       if (
         that.TaskInfo.scheduleType == "" ||
         that.TaskInfo.name == "" ||
-        that.TaskInfo.side == "" ||
-        that.TaskInfo.acceptedStandard == "" ||
+        that.TaskInfo.no == "" ||
         that.TaskInfo.tools == "" ||
         that.TaskInfo.remark == "" ||
         that.TaskInfo.content.length == 0
@@ -318,8 +309,7 @@ export default {
       } else {
         obj.scheduleType = that.TaskInfo.scheduleType;
         obj.name = that.TaskInfo.name;
-        obj.side = that.TaskInfo.side;
-        obj.acceptedStandard = that.TaskInfo.acceptedStandard;
+        obj.no = that.TaskInfo.no;
         obj.tools = that.TaskInfo.tools;
         obj.remark = that.TaskInfo.remark;
         obj.content = that.TaskInfo.content;

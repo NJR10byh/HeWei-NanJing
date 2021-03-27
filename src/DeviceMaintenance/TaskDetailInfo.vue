@@ -11,16 +11,6 @@
       <el-tabs tab-position="top" v-model="tabsActiveName">
         <el-tab-pane label="基本信息" name="first">
           <div class="BaseInfo_1">
-            <div class="Info_part1">
-              <div style="width:50%;">
-                <div class="Title">保养部位</div>
-                <div class="Info">{{ side }}</div>
-              </div>
-              <div>
-                <div class="Title">接受标准</div>
-                <div class="Info">{{ acceptedStandard }}</div>
-              </div>
-            </div>
             <div class="Info_part2">
               <div style="width:50%;">
                 <div class="Title">开始时间</div>
@@ -251,38 +241,36 @@ export default {
       console.log(res.data);
       // 任务名称
       that.name = res.data.name;
-      if (that.scheduleType == null) {
-        switch (res.data.scheduleType) {
-          case "Yearly":
-            that.scheduleType = "年保养";
-            break;
-          case "Seasonally":
-            that.scheduleType = "季度保养";
-            break;
-          case "Monthly":
-            that.scheduleType = "月保养";
-            break;
-          case "Weekly":
-            that.scheduleType = "周保养";
-            break;
-          case "Daily":
-            that.scheduleType = "日保养";
-            break;
-          case "Predictability":
-            that.scheduleType = "未知";
-            break;
-          default:
-            break;
-        }
+      switch (res.data.scheduleType) {
+        case "Yearly":
+          that.scheduleType = "年保养";
+          break;
+        case "Seasonally":
+          that.scheduleType = "季度保养";
+          break;
+        case "Monthly":
+          that.scheduleType = "月保养";
+          break;
+        case "Weekly":
+          that.scheduleType = "周保养";
+          break;
+        case "Daily":
+          that.scheduleType = "日保养";
+          break;
+        case "Predictability":
+          that.scheduleType = "未知";
+          break;
+        default:
+          break;
       }
       // 保养天数
-      if (that.startDate == null) {
-        that.startDate = res.data.startDate;
-      }
+      that.startDate =
+        res.data.startDate == null ? "未分配" : res.data.startDate;
       if (that.scheduleType == "日保养") {
         that.scheduleType_info = "日保养（每天）";
       }
       if (that.scheduleType == "周保养") {
+        console.log(that.startDate);
         switch (that.startDate) {
           case 1:
             that.scheduleType_info = "周保养（周一）";
@@ -306,6 +294,7 @@ export default {
             that.scheduleType_info = "周保养（周日）";
             break;
           default:
+            that.scheduleType_info = "周保养（未分配）";
             break;
         }
       } else if (that.scheduleType == "月保养") {
@@ -319,14 +308,6 @@ export default {
       } else if (that.scheduleType == "未知") {
         that.scheduleType_info = "未知";
       }
-      // 保养部位
-      if (that.side == null) {
-        that.side = res.data.side;
-      }
-      // 接受标准
-      if (that.acceptedStandard == null) {
-        that.acceptedStandard = res.data.acceptedStandard;
-      }
       // 保养内容
       if (res.data.content != "") {
         for (let a = 0; a < res.data.content.length; a++) {
@@ -336,12 +317,8 @@ export default {
           });
         }
       }
-      if (res.data.tools != "") {
-        that.tools = res.data.tools;
-      }
-      if (res.data.remark != "") {
-        that.remark = res.data.remark;
-      }
+      that.tools = res.data.tools;
+      that.remark = res.data.remark;
       // 设备名称
       for (let i = 0; i < res.data.device.length; i++) {
         let searchdevice =
@@ -436,8 +413,6 @@ export default {
 
       /* 基本信息 */
       users: [], // 维护人员
-      side: null, // 保养部位
-      acceptedStandard: null, // 接受标准
       scheduleType: null, // 保养周期
       startDate: null, // 保养开始时间
       scheduleType_info: null, // 保养周期具体信息
@@ -473,7 +448,6 @@ export default {
       currentPage: 1, //  页面显示的当前页数
       page_size: 5, //  页面显示的每页显示条数
       page: 1, // 当前页数
-      size: 5, // 每页显示条数
       total: 0, // 总数
     };
   },
@@ -576,18 +550,19 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      that.currentPage = 1;
+      that.page_size = val;
+      that.taskrecordtableData = [];
       console.log(val);
-      that.size = val;
       let url =
         "http://47.102.214.37:8080/ops/record/schedule/" +
         that.$route.query.id +
         "?page=0" +
         "&size=" +
-        that.size;
+        that.page_size;
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);
-        that.taskrecordtableData = [];
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
@@ -637,7 +612,7 @@ export default {
         "?page=" +
         (that.page - 1) +
         "&size=" +
-        that.size;
+        that.page_size;
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);

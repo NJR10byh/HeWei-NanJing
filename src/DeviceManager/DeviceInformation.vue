@@ -263,7 +263,6 @@ export default {
       currentPage: 1, //  页面显示的当前页数
       page_size: 10, //  页面显示的每页显示条数
       page: 1, // 当前页数
-      size: 5, // 每页显示条数
       total: 0, // 总数
     };
   },
@@ -628,10 +627,9 @@ export default {
       let that = this;
       that.tableData = [];
       console.log(val);
-      that.size = val;
       that.page_size = val;
       let url =
-        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
+        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.page_size;
       console.log(url);
       axios({
         method: "GET",
@@ -690,7 +688,8 @@ export default {
         "http://47.102.214.37:8080/device?page=" +
         (that.page - 1) +
         "&size=" +
-        that.size;
+        that.page_size;
+      console.log(url);
       axios({
         method: "GET",
         url: url,
@@ -698,7 +697,6 @@ export default {
         .then((res) => {
           that.tableData = [];
           that.total = res.data.totalElements;
-          that.currentPage = 1;
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
