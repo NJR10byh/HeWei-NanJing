@@ -124,7 +124,7 @@ export default {
           obj.errordeviceNo = "";
           obj.assigneename = "";
           obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-          obj.assigneestatus = res.data.content[i].closed ? "已处理" : "未处理";
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
           // 获取设备信息
           setTimeout(() => {
             for (let j = 0; j < res.data.content[i].device.length; j++) {
@@ -241,7 +241,7 @@ export default {
           obj.errordeviceNo = "";
           obj.assigneename = "";
           obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-          obj.assigneestatus = res.data.content[i].closed ? "已处理" : "未处理";
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
           // 获取设备信息
           setTimeout(() => {
             for (let j = 0; j < res.data.content[i].device.length; j++) {
@@ -319,7 +319,7 @@ export default {
           obj.errordeviceNo = "";
           obj.assigneename = "";
           obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-          obj.assigneestatus = res.data.content[i].closed ? "已处理" : "未处理";
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
           // 获取设备信息
           setTimeout(() => {
             for (let j = 0; j < res.data.content[i].device.length; j++) {

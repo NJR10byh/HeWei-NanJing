@@ -40,6 +40,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top:10px;"
             ></user>
           </div>
@@ -209,6 +210,8 @@ export default {
             name: res.data.content[0].name,
             username: res.data.content[0].username,
             useremail: res.data.content[0].email,
+            avatar:
+              "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
           });
         });
         // 维修人员
@@ -223,6 +226,8 @@ export default {
               name: res.data.content[0].name,
               username: res.data.content[0].username,
               useremail: res.data.content[0].email,
+              avatar:
+                "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
             });
           });
           if (usersid.fixusersid.length == 1) {
@@ -242,6 +247,9 @@ export default {
                   name: res.data.content[0].name,
                   username: res.data.content[0].username,
                   useremail: res.data.content[0].email,
+                  avatar:
+                    "http://47.102.214.37:8080/pic/" +
+                    res.data.content[0].avatar,
                 });
               });
             }

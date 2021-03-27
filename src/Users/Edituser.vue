@@ -59,11 +59,21 @@ import axios from "axios";
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      that.userid = res.data.id;
-      that.name = res.data.name;
-      that.email = res.data.email;
-    });
+    console.log(that.$route.query);
+    if (that.$route.query.id != undefined) {
+      let url = "http://47.102.214.37:8080/user/" + that.$route.query.id;
+      axios.get(url).then((res) => {
+        that.userid = res.data.id;
+        that.name = res.data.name;
+        that.email = res.data.email;
+      });
+    } else {
+      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+        that.userid = res.data.id;
+        that.name = res.data.name;
+        that.email = res.data.email;
+      });
+    }
   },
   data() {
     return {
@@ -141,6 +151,7 @@ export default {
         this.email = "";
       }
     },
+    // 确认修改
     submit() {
       let that = this;
       console.log(that.name);

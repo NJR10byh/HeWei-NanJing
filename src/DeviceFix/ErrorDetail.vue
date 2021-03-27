@@ -40,6 +40,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top:10px;"
             ></user>
           </div>
@@ -73,6 +74,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top:10px;"
             ></user>
           </div>
@@ -84,6 +86,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top:10px;"
             ></user>
           </div>
@@ -279,10 +282,13 @@ export default {
         let searchreporters =
           "http://47.102.214.37:8080/user/query?id==" + usersid.applyusersid;
         axios.get(searchreporters).then((res) => {
+          console.log(res.data);
           that.applyusers.push({
             name: res.data.content[0].name,
             username: res.data.content[0].username,
             useremail: res.data.content[0].email,
+            avatar:
+              "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
           });
         });
         // 维修人员
@@ -321,6 +327,9 @@ export default {
                   name: res.data.content[0].name,
                   username: res.data.content[0].username,
                   useremail: res.data.content[0].email,
+                  avatar:
+                    "http://47.102.214.37:8080/pic/" +
+                    res.data.content[0].avatar,
                 });
               });
             }
@@ -597,7 +606,7 @@ export default {
           }
         }
         .result {
-          height: 200px;
+          height: 300px;
         }
       }
       .lastpart {

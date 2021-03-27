@@ -33,6 +33,7 @@
                   :name="item.name"
                   :username="item.username"
                   :useremail="item.useremail"
+                  :avatar="item.avatar"
                   style="margin-top:20px;"
                 ></user>
               </div>
@@ -341,6 +342,7 @@ export default {
             name: res.data.name,
             username: res.data.username,
             useremail: res.data.email,
+            avatar: "http://47.102.214.37:8080/pic/" + res.data.avatar,
           });
         });
       }

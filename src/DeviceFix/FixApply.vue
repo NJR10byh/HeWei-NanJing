@@ -9,6 +9,7 @@
             :name="reporter.name"
             :username="reporter.username"
             :useremail="reporter.useremail"
+            :avatar="reporter.avatar"
             style="margin-top:5px;"
           ></user>
         </div>
@@ -103,6 +104,7 @@ export default {
       that.reporter.name = res.data.name;
       that.reporter.username = res.data.username;
       that.reporter.useremail = res.data.email;
+      that.reporter.avatar = "http://47.102.214.37:8080/pic/" + res.data.avatar;
     });
     setTimeout(() => {
       // 如果当前登录用户不是 OPERATOR ，则获取全部设备

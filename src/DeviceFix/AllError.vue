@@ -441,7 +441,7 @@ export default {
           obj.errordeviceNo = "";
           obj.assigneename = "";
           obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-          obj.assigneestatus = res.data.content[i].closed ? "已处理" : "未处理";
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
           // 获取设备信息
           setTimeout(() => {
             for (let j = 0; j < res.data.content[i].device.length; j++) {
@@ -677,24 +677,68 @@ export default {
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);
+        that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
-          let assigneeid = "";
-          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
-            assigneeid =
-              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
-          }
-          that.taskData.unshift({
-            errorid: res.data.content[i].id,
-            assigneeid: assigneeid,
-            reporterid: "id：" + res.data.content[i].reporter.id,
-          });
+          let obj = {};
+          obj.errorid = res.data.content[i].id;
+          obj.errordevicename = "";
+          obj.errordeviceNo = "";
+          obj.assigneename = "";
+          obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
+          // 获取设备信息
+          setTimeout(() => {
+            for (let j = 0; j < res.data.content[i].device.length; j++) {
+              let deviceurl =
+                "http://47.102.214.37:8080/device/" +
+                res.data.content[i].device[j].id;
+              axios.get(deviceurl).then((res) => {
+                obj.errordevicename += res.data.name + " / ";
+                obj.errordeviceNo += res.data.deviceNo + " / ";
+              });
+            }
+            setTimeout(() => {
+              // 获取报修人员信息
+              let assigneeurl =
+                "http://47.102.214.37:8080/user/" +
+                res.data.content[i].assignee[0].id;
+              axios.get(assigneeurl).then((res) => {
+                console.log(res.data);
+                obj.reportername =
+                  res.data.name == undefined ? "未分配" : res.data.name;
+              });
+              // 获取维修人员信息
+              setTimeout(() => {
+                if (res.data.content[i].assignee.length == 1) {
+                  obj.assigneename = "未分配";
+                } else {
+                  for (
+                    let k = 1;
+                    k < res.data.content[i].assignee.length;
+                    k++
+                  ) {
+                    let assigneeurl =
+                      "http://47.102.214.37:8080/user/" +
+                      res.data.content[i].assignee[k].id;
+                    axios.get(assigneeurl).then((res) => {
+                      console.log(res.data);
+                      obj.assigneename += res.data.name + " / ";
+                    });
+                  }
+                }
+                setTimeout(() => {
+                  that.taskData.push(obj);
+                }, 800);
+              }, 300);
+            }, 300);
+          }, 300);
         }
         setTimeout(() => {
           that.$message({
             message: "刷新成功",
             type: "success",
           });
-        }, 300);
+        }, 1000);
       });
     },
     // // 页变化
@@ -711,25 +755,68 @@ export default {
       console.log(url);
       axios.get(url).then((res) => {
         console.log(res.data);
-        that.taskData = [];
+        that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
-          let assigneeid = "";
-          for (let j = 1; j < res.data.content[i].assignee.length; j++) {
-            assigneeid =
-              assigneeid + "id：" + res.data.content[i].assignee[j].id + " / ";
-          }
-          that.taskData.unshift({
-            errorid: res.data.content[i].id,
-            assigneeid: assigneeid,
-            reporterid: "id：" + res.data.content[i].reporter.id,
-          });
+          let obj = {};
+          obj.errorid = res.data.content[i].id;
+          obj.errordevicename = "";
+          obj.errordeviceNo = "";
+          obj.assigneename = "";
+          obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+          obj.assigneestatus = res.data.content[i].closed ? "已完成" : "未完成";
+          // 获取设备信息
+          setTimeout(() => {
+            for (let j = 0; j < res.data.content[i].device.length; j++) {
+              let deviceurl =
+                "http://47.102.214.37:8080/device/" +
+                res.data.content[i].device[j].id;
+              axios.get(deviceurl).then((res) => {
+                obj.errordevicename += res.data.name + " / ";
+                obj.errordeviceNo += res.data.deviceNo + " / ";
+              });
+            }
+            setTimeout(() => {
+              // 获取报修人员信息
+              let assigneeurl =
+                "http://47.102.214.37:8080/user/" +
+                res.data.content[i].assignee[0].id;
+              axios.get(assigneeurl).then((res) => {
+                console.log(res.data);
+                obj.reportername =
+                  res.data.name == undefined ? "未分配" : res.data.name;
+              });
+              // 获取维修人员信息
+              setTimeout(() => {
+                if (res.data.content[i].assignee.length == 1) {
+                  obj.assigneename = "未分配";
+                } else {
+                  for (
+                    let k = 1;
+                    k < res.data.content[i].assignee.length;
+                    k++
+                  ) {
+                    let assigneeurl =
+                      "http://47.102.214.37:8080/user/" +
+                      res.data.content[i].assignee[k].id;
+                    axios.get(assigneeurl).then((res) => {
+                      console.log(res.data);
+                      obj.assigneename += res.data.name + " / ";
+                    });
+                  }
+                }
+                setTimeout(() => {
+                  that.taskData.push(obj);
+                }, 800);
+              }, 300);
+            }, 300);
+          }, 300);
         }
         setTimeout(() => {
           that.$message({
             message: "刷新成功",
             type: "success",
           });
-        }, 300);
+        }, 1000);
       });
     },
   },
