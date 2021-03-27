@@ -185,7 +185,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[5, 10, 15]"
+          :page-sizes="[15, 30, 50, 100]"
           :page-size="page_size"
           layout="sizes,total, prev, pager, next, jumper"
           :total="total"
@@ -261,7 +261,7 @@ export default {
       multipleSelection: [],
       // 分页
       currentPage: 1, //  页面显示的当前页数
-      page_size: 10, //  页面显示的每页显示条数
+      page_size: 15, //  页面显示的每页显示条数
       page: 1, // 当前页数
       total: 0, // 总数
     };

@@ -4,7 +4,7 @@
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
       <el-breadcrumb-item class="active"
-        >任务名称：{{ name }}
+        >任务名称：{{ name }}（编号：{{ no }}）
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Tabs">
@@ -124,7 +124,7 @@
               <el-table-column
                 prop="id"
                 label="记录ID"
-                width="70"
+                width="200"
               ></el-table-column>
               <el-table-column
                 prop="date"
@@ -137,6 +137,7 @@
               <el-table-column
                 prop="hasException"
                 label="是否存在「不能自我修复」的异常"
+                width="140"
               ></el-table-column>
               <el-table-column prop="opUser" label="保养人员"></el-table-column>
             </el-table>
@@ -146,7 +147,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
-                :page-sizes="[5, 10, 15]"
+                :page-sizes="[15, 30, 50, 100]"
                 :page-size="page_size"
                 layout="sizes,total, prev, pager, next, jumper"
                 :total="total"
@@ -242,6 +243,7 @@ export default {
       console.log(res.data);
       // 任务名称
       that.name = res.data.name;
+      that.no = res.data.no;
       switch (res.data.scheduleType) {
         case "Yearly":
           that.scheduleType = "年保养";
@@ -410,6 +412,7 @@ export default {
     return {
       taskid: "", //任务ID
       name: null, // 任务名称
+      no: null, // 标准编号
       opUserid: "", // 维护人员id
       tabsActiveName: "first", // 进入打开第一个栏目
 
@@ -447,7 +450,7 @@ export default {
       dialogVisible: false,
       // 分页
       currentPage: 1, //  页面显示的当前页数
-      page_size: 5, //  页面显示的每页显示条数
+      page_size: 15, //  页面显示的每页显示条数
       page: 1, // 当前页数
       total: 0, // 总数
     };

@@ -76,8 +76,8 @@
       >
         <el-table-column
           prop="taskid"
-          label="任务编号"
-          width="100"
+          label="保养任务名称 / 编号"
+          width="200"
         ></el-table-column>
         <el-table-column prop="times" label="保养总数"></el-table-column>
 
@@ -309,7 +309,7 @@ export default {
               label: "日保养",
             },
             {
-              value: "Weeklt",
+              value: "Weekly",
               label: "周保养",
             },
           ],
@@ -455,7 +455,6 @@ export default {
           });
         } else {
           let i = 0;
-          console.log(that.task);
           let url =
             "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
           console.log(url);
@@ -471,7 +470,12 @@ export default {
             console.log(res);
             for (let i = 0; i < that.task.length; i++) {
               let obj = {};
-              obj.taskid = that.task[i];
+              let url =
+                "http://47.102.214.37:8080/ops/schedule/detail/" + that.task[i];
+              axios.get(url).then((res) => {
+                console.log(res.data);
+                obj.taskid = res.data.name + " / " + res.data.id;
+              });
               obj.times = res.data[that.task[i]].times;
               that.timesTotal += res.data[that.task[i]].times;
               obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
@@ -486,7 +490,9 @@ export default {
               that.recordTimesTotal += res.data[that.task[i]].recordTimes;
 
               console.log(obj);
-              that.taskAnalysisData.push(obj);
+              setTimeout(() => {
+                that.taskAnalysisData.push(obj);
+              }, 600);
             }
             // 总计
             console.log(that.incompleteTimesTotal);
@@ -599,7 +605,12 @@ export default {
                   that.endDate;
                 axios.get(url).then((res) => {
                   let obj = {};
-                  obj.taskid = that.task[0];
+                  let url =
+                    "http://47.102.214.37:8080/ops/schedule/detail/" +
+                    that.task[0];
+                  axios.get(url).then((res) => {
+                    obj.taskid = res.data.name + " / " + res.data.id;
+                  });
                   obj.times = res.data[that.task[0]].times;
                   that.timesTotal = res.data[that.task[0]].times;
                   obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
@@ -613,7 +624,9 @@ export default {
                   that.recordTimesTotal = res.data[that.task[0]].recordTimes;
 
                   console.log(obj);
-                  that.taskAnalysisData.push(obj);
+                  setTimeout(() => {
+                    that.taskAnalysisData.push(obj);
+                  }, 600);
                 });
               } else {
                 let i = 0;
@@ -633,7 +646,13 @@ export default {
                   console.log(res);
                   for (let i = 0; i < that.task.length; i++) {
                     let obj = {};
-                    obj.taskid = that.task[i];
+                    let url =
+                      "http://47.102.214.37:8080/ops/schedule/detail/" +
+                      that.task[i];
+                    axios.get(url).then((res) => {
+                      console.log(res.data);
+                      obj.taskid = res.data.name + " / " + res.data.id;
+                    });
                     obj.times = res.data[that.task[i]].times;
                     that.timesTotal += res.data[that.task[i]].times;
                     obj.incompleteTimes =
@@ -651,7 +670,9 @@ export default {
                     that.recordTimesTotal += res.data[that.task[i]].recordTimes;
 
                     console.log(obj);
-                    that.taskAnalysisData.push(obj);
+                    setTimeout(() => {
+                      that.taskAnalysisData.push(obj);
+                    }, 600);
                   }
                   // 总计
                   console.log(that.incompleteTimesTotal);
@@ -749,7 +770,13 @@ export default {
                   that.endDate;
                 axios.get(url).then((res) => {
                   let obj = {};
-                  obj.taskid = that.task[0];
+                  let url =
+                    "http://47.102.214.37:8080/ops/schedule/detail/" +
+                    that.task[0];
+                  axios.get(url).then((res) => {
+                    console.log(res.data);
+                    obj.taskid = res.data.name + " / " + res.data.id;
+                  });
                   obj.times = res.data[that.task[0]].times;
                   that.timesTotal = res.data[that.task[0]].times;
                   obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
@@ -763,7 +790,9 @@ export default {
                   that.recordTimesTotal = res.data[that.task[0]].recordTimes;
 
                   console.log(obj);
-                  that.taskAnalysisData.push(obj);
+                  setTimeout(() => {
+                    that.taskAnalysisData.push(obj);
+                  }, 600);
                 });
               } else {
                 let i = 0;
@@ -783,7 +812,13 @@ export default {
                   console.log(res);
                   for (let i = 0; i < that.task.length; i++) {
                     let obj = {};
-                    obj.taskid = that.task[i];
+                    let url =
+                      "http://47.102.214.37:8080/ops/schedule/detail/" +
+                      that.task[i];
+                    axios.get(url).then((res) => {
+                      console.log(res.data);
+                      obj.taskid = res.data.name + " / " + res.data.id;
+                    });
                     obj.times = res.data[that.task[i]].times;
                     that.timesTotal += res.data[that.task[i]].times;
                     obj.incompleteTimes =
@@ -801,7 +836,9 @@ export default {
                     that.recordTimesTotal += res.data[that.task[i]].recordTimes;
 
                     console.log(obj);
-                    that.taskAnalysisData.push(obj);
+                    setTimeout(() => {
+                      that.taskAnalysisData.push(obj);
+                    }, 600);
                   }
                   // 总计
                   console.log(that.incompleteTimesTotal);

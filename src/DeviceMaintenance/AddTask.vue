@@ -51,6 +51,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
+    <div>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[15, 30, 50, 100]"
+        :page-size="page_size"
+        layout="sizes,total, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
   </div>
 </template>
 
@@ -75,6 +87,12 @@ export default {
       deviceclazz: "",
       taskData: [],
       checkedDetail: [],
+
+      // 分页
+      currentPage: 1, //  页面显示的当前页数
+      page_size: 15, //  页面显示的每页显示条数
+      page: 1, // 当前页数
+      total: 0, // 总数
     };
   },
   methods: {
@@ -164,7 +182,7 @@ export default {
                       message: "删除成功",
                       type: "success",
                     });
-                    that.tableData.splice(i, 1);
+                    that.taskData.splice(i, 1);
                     that.checkedDetail.pop();
                   });
                 }
@@ -210,22 +228,81 @@ export default {
     refresh() {
       let that = this;
       that.taskData = [];
-      axios
-        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
-        .then((res) => {
-          console.log(res.data);
-          for (var i = 0; i < res.data.content.length; i++) {
-            that.taskData.push({
-              taskID: res.data.content[i].id,
-              name: res.data.content[i].name,
-              no: res.data.content[i].no,
-            });
-          }
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+      that.currentPage = 1;
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=0&size=" + that.page_size;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.total = res.data.totalElements;
+        for (var i = 0; i < res.data.content.length; i++) {
+          that.taskData.push({
+            taskID: res.data.content[i].id,
+            name: res.data.content[i].name,
+            no: res.data.content[i].no,
           });
+        }
+        that.$message({
+          message: "刷新成功",
+          type: "success",
         });
+      });
+    },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      that.taskData = [];
+      that.currentPage = 1;
+      console.log(val);
+      that.page_size = val;
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=0" +
+        "&size=" +
+        that.page_size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.total = res.data.totalElements;
+        for (var i = 0; i < res.data.content.length; i++) {
+          that.taskData.push({
+            taskID: res.data.content[i].id,
+            name: res.data.content[i].name,
+            no: res.data.content[i].no,
+          });
+        }
+        that.$message({
+          message: "刷新成功",
+          type: "success",
+        });
+      });
+    },
+    // // 页变化
+    handleCurrentChange(val) {
+      let that = this;
+      that.taskData = [];
+      that.page = val;
+      that.currentPage = val;
+      console.log(val);
+      let url =
+        "http://47.102.214.37:8080/ops/schedule?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.page_size;
+      axios.get(url).then((res) => {
+        console.log(res.data);
+        that.total = res.data.totalElements;
+        for (var i = 0; i < res.data.content.length; i++) {
+          that.taskData.push({
+            taskID: res.data.content[i].id,
+            name: res.data.content[i].name,
+            no: res.data.content[i].no,
+          });
+        }
+        that.$message({
+          message: "刷新成功",
+          type: "success",
+        });
+      });
     },
   },
 };

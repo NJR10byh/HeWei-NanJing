@@ -76,8 +76,8 @@
       >
         <el-table-column
           prop="deviceid"
-          label="设备编号"
-          width="100"
+          label="设备名称 / 编号"
+          width="200"
         ></el-table-column>
         <el-table-column
           prop="unhealthyTime"
@@ -285,7 +285,11 @@ export default {
             let i = 0;
             for (i = 0; i < that.device.length; i++) {
               let obj = {};
-              obj.deviceid = that.device[i];
+              let url = "http://47.102.214.37:8080/device/" + that.device[i];
+              axios.get(url).then((res) => {
+                console.log(res.data);
+                obj.deviceid = res.data.name + " / " + res.data.id;
+              });
               obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
               that.avgFixPeriodTotal += res.data[that.device[i]].avgFixPeriod;
               obj.avgIssuePeriod = res.data[that.device[i]].avgIssuePeriod;
@@ -296,7 +300,9 @@ export default {
               obj.issueCount = res.data[that.device[i]].issueCount;
               that.issueCountTotal += res.data[that.device[i]].issueCount;
               console.log(obj);
-              that.deviceAnalysisData.push(obj);
+              setTimeout(() => {
+                that.deviceAnalysisData.unshift(obj);
+              }, 600);
             }
             // 总计
             if (i == that.device.length) {
@@ -379,13 +385,19 @@ export default {
                 axios.get(url).then((res) => {
                   console.log(res.data);
                   let obj = {};
-                  obj.deviceid = that.device[0];
+                  let url =
+                    "http://47.102.214.37:8080/device/" + that.device[0];
+                  axios.get(url).then((res) => {
+                    obj.deviceid = res.data.name + " / " + res.data.id;
+                  });
                   obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
                   obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
                   obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
                   obj.issueCount = res.data[that.device[0]].issueCount;
                   console.log(obj);
-                  that.deviceAnalysisData.push(obj);
+                  setTimeout(() => {
+                    that.deviceAnalysisData.push(obj);
+                  }, 600);
                 });
               } else {
                 let i = 0;
@@ -406,7 +418,12 @@ export default {
                   let i = 0;
                   for (i = 0; i < that.device.length; i++) {
                     let obj = {};
-                    obj.deviceid = that.device[i];
+                    let url =
+                      "http://47.102.214.37:8080/device/" + that.device[i];
+                    axios.get(url).then((res) => {
+                      console.log(res.data);
+                      obj.deviceid = res.data.name + " / " + res.data.id;
+                    });
                     obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
                     that.avgFixPeriodTotal +=
                       res.data[that.device[i]].avgFixPeriod;
@@ -420,7 +437,9 @@ export default {
                     obj.issueCount = res.data[that.device[i]].issueCount;
                     that.issueCountTotal += res.data[that.device[i]].issueCount;
                     console.log(obj);
-                    that.deviceAnalysisData.push(obj);
+                    setTimeout(() => {
+                      that.deviceAnalysisData.push(obj);
+                    }, 600);
                   }
                   // 总计
                   if (i == that.device.length) {
@@ -488,13 +507,20 @@ export default {
                 axios.get(url).then((res) => {
                   console.log(res.data);
                   let obj = {};
-                  obj.deviceid = that.device[0];
+                  let url =
+                    "http://47.102.214.37:8080/device/" + that.device[0];
+                  axios.get(url).then((res) => {
+                    console.log(res.data);
+                    obj.deviceid = res.data.name + " / " + res.data.id;
+                  });
                   obj.avgFixPeriod = res.data[that.device[0]].avgFixPeriod;
                   obj.avgIssuePeriod = res.data[that.device[0]].avgIssuePeriod;
                   obj.unhealthyTime = res.data[that.device[0]].unhealthyTime;
                   obj.issueCount = res.data[that.device[0]].issueCount;
                   console.log(obj);
-                  that.deviceAnalysisData.push(obj);
+                  setTimeout(() => {
+                    that.deviceAnalysisData.push(obj);
+                  }, 600);
                 });
               } else {
                 let i = 0;
@@ -515,7 +541,12 @@ export default {
                   let i = 0;
                   for (i = 0; i < that.device.length; i++) {
                     let obj = {};
-                    obj.deviceid = that.device[i];
+                    let url =
+                      "http://47.102.214.37:8080/device/" + that.device[i];
+                    axios.get(url).then((res) => {
+                      console.log(res.data);
+                      obj.deviceid = res.data.name + " / " + res.data.id;
+                    });
                     obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
                     that.avgFixPeriodTotal +=
                       res.data[that.device[i]].avgFixPeriod;
@@ -529,7 +560,9 @@ export default {
                     obj.issueCount = res.data[that.device[i]].issueCount;
                     that.issueCountTotal += res.data[that.device[i]].issueCount;
                     console.log(obj);
-                    that.deviceAnalysisData.push(obj);
+                    setTimeout(() => {
+                      that.deviceAnalysisData.push(obj);
+                    }, 600);
                   }
                   // 总计
                   if (i == that.device.length) {

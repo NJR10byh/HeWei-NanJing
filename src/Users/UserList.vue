@@ -67,17 +67,17 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <!-- <div class="block">
+    <div v-if="!ifsearch">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[10, 20, 30, 40]"
-        :page-size="10"
+        :page-sizes="[15, 30, 50, 100]"
+        :page-size="page_size"
         layout="sizes,total, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
-    </div> -->
+    </div>
   </div>
 </template>
 <script>
@@ -91,42 +91,7 @@ export default {
       that.userRole = res.data.role;
     });
     setTimeout(() => {
-      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-        that.total = res.data.content.length;
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "ROOT") {
-            that.tableData.unshift({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
-          } else if (res.data.content[i].role == "ADMIN") {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
-          }
-        }
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (
-            res.data.content[i].role != "ROOT" &&
-            res.data.content[i].role != "ADMIN"
-          ) {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
-          }
-        }
-      });
+      that.refresh();
     }, 200);
   },
   data() {
@@ -135,11 +100,12 @@ export default {
       tableData: [],
       checkedDetail: [],
       // 分页
-      currentPage: 1,
-      page: 1,
-      size: 10,
-      total: 0,
+      currentPage: 1, //  页面显示的当前页数
+      page_size: 15, //  页面显示的每页显示条数
+      page: 1, // 当前页数
+      total: 0, // 总数
       // 搜索
+      ifsearch: false,
       username: "",
       name: "",
       email: "",
@@ -154,9 +120,14 @@ export default {
     refresh() {
       let that = this;
       that.tableData = [];
-      axios
-        .get("http://47.102.214.37:8080/user/query")
-        .then((res) => {
+      that.ifsearch = false;
+      that.username = "";
+      that.name = "";
+      that.email = "";
+      if (("ROOT", "ADMIN").includes(that.userRole)) {
+        let url =
+          "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
+        axios.get(url).then((res) => {
           console.log(res);
           that.total = res.data.content.length;
           for (let i = 0; i < res.data.content.length; i++) {
@@ -192,18 +163,71 @@ export default {
               });
             }
           }
-          that.$message({
-            message: "列表已更新",
-            type: "success",
-          });
-        })
-        .catch((res) => {
-          console.log(res.response);
-          that.$message({
-            message: "列表刷新失败",
-            type: "error",
-          });
+          that
+            .$message({
+              message: "列表已更新",
+              type: "success",
+            })
+            .catch((res) => {
+              console.log(res.response);
+              that.$message({
+                message: "列表刷新失败",
+                type: "error",
+              });
+            });
         });
+      } else {
+        axios
+          .get("http://47.102.214.37:8080/user/query")
+          .then((res) => {
+            console.log(res);
+            that.total = res.data.content.length;
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "ROOT") {
+                that.tableData.unshift({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              } else if (res.data.content[i].role == "ADMIN") {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
+            }
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (
+                res.data.content[i].role != "ROOT" &&
+                res.data.content[i].role != "ADMIN"
+              ) {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
+            }
+            that.$message({
+              message: "列表已更新",
+              type: "success",
+            });
+          })
+          .catch((res) => {
+            console.log(res.response);
+            that.$message({
+              message: "列表刷新失败",
+              type: "error",
+            });
+          });
+      }
     },
     // 编辑员工信息
     handleEdit(index) {
@@ -281,84 +305,132 @@ export default {
           });
       }
     },
-    // // 表格方法
-    // handleSizeChange(val) {
-    //   // console.log(`每页 ${val} 条`);
-    //   let that = this;
-    //   console.log(val);
-    //   that.size = val;
-    //   let url =
-    //     "http://47.102.214.37:8080/device?page=0" + "&size=" + that.size;
-    //   console.log(url);
-    //   axios.get(url).then((res) => {
-    //     console.log(res.data);
-    //     that.tableData = [];
-    //     for (var i = 0; i < res.data.content.length; i++) {
-    //       let obj = {};
-    //       obj.id = res.data.content[i].id;
-    //       obj.name = res.data.content[i].name;
-    //       obj["brand"] = res.data.content[i].brand;
-    //       obj.type = res.data.content[i].type;
-    //       obj.deviceNo = res.data.content[i].deviceNo;
-    //       if (res.data.content[i].extra.length != 0) {
-    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
-    //           obj[res.data.content[i].extra[j].field.id] =
-    //             res.data.content[i].extra[j].value;
-    //         }
-    //       }
-    //       if (res.data.content[i].crux == true) {
-    //         obj.crux = "Y";
-    //       } else if (res.data.content[i].crux == false) {
-    //         obj.crux = "N";
-    //       }
-    //       obj.clazz = res.data.content[i].clazz;
-    //       that.tableData.push(obj);
-    //     }
-    //   });
-    // },
+    // 表格方法
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`);
+      let that = this;
+      that.tableData = [];
+      that.currentPage = 1;
+      console.log(val);
+      that.page_size = val;
+      let url = "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
+      console.log(url);
+      axios.get(url).then((res) => {
+        console.log(res);
+        that.total = res.data.content.length;
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "ROOT") {
+            that.tableData.unshift({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          } else if (res.data.content[i].role == "ADMIN") {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (
+            res.data.content[i].role != "ROOT" &&
+            res.data.content[i].role != "ADMIN"
+          ) {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+        that
+          .$message({
+            message: "列表已更新",
+            type: "success",
+          })
+          .catch((res) => {
+            console.log(res.response);
+            that.$message({
+              message: "列表刷新失败",
+              type: "error",
+            });
+          });
+      });
+    },
     // // 页变化
-    // handleCurrentChange(val) {
-    //   let that = this;
-    //   that.page = val;
-    //   that.currentPage = val;
-    //   console.log(val);
-    //   let url =
-    //     "http://47.102.214.37:8080/device?page=" +
-    //     (that.page - 1) +
-    //     "&size=" +
-    //     that.size;
-    //   axios.get(url).then((res) => {
-    //     // console.log(res.data);
-    //     that.tableData = [];
-    //     for (var i = 0; i < res.data.content.length; i++) {
-    //       let obj = {};
-    //       obj.id = res.data.content[i].id;
-    //       obj.name = res.data.content[i].name;
-    //       obj["brand"] = res.data.content[i].brand;
-    //       obj.type = res.data.content[i].type;
-    //       obj.deviceNo = res.data.content[i].deviceNo;
-    //       if (res.data.content[i].extra.length != 0) {
-    //         for (var j = 0; j < res.data.content[i].extra.length; j++) {
-    //           obj[res.data.content[i].extra[j].field.id] =
-    //             res.data.content[i].extra[j].value;
-    //         }
-    //       }
-    //       if (res.data.content[i].crux == true) {
-    //         obj.crux = "Y";
-    //       } else if (res.data.content[i].crux == false) {
-    //         obj.crux = "N";
-    //       }
-    //       obj.clazz = res.data.content[i].clazz;
-    //       that.tableData.push(obj);
-    //     }
-    //   });
-    // },
+    handleCurrentChange(val) {
+      let that = this;
+      that.tableData = [];
+      that.page = val;
+      that.currentPage = val;
+      console.log(val);
+      let url =
+        "http://47.102.214.37:8080/user?page=" +
+        (that.page - 1) +
+        "&size=" +
+        that.page_size;
+      axios.get(url).then((res) => {
+        console.log(res);
+        that.total = res.data.content.length;
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (res.data.content[i].role == "ROOT") {
+            that.tableData.unshift({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          } else if (res.data.content[i].role == "ADMIN") {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+        for (let i = 0; i < res.data.content.length; i++) {
+          if (
+            res.data.content[i].role != "ROOT" &&
+            res.data.content[i].role != "ADMIN"
+          ) {
+            that.tableData.push({
+              id: res.data.content[i].id,
+              username: res.data.content[i].username,
+              userrole: res.data.content[i].role,
+              name: res.data.content[i].name,
+              email: res.data.content[i].email,
+            });
+          }
+        }
+        that
+          .$message({
+            message: "列表已更新",
+            type: "success",
+          })
+          .catch((res) => {
+            console.log(res.response);
+            that.$message({
+              message: "列表刷新失败",
+              type: "error",
+            });
+          });
+      });
+    },
     // 搜索
     search() {
       let that = this;
-      console.log(that.username);
-      console.log(that.name);
-      console.log(that.email);
+      that.ifsearch = true;
       let url =
         "http://47.102.214.37:8080/user/query?name==高凡&username==test-o";
       if (that.username == "" && that.name == "" && that.email == "") {
