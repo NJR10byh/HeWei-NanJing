@@ -92,7 +92,6 @@ export default {
     });
     setTimeout(() => {
       axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-        console.log(res);
         that.total = res.data.content.length;
         for (let i = 0; i < res.data.content.length; i++) {
           if (res.data.content[i].role == "ROOT") {

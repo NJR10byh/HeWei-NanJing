@@ -38,11 +38,14 @@
       </div>
       <div class="upload">
         <el-upload
-          class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          list-type="picture"
+          action=""
+          :auto-upload="false"
+          accept=".jpg, .png"
           :show-file-list="false"
-          :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
+          :on-change="getFile"
+          class="avatar-uploader"
         >
           <img v-if="imageUrl" :src="imageUrl" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -56,10 +59,11 @@ import axios from "axios";
 export default {
   created: function() {
     let that = this;
-    console.log(this.$route.query);
-    that.userid = this.$route.query.id;
-    that.name = this.$route.query.name;
-    that.email = this.$route.query.email;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      that.userid = res.data.id;
+      that.name = res.data.name;
+      that.email = res.data.email;
+    });
   },
   data() {
     return {
@@ -71,19 +75,56 @@ export default {
 
       /* 头像 */
       imageUrl: "",
+      picid: "",
     };
   },
   methods: {
     // 上传头像
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+    getFile(file) {
+      let that = this;
+      this.imageUrl = file.url;
+      this.getBase64(file.raw).then((res) => {
+        const params = res.split(",");
+        console.log(params, "params");
+        if (params.length > 0) {
+          axios({
+            url: "http://47.102.214.37:8080/pic",
+            method: "post",
+            data: params[1],
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          }).then((res) => {
+            console.log(res);
+            that.picid = res.data;
+          });
+        }
+      });
     },
+    // 上传前检验图片大小
     beforeAvatarUpload(file) {
       const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isLt2M) {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isLt2M;
+    },
+    // 获取图片转base64
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
     },
 
     // 验证邮箱
@@ -119,6 +160,7 @@ export default {
             username: res.data.username,
             enable: res.data.enable,
             password: that.confirmpassword,
+            avatar: that.picid,
           };
           setTimeout(function() {
             console.log(obj);
@@ -130,7 +172,7 @@ export default {
                   message: "修改成功",
                   type: "success",
                 });
-                that.$router.push("./users");
+                location.reload();
               })
               .catch((res) => {
                 console.log(res.response);

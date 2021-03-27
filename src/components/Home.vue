@@ -22,6 +22,7 @@
           :name="name"
           :username="username"
           :useremail="useremail"
+          :avatar="avatarurl"
           style="margin-left:20px;"
         ></user>
       </div>
@@ -189,6 +190,7 @@ export default {
       this.username = res.data.username;
       this.useremail = res.data.email;
       this.name = res.data.name;
+      this.avatarurl = "http://47.102.214.37:8080/pic/" + res.data.avatar;
     });
   },
   // 让页面只刷新一次
@@ -205,6 +207,7 @@ export default {
       username: "",
       useremail: "",
       userRole: "",
+      avatarurl: "",
       timeTip: "",
       // ROOT，ADMIN权限
       menuList1: [

@@ -1,7 +1,7 @@
 <template>
   <div class="User_info">
     <div class="user_info_icon">
-      <img src="../assets/img/login-success.png" />
+      <img :src="avatar" />
     </div>
     <div class="user_info_detail">
       <div class="info"><span>姓名：</span>{{ name }}</div>
@@ -20,6 +20,7 @@ export default {
     name: String,
     username: String,
     useremail: String,
+    avatar: String,
   },
   mounted() {
     this.data = this.searchList;

@@ -443,7 +443,6 @@ export default {
       // 图片上传
       fileList: [],
       dialogVisible: false,
-      dialogImageUrl: "",
       // 分页
       currentPage: 1, //  页面显示的当前页数
       page_size: 5, //  页面显示的每页显示条数
