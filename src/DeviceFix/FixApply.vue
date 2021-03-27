@@ -45,6 +45,7 @@
           <div class="Text">异常描述和异常处理请求</div>
           <!-- 富文本编辑器 -->
           <quill-editor
+            ref="myQuillEditor"
             v-model="content"
             :options="editorOption"
             style="height:70%;margin-top: 5px;width:100%;"
@@ -76,6 +77,17 @@
         <el-button @click="submit">提交</el-button>
       </div>
     </div>
+    <el-upload
+      list-type="picture"
+      action=""
+      :auto-upload="false"
+      accept=".jpg, .png"
+      :show-file-list="false"
+      :on-change="getFile"
+      class="avatar-uploader"
+      style="display: none"
+    >
+    </el-upload>
   </div>
 </template>
 <script>
@@ -86,6 +98,27 @@ import { quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
+
+// 工具栏配置
+const toolbarOptions = [
+  ["bold", "italic", "underline", "strike"], // toggled buttons
+  ["blockquote", "code-block"],
+
+  [{ header: 1 }, { header: 2 }], // custom button values
+  [{ list: "ordered" }, { list: "bullet" }],
+  [{ script: "sub" }, { script: "super" }], // superscript/subscript
+  [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+  [{ direction: "rtl" }], // text direction
+
+  [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+
+  [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+  [{ font: [] }],
+  [{ align: [] }],
+  ["link", "image", "video"],
+  ["clean"], // remove formatting button
+];
 
 export default {
   components: {
@@ -193,13 +226,75 @@ export default {
       // 富文本编辑器
       editorOption: {
         placeholder: "请输入异常描述和异常处理请求",
+        modules: {
+          toolbar: {
+            container: toolbarOptions, // 工具栏
+            handlers: {
+              image: function(value) {
+                if (value) {
+                  document.querySelector(".avatar-uploader input").click();
+                } else {
+                  this.quill.format("image", false);
+                }
+              },
+            },
+          },
+        },
       },
+      picid: "",
     };
   },
   methods: {
     // 富文本编辑器内容改变
     onEditorChange({ html }) {
+      console.log(html);
       this.content = html;
+    },
+    // 上传图片
+    getFile(file) {
+      let that = this;
+      this.getBase64(file.raw).then((res) => {
+        const params = res.split(",");
+        console.log(params, "params");
+        if (params.length > 0) {
+          axios({
+            url: "http://47.102.214.37:8080/pic",
+            method: "post",
+            data: params[1],
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          }).then((res) => {
+            console.log(res);
+            that.picid = res.data;
+            let url = "http://47.102.214.37:8080/pic/" + res.data;
+            let quill = that.$refs.myQuillEditor.quill;
+            // 获取光标所在位置
+            let length = quill.getSelection().index;
+            // 插入图片
+            quill.insertEmbed(length, "image", url);
+            // 调整光标到最后
+            quill.setSelection(length + 1);
+          });
+        }
+      });
+    },
+    // 获取图片转base64
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
     },
 
     // 提交异常报告

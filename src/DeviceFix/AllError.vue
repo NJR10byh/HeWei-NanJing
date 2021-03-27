@@ -376,7 +376,7 @@ export default {
 
       // 分页
       currentPage: 1, //  页面显示的当前页数
-      page_size: 5, //  页面显示的每页显示条数
+      page_size: 15, //  页面显示的每页显示条数
       page: 1, // 当前页数
       total: 0, // 总数
     };
