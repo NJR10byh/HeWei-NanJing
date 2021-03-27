@@ -32,6 +32,23 @@
         <el-button @click="submit">保存修改</el-button>
       </div>
     </div>
+    <div class="Box Avatar">
+      <div class="head">
+        <div class="head-text">修改头像</div>
+      </div>
+      <div class="upload">
+        <el-upload
+          class="avatar-uploader"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+        >
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -51,9 +68,24 @@ export default {
       email: "",
       password: "",
       confirmpassword: "",
+
+      /* 头像 */
+      imageUrl: "",
     };
   },
   methods: {
+    // 上传头像
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isLt2M;
+    },
+
     // 验证邮箱
     Email: function() {
       //   let Email = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
@@ -127,7 +159,7 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   background: #fff;
   .Box {
@@ -193,6 +225,37 @@ export default {
         width: 80%;
         height: 50px;
         border-radius: 10px;
+      }
+    }
+  }
+  .Avatar {
+    .upload {
+      width: 100%;
+      height: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-uploader .el-upload:hover {
+        border-color: #409eff;
+      }
+      .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 300px;
+        height: 300px;
+        line-height: 300px;
+        text-align: center;
+      }
+      .avatar {
+        width: 300px;
+        height: 300px;
       }
     }
   }
