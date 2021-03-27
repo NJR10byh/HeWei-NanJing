@@ -164,7 +164,17 @@ export default {
           label: "附加字段",
           options: [],
         },
+        {
+          label: "全部维修",
+          options: [
+            {
+              value: "all",
+              label: "全部维修设备分析",
+            },
+          ],
+        },
       ],
+      ifall: false,
       selectvalue: "",
       selectmodel: "",
       dialogSearchVisible: false,
@@ -185,8 +195,32 @@ export default {
     };
   },
   methods: {
-    selectchange() {
-      this.dialogSearchVisible = true;
+    selectchange(res) {
+      let that = this;
+      that.ifall = false;
+      if (res == "all") {
+        that.ifall = true;
+        that.device = [];
+        axios
+          .get("http://47.102.214.37:8080/device/query?name=! ")
+          .then((res) => {
+            let i = 0;
+            console.log(res.data);
+            for (i = 0; i < res.data.content.length; i++) {
+              that.device.push(res.data.content[i].id);
+            }
+            if (i == res.data.content.length) {
+              console.log(that.device);
+              // 清空搜索条件，等待下次搜索
+              that.selectInfo = [];
+              that.dynamicTags = [];
+              globaldata.fixAnalysisInfo = [];
+              globaldata.fixAnalysisdynamicTags = [];
+            }
+          });
+      } else {
+        this.dialogSearchVisible = true;
+      }
     },
     submitselect() {
       this.dialogSearchVisible = false;
@@ -210,9 +244,81 @@ export default {
       that.avgIssuePeriodTotal = 0;
       that.unhealthyTimeTotal = 0;
       that.issueCountTotal = 0;
-      that.device = [];
       that.deviceAnalysisData = [];
-      if (
+      if (that.ifall) {
+        if (
+          that.startDate == "" ||
+          that.endDate == "" ||
+          that.startDate == null ||
+          that.endDate == null
+        ) {
+          that.$message({
+            message: "请输入将查询信息填写完整",
+            type: "warning",
+          });
+        } else if (
+          new Date(this.startDate).getTime() >= new Date(this.endDate).getTime()
+        ) {
+          that.$message({
+            message: "结束时间必须大于开始时间",
+            type: "warning",
+          });
+        } else if (new Date(this.endDate).getTime() > new Date().getTime()) {
+          that.$message({
+            message: "结束时间必须小于今天",
+            type: "warning",
+          });
+        } else {
+          let i = 0;
+          let url =
+            "http://47.102.214.37:8080/analysis/device?did=" + that.device[0];
+          for (i = 1; i < that.device.length; i++) {
+            url = url + "," + that.device[i];
+          }
+          if (i == that.device.length) {
+            console.log(i);
+            url = url + "&start=" + that.startDate + "&end=" + that.endDate;
+            console.log(url);
+          }
+          axios.get(url).then((res) => {
+            console.log(res);
+            let i = 0;
+            for (i = 0; i < that.device.length; i++) {
+              let obj = {};
+              obj.deviceid = that.device[i];
+              obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
+              that.avgFixPeriodTotal += res.data[that.device[i]].avgFixPeriod;
+              obj.avgIssuePeriod = res.data[that.device[i]].avgIssuePeriod;
+              that.avgIssuePeriodTotal +=
+                res.data[that.device[i]].avgIssuePeriod;
+              obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
+              that.unhealthyTimeTotal += res.data[that.device[i]].unhealthyTime;
+              obj.issueCount = res.data[that.device[i]].issueCount;
+              that.issueCountTotal += res.data[that.device[i]].issueCount;
+              console.log(obj);
+              that.deviceAnalysisData.push(obj);
+            }
+            // 总计
+            if (i == that.device.length) {
+              console.log(that.avgFixPeriodTotal);
+              let obj = {};
+              obj.deviceid = "总计";
+              obj.avgFixPeriod = that.avgFixPeriodTotal;
+              obj.avgIssuePeriod = that.avgIssuePeriodTotal;
+              obj.unhealthyTime = that.unhealthyTimeTotal;
+              obj.issueCount = that.issueCountTotal;
+              console.log(obj);
+              that.deviceAnalysisData.unshift(obj);
+            }
+          });
+          setTimeout(() => {
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
+          }, 300);
+        }
+      } else if (
         that.selectInfo.length == 0 ||
         that.startDate == "" ||
         that.endDate == "" ||
@@ -236,6 +342,7 @@ export default {
           type: "warning",
         });
       } else {
+        that.device = [];
         let url =
           "http://47.102.214.37:8080/device/query?" +
           that.selectInfo[0].ziduan +

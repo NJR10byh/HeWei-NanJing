@@ -99,7 +99,7 @@
     <!-- 搜索条件 -->
     <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
       <el-input
-        v-model="selectmodel"
+        v-model="namevalue"
         placeholder="请输入搜索内容"
         v-if="selectvalue == 'name'"
       ></el-input>
@@ -250,7 +250,7 @@ export default {
           options: [
             {
               value: "name",
-              label: "任务名称",
+              label: "标准名称",
             },
             {
               value: "scheduleType",
@@ -270,9 +270,19 @@ export default {
             },
           ],
         },
+        {
+          label: "全部保养",
+          options: [
+            {
+              value: "all",
+              label: "全部保养分析",
+            },
+          ],
+        },
       ],
+      ifall: false,
       selectvalue: "",
-      selectmodel: "", // 任务名称
+      namevalue: "", // 任务名称
       dialogSearchVisible: false,
       selectInfo: [],
       dynamicTags: [], // 搜索标签
@@ -337,14 +347,34 @@ export default {
       timesTotal: 0,
       overdueTimesTotal: 0,
       recordTimesTotal: 0,
-
       incompleteTimesTotal: 0,
       completeRateTotal: 0,
     };
   },
   methods: {
-    selectchange() {
-      this.dialogSearchVisible = true;
+    selectchange(res) {
+      let that = this;
+      that.ifall = false;
+      if (res == "all") {
+        that.ifall = true;
+        that.task = [];
+        axios.get("http://47.102.214.37:8080/ops/query?name=! ").then((res) => {
+          let i = 0;
+          console.log(res.data);
+          for (i = 0; i < res.data.content.length; i++) {
+            that.task.push(res.data.content[i].id);
+          }
+          if (i == res.data.content.length) {
+            // 清空搜索条件，等待下次搜索
+            that.selectInfo = [];
+            that.dynamicTags = [];
+            globaldata.taskAnalysisInfo = [];
+            globaldata.taskAnalysisdynamicTags = [];
+          }
+        });
+      } else {
+        this.dialogSearchVisible = true;
+      }
     },
     submitselect() {
       this.dialogSearchVisible = false;
@@ -379,9 +409,9 @@ export default {
       } else {
         this.selectInfo.push({
           ziduan: this.selectvalue,
-          value: this.selectmodel,
+          value: this.namevalue,
         });
-        this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+        this.dynamicTags.push(this.selectvalue + " / " + this.namevalue);
       }
     },
     // 标签移除
@@ -400,8 +430,88 @@ export default {
       that.incompleteTimesTotal = 0;
       that.completeRateTotal = 0;
       that.taskAnalysisData = [];
-      that.task = [];
-      if (
+      if (that.ifall) {
+        if (
+          that.startDate == "" ||
+          that.endDate == "" ||
+          that.startDate == null ||
+          that.endDate == null
+        ) {
+          that.$message({
+            message: "请输入将查询信息填写完整",
+            type: "warning",
+          });
+        } else if (
+          new Date(this.startDate).getTime() >= new Date(this.endDate).getTime()
+        ) {
+          that.$message({
+            message: "结束时间必须大于开始时间",
+            type: "warning",
+          });
+        } else if (new Date(this.endDate).getTime() > new Date().getTime()) {
+          that.$message({
+            message: "结束时间必须小于今天",
+            type: "warning",
+          });
+        } else {
+          let i = 0;
+          console.log(that.task);
+          let url =
+            "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
+          console.log(url);
+          for (i = 1; i < that.task.length; i++) {
+            url = url + "," + that.task[i];
+          }
+          if (i == that.task.length) {
+            console.log(i);
+            url = url + "&start=" + that.startDate + "&end=" + that.endDate;
+            console.log(url);
+          }
+          axios.get(url).then((res) => {
+            console.log(res);
+            for (let i = 0; i < that.task.length; i++) {
+              let obj = {};
+              obj.taskid = that.task[i];
+              obj.times = res.data[that.task[i]].times;
+              that.timesTotal += res.data[that.task[i]].times;
+              obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
+              that.incompleteTimesTotal =
+                res.data[that.task[i]].incompleteTimes;
+              obj.completeRate = res.data[that.task[i]].completeRate;
+              that.completeRateTotal += res.data[that.task[i]].completeRate;
+
+              obj.overdueTimes = res.data[that.task[i]].overdueTimes;
+              that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
+              obj.recordTimes = res.data[that.task[i]].recordTimes;
+              that.recordTimesTotal += res.data[that.task[i]].recordTimes;
+
+              console.log(obj);
+              that.taskAnalysisData.push(obj);
+            }
+            // 总计
+            console.log(that.incompleteTimesTotal);
+            console.log(that.completeRateTotal);
+            if (i == that.task.length) {
+              let obj = {};
+              obj.taskid = "总计";
+              obj.times = that.timesTotal;
+              obj.recordTimes = that.recordTimesTotal;
+              obj.overdueTimes = that.overdueTimesTotal;
+              obj.incompleteTimes =
+                that.incompleteTimesTotal / that.task.length;
+              obj.completeRate = that.completeRateTotal / that.task.length;
+              console.log(obj);
+              that.taskAnalysisData.unshift(obj);
+            }
+            setTimeout(() => {
+              that.$message({
+                message: "查询成功",
+                type: "success",
+              });
+            }, 300);
+          });
+        }
+      } else if (
         that.selectInfo.length == 0 ||
         that.startDate == "" ||
         that.endDate == "" ||
@@ -426,6 +536,7 @@ export default {
         });
       } else {
         let url = "";
+        that.task = [];
         // 确定第一部分
         if (that.selectInfo[0].ziduan == "name") {
           url =
