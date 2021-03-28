@@ -55,7 +55,9 @@
       <el-table-column prop="setting" label="操作" width="180">
         <template slot-scope="scope">
           <el-button @click="errordetail(scope.$index)">查看详情</el-button>
-          <el-button @click="reverterror(scope.$index)">撤销</el-button>
+          <el-button @click="reverterror(scope.$index)" v-if="!iffixed"
+            >撤销</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -83,6 +85,7 @@ export default {
     return {
       taskData: [],
       tablewidth: "150",
+      iffixed: false,
 
       // 分页
       currentPage: 1, //  页面显示的当前页数
@@ -119,6 +122,7 @@ export default {
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
+          that.iffixed = res.data.content[i].fixedAt != null ? true : false;
           obj.errorid = res.data.content[i].id;
           obj.errordevicename = "";
           obj.errordeviceNo = "";
@@ -236,6 +240,7 @@ export default {
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
+          that.iffixed = res.data.content[i].fixedAt != null ? true : false;
           obj.errorid = res.data.content[i].id;
           obj.errordevicename = "";
           obj.errordeviceNo = "";
@@ -314,6 +319,7 @@ export default {
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
+          that.iffixed = res.data.content[i].fixedAt != null ? true : false;
           obj.errorid = res.data.content[i].id;
           obj.errordevicename = "";
           obj.errordeviceNo = "";

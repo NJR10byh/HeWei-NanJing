@@ -50,7 +50,7 @@
           >
           </el-option>
         </el-select>
-        <el-switch v-model="more" active-text="批量注册" @change="moreswitch">
+        <!-- <el-switch v-model="more" active-text="批量注册" @change="moreswitch">
         </el-switch>
         <el-input
           class="userinfoinput"
@@ -58,7 +58,7 @@
           v-model="piliang"
           placeholder="批量注册个数"
           v-if="more"
-        ></el-input>
+        ></el-input> -->
       </div>
       <div class="login-btn">
         <el-button @click="register">注册</el-button>

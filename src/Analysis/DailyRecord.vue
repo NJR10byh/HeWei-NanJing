@@ -26,6 +26,11 @@
         <el-table-column prop="logtime" label="操作时间"></el-table-column>
         <el-table-column prop="logcontent" label="操作内容"></el-table-column>
         <el-table-column prop="loguser" label="操作人员"></el-table-column>
+        <el-table-column prop="setting" label="操作" width="120">
+          <template slot-scope="scope">
+            <el-button @click="detail(scope.$index)">详情</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 分页 -->
       <div>
@@ -33,7 +38,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[5, 10, 15]"
+          :page-sizes="[15, 30, 50, 100]"
           :page-size="page_size"
           layout="sizes,total, prev, pager, next, jumper"
           :total="total"
@@ -59,7 +64,7 @@ export default {
 
       // 分页
       currentPage: 1, //  页面显示的当前页数
-      page_size: 5, //  页面显示的每页显示条数
+      page_size: 15, //  页面显示的每页显示条数
       page: 1, // 当前页数
       total: 0, // 总数
     };
@@ -108,8 +113,8 @@ export default {
                 obj.loguser = "获取失败";
               });
             setTimeout(() => {
-              that.LogData.unshift(obj);
-            }, 300);
+              that.LogData.push(obj);
+            }, 1000);
           }, 300);
         }
         setTimeout(() => {
@@ -117,8 +122,12 @@ export default {
             message: "刷新成功",
             type: "success",
           });
-        }, 300);
+        }, 600);
       });
+    },
+    detail(index) {
+      let that = this;
+      console.log(that.LogData[index]);
     },
     // 表格方法
     handleSizeChange(val) {
@@ -154,8 +163,8 @@ export default {
                 obj.loguser = "获取失败";
               });
             setTimeout(() => {
-              that.LogData.unshift(obj);
-            }, 300);
+              that.LogData.push(obj);
+            }, 1000);
           }, 300);
         }
         setTimeout(() => {
@@ -163,7 +172,7 @@ export default {
             message: "刷新成功",
             type: "success",
           });
-        }, 300);
+        }, 600);
       });
     },
     // // 页变化
@@ -201,8 +210,8 @@ export default {
                 obj.loguser = "获取失败";
               });
             setTimeout(() => {
-              that.LogData.unshift(obj);
-            }, 300);
+              that.LogData.push(obj);
+            }, 1000);
           }, 300);
         }
         setTimeout(() => {
@@ -210,7 +219,7 @@ export default {
             message: "刷新成功",
             type: "success",
           });
-        }, 300);
+        }, 600);
       });
     },
   },
@@ -278,6 +287,14 @@ export default {
               padding-right: 0;
               overflow: auto;
             }
+          }
+        }
+        .el-button {
+          border: none;
+          padding: 5px 10px;
+          background: transparent;
+          &:first-child:hover {
+            color: #409eff;
           }
         }
       }

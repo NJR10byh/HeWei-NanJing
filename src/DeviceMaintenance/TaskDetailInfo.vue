@@ -105,18 +105,18 @@
                     inline
                     class="demo-table-expand"
                   >
-                    <el-form-item label="「自我修复」的异常修复过程">
-                      <span>{{ props.row.fix }}</span>
-                    </el-form-item>
                     <el-form-item label="完成记录">
                       <span>{{ props.row.record }}</span>
-                    </el-form-item>
-                    <el-form-item label="异常报告">
-                      <span>{{ props.row.report }}</span>
                     </el-form-item>
                     <el-form-item label="图片记录">
                       <img :src="props.row.pic" v-if="props.row.ifpicexist" />
                       <span v-if="!props.row.ifpicexist">暂无</span>
+                    </el-form-item>
+                    <el-form-item label="异常报告">
+                      <span>{{ props.row.report }}</span>
+                    </el-form-item>
+                    <el-form-item label="「自我修复」的异常修复过程">
+                      <span>{{ props.row.fix }}</span>
                     </el-form-item>
                   </el-form>
                 </template>
@@ -161,16 +161,6 @@
     <el-dialog title="新增保养记录" :visible.sync="dialogAddRecord">
       <el-form :model="form" ref="form" label-position="left">
         <el-form-item
-          label="「自我修复」过程: "
-          :label-width="formLabelWidth"
-          prop="fix"
-        >
-          <el-input
-            v-model="form.fix"
-            placeholder="简述「自我修复」过程"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
           label="完成记录: "
           :label-width="formLabelWidth"
           prop="record"
@@ -180,27 +170,6 @@
             autocomplete="off"
             placeholder="完成记录（概括）"
           ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="异常报告: "
-          :label-width="formLabelWidth"
-          prop="report"
-        >
-          <el-input
-            v-model="form.report"
-            autocomplete="off"
-            placeholder="报告「不能自我修复」的异常详情"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="是否「不能自我修复」:"
-          label-width="180px"
-          prop="hasException"
-        >
-          <el-radio-group v-model="form.hasException">
-            <el-radio label="true">是</el-radio>
-            <el-radio label="false">否</el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item
           label="记录图片:"
@@ -219,6 +188,36 @@
             <el-button size="small" type="primary">选择图片上传</el-button>
             <div slot="tip" class="el-upload__tip">只能上传一张jpg/png文件</div>
           </el-upload>
+        </el-form-item>
+        <el-form-item
+          label="是否「不能自我修复」:"
+          label-width="180px"
+          prop="hasException"
+        >
+          <el-switch v-model="form.hasException" active-text="是"> </el-switch>
+        </el-form-item>
+        <el-form-item
+          label="异常报告: "
+          :label-width="formLabelWidth"
+          prop="report"
+          v-if="form.hasException"
+        >
+          <el-input
+            v-model="form.report"
+            autocomplete="off"
+            placeholder="报告「不能自我修复」的异常详情"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="「自我修复」过程: "
+          :label-width="formLabelWidth"
+          prop="fix"
+          v-if="form.hasException"
+        >
+          <el-input
+            v-model="form.fix"
+            placeholder="简述「自我修复」过程"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -441,7 +440,7 @@ export default {
         fix: "",
         record: "",
         report: "",
-        hasException: "",
+        hasException: false,
         pic: "",
       },
       formLabelWidth: "150px",
@@ -494,13 +493,7 @@ export default {
         that.opUserid = res.data.id;
       });
       setTimeout(() => {
-        if (
-          that.form.fix == "" ||
-          that.form.record == "" ||
-          that.form.report == "" ||
-          that.form.hasException == "" ||
-          that.form.pic == ""
-        ) {
+        if (that.form.record == "" || that.form.pic == "") {
           that.$message({
             message: "请将信息填写完整",
             type: "warning",
@@ -511,7 +504,7 @@ export default {
           obj.fix = that.form.fix;
           obj.record = that.form.record;
           obj.report = that.form.report;
-          if (that.form.hasException == "false") {
+          if (that.form.hasException == false) {
             obj.hasException = false;
           } else {
             obj.hasException = true;
@@ -544,6 +537,10 @@ export default {
                 })
                 .catch((res) => {
                   console.log(res.response);
+                  that.$message({
+                    message: res.response.data.message,
+                    type: "error",
+                  });
                 });
             }, 300);
           }, 300);
