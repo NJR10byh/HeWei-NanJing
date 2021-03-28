@@ -9,87 +9,113 @@
     </el-breadcrumb>
     <div class="Tabs">
       <el-tabs tab-position="top" v-model="tabsActiveName">
-        <el-tab-pane label="基本信息" name="first">
-          <div class="BaseInfo_1">
-            <div class="Info_part2">
-              <div style="width:50%;">
-                <div class="Title">开始时间</div>
-                <div class="Info">{{ startDate }}</div>
-                <div></div>
-              </div>
-              <div>
-                <div class="Title">保养周期</div>
-                <div class="Info">{{ scheduleType_info }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="BaseInfo_1 BaseInfo_2">
-            <div class="Info_part1">
-              <div style="width:50%;">
-                <div class="Title">维护人员信息</div>
-                <user
-                  v-for="(item, index) in users"
-                  :key="index"
-                  :name="item.name"
-                  :username="item.username"
-                  :useremail="item.useremail"
-                  :avatar="item.avatar"
-                  style="margin-top:20px;"
-                ></user>
-              </div>
-              <div>
-                <div class="Title">设备信息</div>
-                <el-table
-                  :data="devicetableData"
-                  stripe
-                  border
-                  style="margin-top:10px;width:100%;"
-                  class="extraTable"
-                >
-                  <el-table-column prop="id" label="设备ID"></el-table-column>
-                  <el-table-column
-                    prop="name"
-                    label="设备名称"
-                  ></el-table-column>
-                  <el-table-column
-                    prop="brand"
-                    label="设备品牌"
-                  ></el-table-column>
-                  <el-table-column
-                    prop="deviceNo"
-                    label="设备编号"
-                  ></el-table-column>
-                  <el-table-column
-                    prop="clazz"
-                    label="设备分类"
-                  ></el-table-column>
-                </el-table>
-              </div>
-            </div>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="保养内容" name="second">
+        <el-tab-pane label="保养内容" name="first">
           <div v-for="(item, index) in content" :key="index" class="content">
-            <div class="title">
-              <span style="margin-left:5px;">{{ item.contentinfotitle }}</span>
+            <el-checkbox-group v-model="checkList">
+              <el-checkbox :label="index">
+                <div class="title">
+                  <span style="margin-left:5px;">{{
+                    item.contentinfotitle
+                  }}</span>
+                </div>
+                <div class="ql-snow">
+                  <div class="ql-editor" v-html="item.contentinfodetail"></div>
+                </div>
+              </el-checkbox>
+            </el-checkbox-group>
+          </div>
+          <div class="tools_remark">
+            <div class="tools">
+              工具及备件：
+              <span>{{ tools }}</span>
             </div>
-            <div class="ql-snow">
-              <div class="ql-editor" v-html="item.contentinfodetail"></div>
+            <div class="tools">
+              注意事项：
+              <span>{{ remark }}</span>
+            </div>
+          </div>
+          <div v-if="checkList.length == content.length" class="form">
+            <div style="font-size:20px;font-weight:bold;color:#409eff;">
+              记录：
+            </div>
+            <el-form
+              :model="form"
+              ref="form"
+              label-position="left"
+              style="margin-top:10px;"
+            >
+              <el-form-item
+                label="完成记录: "
+                :label-width="formLabelWidth"
+                prop="record"
+              >
+                <el-input
+                  v-model="form.record"
+                  autocomplete="off"
+                  placeholder="完成记录（概括）"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="记录图片:"
+                :label-width="formLabelWidth"
+                prop="pic"
+              >
+                <el-upload
+                  list-type="picture"
+                  action=""
+                  accept=".jpg, .png"
+                  :limit="1"
+                  :auto-upload="false"
+                  :file-list="fileList"
+                  :on-change="getFile"
+                >
+                  <el-button size="small" type="primary"
+                    >选择图片上传</el-button
+                  >
+                  <div slot="tip" class="el-upload__tip">
+                    只能上传一张jpg/png文件
+                  </div>
+                </el-upload>
+              </el-form-item>
+              <el-form-item
+                label="是否「不能自我修复」:"
+                label-width="180px"
+                prop="hasException"
+              >
+                <el-switch v-model="form.hasException" active-text="是">
+                </el-switch>
+              </el-form-item>
+              <el-form-item
+                label="异常报告: "
+                :label-width="formLabelWidth"
+                prop="report"
+                v-if="form.hasException"
+              >
+                <el-input
+                  v-model="form.report"
+                  autocomplete="off"
+                  placeholder="报告「不能自我修复」的异常详情"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                label="「自我修复」过程: "
+                :label-width="formLabelWidth"
+                prop="fix"
+                v-if="form.hasException"
+              >
+                <el-input
+                  v-model="form.fix"
+                  placeholder="简述「自我修复」过程"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogAddRecord = false">取 消</el-button>
+              <el-button type="primary" @click="submitrecord">确 定</el-button>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="工具及备件" name="third">
-          <div>{{ tools }}</div>
-        </el-tab-pane>
-        <el-tab-pane label="注意事项" name="fourth">
-          <div>{{ remark }}</div>
-        </el-tab-pane>
-        <el-tab-pane label="保养记录" name="fifth">
-          <div class="addrecord">
-            <el-button icon="el-icon-plus" @click="addrecord"
-              >新增保养记录
-            </el-button>
-          </div>
+        <el-tab-pane label="保养记录" name="second">
           <div>
             <el-table
               :data="taskrecordtableData"
@@ -157,80 +183,11 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <!-- 新增保养记录弹出框 -->
-    <el-dialog title="新增保养记录" :visible.sync="dialogAddRecord">
-      <el-form :model="form" ref="form" label-position="left">
-        <el-form-item
-          label="完成记录: "
-          :label-width="formLabelWidth"
-          prop="record"
-        >
-          <el-input
-            v-model="form.record"
-            autocomplete="off"
-            placeholder="完成记录（概括）"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="记录图片:"
-          :label-width="formLabelWidth"
-          prop="pic"
-        >
-          <el-upload
-            list-type="picture"
-            action=""
-            accept=".jpg, .png"
-            :limit="1"
-            :auto-upload="false"
-            :file-list="fileList"
-            :on-change="getFile"
-          >
-            <el-button size="small" type="primary">选择图片上传</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传一张jpg/png文件</div>
-          </el-upload>
-        </el-form-item>
-        <el-form-item
-          label="是否「不能自我修复」:"
-          label-width="180px"
-          prop="hasException"
-        >
-          <el-switch v-model="form.hasException" active-text="是"> </el-switch>
-        </el-form-item>
-        <el-form-item
-          label="异常报告: "
-          :label-width="formLabelWidth"
-          prop="report"
-          v-if="form.hasException"
-        >
-          <el-input
-            v-model="form.report"
-            autocomplete="off"
-            placeholder="报告「不能自我修复」的异常详情"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="「自我修复」过程: "
-          :label-width="formLabelWidth"
-          prop="fix"
-          v-if="form.hasException"
-        >
-          <el-input
-            v-model="form.fix"
-            placeholder="简述「自我修复」过程"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogAddRecord = false">取 消</el-button>
-        <el-button type="primary" @click="submitrecord">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import User from "../components/Userinfo";
 
 export default {
   created: function() {
@@ -240,76 +197,8 @@ export default {
       "http://47.102.214.37:8080/ops/schedule/detail/" + that.$route.query.id;
     axios.get(url).then((res) => {
       console.log(res.data);
-      // 任务名称
       that.name = res.data.name;
       that.no = res.data.no;
-      switch (res.data.scheduleType) {
-        case "Yearly":
-          that.scheduleType = "年保养";
-          break;
-        case "Seasonally":
-          that.scheduleType = "季度保养";
-          break;
-        case "Monthly":
-          that.scheduleType = "月保养";
-          break;
-        case "Weekly":
-          that.scheduleType = "周保养";
-          break;
-        case "Daily":
-          that.scheduleType = "日保养";
-          break;
-        case "Predictability":
-          that.scheduleType = "未知";
-          break;
-        default:
-          break;
-      }
-      // 保养天数
-      that.startDate =
-        res.data.startDate == null ? "未分配" : res.data.startDate;
-      if (that.scheduleType == "日保养") {
-        that.scheduleType_info = "日保养（每天）";
-      }
-      if (that.scheduleType == "周保养") {
-        console.log(that.startDate);
-        switch (that.startDate) {
-          case 1:
-            that.scheduleType_info = "周保养（周一）";
-            break;
-          case 2:
-            that.scheduleType_info = "周保养（周二）";
-            break;
-          case 3:
-            that.scheduleType_info = "周保养（周三）";
-            break;
-          case 4:
-            that.scheduleType_info = "周保养（周四）";
-            break;
-          case 5:
-            that.scheduleType_info = "周保养（周五）";
-            break;
-          case 6:
-            that.scheduleType_info = "周保养（周六）";
-            break;
-          case 7:
-            that.scheduleType_info = "周保养（周日）";
-            break;
-          default:
-            that.scheduleType_info = "周保养（未分配）";
-            break;
-        }
-      } else if (that.scheduleType == "月保养") {
-        that.scheduleType_info =
-          "月保养（每月 " + that.startDate.split("-")[2] + " 号）";
-      } else if (that.scheduleType == "季度保养") {
-        that.scheduleType_info =
-          "季度保养（每季度 " + that.startDate.split("-")[2] + " 号）";
-      } else if (that.scheduleType == "年保养") {
-        that.scheduleType_info = "年度保养";
-      } else if (that.scheduleType == "未知") {
-        that.scheduleType_info = "未知";
-      }
       // 保养内容
       if (res.data.content != "") {
         for (let a = 0; a < res.data.content.length; a++) {
@@ -321,20 +210,6 @@ export default {
       }
       that.tools = res.data.tools;
       that.remark = res.data.remark;
-      // 设备名称
-      for (let i = 0; i < res.data.device.length; i++) {
-        let searchdevice =
-          "http://47.102.214.37:8080/device/" + res.data.device[i].id;
-        axios.get(searchdevice).then((res) => {
-          let obj = {};
-          obj.id = res.data.id;
-          obj.name = res.data.name;
-          obj.brand = res.data.brand;
-          obj.deviceNo = res.data.deviceNo;
-          obj.clazz = res.data.clazz;
-          that.devicetableData.push(obj);
-        });
-      }
       // 维护人员
       for (let i = 0; i < res.data.ops.length; i++) {
         let searchops = "http://47.102.214.37:8080/user/" + res.data.ops[i].id;
@@ -425,6 +300,7 @@ export default {
 
       /* 保养内容 */
       content: [], // 保养内容
+      checkList: [],
 
       /* 工具及备件 */
       tools: null, // 保养工具及备件
@@ -483,11 +359,9 @@ export default {
     },
 
     // 新增保养记录
-    addrecord() {
-      this.dialogAddRecord = true;
-    },
     submitrecord() {
       let that = this;
+      console.log(that.checkList);
       axios.get("http://47.102.214.37:8080/user/me").then((res) => {
         console.log(res.data);
         that.opUserid = res.data.id;
@@ -656,9 +530,6 @@ export default {
       });
     },
   },
-  components: {
-    User,
-  },
 };
 </script>
 
@@ -723,9 +594,34 @@ export default {
     }
   }
   .content {
+    padding-bottom: 10px;
     .title {
       border-left: 3px solid #409eff;
     }
+  }
+  .tools_remark {
+    padding: 10px 0;
+    // border: 1px solid red;
+    display: flex;
+    justify-content: flex-start;
+    border-bottom: 1px solid #aaa;
+    .tools {
+      display: flex;
+      flex-direction: column;
+      width: 50%;
+      color: #409eff;
+      font-weight: bold;
+      font-size: 20px;
+      span {
+        color: #000;
+        font-size: 15px;
+        font-weight: normal;
+      }
+    }
+  }
+  .form {
+    margin-top: 10px;
+    font-weight: bold;
   }
   .addrecord {
     .el-button {

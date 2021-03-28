@@ -127,55 +127,56 @@ export default {
       if (("ROOT", "ADMIN").includes(that.userRole)) {
         let url =
           "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
-        axios.get(url).then((res) => {
-          console.log(res);
-          that.total = res.data.content.length;
-          for (let i = 0; i < res.data.content.length; i++) {
-            if (res.data.content[i].role == "ROOT") {
-              that.tableData.unshift({
-                id: res.data.content[i].id,
-                username: res.data.content[i].username,
-                userrole: res.data.content[i].role,
-                name: res.data.content[i].name,
-                email: res.data.content[i].email,
-              });
-            } else if (res.data.content[i].role == "ADMIN") {
-              that.tableData.push({
-                id: res.data.content[i].id,
-                username: res.data.content[i].username,
-                userrole: res.data.content[i].role,
-                name: res.data.content[i].name,
-                email: res.data.content[i].email,
-              });
+        axios
+          .get(url)
+          .then((res) => {
+            console.log(res);
+            that.total = res.data.content.length;
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (res.data.content[i].role == "ROOT") {
+                that.tableData.unshift({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              } else if (res.data.content[i].role == "ADMIN") {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
             }
-          }
-          for (let i = 0; i < res.data.content.length; i++) {
-            if (
-              res.data.content[i].role != "ROOT" &&
-              res.data.content[i].role != "ADMIN"
-            ) {
-              that.tableData.push({
-                id: res.data.content[i].id,
-                username: res.data.content[i].username,
-                userrole: res.data.content[i].role,
-                name: res.data.content[i].name,
-                email: res.data.content[i].email,
-              });
+            for (let i = 0; i < res.data.content.length; i++) {
+              if (
+                res.data.content[i].role != "ROOT" &&
+                res.data.content[i].role != "ADMIN"
+              ) {
+                that.tableData.push({
+                  id: res.data.content[i].id,
+                  username: res.data.content[i].username,
+                  userrole: res.data.content[i].role,
+                  name: res.data.content[i].name,
+                  email: res.data.content[i].email,
+                });
+              }
             }
-          }
-          that
-            .$message({
+            that.$message({
               message: "列表已更新",
               type: "success",
-            })
-            .catch((res) => {
-              console.log(res.response);
-              that.$message({
-                message: "列表刷新失败",
-                type: "error",
-              });
             });
-        });
+          })
+          .catch((res) => {
+            console.log(res.response);
+            that.$message({
+              message: "列表刷新失败",
+              type: "error",
+            });
+          });
       } else {
         axios
           .get("http://47.102.214.37:8080/user/query")

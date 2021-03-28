@@ -10,13 +10,13 @@ var taskdynamicTags = [];
 var fixselectInfo = [];
 var fixdynamicTags = [];
 
-// 保养分析
-var taskAnalysisInfo = [];
-var taskAnalysisdynamicTags = [];
+// // 保养分析
+// var taskAnalysisInfo = [];
+// var taskAnalysisdynamicTags = [];
 
-// 维修查询
-var fixAnalysisInfo = [];
-var fixAnalysisdynamicTags = [];
+// // 维修分析
+// var fixAnalysisInfo = [];
+// var fixAnalysisdynamicTags = [];
 export default {
   deviceselectInfo,
   devicedynamicTags,
@@ -27,9 +27,9 @@ export default {
   fixselectInfo,
   fixdynamicTags,
 
-  taskAnalysisInfo,
-  taskAnalysisdynamicTags,
+  // taskAnalysisInfo,
+  // taskAnalysisdynamicTags,
 
-  fixAnalysisInfo,
-  fixAnalysisdynamicTags,
+  // fixAnalysisInfo,
+  // fixAnalysisdynamicTags,
 };
