@@ -10,31 +10,53 @@
         <el-breadcrumb-item class="active">任务标准分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="chuansuo">
-      <div class="kuang">
-        <el-transfer
-          filterable
-          v-model="value1"
-          :data="data1"
-          :titles="titles1"
-          @change="change1"
-        >
-        </el-transfer>
+    <div>
+      <div>
+        <el-select v-model="taskvalue" placeholder="请选择标准" filterable>
+          <el-option
+            v-for="item in taskoptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
       </div>
-      <div class="kuang kuang3">
-        <el-transfer
-          filterable
-          v-model="value3"
-          :data="data3"
-          :titles="titles3"
-          @change="change3"
-        >
-        </el-transfer>
+      <div>
+        <el-select v-model="devicevalue" placeholder="请选择设备" filterable>
+          <el-option
+            v-for="item in deviceoptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
       </div>
-      <div class="Btns">
-        <div class="sub-btn">
-          <el-button @click="Next">下一步</el-button>
-        </div>
+      <div>
+        <el-date-picker
+          v-model="datevalue"
+          type="date"
+          placeholder="选择开始日期"
+          value-format="yyyy-MM-dd"
+        >
+        </el-date-picker>
+      </div>
+      <div>
+        <el-select v-model="opsvalue" placeholder="请选择保养人员" filterable>
+          <el-option
+            v-for="item in opsoptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
+      </div>
+    </div>
+    <div class="Btns">
+      <div class="sub-btn">
+        <el-button @click="SubTssign">保存并提交</el-button>
       </div>
     </div>
   </div>
@@ -60,26 +82,42 @@ export default {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
               // console.log(res.data.content[i]);
-              obj.key = res.data.content[i].id;
+              obj.value = res.data.content[i].id;
               obj.label = res.data.content[i].name;
-              that.data1.unshift(obj);
+              that.taskoptions.push(obj);
             }
           });
         // 获取全部设备
         axios
-          .get("http://47.102.214.37:8080/device/query?name=!")
+          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
           .then((res) => {
             console.log(res.data);
             for (var i = 0; i < res.data.content.length; i++) {
               // console.log(res.data.content[i]);
               let obj = {};
-              obj.key = res.data.content[i].id;
+              obj.value = res.data.content[i].id;
               obj.label =
                 res.data.content[i].name +
                 "（" +
                 res.data.content[i].deviceNo +
                 "）";
-              that.data3.push(obj);
+              that.deviceoptions.push(obj);
+            }
+          });
+        // 获取全部 OPERATOR 员工
+        axios
+          .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
+          .then((res) => {
+            for (var i = 0; i < res.data.content.length; i++) {
+              // console.log(res.data.content[i]);
+              let obj = {};
+              obj.value = res.data.content[i].id;
+              obj.label =
+                res.data.content[i].username +
+                "（姓名：" +
+                res.data.content[i].name +
+                "）";
+              that.opsoptions.push(obj);
             }
           });
       }
@@ -88,14 +126,22 @@ export default {
   data() {
     return {
       userRole: "", //用户类型
-      // 选择框 1
-      data1: [],
-      value1: [],
-      titles1: ["标准名称", "已选择标准"],
-      // 选择框 3
-      data3: [],
-      value3: [],
-      titles3: ["设备列表", "已选择设备"],
+
+      // 选择任务
+      taskvalue: "",
+      taskoptions: [],
+
+      // 选择设备
+      devicevalue: "",
+      deviceoptions: [],
+
+      // 选择开始日期
+      datevalue: "",
+
+      // 选择人员
+      opsvalue: "",
+      opsoptions: [],
+
       selectedTaskid: [],
       selectedDeviceid: [],
     };
@@ -147,6 +193,55 @@ export default {
         });
       }
     },
+    // 提交分配
+    SubTssign() {
+      let that = this;
+      if (
+        that.taskvalue == "" ||
+        that.devicevalue == "" ||
+        that.datevalue == "" ||
+        that.opsvalue == ""
+      ) {
+        that.$message({
+          message: "请将信息填写完整",
+          type: "warning",
+        });
+      } else {
+        let deviceid = [];
+        let ops = [];
+        let url =
+          "http://47.102.214.37:8080/ops/schedule/detail/" + that.taskvalue;
+        console.log(url);
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          let obj = {};
+          deviceid.push({ id: that.devicevalue });
+          ops.push({ id: that.opsvalue });
+          obj.acceptedStandard = res.data.acceptedStandard;
+          obj.content = res.data.content;
+          obj.id = res.data.id;
+          obj.name = res.data.name;
+          obj.remark = res.data.remark;
+          obj.scheduleType = res.data.scheduleType;
+          obj.startDate = that.datevalue;
+          obj.side = res.data.side;
+          obj.tools = res.data.tools;
+          obj.device = deviceid;
+          obj.ops = ops;
+          obj.manager = null;
+          console.log(obj);
+          setTimeout(function() {
+            axios.put(url, obj).then((res) => {
+              console.log(res);
+              that.$message({
+                message: "分配成功",
+                type: "success",
+              });
+            });
+          }, 200);
+        });
+      }
+    },
   },
 };
 </script>
@@ -190,11 +285,12 @@ export default {
   .Btns {
     display: flex;
     justify-content: space-between;
+    width: 200px;
     margin-top: 20px;
     // border: 1px solid red;
     .sub-btn {
       .el-button {
-        width: 80px;
+        width: 100px;
         background: linear-gradient(-270deg, #6eb5fc, #409eff);
         color: #fff;
         border: 0;

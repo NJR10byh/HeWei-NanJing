@@ -129,19 +129,21 @@ export default {
     }
     setTimeout(() => {
       // 获取全部设备
-      axios.get("http://47.102.214.37:8080/device/query?name=!").then((res) => {
-        for (var i = 0; i < res.data.content.length; i++) {
-          // console.log(res.data.content[i]);
-          let obj = {};
-          obj.value = res.data.content[i].id;
-          obj.label =
-            res.data.content[i].name +
-            "（" +
-            res.data.content[i].deviceNo +
-            "）";
-          that.Devices.push(obj);
-        }
-      });
+      axios
+        .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            // console.log(res.data.content[i]);
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              "（" +
+              res.data.content[i].deviceNo +
+              "）";
+            that.Devices.push(obj);
+          }
+        });
       // 获取全部 OPERATOR 员工
       axios
         .get("http://47.102.214.37:8080/user/query?role==OPERATOR")

@@ -130,7 +130,7 @@ export default {
       if (userRole != "" && userRole != "OPERATOR") {
         // 获取全部设备
         axios
-          .get("http://47.102.214.37:8080/device/query?name=!")
+          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
