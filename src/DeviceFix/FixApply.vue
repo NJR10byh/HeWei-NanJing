@@ -227,7 +227,6 @@ export default {
           },
         },
       },
-      picid: "",
     };
   },
   methods: {
@@ -252,7 +251,6 @@ export default {
             },
           }).then((res) => {
             console.log(res);
-            that.picid = res.data;
             let url = "http://47.102.214.37:8080/pic/" + res.data;
             let quill = that.$refs.myQuillEditor.quill;
             // 获取光标所在位置

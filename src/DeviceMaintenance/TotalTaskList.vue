@@ -69,7 +69,7 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="id" label="序号" width="50"></el-table-column>
+      <el-table-column prop="id" label="序号" width="80"></el-table-column>
       <el-table-column
         prop="devicename"
         label="设备名称"
@@ -853,10 +853,10 @@ export default {
     // 任务详情
     handleDetail(index) {
       console.log(this.tableData[index]);
-      // this.$router.push({
-      //   path: "/taskDetailInfo",
-      //   query: this.tableData[index],
-      // });
+      this.$router.push({
+        path: "/taskDetailInfo",
+        query: this.tableData[index],
+      });
     },
     // 获取全部全部信息
     getAllDevice() {
@@ -887,6 +887,7 @@ export default {
             obj.deviceNo = res.data.content[a].deviceNo;
             setTimeout(() => {
               axios.get(searchtask).then((res) => {
+                // console.log(res.data);
                 if (res.data.length != 0) {
                   obj.taskid = res.data[0].id;
                   obj.taskname = res.data[0].name;
@@ -929,7 +930,7 @@ export default {
                   if (res.data.length > 1) {
                     for (let i = 1; i < res.data.length; i++) {
                       let arr = {};
-                      arr.id = (a + 1) * 10 + i;
+                      arr.id = a + 1 + " - " + i;
                       arr.opuser = "";
                       arr.devicename = devicename;
                       arr.deviceNo = deviceNo;
@@ -972,7 +973,8 @@ export default {
                           }
                         }
                       }, 200);
-                      obj.children.push(arr);
+                      // obj.children.push(arr);
+                      that.tableData.push(arr);
                     }
                   }
                 }
@@ -1001,7 +1003,7 @@ export default {
     handleEdit(index) {
       console.log(this.tableData[index]);
       let obj = {};
-      obj.taskID = this.tableData[index].id;
+      obj.taskID = this.tableData[index].taskid;
       this.$router.push({
         path: "/editTask",
         query: obj,

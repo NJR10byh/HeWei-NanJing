@@ -49,33 +49,14 @@
                 :label-width="formLabelWidth"
                 prop="record"
               >
-                <el-input
+                <!-- 富文本编辑器 -->
+                <quill-editor
+                  ref="myQuillEditor"
                   v-model="form.record"
-                  autocomplete="off"
-                  placeholder="完成记录（概括）"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                label="记录图片:"
-                :label-width="formLabelWidth"
-                prop="pic"
-              >
-                <el-upload
-                  list-type="picture"
-                  action=""
-                  accept=".jpg, .png"
-                  :limit="1"
-                  :auto-upload="false"
-                  :file-list="fileList"
-                  :on-change="getFile"
-                >
-                  <el-button size="small" type="primary"
-                    >选择图片上传</el-button
-                  >
-                  <div slot="tip" class="el-upload__tip">
-                    只能上传一张jpg/png文件
-                  </div>
-                </el-upload>
+                  :options="editorOption"
+                  style="height:70%;margin-top: 5px;width:100%;"
+                  @change="onEditorChange($event)"
+                ></quill-editor>
               </el-form-item>
               <el-form-item
                 label="是否「不能自我修复」:"
@@ -110,8 +91,7 @@
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogAddRecord = false">取 消</el-button>
-              <el-button type="primary" @click="submitrecord">确 定</el-button>
+              <el-button type="primary" @click="submitrecord">提 交</el-button>
             </div>
           </div>
         </el-tab-pane>
@@ -183,19 +163,43 @@
         </el-tab-pane>
       </el-tabs>
     </div>
+    <el-upload
+      list-type="picture"
+      action=""
+      :auto-upload="false"
+      accept=".jpg, .png"
+      :show-file-list="false"
+      :on-change="getFile"
+      class="avatar-uploader"
+      style="display: none"
+    >
+    </el-upload>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+// 富文本编辑
+import { quillEditor } from "vue-quill-editor";
+// require styles
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+
+// 工具栏配置
+const toolbarOptions = [
+  ["bold", "italic", "underline", "strike"], // toggled buttons
+  [{ list: "ordered" }, { list: "bullet" }],
+  ["image"],
+];
 
 export default {
   created: function() {
     let that = this;
-    that.taskid = that.$route.query.id;
-    console.log(that.$route.query);
+    that.taskid = that.$route.query.taskid;
     let url =
-      "http://47.102.214.37:8080/ops/schedule/detail/" + that.$route.query.id;
+      "http://47.102.214.37:8080/ops/schedule/detail/" +
+      that.$route.query.taskid;
     axios.get(url).then((res) => {
       console.log(res.data);
       that.name = res.data.name;
@@ -229,7 +233,7 @@ export default {
       // 保养记录
       let URL =
         "http://47.102.214.37:8080/ops/record/schedule/" +
-        that.$route.query.id +
+        that.$route.query.taskid +
         "?page=0&size=" +
         that.page_size;
       axios.get(URL).then((res) => {
@@ -311,19 +315,36 @@ export default {
 
       /* 保养记录 */
       taskrecordtableData: [], // 保养记录
-      // 新增保养记录弹出框
-      dialogAddRecord: false,
       form: {
         fix: "",
         record: "",
         report: "",
         hasException: false,
-        pic: "",
       },
       formLabelWidth: "150px",
       // 图片上传
       fileList: [],
       dialogVisible: false,
+
+      // 富文本编辑器
+      editorOption: {
+        placeholder: "请输入完成记录",
+        modules: {
+          toolbar: {
+            container: toolbarOptions, // 工具栏
+            handlers: {
+              image: function(value) {
+                if (value) {
+                  document.querySelector(".avatar-uploader input").click();
+                } else {
+                  this.quill.format("image", false);
+                }
+              },
+            },
+          },
+        },
+      },
+
       // 分页
       currentPage: 1, //  页面显示的当前页数
       page_size: 15, //  页面显示的每页显示条数
@@ -332,12 +353,35 @@ export default {
     };
   },
   methods: {
+    // 富文本编辑器内容改变
+    onEditorChange({ html }) {
+      console.log(html);
+      this.form.record = html;
+    },
+    // 上传图片
     getFile(file) {
+      let that = this;
       this.getBase64(file.raw).then((res) => {
         const params = res.split(",");
-        console.log(params, "params");
         if (params.length > 0) {
-          this.form.pic = params[1];
+          axios({
+            url: "http://47.102.214.37:8080/pic",
+            method: "post",
+            data: params[1],
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          }).then((res) => {
+            console.log(res);
+            let url = "http://47.102.214.37:8080/pic/" + res.data;
+            let quill = that.$refs.myQuillEditor.quill;
+            // 获取光标所在位置
+            let length = quill.getSelection().index;
+            // 插入图片
+            quill.insertEmbed(length, "image", url);
+            // 调整光标到最后
+            quill.setSelection(length + 1);
+          });
         }
       });
     },
@@ -368,14 +412,13 @@ export default {
         that.opUserid = res.data.id;
       });
       setTimeout(() => {
-        if (that.form.record == "" || that.form.pic == "") {
+        if (that.form.record == "") {
           that.$message({
             message: "请将信息填写完整",
             type: "warning",
           });
         } else {
           let obj = {};
-          let picurl = "http://47.102.214.37:8080/pic";
           obj.fix = that.form.fix;
           obj.record = that.form.record;
           obj.report = that.form.report;
@@ -384,40 +427,26 @@ export default {
           } else {
             obj.hasException = true;
           }
-          obj.schedule = { id: that.$route.query.id * 1 };
+          obj.schedule = { id: that.$route.query.taskid * 1 };
           obj.opUser = { id: that.opUserid };
           setTimeout(() => {
-            axios({
-              url: picurl,
-              method: "post",
-              data: that.form.pic,
-              headers: {
-                "Content-Type": "text/plain",
-              },
-            }).then((res) => {
-              console.log(res);
-              obj.pic = res.data;
-            });
-            setTimeout(() => {
-              console.log(obj);
-              axios
-                .post("http://47.102.214.37:8080/ops/record", obj)
-                .then((res) => {
-                  console.log(res);
-                  that.$message({
-                    message: "新增成功",
-                    type: "success",
-                  });
-                  that.dialogAddRecord = false;
-                })
-                .catch((res) => {
-                  console.log(res.response);
-                  that.$message({
-                    message: res.response.data.message,
-                    type: "error",
-                  });
+            console.log(obj);
+            axios
+              .post("http://47.102.214.37:8080/ops/record", obj)
+              .then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "新增成功",
+                  type: "success",
                 });
-            }, 300);
+              })
+              .catch((res) => {
+                console.log(res.response);
+                that.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
           }, 300);
         }
       }, 300);
@@ -432,7 +461,7 @@ export default {
       console.log(val);
       let url =
         "http://47.102.214.37:8080/ops/record/schedule/" +
-        that.$route.query.id +
+        that.$route.query.taskid +
         "?page=0" +
         "&size=" +
         that.page_size;
@@ -484,7 +513,7 @@ export default {
       console.log(val);
       let url =
         "http://47.102.214.37:8080/ops/record/schedule/" +
-        that.$route.query.id +
+        that.$route.query.taskid +
         "?page=" +
         (that.page - 1) +
         "&size=" +
@@ -530,6 +559,9 @@ export default {
         }, 300);
       });
     },
+  },
+  components: {
+    quillEditor,
   },
 };
 </script>
