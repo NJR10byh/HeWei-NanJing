@@ -14,7 +14,8 @@
           placeholder="请选择搜索字段"
           filterable
           clearable
-          @change="selectchange"
+          :disabled="ifdevice"
+          @change="devicechange"
         >
           <el-option-group
             v-for="group in selectoptions"
@@ -50,9 +51,8 @@
           placeholder="请选择人员"
           filterable
           clearable
-          multiple
-          disabled
           collapse-tags
+          :disabled="ifops"
         >
           <el-option-group
             v-for="group in opsoptions"
@@ -216,6 +216,7 @@ export default {
           ],
         },
       ],
+      ifdevice: false,
       ifall: false,
       selectvalue: "",
       selectmodel: "",
@@ -230,13 +231,14 @@ export default {
       deviceAnalysisData: [],
 
       // 人员
-      opsvalue: [],
+      opsvalue: "",
       opsoptions: [
         {
           label: "人员列表",
           options: [],
         },
       ],
+      ifops: true,
 
       // 统计总计
       avgFixPeriodTotal: 0,
@@ -246,9 +248,10 @@ export default {
     };
   },
   methods: {
-    selectchange(res) {
+    devicechange(res) {
       let that = this;
       that.ifall = false;
+      this.ifdevice = false;
       if (res == "all") {
         that.ifall = true;
         that.device = [];
@@ -271,6 +274,11 @@ export default {
         this.dialogSearchVisible = true;
       }
     },
+    // opschange(res) {
+    //   console.log(res);
+    //   this.ifops = false;
+    //   this.ifdevice = true;
+    // },
     submitselect() {
       this.dialogSearchVisible = false;
       this.selectInfo.push({
@@ -717,6 +725,8 @@ export default {
       this.startDate = "";
       this.endDate = "";
       this.deviceAnalysisData = [];
+      this.ifdevice = false;
+      // this.ifops = false;
     },
   },
 };
