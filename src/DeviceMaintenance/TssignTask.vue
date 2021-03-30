@@ -10,7 +10,7 @@
         <el-breadcrumb-item class="active">任务标准分配</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div>
+    <div class="selectPart">
       <div>
         <el-select v-model="taskvalue" placeholder="请选择标准" filterable>
           <el-option
@@ -269,28 +269,18 @@ export default {
       font-size: 20px;
     }
   }
-  .chuansuo {
+  .selectPart {
     // border: 1px solid red;
-    width: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    padding-bottom: 10px;
-    .kuang3 {
-      margin-top: 10px;
-    }
+    justify-content: space-around;
   }
   .Btns {
-    display: flex;
-    justify-content: space-between;
-    width: 200px;
     margin-top: 20px;
-    // border: 1px solid red;
+    display: flex;
+    justify-content: center;
     .sub-btn {
       .el-button {
-        width: 100px;
+        width: 200px;
         background: linear-gradient(-270deg, #6eb5fc, #409eff);
         color: #fff;
         border: 0;
