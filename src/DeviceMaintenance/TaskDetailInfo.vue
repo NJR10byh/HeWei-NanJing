@@ -193,6 +193,7 @@ export default {
   created: function() {
     let that = this;
     that.taskid = that.$route.query.id;
+    console.log(that.$route.query);
     let url =
       "http://47.102.214.37:8080/ops/schedule/detail/" + that.$route.query.id;
     axios.get(url).then((res) => {
