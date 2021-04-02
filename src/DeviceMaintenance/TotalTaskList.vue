@@ -176,11 +176,11 @@
 
       <!-- 设备 -->
       <el-select
-        v-model="devicevalue"
-        placeholder="请选择设备"
+        v-model="selectvalue2"
+        placeholder="请选择搜索字段"
         filterable
         clearable
-        multiple
+        @change="deviceselectchange"
         v-if="selectvalue == 'device'"
       >
         <el-option-group
@@ -197,6 +197,17 @@
           </el-option>
         </el-option-group>
       </el-select>
+      <div v-if="selectvalue == 'device'" style="margin-top:10px;">
+        <el-tag
+          :key="tag"
+          v-for="tag in devicedynamicTags"
+          closable
+          @close="devicehandleClose(tag)"
+          style="margin-left:5px;"
+        >
+          {{ tag }}
+        </el-tag>
+      </div>
 
       <!-- 保养人员 -->
       <el-select
@@ -255,6 +266,18 @@
         <el-button type="primary" @click="submitselect">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 搜索条件-设备 -->
+    <el-dialog
+      title="搜索条件"
+      :visible.sync="dialogSearchDeviceVisible"
+      width="35%"
+    >
+      <el-input v-model="devicevalue" placeholder="请输入搜索内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogSearchDeviceVisible = false">取 消</el-button>
+        <el-button type="primary" @click="devicesubmitselect">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -277,27 +300,15 @@ export default {
         that.getAllDevice();
       }, 300);
     }
-
-    // 获取全部设备
-    axios({
-      method: "GET",
-      url: "http://47.102.214.37:8080/device?page=0&size=1000000000",
-    })
-      .then((res) => {
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.value = res.data.content[i].id;
-          obj.label =
-            res.data.content[i].name +
-            " (" +
-            res.data.content[i].deviceNo +
-            ")";
-          that.deviceoptions[0].options.push(obj);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // 获取所有附加字段
+    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+      for (let i = 0; i < res.data.length; i++) {
+        that.deviceoptions[1].options.push({
+          value: res.data[i].id,
+          label: res.data[i].name,
+        });
+      }
+    });
 
     // 获取全部OPERATOR
     axios
@@ -400,10 +411,52 @@ export default {
       devicevalue: "",
       deviceoptions: [
         {
-          label: "设备列表",
+          label: "基本字段",
+          options: [
+            {
+              value: "name",
+              label: "设备名称",
+            },
+            {
+              value: "brand",
+              label: "设备品牌",
+            },
+            {
+              value: "type",
+              label: "设备型号/规格",
+            },
+            {
+              value: "deviceNo",
+              label: "设备编号",
+            },
+            {
+              value: "crux",
+              label: "是否为关键设备",
+            },
+            {
+              value: "clazz",
+              label: "设备分类",
+            },
+          ],
+        },
+        {
+          label: "附加字段",
           options: [],
         },
+        {
+          label: "全部",
+          options: [
+            {
+              value: "all",
+              label: "全部设备",
+            },
+          ],
+        },
       ],
+      devicedynamicTags: [], // 设备搜索标签
+      selectvalue2: "",
+      selectInfo2: [],
+      dialogSearchDeviceVisible: false,
 
       // 人员
       opsvalue: "",
@@ -438,6 +491,93 @@ export default {
     selectchange() {
       this.dialogSearchVisible = true;
     },
+    // 搜索设备
+    deviceselectchange(res) {
+      let that = this;
+      that.taskdisabled = true;
+      that.ifall = false;
+      if (res == "all") {
+        that.ifall = true;
+        that.device = [];
+        axios
+          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
+          .then((res) => {
+            let i = 0;
+            console.log(res.data);
+            for (i = 0; i < res.data.content.length; i++) {
+              that.device.push(res.data.content[i].id);
+            }
+            console.log(that.device);
+            // 清空搜索条件，等待下次搜索
+            that.selectInfo2 = [];
+            that.devicedynamicTags = [];
+          });
+      } else {
+        this.dialogSearchDeviceVisible = true;
+      }
+    },
+    // 设备选择
+    devicesubmitselect() {
+      this.dialogSearchDeviceVisible = false;
+      this.selectInfo2.push({
+        ziduan: this.selectvalue2,
+        value: this.devicevalue,
+      });
+      this.devicedynamicTags.push(this.selectvalue + " / " + this.devicevalue);
+    },
+    // 搜索设备
+    searchDevice() {
+      let that = this;
+      let arr = [];
+      let url = "";
+      url =
+        "http://47.102.214.37:8080/device/query?" +
+        that.selectInfo2[0].ziduan +
+        "=L" +
+        that.selectInfo2[0].value +
+        "%25";
+      if (that.selectInfo2.length == 1) {
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            arr.push(res.data.content[i].id);
+          }
+          that.selectInfo.push({
+            ziduan: "device",
+            value: arr,
+          });
+          that.dynamicTags.push("device / " + arr);
+        });
+      } else {
+        for (let i = 1; i < that.selectInfo2.length; i++) {
+          url =
+            url +
+            "&" +
+            that.selectInfo2[i].ziduan +
+            "=L" +
+            that.selectInfo2[i].value +
+            "%25";
+        }
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            arr.push(res.data.content[i].id);
+          }
+          that.selectInfo.push({
+            ziduan: "device",
+            value: arr,
+          });
+          that.dynamicTags.push("device / " + arr);
+        });
+      }
+    },
+    //  设备标签移除
+    devicehandleClose(tag) {
+      let index = this.devicedynamicTags.indexOf(tag);
+      console.log(index);
+      this.devicedynamicTags.splice(index, 1);
+      this.selectInfo2.splice(index, 1);
+    },
     submitselect() {
       let that = this;
       this.dialogSearchVisible = false;
@@ -449,12 +589,6 @@ export default {
         this.dynamicTags.push(
           this.selectvalue + " / " + this.scheduleTypevalue
         );
-      } else if (this.selectvalue == "device") {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
-          value: this.devicevalue,
-        });
-        this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
       } else if (this.selectvalue == "ops") {
         console.log(this.opsvalue);
         this.selectInfo.push({
@@ -462,9 +596,19 @@ export default {
           value: this.opsvalue,
         });
         this.dynamicTags.push(this.selectvalue + " / " + this.opsvalue);
+      } else if (this.selectvalue == "device") {
+        console.log(this.devicevalue);
+        that.searchDevice();
       } else if (this.selectvalue == "timeChoose") {
         that.tableData = [];
         that.ifsearch = true;
+        // 清空搜索条件，等待下次搜索
+        that.selectInfo = [];
+        that.selectvalue = "";
+        that.selectmodel = "";
+        that.dynamicTags = [];
+        globaldata.deviceselectInfo = [];
+        globaldata.devicedynamicTags = [];
         let url =
           "http://47.102.214.37:8080/ops/query?startDate=B" +
           this.start +
@@ -623,7 +767,6 @@ export default {
           }
         }
         if (that.selectInfo.length == 1) {
-          // that.exporturl = url;
           axios.get(url).then((res) => {
             console.log(res.data);
             that.total = res.data.totalElements;
@@ -982,13 +1125,13 @@ export default {
             message: "数据已更新",
             type: "success",
           });
-          // // 清空搜索条件，等待下次搜索
-          // that.selectInfo = [];
-          // that.selectvalue = "";
-          // that.selectmodel = "";
-          // that.dynamicTags = [];
-          // globaldata.deviceselectInfo = [];
-          // globaldata.devicedynamicTags = [];
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          globaldata.deviceselectInfo = [];
+          globaldata.devicedynamicTags = [];
         })
         .catch((err) => {
           console.log(err);
@@ -1192,13 +1335,6 @@ export default {
           message: "数据已更新",
           type: "success",
         });
-        // // 清空搜索条件，等待下次搜索
-        // that.selectInfo = [];
-        // that.selectvalue = "";
-        // that.selectmodel = "";
-        // that.dynamicTags = [];
-        // globaldata.deviceselectInfo = [];
-        // globaldata.devicedynamicTags = [];
       });
     },
     // // 页变化
@@ -1327,13 +1463,6 @@ export default {
           message: "数据已更新",
           type: "success",
         });
-        // // 清空搜索条件，等待下次搜索
-        // that.selectInfo = [];
-        // that.selectvalue = "";
-        // that.selectmodel = "";
-        // that.dynamicTags = [];
-        // globaldata.deviceselectInfo = [];
-        // globaldata.devicedynamicTags = [];
       });
     },
   },

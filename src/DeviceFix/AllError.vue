@@ -194,6 +194,24 @@
           </el-option>
         </el-option-group>
       </el-select>
+      <!-- 时间范围 -->
+      <el-date-picker
+        v-model="start"
+        type="date"
+        placeholder="选择开始日期"
+        value-format="yyyy-MM-dd"
+        v-if="selectvalue == 'timeChoose'"
+      >
+      </el-date-picker>
+      <el-date-picker
+        v-model="end"
+        type="date"
+        placeholder="选择结束日期"
+        value-format="yyyy-MM-dd"
+        v-if="selectvalue == 'timeChoose'"
+        style="margin-top:20px;"
+      >
+      </el-date-picker>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogSearchVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitselect">确 定</el-button>
@@ -322,6 +340,10 @@ export default {
               value: "assignee",
               label: "维修人员",
             },
+            {
+              value: "timeChoose",
+              label: "时间范围",
+            },
           ],
         },
       ],
@@ -369,6 +391,11 @@ export default {
           options: [],
         },
       ],
+      /* 时间范围 */
+      // 开始
+      start: "",
+      // 结束
+      end: "",
 
       selectvalue: "",
       selectInfo: [],
@@ -400,24 +427,115 @@ export default {
     },
     submitselect() {
       this.dialogSearchVisible = false;
-      if (this.selectvalue == "device") {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
-          value: this.devicevalue,
-        });
-        this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
-      } else if (this.selectvalue == "assignee") {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
-          value: this.assigneevalue,
-        });
-        this.dynamicTags.push(this.selectvalue + " / " + this.assigneevalue);
-      } else if (this.selectvalue == "reporter") {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
-          value: this.reportervalue,
-        });
-        this.dynamicTags.push(this.selectvalue + " / " + this.reportervalue);
+      switch (this.selectvalue) {
+        case "device":
+          this.selectInfo.push({
+            ziduan: this.selectvalue,
+            value: this.devicevalue,
+          });
+          this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
+          break;
+        case "assignee":
+          this.selectInfo.push({
+            ziduan: this.selectvalue,
+            value: this.assigneevalue,
+          });
+          this.dynamicTags.push(this.selectvalue + " / " + this.assigneevalue);
+          break;
+        case "reporter":
+          this.selectInfo.push({
+            ziduan: this.selectvalue,
+            value: this.reportervalue,
+          });
+          this.dynamicTags.push(this.selectvalue + " / " + this.reportervalue);
+          break;
+        case "timeChoose":
+          var that = this;
+          that.taskData = [];
+          that.ifsearch = true;
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          globaldata.deviceselectInfo = [];
+          globaldata.devicedynamicTags = [];
+          var url =
+            "http://47.102.214.37:8080/issue/query?createdAt=B" +
+            this.start +
+            "T00:00," +
+            this.end +
+            "T00:00";
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            that.total = res.data.totalElements;
+            for (let i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.errorid = res.data.content[i].id;
+              obj.errordevicename = "";
+              obj.errordeviceNo = "";
+              obj.assigneename = "";
+              obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+              obj.assigneestatus = res.data.content[i].closed
+                ? "已完成"
+                : "未完成";
+              // 获取设备信息
+              setTimeout(() => {
+                for (let j = 0; j < res.data.content[i].device.length; j++) {
+                  let deviceurl =
+                    "http://47.102.214.37:8080/device/" +
+                    res.data.content[i].device[j].id;
+                  axios.get(deviceurl).then((res) => {
+                    obj.errordevicename += res.data.name + " / ";
+                    obj.errordeviceNo += res.data.deviceNo + " / ";
+                  });
+                }
+                setTimeout(() => {
+                  // 获取报修人员信息
+                  let assigneeurl =
+                    "http://47.102.214.37:8080/user/" +
+                    res.data.content[i].reporter.id;
+                  axios.get(assigneeurl).then((res) => {
+                    console.log(res.data);
+                    obj.reportername =
+                      res.data.name == undefined ? "未分配" : res.data.name;
+                  });
+                  // 获取维修人员信息
+                  setTimeout(() => {
+                    if (res.data.content[i].assignee.length == 1) {
+                      obj.assigneename = "未分配";
+                    } else {
+                      for (
+                        let k = 1;
+                        k < res.data.content[i].assignee.length;
+                        k++
+                      ) {
+                        let assigneeurl =
+                          "http://47.102.214.37:8080/user/" +
+                          res.data.content[i].assignee[k].id;
+                        axios.get(assigneeurl).then((res) => {
+                          console.log(res.data);
+                          obj.assigneename += res.data.name + " / ";
+                        });
+                      }
+                    }
+                    setTimeout(() => {
+                      that.taskData.push(obj);
+                    }, 800);
+                  }, 300);
+                }, 300);
+              }, 300);
+            }
+            setTimeout(() => {
+              that.$message({
+                message: "刷新成功",
+                type: "success",
+              });
+            }, 1000);
+          });
+          break;
+        default:
+          break;
       }
     },
     // 标签移除
