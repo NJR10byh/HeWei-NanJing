@@ -43,32 +43,6 @@
           </el-tag>
         </div>
       </div>
-      <!-- 人员选择 -->
-      <div class="searchtask">
-        选择人员：
-        <el-select
-          v-model="opsvalue"
-          placeholder="请选择人员"
-          filterable
-          clearable
-          collapse-tags
-          :disabled="ifops"
-        >
-          <el-option-group
-            v-for="group in opsoptions"
-            :key="group.label"
-            :label="group.label"
-          >
-            <el-option
-              v-for="item in group.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-option-group>
-        </el-select>
-      </div>
       <div class="searchpart">
         <div style="margin-left:5px;">
           <el-date-picker
@@ -153,22 +127,6 @@ export default {
         });
       }
     });
-
-    // 获取全部OPERATOR
-    axios
-      .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-      .then((res) => {
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.opsoptions[0].options.push({
-            value: res.data.content[i].id,
-            label:
-              res.data.content[i].name +
-              " (用户名：" +
-              res.data.content[i].username +
-              ")",
-          });
-        }
-      });
   },
   data() {
     return {
@@ -230,16 +188,6 @@ export default {
 
       deviceAnalysisData: [],
 
-      // 人员
-      opsvalue: "",
-      opsoptions: [
-        {
-          label: "人员列表",
-          options: [],
-        },
-      ],
-      ifops: true,
-
       // 统计总计
       avgFixPeriodTotal: 0,
       avgIssuePeriodTotal: 0,
@@ -274,11 +222,6 @@ export default {
         this.dialogSearchVisible = true;
       }
     },
-    // opschange(res) {
-    //   console.log(res);
-    //   this.ifops = false;
-    //   this.ifdevice = true;
-    // },
     submitselect() {
       this.dialogSearchVisible = false;
       this.selectInfo.push({
@@ -726,7 +669,6 @@ export default {
       this.endDate = "";
       this.deviceAnalysisData = [];
       this.ifdevice = false;
-      // this.ifops = false;
     },
   },
 };
@@ -766,12 +708,6 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     padding: 0 0 20px 5px;
-    .searchtask {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 0 10px 5px;
-    }
     .el-button {
       width: 220px;
       background: linear-gradient(-270deg, #6eb5fc, #409eff);

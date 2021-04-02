@@ -14,7 +14,7 @@
           ></user>
         </div>
         <div class="part0" style="width: 50%;">
-          <div class="Text">设备名称</div>
+          <div class="Text">选择设备</div>
           <el-select
             v-model="device"
             filterable
@@ -284,13 +284,12 @@ export default {
     // 提交异常报告
     submit() {
       let that = this;
-      console.log(that.descriptionPic);
       let assignee = [];
       let device = [];
+      console.log(that.device, that.assignee);
       if (
-        that.assignee == [] ||
-        that.device == [] ||
-        that.descriptionPic == "" ||
+        that.assignee == "" ||
+        that.device.length == 0 ||
         that.content == ""
       ) {
         that.$message({
@@ -306,12 +305,10 @@ export default {
         assignee.push({
           id: that.assignee,
         });
-        // console.log(descriptionPic);
         let obj = {
           assignee: assignee,
           closed: false,
           content: that.content,
-          descriptionPic: that.descriptionPic,
           device: device,
           reporter: { id: that.reporter.id },
         };
@@ -328,7 +325,7 @@ export default {
           .catch((res) => {
             console.log(res.response);
             this.$message({
-              message: "申请失败",
+              message: res.response.data.message,
               type: "error",
             });
           });

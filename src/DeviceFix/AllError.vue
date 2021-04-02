@@ -459,7 +459,7 @@ export default {
               // 获取报修人员信息
               let assigneeurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
+                res.data.content[i].reporter.id;
               axios.get(assigneeurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =
@@ -579,7 +579,7 @@ export default {
                 // 获取报修人员信息
                 let assigneeurl =
                   "http://47.102.214.37:8080/user/" +
-                  res.data.content[i].assignee[0].id;
+                  res.data.content[i].reporter.id;
                 axios.get(assigneeurl).then((res) => {
                   console.log(res.data);
                   obj.reportername =
@@ -690,7 +690,7 @@ export default {
                 // 获取报修人员信息
                 let assigneeurl =
                   "http://47.102.214.37:8080/user/" +
-                  res.data.content[i].assignee[0].id;
+                  res.data.content[i].reporter.id;
                 axios.get(assigneeurl).then((res) => {
                   console.log(res.data);
                   obj.reportername =
@@ -768,7 +768,7 @@ export default {
               // 获取报修人员信息
               let assigneeurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
+                res.data.content[i].reporter.id;
               axios.get(assigneeurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =
@@ -846,7 +846,7 @@ export default {
               // 获取报修人员信息
               let assigneeurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
+                res.data.content[i].reporter.id;
               axios.get(assigneeurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =

@@ -265,24 +265,29 @@ export default {
             type: Info.type,
           })
           .then((res) => {
-            if (res.status == 201) {
-              that.tableData.push({
-                extraname: Info.name,
-                extrainfo: "",
-              });
-              // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
-              axios
-                .get("http://47.102.214.37:8080/device/info-field")
-                .then((res) => {
-                  for (var j = 0; j < res.data.length; j++) {
-                    if (res.data[j].name == Info.name) {
-                      that.extraid.push(res.data[j].id);
-                      break;
-                    }
+            console.log(res);
+            that.$message({
+              message: "新增字段成功",
+              type: "success",
+            });
+            that.tableData.push({
+              extraname: Info.name,
+              extrainfo: "",
+              type: Info.type,
+            });
+            // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
+            axios
+              .get("http://47.102.214.37:8080/device/info-field")
+              .then((res) => {
+                console.log(res);
+                for (var j = 0; j < res.data.length; j++) {
+                  if (res.data[j].name == Info.name) {
+                    that.extraid.push(res.data[j].id);
+                    break;
                   }
-                });
-              that.dialogFormVisible = false;
-            }
+                }
+              });
+            that.dialogFormVisible = false;
           });
       }
     },

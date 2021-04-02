@@ -11,11 +11,8 @@
           <div class="part">
             <div class="part_left">
               <div class="part_left_0">
-                <el-form-item label="任务名称" class="task">
-                  <el-input
-                    v-model="TaskInfo.name"
-                    placeholder="请输入任务名称"
-                  ></el-input>
+                <el-form-item label="标准名称" class="task name">
+                  <span> {{ TaskInfo.name }}</span>
                 </el-form-item>
               </div>
               <div class="part_left_0">
@@ -52,8 +49,6 @@
                 <el-select
                   clearable
                   filterable
-                  multiple
-                  collapse-tags
                   placeholder="请选择设备"
                   v-model="TaskInfo.device"
                 >
@@ -70,8 +65,6 @@
                 <el-select
                   clearable
                   filterable
-                  multiple
-                  collapse-tags
                   placeholder="请选择保养人员"
                   v-model="TaskInfo.ops"
                 >
@@ -91,7 +84,7 @@
               <el-button @click="submittask">保存并提交</el-button>
             </div>
             <div class="cancel-btn">
-              <el-button @click="cancel">取消</el-button>
+              <el-button @click="cancel">返回</el-button>
             </div>
           </div>
         </el-form>
@@ -117,15 +110,9 @@ export default {
         that.TaskInfo.scheduleType = res.data.scheduleType;
         that.TaskInfo.name = res.data.name;
         that.TaskInfo.startDate = res.data.startDate;
-        for (let i = 0; i < res.data.device.length; i++) {
-          that.TaskInfo.device.push(res.data.device[i].id);
-        }
-        for (let j = 0; j < res.data.device.length; j++) {
-          that.TaskInfo.ops.push(res.data.ops[j].id);
-        }
+        that.TaskInfo.device = res.data.device[0].id;
+        that.TaskInfo.ops = res.data.ops[0].id;
       });
-    } else {
-      console.log("bbb");
     }
     setTimeout(() => {
       // 获取全部设备
@@ -199,22 +186,6 @@ export default {
     };
   },
   methods: {
-    // 删除内容
-    deletecontent() {
-      console.log(this.TaskInfo.content[this.contentindex]);
-      this.$confirm("确定要删除吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.TaskInfo.content.splice(this.contentindex, 1);
-          this.confirmfunction = false;
-        })
-        .catch(() => {
-          this.$message.info("已取消删除");
-        });
-    },
     // 保存编辑并提交
     submittask() {
       let that = this;
@@ -234,30 +205,24 @@ export default {
       } else {
         let ops = [];
         let device = [];
-        for (let i = 0; i < that.TaskInfo.ops.length; i++) {
-          ops.push({
-            id: that.TaskInfo.ops[i],
-          });
-        }
-        for (let j = 0; j < that.TaskInfo.device.length; j++) {
-          device.push({
-            id: that.TaskInfo.device[j],
-          });
-        }
+        ops.push({
+          id: that.TaskInfo.ops,
+        });
+        device.push({
+          id: that.TaskInfo.device,
+        });
         let url =
           "http://47.102.214.37:8080/ops/schedule/detail/" +
           that.$route.query.taskID;
         axios.get(url).then((res) => {
           console.log(res.data);
           let obj = {};
-          obj.acceptedStandard = res.data.acceptedStandard;
           obj.content = res.data.content;
           obj.id = res.data.id;
           obj.name = that.TaskInfo.name;
           obj.remark = res.data.remark;
           obj.startDate = that.TaskInfo.startDate;
           obj.scheduleType = that.TaskInfo.scheduleType;
-          obj.side = res.data.side;
           obj.tools = res.data.tools;
           obj.device = device;
           obj.ops = ops;
@@ -277,7 +242,7 @@ export default {
     // 取消编辑
     cancel() {
       this.$router.push({
-        path: "/addTask",
+        path: "/totalTaskList",
       });
     },
   },
@@ -352,6 +317,15 @@ export default {
               align-items: center;
               .task {
                 width: 48%;
+                font-weight: bold;
+              }
+              .name {
+                display: flex;
+                flex-direction: column;
+                span {
+                  font-size: 20px;
+                  font-weight: normal;
+                }
               }
             }
           }

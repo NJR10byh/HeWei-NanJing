@@ -10,20 +10,6 @@
     <div class="Tabs">
       <el-tabs tab-position="top" v-model="tabsActiveName">
         <el-tab-pane label="保养内容" name="first">
-          <div v-for="(item, index) in content" :key="index" class="content">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox :label="index">
-                <div class="title">
-                  <span style="margin-left:5px;">{{
-                    item.contentinfotitle
-                  }}</span>
-                </div>
-                <div class="ql-snow">
-                  <div class="ql-editor" v-html="item.contentinfodetail"></div>
-                </div>
-              </el-checkbox>
-            </el-checkbox-group>
-          </div>
           <div class="tools_remark">
             <div class="tools">
               工具及备件：
@@ -33,6 +19,21 @@
               注意事项：
               <span>{{ remark }}</span>
             </div>
+          </div>
+          <p>保养步骤：</p>
+          <div v-for="(item, index) in content" :key="index" class="content">
+            <el-checkbox-group v-model="checkList">
+              <el-checkbox :label="index">
+                <div class="title">
+                  <span style="margin-left:5px;">{{
+                    item.contentinfotitle
+                  }}</span>
+                </div>
+              </el-checkbox>
+              <div class="ql-snow">
+                <div class="ql-editor" v-html="item.contentinfodetail"></div>
+              </div>
+            </el-checkbox-group>
           </div>
           <div v-if="checkList.length == content.length" class="form">
             <div style="font-size:20px;font-weight:bold;color:#409eff;">
@@ -626,14 +627,23 @@ export default {
       border-bottom: 0;
     }
   }
+  p {
+    color: #409eff;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 0;
+  }
   .content {
     padding-bottom: 10px;
     .title {
       border-left: 3px solid #409eff;
+      color: #000;
+      font-weight: bold;
+      font-size: 18px;
     }
   }
   .tools_remark {
-    padding: 10px 0;
+    padding-bottom: 10px;
     // border: 1px solid red;
     display: flex;
     justify-content: flex-start;
@@ -655,17 +665,8 @@ export default {
   .form {
     margin-top: 10px;
     font-weight: bold;
-  }
-  .addrecord {
-    .el-button {
-      padding: 0 10px;
-      height: 30px;
-      border-radius: 5px;
-      font-size: 12px;
-      width: 110px;
-      border: 1px solid #409eff;
-      color: #409eff;
-    }
+    border-top: 1px solid #aaa;
+    padding-top: 10px;
   }
   .el-pagination {
     text-align: center;

@@ -268,13 +268,6 @@ export default {
       console.log(res.data);
       that.userRole = res.data.role;
     });
-    // axios
-    //   .get(
-    //     "http://47.102.214.37:8080/ops/query?createdAt==2021-03-01&closedAt==2021-03-23"
-    //   )
-    //   .then((res) => {
-    //     console.log(res);
-    //   });
     if (globaldata.taskselectInfo.length != 0) {
       that.selectInfo = globaldata.taskselectInfo;
       that.dynamicTags = globaldata.taskdynamicTags;
@@ -337,7 +330,7 @@ export default {
           options: [
             {
               value: "name",
-              label: "任务名称",
+              label: "保养标准",
             },
             {
               value: "scheduleType",
@@ -887,10 +880,11 @@ export default {
             obj.deviceNo = res.data.content[a].deviceNo;
             setTimeout(() => {
               axios.get(searchtask).then((res) => {
-                // console.log(res.data);
+                console.log(res.data);
                 if (res.data.length != 0) {
                   obj.taskid = res.data[0].id;
                   obj.taskname = res.data[0].name;
+                  obj.taskno = res.data[0].no;
                   let URL =
                     "http://47.102.214.37:8080/ops/schedule/status/" +
                     obj.taskid;
@@ -936,6 +930,7 @@ export default {
                       arr.deviceNo = deviceNo;
                       arr.taskid = res.data[i].id;
                       arr.taskname = res.data[i].name;
+                      arr.taskno = res.data[i].no;
                       let URL =
                         "http://47.102.214.37:8080/ops/schedule/status/" +
                         arr.taskid;
@@ -1460,6 +1455,9 @@ export default {
           color: #409eff;
         }
         &:nth-child(2):hover {
+          color: #409eff;
+        }
+        &:nth-child(3):hover {
           color: #f96b6c;
         }
       }

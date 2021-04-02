@@ -227,10 +227,6 @@ export default {
               label: "设备编号",
             },
             {
-              value: "crux",
-              label: "是否为关键设备",
-            },
-            {
               value: "clazz",
               label: "设备分类",
             },
@@ -292,13 +288,15 @@ export default {
     // 搜索
     search() {
       let that = this;
-      let url =
+      let url = "";
+      let exportURL = "";
+      url =
         "http://47.102.214.37:8080/device/query?" +
         that.selectInfo[0].ziduan +
         "=L" +
         that.selectInfo[0].value +
         "%25";
-      let exportURL =
+      exportURL =
         "http://47.102.214.37:8080/device/export?" +
         that.selectInfo[0].ziduan +
         "=L" +
@@ -532,11 +530,15 @@ export default {
         });
       } else {
         that
-          .$confirm("删除后无法更改, 是否确定?", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          })
+          .$confirm(
+            "删除后无法更改, 是否确定?（当前页全选仅删除当前页的设备）",
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            }
+          )
           .then(() => {
             that.checkedDetail.forEach((element) => {
               that.tableData.forEach((e, i) => {
