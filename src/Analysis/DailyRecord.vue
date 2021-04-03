@@ -152,6 +152,7 @@ export default {
           let obj = {};
           obj.logid = res.data.content[i].id;
           obj.logcontent = res.data.content[i].opName;
+          obj.opContent = res.data.content[i].opContent;
           obj.logtime = that.renderTime(res.data.content[i].createdAt);
           // 获取人员信息
           setTimeout(() => {
@@ -199,6 +200,7 @@ export default {
           let obj = {};
           obj.logid = res.data.content[i].id;
           obj.logcontent = res.data.content[i].opName;
+          obj.opContent = res.data.content[i].opContent;
           obj.logtime = that.renderTime(res.data.content[i].createdAt);
           // 获取人员信息
           setTimeout(() => {
@@ -208,7 +210,6 @@ export default {
             axios
               .get(searchops)
               .then((res) => {
-                console.log(res.data);
                 obj.loguser = res.data.name;
               })
               .catch(() => {
