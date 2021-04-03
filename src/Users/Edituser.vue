@@ -160,23 +160,51 @@ export default {
       console.log(that.password);
       console.log(that.confirmpassword);
       if (that.password === that.confirmpassword) {
-        let url = "http://47.102.214.37:8080/user/" + that.userid;
-        axios.get(url).then((res) => {
-          // console.log(res.data);
+        if (that.$route.query.id != undefined) {
+          let url = "http://47.102.214.37:8080/user/" + that.userid;
+          axios.get(url).then((res) => {
+            // console.log(res.data);
+            let obj = {
+              email: that.email,
+              id: res.data.id,
+              name: that.name,
+              role: res.data.role,
+              username: res.data.username,
+              enable: res.data.enable,
+              password: that.confirmpassword,
+              avatar: that.picid,
+            };
+            setTimeout(function() {
+              console.log(obj);
+              axios
+                .put(url, obj)
+                .then((res) => {
+                  console.log(res);
+                  that.$message({
+                    message: "修改成功",
+                    type: "success",
+                  });
+                  location.reload();
+                })
+                .catch((res) => {
+                  console.log(res.response);
+                  that.$message({
+                    message: "修改失败",
+                    type: "error",
+                  });
+                });
+            }, 200);
+          });
+        } else {
           let obj = {
             email: that.email,
-            id: res.data.id,
             name: that.name,
-            role: res.data.role,
-            username: res.data.username,
-            enable: res.data.enable,
             password: that.confirmpassword,
             avatar: that.picid,
           };
           setTimeout(function() {
-            console.log(obj);
             axios
-              .put(url, obj)
+              .post("http://47.102.214.37:8080/user/me/edit", obj)
               .then((res) => {
                 console.log(res);
                 that.$message({
@@ -193,7 +221,7 @@ export default {
                 });
               });
           }, 200);
-        });
+        }
       } else {
         this.$message({
           message: "两次密码输入不一致，请重新输入",

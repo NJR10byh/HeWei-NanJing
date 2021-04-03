@@ -184,7 +184,7 @@ import User from "../components/Userinfo";
 
 export default {
   created() {
-    alert("将于2021年4月3日晚完成更新");
+    alert("于 2021.04.03 23:39 完成更新");
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
@@ -324,11 +324,11 @@ export default {
               authName: "用户列表",
               path: "userList",
             },
-            {
-              id: 12,
-              authName: "修改信息",
-              path: "edituser",
-            },
+            // {
+            //   id: 12,
+            //   authName: "修改信息",
+            //   path: "edituser",
+            // },
           ],
         },
         {
@@ -401,11 +401,6 @@ export default {
               authName: "用户列表",
               path: "userList",
             },
-            {
-              id: 12,
-              authName: "修改信息",
-              path: "edituser",
-            },
           ],
         },
         {
@@ -440,27 +435,6 @@ export default {
             },
           ],
         },
-        {
-          id: 5,
-          authName: "数据分析",
-          children: [
-            {
-              id: 50,
-              authName: "使用日志",
-              path: "dailyRecord",
-            },
-            {
-              id: 51,
-              authName: "保养分析",
-              path: "taskAnalysis",
-            },
-            {
-              id: 52,
-              authName: "维修分析",
-              path: "fixAnalysis",
-            },
-          ],
-        },
       ],
       // SUPERVISOR权限
       menuList4: [
@@ -473,11 +447,11 @@ export default {
               authName: "用户列表",
               path: "userList",
             },
-            {
-              id: 12,
-              authName: "修改信息",
-              path: "edituser",
-            },
+            // {
+            //   id: 12,
+            //   authName: "修改信息",
+            //   path: "edituser",
+            // },
           ],
         },
         {

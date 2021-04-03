@@ -100,7 +100,7 @@
       <el-table-column
         prop="setting"
         label="操作"
-        v-if="['ROOT', 'ADMIN'].includes(userRole)"
+        v-if="userRole != 'OPERATOR'"
         width="180"
       >
         <template slot-scope="scope">
