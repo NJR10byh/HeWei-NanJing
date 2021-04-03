@@ -92,11 +92,13 @@ export default {
         "http://47.102.214.37:8080/logging?page=0&size=" + that.page_size;
       axios.get(url).then((res) => {
         console.log(res.data);
+        console.log(JSON.parse(res.data.content[3].opContent));
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};
           obj.logid = res.data.content[i].id;
           obj.logcontent = res.data.content[i].opName;
+          obj.opContent = res.data.content[i].opContent;
           obj.logtime = that.renderTime(res.data.content[i].createdAt);
           // 获取人员信息
           setTimeout(() => {
@@ -106,7 +108,6 @@ export default {
             axios
               .get(searchops)
               .then((res) => {
-                console.log(res.data);
                 obj.loguser = res.data.name;
               })
               .catch(() => {
@@ -128,6 +129,10 @@ export default {
     detail(index) {
       let that = this;
       console.log(that.LogData[index]);
+      that.$router.push({
+        path: "./dailyRecordDetail",
+        query: that.LogData[index],
+      });
     },
     // 表格方法
     handleSizeChange(val) {

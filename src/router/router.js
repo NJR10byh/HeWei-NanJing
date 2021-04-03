@@ -27,6 +27,7 @@ import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
 import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
 /* 数据分析 */
 import DailyRecord from "@/Analysis/DailyRecord"; // 使用日志
+import DailyRecordDetail from "@/Analysis/DailyRecordDetail"; // 使用日志详情
 import FixAnalysis from "@/Analysis/FixAnalysis"; // 维修分析
 import TaskAnalysis from "@/Analysis/TaskAnalysis"; // 保养分析
 
@@ -162,6 +163,10 @@ var routes = [
       {
         path: "/dailyRecord",
         component: DailyRecord,
+      },
+      {
+        path: "/dailyRecordDetail",
+        component: DailyRecordDetail,
       },
       {
         path: "/fixAnalysis",
