@@ -449,15 +449,6 @@ export default {
           label: "附加字段",
           options: [],
         },
-        {
-          label: "全部",
-          options: [
-            {
-              value: "all",
-              label: "全部设备",
-            },
-          ],
-        },
       ],
       devicedynamicTags: [], // 设备搜索标签
       selectvalue2: "",
@@ -497,30 +488,9 @@ export default {
     selectchange() {
       this.dialogSearchVisible = true;
     },
-    // 搜索设备
-    deviceselectchange(res) {
-      let that = this;
-      that.taskdisabled = true;
-      that.ifall = false;
-      if (res == "all") {
-        that.ifall = true;
-        that.device = [];
-        axios
-          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
-          .then((res) => {
-            let i = 0;
-            console.log(res.data);
-            for (i = 0; i < res.data.content.length; i++) {
-              that.device.push(res.data.content[i].id);
-            }
-            console.log(that.device);
-            // 清空搜索条件，等待下次搜索
-            that.selectInfo2 = [];
-            that.devicedynamicTags = [];
-          });
-      } else {
-        this.dialogSearchDeviceVisible = true;
-      }
+    // 设备
+    deviceselectchange() {
+      this.dialogSearchDeviceVisible = true;
     },
     // 设备选择
     devicesubmitselect() {

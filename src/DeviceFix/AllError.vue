@@ -125,11 +125,11 @@
       <!-- <el-input v-model="selectmodel" placeholder="请输入搜索内容"></el-input> -->
       <!-- 设备 -->
       <el-select
-        v-model="devicevalue"
-        placeholder="请选择设备"
+        v-model="selectvalue2"
+        placeholder="请选择搜索字段"
         filterable
         clearable
-        multiple
+        @change="deviceselectchange"
         v-if="selectvalue == 'device'"
       >
         <el-option-group
@@ -146,6 +146,17 @@
           </el-option>
         </el-option-group>
       </el-select>
+      <div v-if="selectvalue == 'device'" style="margin-top:10px;">
+        <el-tag
+          :key="tag"
+          v-for="tag in devicedynamicTags"
+          closable
+          @close="devicehandleClose(tag)"
+          style="margin-left:5px;"
+        >
+          {{ tag }}
+        </el-tag>
+      </div>
 
       <!-- 报修人员 -->
       <el-select
@@ -217,6 +228,18 @@
         <el-button type="primary" @click="submitselect">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 搜索条件-设备 -->
+    <el-dialog
+      title="搜索条件"
+      :visible.sync="dialogSearchDeviceVisible"
+      width="35%"
+    >
+      <el-input v-model="devicevalue" placeholder="请输入搜索内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogSearchDeviceVisible = false">取 消</el-button>
+        <el-button type="primary" @click="devicesubmitselect">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -240,26 +263,6 @@ export default {
       }, 200);
     }
 
-    // 获取全部设备
-    axios({
-      method: "GET",
-      url: "http://47.102.214.37:8080/device?page=0&size=1000000000",
-    })
-      .then((res) => {
-        for (var i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.value = res.data.content[i].id;
-          obj.label =
-            res.data.content[i].name +
-            " (" +
-            res.data.content[i].deviceNo +
-            ")";
-          that.deviceoptions[0].options.push(obj);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
     setTimeout(() => {
       // 获取全部OPERATOR
       axios.get("http://47.102.214.37:8080/user/query").then((res) => {
@@ -353,10 +356,43 @@ export default {
       devicevalue: "",
       deviceoptions: [
         {
-          label: "设备列表",
+          label: "基本字段",
+          options: [
+            {
+              value: "name",
+              label: "设备名称",
+            },
+            {
+              value: "brand",
+              label: "设备品牌",
+            },
+            {
+              value: "type",
+              label: "设备型号/规格",
+            },
+            {
+              value: "deviceNo",
+              label: "设备编号",
+            },
+            {
+              value: "crux",
+              label: "是否为关键设备",
+            },
+            {
+              value: "clazz",
+              label: "设备分类",
+            },
+          ],
+        },
+        {
+          label: "附加字段",
           options: [],
         },
       ],
+      devicedynamicTags: [], // 设备搜索标签
+      selectvalue2: "",
+      selectInfo2: [],
+      dialogSearchDeviceVisible: false,
 
       // 维修人员
       assigneevalue: "",
@@ -425,15 +461,77 @@ export default {
     selectchange() {
       this.dialogSearchVisible = true;
     },
+    // 设备
+    deviceselectchange() {
+      this.dialogSearchDeviceVisible = true;
+    },
+    // 设备选择
+    devicesubmitselect() {
+      this.dialogSearchDeviceVisible = false;
+      this.selectInfo2.push({
+        ziduan: this.selectvalue2,
+        value: this.devicevalue,
+      });
+      this.devicedynamicTags.push(this.selectvalue + " / " + this.devicevalue);
+    },
+    // 搜索设备
+    searchDevice() {
+      let that = this;
+      let arr = [];
+      let url = "";
+      url =
+        "http://47.102.214.37:8080/device/query?" +
+        that.selectInfo2[0].ziduan +
+        "=L" +
+        that.selectInfo2[0].value +
+        "%25";
+      if (that.selectInfo2.length == 1) {
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            arr.push(res.data.content[i].id);
+          }
+          that.selectInfo.push({
+            ziduan: "device",
+            value: arr,
+          });
+          that.dynamicTags.push("device / " + arr);
+        });
+      } else {
+        for (let i = 1; i < that.selectInfo2.length; i++) {
+          url =
+            url +
+            "&" +
+            that.selectInfo2[i].ziduan +
+            "=L" +
+            that.selectInfo2[i].value +
+            "%25";
+        }
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            arr.push(res.data.content[i].id);
+          }
+          that.selectInfo.push({
+            ziduan: "device",
+            value: arr,
+          });
+          that.dynamicTags.push("device / " + arr);
+        });
+      }
+    },
+    //  设备标签移除
+    devicehandleClose(tag) {
+      let index = this.devicedynamicTags.indexOf(tag);
+      console.log(index);
+      this.devicedynamicTags.splice(index, 1);
+      this.selectInfo2.splice(index, 1);
+    },
     submitselect() {
       this.dialogSearchVisible = false;
       switch (this.selectvalue) {
         case "device":
-          this.selectInfo.push({
-            ziduan: this.selectvalue,
-            value: this.devicevalue,
-          });
-          this.dynamicTags.push(this.selectvalue + " / " + this.devicevalue);
+          this.searchDevice();
           break;
         case "assignee":
           this.selectInfo.push({
