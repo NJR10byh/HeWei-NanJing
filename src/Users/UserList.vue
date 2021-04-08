@@ -41,7 +41,7 @@
       @selection-change="handleDetailSelectionChange"
     >
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="id" label="用户ID" width="100"></el-table-column>
+      <el-table-column prop="index" label="序号" width="60"></el-table-column>
       <el-table-column
         prop="username"
         label="用户名"
@@ -124,6 +124,7 @@ export default {
       that.username = "";
       that.name = "";
       that.email = "";
+      let index = 1;
       if (("ROOT", "ADMIN").includes(that.userRole)) {
         let url =
           "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
@@ -136,6 +137,7 @@ export default {
               if (res.data.content[i].role == "ROOT") {
                 that.tableData.unshift({
                   id: res.data.content[i].id,
+                  index: index++,
                   username: res.data.content[i].username,
                   userrole: res.data.content[i].role,
                   name: res.data.content[i].name,
@@ -144,6 +146,7 @@ export default {
               } else if (res.data.content[i].role == "ADMIN") {
                 that.tableData.push({
                   id: res.data.content[i].id,
+                  index: index++,
                   username: res.data.content[i].username,
                   userrole: res.data.content[i].role,
                   name: res.data.content[i].name,
@@ -158,6 +161,7 @@ export default {
               ) {
                 that.tableData.push({
                   id: res.data.content[i].id,
+                  index: index++,
                   username: res.data.content[i].username,
                   userrole: res.data.content[i].role,
                   name: res.data.content[i].name,

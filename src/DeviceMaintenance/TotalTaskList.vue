@@ -47,14 +47,14 @@
           </el-button>
         </div>
       </div>
-      <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
+      <!-- <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
         <el-button
           class="bigdel-btn"
           icon="el-icon-delete"
           @click="delectExtraInfo"
           >批量删除</el-button
         >
-      </div>
+      </div> -->
     </div>
     <!-- table -->
     <el-table
@@ -66,9 +66,8 @@
       class="extraTable"
       row-key="id"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      @selection-change="handleDetailSelectionChange"
     >
-      <el-table-column type="selection"></el-table-column>
+      <!-- <el-table-column type="selection"></el-table-column> -->
       <el-table-column prop="id" label="序号" width="100"></el-table-column>
       <el-table-column
         prop="devicename"
@@ -113,17 +112,17 @@
       >
         <template slot-scope="scope">
           <el-button
-            @click="handleDetail(scope.$index, scope.row)"
+            @click="handleDetail(scope.row)"
             v-if="scope.row.taskname != undefined"
             >执行</el-button
           >
           <el-button
-            @click="handleEdit(scope.$index, scope.row)"
+            @click="handleEdit(scope.row)"
             v-if="scope.row.taskname != undefined"
             >修改</el-button
           >
           <el-button
-            @click="handleDelete(scope.$index, scope.row)"
+            @click="handleDelete(scope.row)"
             v-if="scope.row.taskname != undefined"
             >删除</el-button
           >
@@ -131,9 +130,7 @@
       </el-table-column>
       <el-table-column prop="setting" label="操作" width="160" v-else>
         <template slot-scope="scope">
-          <el-button @click="handleDetail(scope.$index, scope.row)"
-            >执行</el-button
-          >
+          <el-button @click="handleDetail(scope.row)">执行</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -338,7 +335,7 @@ export default {
       userRole: "",
       tableData: [],
       tablewidth: "150",
-      checkedDetail: [],
+      // checkedDetail: [],
       /* 搜索 */
       ifsearch: false,
       selectoptions: [
@@ -398,7 +395,7 @@ export default {
               label: "年保养",
             },
             {
-              value: "Seasonly",
+              value: "Seasonally",
               label: "季度保养",
             },
             {
@@ -406,7 +403,7 @@ export default {
               label: "日保养",
             },
             {
-              value: "Weeklt",
+              value: "Weekly",
               label: "周保养",
             },
           ],
@@ -480,11 +477,11 @@ export default {
     };
   },
   methods: {
-    //单选框选中数据
-    handleDetailSelectionChange(selection) {
-      this.checkedDetail = selection;
-      console.log(this.checkedDetail);
-    },
+    // //单选框选中数据
+    // handleDetailSelectionChange(selection) {
+    //   this.checkedDetail = selection;
+    //   console.log(this.checkedDetail);
+    // },
     selectchange() {
       this.dialogSearchVisible = true;
     },
@@ -751,7 +748,7 @@ export default {
               obj.opuser = "";
               obj.devicename = "";
               obj.deviceNo = "";
-              obj.id = res.data.content[i].id;
+              obj.id = res.data.content[i].device[0].id;
               obj.taskname =
                 res.data.content[i].name == null
                   ? "未分配"
@@ -881,7 +878,7 @@ export default {
               obj.opuser = "";
               obj.devicename = "";
               obj.deviceNo = "";
-              obj.id = res.data.content[i].id;
+              obj.id = res.data.content[i].device[0].id;
               obj.taskname =
                 res.data.content[i].name == null
                   ? "未分配"
@@ -963,8 +960,7 @@ export default {
       }
     },
     // 任务详情
-    handleDetail(index, row) {
-      console.log(index, row.taskname);
+    handleDetail(row) {
       this.$router.push({
         path: "/taskDetailInfo",
         query: row,
@@ -1001,7 +997,8 @@ export default {
                 "/bind";
               let devicename = res.data.content[a].name;
               let deviceNo = res.data.content[a].deviceNo;
-              obj.id = a + 1;
+              let deviceId = res.data.content[a].id;
+              obj.id = res.data.content[a].id;
               obj.devicename = res.data.content[a].name;
               obj.deviceNo = res.data.content[a].deviceNo;
               setTimeout(() => {
@@ -1050,7 +1047,7 @@ export default {
                     if (res.data.length > 1) {
                       for (let i = 1; i < res.data.length; i++) {
                         let arr = {};
-                        arr.id = a + 1 + " - " + i;
+                        arr.id = deviceId + " ";
                         arr.opuser = "";
                         arr.devicename = devicename;
                         arr.deviceNo = deviceNo;
@@ -1234,17 +1231,17 @@ export default {
         });
     },
     // 修改任务
-    handleEdit(index) {
-      console.log(this.tableData[index]);
+    handleEdit(row) {
+      console.log(row);
       let obj = {};
-      obj.taskID = this.tableData[index].taskid;
+      obj.taskID = row.taskid;
       this.$router.push({
         path: "/editTask",
         query: obj,
       });
     },
     // 删除单个行
-    handleDelete(index) {
+    handleDelete(row) {
       let that = this;
       this.$confirm("删除后无法更改, 是否确定?", "提示", {
         confirmButtonText: "确定",
@@ -1252,60 +1249,58 @@ export default {
         type: "warning",
       })
         .then(() => {
-          let url =
-            "http://47.102.214.37:8080/ops/schedule/" + that.taskData[index].id;
-          axios.delete(url).then((res) => {
-            if (res.status == 200) {
-              that.taskData.splice(index, 1);
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-            }
+          let url = "http://47.102.214.37:8080/ops/schedule/" + row.taskid;
+          axios.delete(url).then(() => {
+            that.getAllDevice();
+            this.$message({
+              message: "删除成功",
+              type: "success",
+            });
           });
         })
         .catch(() => {
           that.$message.info("已取消删除");
         });
     },
-    // 批量删除字段
-    delectExtraInfo() {
-      let that = this;
-      if (this.checkedDetail.length == 0) {
-        that.$alert("请先选择要删除的数据", "提示", {
-          confirmButtonText: "确定",
-        });
-      } else {
-        that
-          .$confirm("此用户将被永久删除, \n是否确定?", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          })
-          .then(() => {
-            that.checkedDetail.forEach((element) => {
-              that.tableData.forEach((e, i) => {
-                if (element.id == e.id) {
-                  console.log(element, e, i);
-                  let url = "http://47.102.214.37:8080/ops/schedule/" + e.id;
-                  axios.delete(url).then(() => {
-                    this.$message({
-                      message: "删除成功",
-                      type: "success",
-                    });
-                    that.tableData.splice(i, 1);
-                    that.checkedDetail.pop();
-                    that.total--;
-                  });
-                }
-              });
-            });
-          })
-          .catch(() => {
-            this.$message.info("已取消删除");
-          });
-      }
-    },
+    // // 批量删除字段
+    // delectExtraInfo() {
+    //   let that = this;
+    //   if (this.checkedDetail.length == 0) {
+    //     that.$alert("请先选择要删除的数据", "提示", {
+    //       confirmButtonText: "确定",
+    //     });
+    //   } else {
+    //     that
+    //       .$confirm("是否确定?", "提示", {
+    //         confirmButtonText: "确定",
+    //         cancelButtonText: "取消",
+    //         type: "warning",
+    //       })
+    //       .then(() => {
+    //         that.checkedDetail.forEach((element) => {
+    //           that.tableData.forEach((e, i) => {
+    //             if (element.taskid == e.taskid) {
+    //               console.log(element, e, i);
+    //               let url =
+    //                 "http://47.102.214.37:8080/ops/schedule/" + e.taskid;
+    //               axios.delete(url).then(() => {
+    //                 this.$message({
+    //                   message: "删除成功",
+    //                   type: "success",
+    //                 });
+    //                 that.tableData.splice(i, 1);
+    //                 that.checkedDetail.pop();
+    //                 that.total--;
+    //               });
+    //             }
+    //           });
+    //         });
+    //       })
+    //       .catch(() => {
+    //         this.$message.info("已取消删除");
+    //       });
+    //   }
+    // },
     // 表格方法
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
@@ -1649,9 +1644,6 @@ export default {
     .el-table__header {
       th {
         background: #fafafa;
-        &:first-child {
-          border-right: none;
-        }
         &:nth-child(2) {
           .cell {
             padding-right: 0;
@@ -1662,9 +1654,6 @@ export default {
     }
     .el-table__body {
       td {
-        &:first-child {
-          border-right: none;
-        }
         &:nth-child(2) {
           .cell {
             padding-right: 0;

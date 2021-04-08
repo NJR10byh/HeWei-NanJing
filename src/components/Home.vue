@@ -184,7 +184,7 @@ import User from "../components/Userinfo";
 
 export default {
   created() {
-    alert("于 2021.04.03 23:39 完成更新");
+    // alert("于 2021.04.03 23:39 完成更新");
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       this.userRole = res.data.role;
@@ -255,7 +255,7 @@ export default {
           children: [
             {
               id: 30,
-              authName: "新增任务",
+              authName: "新增标准",
               path: "addTask",
             },
             {
@@ -353,7 +353,7 @@ export default {
           children: [
             {
               id: 30,
-              authName: "新增任务",
+              authName: "新增标准",
               path: "addTask",
             },
             {

@@ -12,17 +12,7 @@
     </div>
     <div class="selectPart">
       <div>
-        <el-select v-model="taskvalue" placeholder="请选择标准" filterable>
-          <el-option
-            v-for="item in taskoptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
-      </div>
-      <div>
+        第一步：
         <el-select v-model="devicevalue" placeholder="请选择设备" filterable>
           <el-option
             v-for="item in deviceoptions"
@@ -34,15 +24,19 @@
         </el-select>
       </div>
       <div>
-        <el-date-picker
-          v-model="datevalue"
-          type="date"
-          placeholder="选择开始日期"
-          value-format="yyyy-MM-dd"
-        >
-        </el-date-picker>
+        第二步：
+        <el-select v-model="taskvalue" placeholder="请选择标准" filterable>
+          <el-option
+            v-for="item in taskoptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
       </div>
       <div>
+        第三步：
         <el-select v-model="opsvalue" placeholder="请选择保养人员" filterable>
           <el-option
             v-for="item in opsoptions"
@@ -52,6 +46,16 @@
           >
           </el-option>
         </el-select>
+      </div>
+      <div>
+        第四步：
+        <el-date-picker
+          v-model="datevalue"
+          type="date"
+          placeholder="选择开始日期"
+          value-format="yyyy-MM-dd"
+        >
+        </el-date-picker>
       </div>
     </div>
     <div class="Btns">

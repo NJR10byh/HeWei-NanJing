@@ -180,7 +180,7 @@
         </el-table-column>
       </el-table>
       <!-- 分页 -->
-      <div class="block">
+      <div class="block" v-if="!ifsearch">
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -206,6 +206,7 @@ export default {
   components: {},
   data() {
     return {
+      ifsearch: false,
       selectoptions: [
         {
           label: "基本字段",
@@ -290,6 +291,7 @@ export default {
       let that = this;
       let url = "";
       let exportURL = "";
+      that.ifsearch = true;
       url =
         "http://47.102.214.37:8080/device/query?" +
         that.selectInfo[0].ziduan +

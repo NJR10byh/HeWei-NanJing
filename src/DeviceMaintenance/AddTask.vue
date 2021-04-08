@@ -120,30 +120,24 @@ export default {
       this.checkedDetail = selection;
     },
     // 删除单个行
-    handleDelete(index) {
+    deleteTask(index) {
       let that = this;
       that
-        .$confirm(
-          "这个是模版，所有继承它的维护任务也会被删除, \n是否确定?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
-        )
+        .$confirm("确定要删除吗?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
         .then(() => {
           let url =
             "http://47.102.214.37:8080/ops/schedule/" +
             that.taskData[index].taskID;
-          axios.delete(url).then((res) => {
-            if (res.status == 200) {
-              that.taskData.splice(index, 1);
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-            }
+          axios.delete(url).then(() => {
+            that.taskData.splice(index, 1);
+            this.$message({
+              message: "删除成功",
+              type: "success",
+            });
           });
         })
         .catch(() => {
@@ -159,15 +153,11 @@ export default {
         });
       } else {
         that
-          .$confirm(
-            "这个是模版，所有继承它的维护任务也会被删除, \n是否确定?",
-            "提示",
-            {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              type: "warning",
-            }
-          )
+          .$confirm("确定要删除吗?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          })
           .then(() => {
             that.checkedDetail.forEach((element) => {
               that.taskData.forEach((e, i) => {
@@ -193,37 +183,6 @@ export default {
             this.$message.info("已取消删除");
           });
       }
-    },
-    deleteTask(index) {
-      let that = this;
-      // console.log(that.taskData[index]);
-      that
-        .$confirm(
-          "这个是模版，所有继承它的维护任务也会被删除, \n是否确定?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
-        )
-        .then(() => {
-          let url =
-            "http://47.102.214.37:8080/ops/schedule/" +
-            that.taskData[index].taskID;
-          axios.delete(url).then((res) => {
-            if (res.status == 200) {
-              that.taskData.splice(index, 1);
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-            }
-          });
-        })
-        .catch(() => {
-          that.$message.info("已取消删除");
-        });
     },
     refresh() {
       let that = this;
