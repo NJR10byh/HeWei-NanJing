@@ -205,6 +205,11 @@
           </el-option>
         </el-option-group>
       </el-select>
+      <!-- 维修状态 -->
+      <el-radio-group v-model="closed" v-if="selectvalue == 'closed'">
+        <el-radio-button label="已完成"></el-radio-button>
+        <el-radio-button label="未完成"></el-radio-button>
+      </el-radio-group>
       <!-- 时间范围 -->
       <el-date-picker
         v-model="start"
@@ -344,6 +349,10 @@ export default {
               label: "维修人员",
             },
             {
+              value: "closed",
+              label: "维修状态",
+            },
+            {
               value: "timeChoose",
               label: "时间范围",
             },
@@ -427,6 +436,8 @@ export default {
           options: [],
         },
       ],
+      // 维修状态
+      closed: "",
       /* 时间范围 */
       // 开始
       start: "",
@@ -546,6 +557,23 @@ export default {
             value: this.reportervalue,
           });
           this.dynamicTags.push(this.selectvalue + " / " + this.reportervalue);
+          break;
+        case "closed":
+          console.log(this.closed);
+          if (this.closed == "已完成") {
+            this.selectInfo.push({
+              ziduan: this.selectvalue,
+              value: "TRUE",
+            });
+            this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+          } else {
+            this.selectInfo.push({
+              ziduan: this.selectvalue,
+              value: "FALSE",
+            });
+            this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+          }
+
           break;
         case "timeChoose":
           var that = this;

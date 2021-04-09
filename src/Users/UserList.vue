@@ -119,39 +119,40 @@ export default {
     // 刷新列表
     refresh() {
       let that = this;
+      let index = 1;
       that.tableData = [];
       that.ifsearch = false;
       that.username = "";
       that.name = "";
       that.email = "";
-      let index = 1;
-      if (("ROOT", "ADMIN").includes(that.userRole)) {
+      that.currentPage = 1;
+      if (["ROOT", "ADMIN"].includes(that.userRole)) {
         let url =
           "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
         axios
           .get(url)
           .then((res) => {
             console.log(res);
-            that.total = res.data.content.length;
+            that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "ROOT") {
-                that.tableData.unshift({
-                  id: res.data.content[i].id,
-                  index: index++,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.push(obj);
               } else if (res.data.content[i].role == "ADMIN") {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  index: index++,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.push(obj);
               }
             }
             for (let i = 0; i < res.data.content.length; i++) {
@@ -159,14 +160,14 @@ export default {
                 res.data.content[i].role != "ROOT" &&
                 res.data.content[i].role != "ADMIN"
               ) {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  index: index++,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.push(obj);
               }
             }
             that.$message({
@@ -182,6 +183,7 @@ export default {
             });
           });
       } else {
+        that.ifsearch = true;
         axios
           .get("http://47.102.214.37:8080/user/query")
           .then((res) => {
@@ -189,21 +191,23 @@ export default {
             that.total = res.data.content.length;
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "ROOT") {
-                that.tableData.unshift({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.unshift(obj);
               } else if (res.data.content[i].role == "ADMIN") {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.push(obj);
               }
             }
             for (let i = 0; i < res.data.content.length; i++) {
@@ -211,13 +215,14 @@ export default {
                 res.data.content[i].role != "ROOT" &&
                 res.data.content[i].role != "ADMIN"
               ) {
-                that.tableData.push({
-                  id: res.data.content[i].id,
-                  username: res.data.content[i].username,
-                  userrole: res.data.content[i].role,
-                  name: res.data.content[i].name,
-                  email: res.data.content[i].email,
-                });
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.username = res.data.content[i].username;
+                obj.userrole = res.data.content[i].role;
+                obj.name = res.data.content[i].name;
+                obj.email = res.data.content[i].email;
+                that.tableData.push(obj);
               }
             }
             that.$message({
@@ -314,65 +319,71 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      let index = 1;
       that.tableData = [];
       that.currentPage = 1;
       console.log(val);
       that.page_size = val;
       let url = "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res);
-        that.total = res.data.content.length;
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "ROOT") {
-            that.tableData.unshift({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
-          } else if (res.data.content[i].role == "ADMIN") {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
+      axios
+        .get(url)
+        .then((res) => {
+          console.log(res);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "ROOT") {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            } else if (res.data.content[i].role == "ADMIN") {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            }
           }
-        }
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (
-            res.data.content[i].role != "ROOT" &&
-            res.data.content[i].role != "ADMIN"
-          ) {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (
+              res.data.content[i].role != "ROOT" &&
+              res.data.content[i].role != "ADMIN"
+            ) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            }
           }
-        }
-        that
-          .$message({
+          that.$message({
             message: "列表已更新",
             type: "success",
-          })
-          .catch((res) => {
-            console.log(res.response);
-            that.$message({
-              message: "列表刷新失败",
-              type: "error",
-            });
           });
-      });
+        })
+        .catch((res) => {
+          console.log(res.response);
+          that.$message({
+            message: "列表刷新失败",
+            type: "error",
+          });
+        });
     },
     // // 页变化
     handleCurrentChange(val) {
       let that = this;
+      let index = 1;
       that.tableData = [];
       that.page = val;
       that.currentPage = val;
@@ -382,59 +393,64 @@ export default {
         (that.page - 1) +
         "&size=" +
         that.page_size;
-      axios.get(url).then((res) => {
-        console.log(res);
-        that.total = res.data.content.length;
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "ROOT") {
-            that.tableData.unshift({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
-          } else if (res.data.content[i].role == "ADMIN") {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
+      axios
+        .get(url)
+        .then((res) => {
+          console.log(res);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "ROOT") {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            } else if (res.data.content[i].role == "ADMIN") {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            }
           }
-        }
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (
-            res.data.content[i].role != "ROOT" &&
-            res.data.content[i].role != "ADMIN"
-          ) {
-            that.tableData.push({
-              id: res.data.content[i].id,
-              username: res.data.content[i].username,
-              userrole: res.data.content[i].role,
-              name: res.data.content[i].name,
-              email: res.data.content[i].email,
-            });
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (
+              res.data.content[i].role != "ROOT" &&
+              res.data.content[i].role != "ADMIN"
+            ) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            }
           }
-        }
-        that
-          .$message({
+          that.$message({
             message: "列表已更新",
             type: "success",
-          })
-          .catch((res) => {
-            console.log(res.response);
-            that.$message({
-              message: "列表刷新失败",
-              type: "error",
-            });
           });
-      });
+        })
+        .catch((res) => {
+          console.log(res.response);
+          that.$message({
+            message: "列表刷新失败",
+            type: "error",
+          });
+        });
     },
     // 搜索
     search() {
       let that = this;
+      let index = 1;
       that.ifsearch = true;
       let url =
         "http://47.102.214.37:8080/user/query?name==高凡&username==test-o";
@@ -492,13 +508,14 @@ export default {
         that.tableData = [];
         that.total = res.data.content.length;
         for (let i = 0; i < res.data.content.length; i++) {
-          that.tableData.unshift({
-            id: res.data.content[i].id,
-            username: res.data.content[i].username,
-            userrole: res.data.content[i].role,
-            name: res.data.content[i].name,
-            email: res.data.content[i].email,
-          });
+          let obj = {};
+          obj.id = res.data.content[i].id;
+          obj.index = index++;
+          obj.username = res.data.content[i].username;
+          obj.userrole = res.data.content[i].role;
+          obj.name = res.data.content[i].name;
+          obj.email = res.data.content[i].email;
+          that.tableData.push(obj);
         }
       });
     },

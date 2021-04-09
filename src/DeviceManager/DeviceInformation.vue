@@ -127,6 +127,7 @@
         @selection-change="handleDetailSelectionChange"
       >
         <el-table-column type="selection" width="44"></el-table-column>
+        <el-table-column prop="index" label="序号" width="60"></el-table-column>
         <el-table-column
           prop="name"
           label="设备名称"
@@ -399,6 +400,7 @@ export default {
     // 获取全部全部信息
     getAllDevice() {
       let that = this;
+      let index = 1;
       let url =
         "http://47.102.214.37:8080/device?page=0&size=" + that.page_size;
       axios({
@@ -412,6 +414,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             obj["brand"] = res.data.content[i].brand;
             obj.type = res.data.content[i].type;
@@ -629,6 +632,7 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
+      let index = 1;
       that.tableData = [];
       console.log(val);
       that.page_size = val;
@@ -645,6 +649,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             obj["brand"] = res.data.content[i].brand;
             obj.type = res.data.content[i].type;
@@ -685,6 +690,7 @@ export default {
     // 页变化
     handleCurrentChange(val) {
       let that = this;
+      let index = 1;
       that.page = val;
       that.currentPage = val;
       console.log(val);
@@ -704,6 +710,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             obj["brand"] = res.data.content[i].brand;
             obj.type = res.data.content[i].type;

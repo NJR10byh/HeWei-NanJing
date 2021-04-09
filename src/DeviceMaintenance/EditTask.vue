@@ -221,6 +221,7 @@ export default {
           obj.id = res.data.id;
           obj.name = that.TaskInfo.name;
           obj.remark = res.data.remark;
+          obj.no = res.data.no;
           obj.startDate = that.TaskInfo.startDate;
           obj.scheduleType = that.TaskInfo.scheduleType;
           obj.tools = res.data.tools;

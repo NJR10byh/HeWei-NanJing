@@ -85,9 +85,10 @@ export default {
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
-              // console.log(res.data.content[i]);
+              console.log(res.data.content[i]);
               obj.value = res.data.content[i].id;
-              obj.label = res.data.content[i].name;
+              obj.label =
+                res.data.content[i].name + "（" + res.data.content[i].no + "）";
               that.taskoptions.push(obj);
             }
           });

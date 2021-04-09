@@ -10,11 +10,10 @@
       <div class="searchtask">
         选择设备：
         <el-select
-          v-model="selectvalue"
+          v-model="deviceselectvalue"
           placeholder="请选择搜索字段"
           filterable
           clearable
-          :disabled="devicedisabled"
           @change="deviceselectchange"
         >
           <el-option-group
@@ -53,7 +52,6 @@
           clearable
           multiple
           collapse-tags
-          :disabled="opsdisabled"
           @change="opsselectchange"
         >
           <el-option-group
@@ -75,9 +73,8 @@
       <div class="searchtask">
         选择保养：
         <el-select
-          v-model="selectvalue"
+          v-model="taskselectvalue"
           placeholder="请选择搜索字段"
-          :disabled="taskdisabled"
           filterable
           clearable
           @change="taskselectchange"
@@ -176,7 +173,7 @@
       <el-input
         v-model="namevalue"
         placeholder="请输入搜索内容"
-        v-if="selectvalue == 'name'"
+        v-if="taskselectvalue == 'name'"
       ></el-input>
 
       <!-- 保养周期 -->
@@ -185,7 +182,7 @@
         placeholder="请选择保养周期"
         filterable
         clearable
-        v-if="selectvalue == 'scheduleType'"
+        v-if="taskselectvalue == 'scheduleType'"
       >
         <el-option-group
           v-for="group in scheduleTypeoptions"
@@ -207,7 +204,7 @@
         type="date"
         placeholder="选择日期"
         value-format="yyyy-MM-dd"
-        v-if="selectvalue == 'startDate'"
+        v-if="taskselectvalue == 'startDate'"
       >
       </el-date-picker>
       <span slot="footer" class="dialog-footer">
@@ -237,6 +234,11 @@ export default {
   components: {},
   created: function() {
     let that = this;
+    that.$message({
+      message: "选取了全部人员时，请勿选择其他人员，以免搜索结果有误",
+      type: "warning",
+      duration: 5000,
+    });
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
       for (let i = 0; i < res.data.length; i++) {
@@ -265,10 +267,8 @@ export default {
   },
   data() {
     return {
+      url: "",
       /* 搜索 */
-      devicedisabled: false,
-      opsdisabled: false,
-      taskdisabled: false,
       selectoptions: [
         {
           label: "字段",
@@ -291,18 +291,23 @@ export default {
           label: "全部保养",
           options: [
             {
-              value: "all",
+              value: "taskall",
               label: "全部保养分析",
             },
           ],
         },
       ],
-      ifall: false, // 是否是全部
-      selectvalue: "",
+      ifdeviceall: false, // 是否设备是全部
+      iftaskall: false, // 是否标准是全部
+      ifopsall: false, // 是否人员是全部
+      deviceselectvalue: "",
+      taskselectvalue: "",
       namevalue: "", // 任务名称
       dialogSearchTaskVisible: false,
       dialogSearchDeviceVisible: false,
-      selectInfo: [],
+      deviceselectInfo: [],
+      taskselectInfo: [],
+      opsselectInfo: [],
       devicedynamicTags: [], // 设备搜索标签
       taskdynamicTags: [], // 保养搜索标签
       // 保养周期
@@ -375,7 +380,7 @@ export default {
           label: "全部",
           options: [
             {
-              value: "all",
+              value: "deviceall",
               label: "全部设备",
             },
           ],
@@ -389,6 +394,15 @@ export default {
           label: "人员列表",
           options: [],
         },
+        {
+          label: "全部人员",
+          options: [
+            {
+              value: "opsall",
+              label: "全部人员",
+            },
+          ],
+        },
       ],
 
       // 开始时间
@@ -396,6 +410,10 @@ export default {
 
       task: [], // 任务id
       device: [], // 设备id
+      // 用于取交集存入task
+      task1: [],
+      task2: [],
+      task3: [],
       start: "", // 开始时间
       end: "", // 结束时间
 
@@ -415,9 +433,9 @@ export default {
       let that = this;
       that.devicedisabled = true;
       that.opsdisabled = true;
-      that.ifall = false;
-      if (res == "all") {
-        that.ifall = true;
+      that.iftaskall = false;
+      if (res == "taskall") {
+        that.iftaskall = true;
         that.task = [];
         axios.get("http://47.102.214.37:8080/ops/query?name=! ").then((res) => {
           let i = 0;
@@ -427,7 +445,7 @@ export default {
           }
           if (i == res.data.content.length) {
             // 清空搜索条件，等待下次搜索
-            that.selectInfo = [];
+            that.taskselectInfo = [];
             that.dynamicTags = [];
           }
         });
@@ -439,83 +457,85 @@ export default {
     deviceselectchange(res) {
       let that = this;
       that.taskdisabled = true;
-      that.ifall = false;
-      if (res == "all") {
-        that.ifall = true;
+      that.ifdeviceall = false;
+      if (res == "deviceall") {
+        that.ifdeviceall = true;
         that.device = [];
-        axios
-          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
-          .then((res) => {
-            let i = 0;
-            console.log(res.data);
-            for (i = 0; i < res.data.content.length; i++) {
-              that.device.push(res.data.content[i].id);
-            }
-            if (i == res.data.content.length) {
-              console.log(that.device);
-              // 清空搜索条件，等待下次搜索
-              that.selectInfo = [];
-              that.devicedynamicTags = [];
-            }
-          });
+        // 清空搜索条件，等待下次搜索
+        that.deviceselectInfo = [];
+        that.devicedynamicTags = [];
       } else {
         this.dialogSearchDeviceVisible = true;
       }
     },
     // 搜索人员
-    opsselectchange() {
+    opsselectchange(res) {
       let that = this;
-      that.taskdisabled = true;
+      if (res == "opsall") {
+        that.ifopsall = true;
+        that.opsselectInfo = [];
+      } else {
+        that.opsselectInfo.unshift({
+          ziduan: "ops",
+          value: that.opsvalue,
+        });
+      }
       console.log(that.opsvalue);
     },
     // 选择保养
     tasksubmitselect() {
       this.dialogSearchTaskVisible = false;
-      if (this.selectvalue == "scheduleType") {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
+      if (this.taskselectvalue == "scheduleType") {
+        this.taskselectInfo.push({
+          ziduan: this.taskselectvalue,
           value: this.scheduleTypevalue,
         });
         this.taskdynamicTags.push(
-          this.selectvalue + " / " + this.scheduleTypevalue
+          this.taskselectvalue + " / " + this.scheduleTypevalue
         );
-      } else if (this.selectvalue == "startDate") {
+      } else if (this.taskselectvalue == "startDate") {
         console.log(this.opsvalue);
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
+        this.taskselectInfo.push({
+          ziduan: this.taskselectvalue,
           value: this.datevalue,
         });
-        this.taskdynamicTags.push(this.selectvalue + " / " + this.datevalue);
+        this.taskdynamicTags.push(
+          this.taskselectvalue + " / " + this.datevalue
+        );
       } else {
-        this.selectInfo.push({
-          ziduan: this.selectvalue,
+        this.taskselectInfo.push({
+          ziduan: this.taskselectvalue,
           value: this.namevalue,
         });
-        this.taskdynamicTags.push(this.selectvalue + " / " + this.namevalue);
+        this.taskdynamicTags.push(
+          this.taskselectvalue + " / " + this.namevalue
+        );
       }
     },
     // 设备选择
     devicesubmitselect() {
       this.dialogSearchDeviceVisible = false;
-      this.selectInfo.push({
-        ziduan: this.selectvalue,
+      this.deviceselectInfo.push({
+        ziduan: this.deviceselectvalue,
         value: this.devicevalue,
       });
-      this.devicedynamicTags.push(this.selectvalue + " / " + this.devicevalue);
+      this.devicedynamicTags.push(
+        this.deviceselectvalue + " / " + this.devicevalue
+      );
     },
     //  设备标签移除
     devicehandleClose(tag) {
       let index = this.devicedynamicTags.indexOf(tag);
       console.log(index);
       this.devicedynamicTags.splice(index, 1);
-      this.selectInfo.splice(index, 1);
+      this.deviceselectInfo.splice(index, 1);
     },
     // 保养标签移除
     taskhandleClose(tag) {
       let index = this.taskdynamicTags.indexOf(tag);
       console.log(index);
       this.taskdynamicTags.splice(index, 1);
-      this.selectInfo.splice(index, 1);
+      this.taskselectInfo.splice(index, 1);
     },
     /* 搜索 */
     searchdata() {
@@ -527,7 +547,7 @@ export default {
         that.end == null
       ) {
         that.$message({
-          message: "请输入将查询信息填写完整",
+          message: "请选择起止日期",
           type: "warning",
         });
       } else if (
@@ -546,17 +566,13 @@ export default {
         let index = 1;
         that.taskAnalysisData = [];
         console.log(that.task);
-        // 去除数组中的相同元素
-        for (let j = 0; j < that.task.length; j++) {
-          for (let k = j + 1; k < that.task.length; k++) {
-            if (that.task[j] == that.task[k]) {
-              that.task.splice(k, 1);
-              k--;
-            }
-          }
-        }
         // 保养任务不唯一的
-        if (that.task.length > 1) {
+        if (that.task.length == 0) {
+          that.$message({
+            message: "无结果",
+            type: "warning",
+          });
+        } else if (that.task.length > 1) {
           let url =
             "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
           for (let i = 1; i < that.task.length; i++) {
@@ -638,300 +654,461 @@ export default {
         }
       }
     },
+    // if (
+    //     that.deviceselectInfo.length == 0 ||
+    //     that.taskselectInfo.length == 0
+    //   ) {
+    //     that.$message({
+    //       message: "请输入将查询信息填写完整",
+    //       type: "warning",
+    //     });
+    //   }
     search() {
       let that = this;
-      let url = "";
       that.timesTotal = 0;
       that.recordTimesTotal = 0;
       that.incompleteTimesTotal = 0;
       that.overdueTimesTotal = 0;
       that.completeRateTotal = 0;
-      // 采用设备查询
-      if (that.taskdisabled == true) {
-        // 全部设备
-        if (that.ifall == true) {
-          if (that.opsvalue.length == 0) {
-            url =
-              "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
-            for (let j = 1; j < that.device.length; j++) {
-              url = url + "," + that.device[j];
-            }
-            axios.get(url).then((res) => {
-              for (let i = 0; i < res.data.content.length; i++) {
-                that.task.push(res.data.content[i].id);
-              }
+      if (
+        that.deviceselectInfo.length == 0 ||
+        that.opsvalue.length == 0 ||
+        that.taskselectInfo.length == 0
+      ) {
+        that.$message({
+          message: "请将搜索信息填写完整",
+          type: "warning",
+        });
+      } else {
+        switch (true) {
+          case that.ifdeviceall == true &&
+            that.ifopsall == true &&
+            that.iftaskall == true:
+            that.searchdata();
+            break;
+          case that.ifdeviceall == true &&
+            that.ifopsall == true &&
+            that.iftaskall == false:
+            that.confirmtask();
+            setTimeout(() => {
+              that.task = that.task3;
               that.searchdata();
-            });
-          } else {
-            url =
-              "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
-            for (let j = 1; j < that.device.length; j++) {
-              url = url + "," + that.device[j];
-            }
-            url += "&ops=I" + that.opsvalue[0];
-            for (let k = 1; k < that.opsvalue.length; k++) {
-              url = url + "," + that.opsvalue[k];
-            }
-            console.log(url);
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              for (let i = 0; i < res.data.content.length; i++) {
-                that.task.push(res.data.content[i].id);
-              }
+            }, 1000);
+            break;
+          case that.ifdeviceall == true &&
+            that.ifopsall == false &&
+            that.iftaskall == true:
+            that.confirmops();
+            setTimeout(() => {
+              that.task = that.task2;
               that.searchdata();
-            });
-          }
-        } else {
-          that.device = [];
-          that.task = [];
-          if (that.selectInfo.length == 0 && that.opsvalue.length == 0) {
-            that.$message({
-              message: "请填写查询信息",
-              type: "warning",
-            });
-          } else {
-            // 只有设备
-            if (that.opsvalue.length == 0) {
-              url =
-                "http://47.102.214.37:8080/device/query?" +
-                that.selectInfo[0].ziduan +
-                "=L" +
-                that.selectInfo[0].value +
-                "%25";
-              if (that.selectInfo.length == 1) {
-                let i = 0;
-                // 获取设备id
-                axios.get(url).then((res) => {
-                  console.log(res.data);
-                  for (i = 0; i < res.data.content.length; i++) {
-                    that.device.push(res.data.content[i].id);
-                  }
-                  console.log(that.device);
-                  if (that.device.length > 1) {
-                    url =
-                      "http://47.102.214.37:8080/ops/query?device=I" +
-                      that.device[0];
-                    for (let j = 1; j < that.device.length; j++) {
-                      url = url + "," + that.device[j];
+            }, 1000);
+            break;
+          case that.ifdeviceall == false &&
+            that.ifopsall == true &&
+            that.iftaskall == true:
+            that.confirmdevice();
+            setTimeout(() => {
+              that.task = that.task1;
+              that.searchdata();
+            }, 1000);
+            break;
+          case that.ifdeviceall == false &&
+            that.ifopsall == false &&
+            that.iftaskall == true:
+            that.confirmdevice();
+            that.confirmops();
+            setTimeout(() => {
+              that.task = [];
+              if (that.task2.length > that.task1.length) {
+                for (let i = 0; i < that.task2.length; i++) {
+                  for (let j = 0; j < that.task1.length; j++) {
+                    if (that.task1[j] === that.task2[i]) {
+                      that.task.push(that.task1[j]);
                     }
+                  }
+                }
+              } else {
+                for (let i = 0; i < that.task1.length; i++) {
+                  for (let j = 0; j < that.task2.length; j++) {
+                    if (that.task2[j] === that.task1[i]) {
+                      that.task.push(that.task2[j]);
+                    }
+                  }
+                }
+              }
+              that.searchdata();
+            }, 1000);
+            break;
+          case that.ifdeviceall == true &&
+            that.ifopsall == false &&
+            that.iftaskall == false:
+            that.confirmops();
+            that.confirmtask();
+            setTimeout(() => {
+              that.task = [];
+              if (that.task3.length > that.task2.length) {
+                for (let i = 0; i < that.task3.length; i++) {
+                  for (let j = 0; j < that.task2.length; j++) {
+                    if (that.task2[j] === that.task3[i]) {
+                      that.task.push(that.task2[j]);
+                    }
+                  }
+                }
+              } else {
+                for (let i = 0; i < that.task2.length; i++) {
+                  for (let j = 0; j < that.task3.length; j++) {
+                    if (that.task3[j] === that.task2[i]) {
+                      that.task.push(that.task3[j]);
+                    }
+                  }
+                }
+              }
+              that.searchdata();
+            }, 1000);
+            break;
+          case that.ifdeviceall == false &&
+            that.ifopsall == true &&
+            that.iftaskall == false:
+            that.confirmdevice();
+            that.confirmtask();
+            setTimeout(() => {
+              console.log(that.task1);
+              console.log(that.task3);
+              that.task = [];
+              if (that.task3.length > that.task1.length) {
+                for (let i = 0; i < that.task3.length; i++) {
+                  for (let j = 0; j < that.task1.length; j++) {
+                    if (that.task1[j] === that.task3[i]) {
+                      that.task.push(that.task1[j]);
+                    }
+                  }
+                }
+              } else {
+                for (let i = 0; i < that.task1.length; i++) {
+                  for (let j = 0; j < that.task3.length; j++) {
+                    if (that.task3[j] === that.task1[i]) {
+                      that.task.push(that.task3[j]);
+                    }
+                  }
+                }
+              }
+              that.searchdata();
+            }, 1000);
+            break;
+          case that.ifdeviceall == false &&
+            that.ifopsall == false &&
+            that.iftaskall == false:
+            that.confirmdevice();
+            that.confirmops();
+            that.confirmtask();
+            setTimeout(() => {
+              console.log(that.task1);
+              console.log(that.task2);
+              console.log(that.task3);
+              that.task = [];
+              if (that.task1.length > that.task2.length) {
+                if (that.task1.length > that.task3.length) {
+                  let arr1 = [];
+                  let arr2 = [];
+                  for (let i = 0; i < that.task1.length; i++) {
+                    for (let j = 0; j < that.task3.length; j++) {
+                      if (that.task3[j] === that.task1[i]) {
+                        arr1.push(that.task3[j]);
+                      }
+                    }
+                  }
+                  for (let i = 0; i < that.task2.length; i++) {
+                    for (let j = 0; j < that.task1.length; j++) {
+                      if (that.task1[j] === that.task2[i]) {
+                        arr2.push(that.task1[j]);
+                      }
+                    }
+                  }
+                  if (arr1.length > arr2.length) {
+                    for (let i = 0; i < arr1.length; i++) {
+                      for (let j = 0; j < arr2.length; j++) {
+                        if (arr2[j] === arr1[i]) {
+                          that.task.push(arr2[j]);
+                        }
+                      }
+                    }
+                    that.searchdata();
                   } else {
-                    url =
-                      "http://47.102.214.37:8080/ops/query?device==" +
-                      that.device[0];
-                  }
-                  // 获取任务id
-                  console.log(url);
-                  axios.get(url).then((res) => {
-                    console.log(res.data);
-                    for (let i = 0; i < res.data.content.length; i++) {
-                      that.task.push(res.data.content[i].id);
+                    for (let i = 0; i < arr2.length; i++) {
+                      for (let j = 0; j < arr1.length; j++) {
+                        if (arr1[j] === arr2[i]) {
+                          that.task.push(arr1[j]);
+                        }
+                      }
                     }
                     that.searchdata();
-                  });
-                });
-              } else {
-                for (let i = 1; i < that.selectInfo.length; i++) {
-                  url =
-                    url +
-                    "&" +
-                    that.selectInfo[i].ziduan +
-                    "=L" +
-                    that.selectInfo[i].value +
-                    "%25";
-                }
-                // 获取设备id
-                axios.get(url).then((res) => {
-                  let i = 0;
-                  console.log(res.data);
-                  for (i = 0; i < res.data.content.length; i++) {
-                    that.device.push(res.data.content[i].id);
                   }
-                  console.log(that.device);
-                  if (that.device.length > 1) {
-                    url =
-                      "http://47.102.214.37:8080/ops/query?device=I" +
-                      that.device[0];
-                    for (let j = 1; j < that.device.length; j++) {
-                      url = url + "," + that.device[j];
+                } else {
+                  let arr1 = [];
+                  let arr2 = [];
+                  for (let i = 0; i < that.task3.length; i++) {
+                    for (let j = 0; j < that.task1.length; j++) {
+                      if (that.task1[j] === that.task3[i]) {
+                        arr1.push(that.task1[j]);
+                      }
                     }
+                  }
+                  for (let i = 0; i < that.task3.length; i++) {
+                    for (let j = 0; j < that.task2.length; j++) {
+                      if (that.task2[j] === that.task3[i]) {
+                        arr2.push(that.task2[j]);
+                      }
+                    }
+                  }
+                  if (arr1.length > arr2.length) {
+                    for (let i = 0; i < arr1.length; i++) {
+                      for (let j = 0; j < arr2.length; j++) {
+                        if (arr2[j] === arr1[i]) {
+                          that.task.push(arr2[j]);
+                        }
+                      }
+                    }
+                    that.searchdata();
                   } else {
-                    url =
-                      "http://47.102.214.37:8080/ops/query?device==" +
-                      that.device[0];
-                  }
-                  console.log(url);
-                  // 获取任务id
-                  axios.get(url).then((res) => {
-                    console.log(res.data);
-                    for (let i = 0; i < res.data.content.length; i++) {
-                      that.task.push(res.data.content[i].id);
+                    for (let i = 0; i < arr2.length; i++) {
+                      for (let j = 0; j < arr1.length; j++) {
+                        if (arr1[j] === arr2[i]) {
+                          that.task.push(arr1[j]);
+                        }
+                      }
                     }
                     that.searchdata();
-                  });
-                });
-              }
-            } else if (that.selectInfo.length == 0) {
-              url =
-                "http://47.102.214.37:8080/ops/query?ops=I" + that.opsvalue[0];
-              for (let k = 1; k < that.opsvalue.length; k++) {
-                url = url + "," + that.opsvalue[k];
-              }
-              // 获取任务id
-              console.log(url);
-              axios.get(url).then((res) => {
-                console.log(res.data);
-                for (let i = 0; i < res.data.content.length; i++) {
-                  that.task.push(res.data.content[i].id);
+                  }
                 }
-                that.searchdata();
-              });
-            } else {
-              url =
-                "http://47.102.214.37:8080/device/query?" +
-                that.selectInfo[0].ziduan +
-                "=L" +
-                that.selectInfo[0].value +
-                "%25";
-              if (that.selectInfo.length == 1) {
-                let i = 0;
-                // 获取设备id
-                axios.get(url).then((res) => {
-                  console.log(res.data);
-                  for (i = 0; i < res.data.content.length; i++) {
-                    that.device.push(res.data.content[i].id);
+              } else {
+                if (that.task3.length > that.task2.length) {
+                  let arr1 = [];
+                  let arr2 = [];
+                  for (let i = 0; i < that.task3.length; i++) {
+                    for (let j = 0; j < that.task1.length; j++) {
+                      if (that.task1[j] === that.task3[i]) {
+                        arr1.push(that.task1[j]);
+                      }
+                    }
                   }
-                  console.log(that.device);
-                  url =
-                    "http://47.102.214.37:8080/ops/query?device=I" +
-                    that.device[0];
-                  for (let j = 1; j < that.device.length; j++) {
-                    url = url + "," + that.device[j];
+                  for (let i = 0; i < that.task3.length; i++) {
+                    for (let j = 0; j < that.task2.length; j++) {
+                      if (that.task2[j] === that.task3[i]) {
+                        arr2.push(that.task2[j]);
+                      }
+                    }
                   }
-                  url += "&ops=I" + that.opsvalue[0];
-                  for (let k = 1; k < that.opsvalue.length; k++) {
-                    url = url + "," + that.opsvalue[k];
-                  }
-                  console.log(url);
-                  axios.get(url).then((res) => {
-                    console.log(res.data);
-                    for (let i = 0; i < res.data.content.length; i++) {
-                      that.task.push(res.data.content[i].id);
+                  if (arr1.length > arr2.length) {
+                    for (let i = 0; i < arr1.length; i++) {
+                      for (let j = 0; j < arr2.length; j++) {
+                        if (arr2[j] === arr1[i]) {
+                          that.task.push(arr2[j]);
+                        }
+                      }
                     }
                     that.searchdata();
-                  });
-                });
-              } else {
-                for (let i = 1; i < that.selectInfo.length; i++) {
-                  url =
-                    url +
-                    "&" +
-                    that.selectInfo[i].ziduan +
-                    "=L" +
-                    that.selectInfo[i].value +
-                    "%25";
+                  } else {
+                    for (let i = 0; i < arr2.length; i++) {
+                      for (let j = 0; j < arr1.length; j++) {
+                        if (arr1[j] === arr2[i]) {
+                          that.task.push(arr1[j]);
+                        }
+                      }
+                    }
+                    that.searchdata();
+                  }
+                } else {
+                  let arr1 = [];
+                  let arr2 = [];
+                  for (let i = 0; i < that.task2.length; i++) {
+                    for (let j = 0; j < that.task1.length; j++) {
+                      if (that.task1[j] === that.task2[i]) {
+                        arr1.push(that.task1[j]);
+                      }
+                    }
+                  }
+                  for (let i = 0; i < that.task2.length; i++) {
+                    for (let j = 0; j < that.task3.length; j++) {
+                      if (that.task3[j] === that.task2[i]) {
+                        arr2.push(that.task3[j]);
+                      }
+                    }
+                  }
+                  if (arr1.length > arr2.length) {
+                    for (let i = 0; i < arr1.length; i++) {
+                      for (let j = 0; j < arr2.length; j++) {
+                        if (arr2[j] === arr1[i]) {
+                          that.task.push(arr2[j]);
+                        }
+                      }
+                    }
+                    that.searchdata();
+                  } else {
+                    for (let i = 0; i < arr2.length; i++) {
+                      for (let j = 0; j < arr1.length; j++) {
+                        if (arr1[j] === arr2[i]) {
+                          that.task.push(arr1[j]);
+                        }
+                      }
+                    }
+                    that.searchdata();
+                  }
                 }
-                // 获取设备id
-                axios.get(url).then((res) => {
-                  let i = 0;
-                  console.log(res.data);
-                  for (i = 0; i < res.data.content.length; i++) {
-                    that.device.push(res.data.content[i].id);
-                  }
-                  console.log(that.device);
-                  url =
-                    "http://47.102.214.37:8080/ops/query?device=I" +
-                    that.device[0];
-                  for (let j = 1; j < that.device.length; j++) {
-                    url = url + "," + that.device[j];
-                  }
-                  url += "&ops=I" + that.opsvalue[0];
-                  for (let k = 1; k < that.opsvalue.length; k++) {
-                    url = url + "," + that.opsvalue[k];
-                  }
-                  console.log(url);
-                  axios.get(url).then((res) => {
-                    console.log(res.data);
-                    for (let i = 0; i < res.data.content.length; i++) {
-                      that.task.push(res.data.content[i].id);
-                    }
-                    that.searchdata();
-                  });
-                });
               }
-            }
-          }
-        }
-      }
-      // 采用保养查询
-      else {
-        console.log("保养");
-        if (that.selectInfo.length == 0) {
-          that.$message({
-            message: "请输入搜索字段",
-            type: "warning",
-          });
-        } else {
-          // 确定第一部分
-          if (that.selectInfo[0].ziduan == "name") {
-            url =
-              "http://47.102.214.37:8080/ops/query?" +
-              that.selectInfo[0].ziduan +
-              "=L" +
-              that.selectInfo[0].value +
-              "%25";
-          } else {
-            url =
-              "http://47.102.214.37:8080/ops/query?" +
-              that.selectInfo[0].ziduan +
-              "==" +
-              that.selectInfo[0].value;
-          }
-          if (that.selectInfo.length == 1) {
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              for (let i = 0; i < res.data.content.length; i++) {
-                that.task.push(res.data.content[i].id);
-              }
-              that.searchdata();
-            });
-          } else {
-            for (let i = 1; i < that.selectInfo.length; i++) {
-              if (that.selectInfo[i].ziduan == "name") {
-                url =
-                  url +
-                  "&" +
-                  that.selectInfo[i].ziduan +
-                  "=L" +
-                  that.selectInfo[i].value +
-                  "%25";
-              } else {
-                url =
-                  url +
-                  "&" +
-                  that.selectInfo[i].ziduan +
-                  "==" +
-                  that.selectInfo[i].value;
-              }
-            }
-            console.log(url);
-            axios.get(url).then((res) => {
-              console.log(res.data);
-              for (let i = 0; i < res.data.content.length; i++) {
-                that.task.push(res.data.content[i].id);
-              }
-              that.searchdata();
-            });
-          }
+            }, 1000);
+            break;
+          default:
+            break;
         }
       }
     },
+    // 确定设备下的taskid
+    confirmdevice() {
+      let that = this;
+      that.device = [];
+      that.url =
+        "http://47.102.214.37:8080/device/query?" +
+        that.deviceselectInfo[0].ziduan +
+        "=L" +
+        that.deviceselectInfo[0].value +
+        "%25";
+      if (that.deviceselectInfo.length == 1) {
+        axios.get(that.url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.device.push(res.data.content[i].id);
+          }
+        });
+      } else {
+        for (let i = 1; i < that.deviceselectInfo.length; i++) {
+          that.url =
+            that.url +
+            "&" +
+            that.deviceselectInfo[i].ziduan +
+            "=L" +
+            that.deviceselectInfo[i].value +
+            "%25";
+        }
+        axios.get(that.url).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.device.push(res.data.content[i].id);
+          }
+        });
+      }
+      setTimeout(() => {
+        console.log(that.device[0]);
+        if (that.device.length > 1) {
+          that.url =
+            "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
+          for (let j = 1; j < that.device.length; j++) {
+            that.url = that.url + "," + that.device[j];
+          }
+        } else {
+          that.url =
+            "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
+        }
+        console.log(that.url);
+        axios.get(that.url).then((res) => {
+          console.log(res.data);
+          that.task1 = [];
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.task1.push(res.data.content[i].id);
+          }
+        });
+      }, 300);
+    },
+    // 确定人员下的taskid
+    confirmops() {
+      let that = this;
+      if (that.opsselectInfo[0].value.length > 1) {
+        that.url =
+          "http://47.102.214.37:8080/ops/query?" +
+          that.opsselectInfo[0].ziduan +
+          "=I" +
+          that.opsselectInfo[0].value[0];
+        for (let j = 1; j < that.opsselectInfo[0].value.length; j++) {
+          that.url = that.url + "," + that.opsselectInfo[0].value[j];
+        }
+      } else {
+        that.url =
+          "http://47.102.214.37:8080/ops/query?" +
+          that.opsselectInfo[0].ziduan +
+          "==" +
+          that.opsselectInfo[0].value;
+      }
+      console.log(that.url);
+      axios.get(that.url).then((res) => {
+        console.log(res.data);
+        that.task2 = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.task2.push(res.data.content[i].id);
+        }
+      });
+    },
+    // 确定标准下的taskid
+    confirmtask() {
+      let that = this;
+      // 确定第一部分
+      if (that.taskselectInfo[0].ziduan == "name") {
+        that.url =
+          "http://47.102.214.37:8080/ops/query?" +
+          that.taskselectInfo[0].ziduan +
+          "=L" +
+          that.taskselectInfo[0].value +
+          "%25";
+      } else {
+        that.url =
+          "http://47.102.214.37:8080/ops/query?" +
+          that.taskselectInfo[0].ziduan +
+          "==" +
+          that.taskselectInfo[0].value;
+      }
+      if (that.taskselectInfo.length == 1) {
+        axios.get(that.url).then((res) => {
+          console.log(res.data);
+          that.task3 = [];
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.task3.push(res.data.content[i].id);
+          }
+        });
+      } else {
+        for (let i = 1; i < that.taskselectInfo.length; i++) {
+          if (that.taskselectInfo[i].ziduan == "name") {
+            that.url =
+              that.url +
+              "&" +
+              that.taskselectInfo[i].ziduan +
+              "=L" +
+              that.taskselectInfo[i].value +
+              "%25";
+          } else {
+            that.url =
+              that.url +
+              "&" +
+              that.taskselectInfo[i].ziduan +
+              "==" +
+              that.taskselectInfo[i].value;
+          }
+        }
+        axios.get(that.url).then((res) => {
+          console.log(res.data);
+          that.task3 = [];
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.task3.push(res.data.content[i].id);
+          }
+        });
+      }
+    },
     clear() {
-      this.devicedisabled = false;
-      this.opsdisabled = false;
-      this.taskdisabled = false;
       this.ifall = false; // 是否是全部
-      this.selectvalue = "";
-      this.selectInfo = [];
+      this.taskselectvalue = "";
+      this.deviceselectvalue = "";
+      this.opsvalue = "";
+      this.deviceselectInfo = [];
+      this.taskselectInfo = [];
+      this.opsselectInfo = [];
       this.devicedynamicTags = []; // 设备搜索标签
       this.taskdynamicTags = []; // 保养搜索标签
       this.start = "";

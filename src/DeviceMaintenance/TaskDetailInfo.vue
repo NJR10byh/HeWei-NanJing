@@ -20,7 +20,7 @@
               <span>{{ remark }}</span>
             </div>
           </div>
-          <p>保养步骤：</p>
+          <h1>保养步骤：</h1>
           <div v-for="(item, index) in content" :key="index" class="content">
             <el-checkbox-group v-model="checkList">
               <el-checkbox :label="index">
@@ -36,9 +36,7 @@
             </el-checkbox-group>
           </div>
           <div v-if="checkList.length == content.length" class="form">
-            <div style="font-size:20px;font-weight:bold;color:#409eff;">
-              记录：
-            </div>
+            <h1>记录：</h1>
             <el-form
               :model="form"
               ref="form"
@@ -407,7 +405,7 @@ export default {
     // 新增保养记录
     submitrecord() {
       let that = this;
-      console.log(that.checkList);
+      console.log(that.form);
       axios.get("http://47.102.214.37:8080/user/me").then((res) => {
         console.log(res.data);
         that.opUserid = res.data.id;
@@ -440,6 +438,11 @@ export default {
                   message: "新增成功",
                   type: "success",
                 });
+                if (that.form.hasException == true) {
+                  that.$router.push({
+                    path: "/fixApply",
+                  });
+                }
               })
               .catch((res) => {
                 console.log(res.response);
@@ -627,10 +630,8 @@ export default {
       border-bottom: 0;
     }
   }
-  p {
+  h1 {
     color: #409eff;
-    font-weight: bold;
-    font-size: 20px;
     padding: 10px 0;
   }
   .content {
