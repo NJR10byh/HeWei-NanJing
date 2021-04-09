@@ -30,12 +30,31 @@ export default {
     if (localStorage.getItem("token") != null) {
       axios
         .get("http://47.102.214.37:8080/user/me")
-        .then(() => {
+        .then((res) => {
+          console.log(res);
           this.$message({
             message: "登录成功",
             type: "success",
           });
-          this.$router.push("/userList");
+          switch (res.data.role) {
+            case "ROOT":
+              this.$router.push("/userList");
+              break;
+            case "ADMIN":
+              this.$router.push("/userList");
+              break;
+            case "OPERATOR":
+              this.$router.push("/totalTaskList");
+              break;
+            case "CREATOR":
+              this.$router.push("/totalTaskList");
+              break;
+            case "SUPERVISOR":
+              this.$router.push("/alreadyFixSu");
+              break;
+            default:
+              break;
+          }
         })
         .catch((res) => {
           console.log(res.response);
@@ -70,7 +89,7 @@ export default {
             message: "登录成功",
             type: "success",
           });
-          this.$router.push("/userList");
+          this.$router.push("/totalTaskList");
         })
         .catch((res) => {
           console.log(res.response);

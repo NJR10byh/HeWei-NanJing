@@ -363,10 +363,6 @@ export default {
               label: "设备编号",
             },
             {
-              value: "crux",
-              label: "是否为关键设备",
-            },
-            {
               value: "clazz",
               label: "设备分类",
             },
