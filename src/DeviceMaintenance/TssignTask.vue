@@ -81,7 +81,7 @@ export default {
       if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
         // 获取全部任务
         axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=100")
+          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=1000000000")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};

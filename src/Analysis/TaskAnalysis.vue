@@ -666,10 +666,11 @@ export default {
       that.incompleteTimesTotal = 0;
       that.overdueTimesTotal = 0;
       that.completeRateTotal = 0;
+      console.log(that.device);
       if (
-        that.deviceselectInfo.length == 0 ||
-        that.opsvalue.length == 0 ||
-        that.taskselectInfo.length == 0
+        (that.ifdeviceall == false && that.deviceselectInfo.length == 0) ||
+        (that.ifopsall == false && that.opsvalue.length == 0) ||
+        (that.iftaskall == false && that.taskselectInfo.length == 0)
       ) {
         that.$message({
           message: "请将搜索信息填写完整",
