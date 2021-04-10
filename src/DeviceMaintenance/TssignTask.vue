@@ -152,52 +152,6 @@ export default {
     };
   },
   methods: {
-    change1(res) {
-      let that = this;
-      that.selectedTaskid = [];
-      console.log(res);
-      for (var i = 0; i < res.length; i++) {
-        that.selectedTaskid.push({ id: res[i] });
-      }
-    },
-    change3(res) {
-      let that = this;
-      that.selectedDeviceid = [];
-      console.log(res);
-      for (var i = 0; i < res.length; i++) {
-        that.selectedDeviceid.push({ id: res[i] });
-      }
-    },
-    Next() {
-      let that = this;
-      if (
-        that.selectedTaskid.length == 0 ||
-        that.selectedDeviceid.length == 0
-      ) {
-        that.$message({
-          message: "请将信息填写完整",
-          type: "warning",
-        });
-      } else {
-        console.log(that.selectedTaskid);
-        console.log(that.selectedDeviceid);
-        let obj = {};
-        obj.taskid = [];
-        obj.deviceid = [];
-        // obj.taskid = that.selectedTaskid;
-        for (let i = 0; i < that.selectedTaskid.length; i++) {
-          obj.taskid.push({ id: that.selectedTaskid[i].id });
-        }
-        for (let j = 0; j < that.selectedDeviceid.length; j++) {
-          obj.deviceid.push({ id: that.selectedDeviceid[j].id });
-        }
-        console.log(obj);
-        this.$router.push({
-          path: "./tssignTask2",
-          query: obj,
-        });
-      }
-    },
     // 提交分配
     SubTssign() {
       let that = this;

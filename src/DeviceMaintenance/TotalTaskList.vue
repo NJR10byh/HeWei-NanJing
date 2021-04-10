@@ -68,7 +68,7 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <!-- <el-table-column type="selection"></el-table-column> -->
-      <el-table-column prop="id" label="序号" width="100"></el-table-column>
+      <el-table-column prop="id" label="序号" width="120"></el-table-column>
       <el-table-column
         prop="devicename"
         label="设备名称"
@@ -1003,7 +1003,6 @@ export default {
               obj.deviceNo = res.data.content[a].deviceNo;
               setTimeout(() => {
                 axios.get(searchtask).then((res) => {
-                  console.log(res.data);
                   if (res.data.length != 0) {
                     obj.taskid = res.data[0].id;
                     obj.taskname = res.data[0].name;
@@ -1047,7 +1046,7 @@ export default {
                     if (res.data.length > 1) {
                       for (let i = 1; i < res.data.length; i++) {
                         let arr = {};
-                        arr.id = deviceId + " ";
+                        arr.id = deviceId + " - " + i;
                         arr.opuser = "";
                         arr.devicename = devicename;
                         arr.deviceNo = deviceNo;
@@ -1058,7 +1057,6 @@ export default {
                           "http://47.102.214.37:8080/ops/schedule/status/" +
                           arr.taskid;
                         axios.get(URL).then((res) => {
-                          console.log(res.data);
                           if (res.data.nextDate == null) {
                             arr.nextDate = "暂无";
                           } else {
@@ -1091,14 +1089,12 @@ export default {
                             }
                           }
                         }, 200);
-                        // obj.children.push(arr);
                         obj.children.push(arr);
                       }
                     }
                   }
                 });
               }, 300);
-              console.log(obj);
               that.tableData.push(obj);
             }
           } else {
@@ -1234,6 +1230,9 @@ export default {
     handleEdit(row) {
       console.log(row);
       let obj = {};
+      obj.deviceID = row.id;
+      obj.deviceNo = row.deviceNo;
+      obj.devicename = row.devicename;
       obj.taskID = row.taskid;
       this.$router.push({
         path: "/editTask",

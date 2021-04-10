@@ -111,11 +111,9 @@
                     class="demo-table-expand"
                   >
                     <el-form-item label="完成记录">
-                      <span>{{ props.row.record }}</span>
-                    </el-form-item>
-                    <el-form-item label="图片记录">
-                      <img :src="props.row.pic" v-if="props.row.ifpicexist" />
-                      <span v-if="!props.row.ifpicexist">暂无</span>
+                      <div class="ql-snow">
+                        <div class="ql-editor" v-html="props.row.record"></div>
+                      </div>
                     </el-form-item>
                     <el-form-item label="异常报告">
                       <span>{{ props.row.report }}</span>

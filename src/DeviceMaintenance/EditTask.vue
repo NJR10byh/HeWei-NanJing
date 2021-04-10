@@ -11,25 +11,8 @@
           <div class="part">
             <div class="part_left">
               <div class="part_left_0">
-                <el-form-item label="标准名称" class="task name">
-                  <span> {{ TaskInfo.name }}</span>
-                </el-form-item>
-              </div>
-              <div class="part_left_0">
-                <el-form-item label="保养周期" class="task">
-                  <el-select
-                    clearable
-                    placeholder="请选择保养周期"
-                    v-model="TaskInfo.scheduleType"
-                  >
-                    <el-option
-                      v-for="item in tasktime"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    >
-                    </el-option>
-                  </el-select>
+                <el-form-item label="设备" class="task name">
+                  <span> {{ TaskInfo.deviceinfo }}</span>
                 </el-form-item>
               </div>
               <div class="part_left_0">
@@ -45,15 +28,15 @@
               </div>
             </div>
             <div class="part_right">
-              <el-form-item label="设备选择" class="task">
+              <el-form-item label="选择标准" class="task">
                 <el-select
                   clearable
                   filterable
-                  placeholder="请选择设备"
-                  v-model="TaskInfo.device"
+                  placeholder="请选择保养标准"
+                  v-model="TaskInfo.task"
                 >
                   <el-option
-                    v-for="item in Devices"
+                    v-for="item in TaskOptions"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -101,36 +84,18 @@ export default {
   created: function() {
     let that = this;
     console.log(this.$route.query);
-    if (this.$route.query.taskID != undefined) {
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        that.TaskInfo.name = res.data.name;
-        that.TaskInfo.startDate = res.data.startDate;
-        that.TaskInfo.device = res.data.device[0].id;
-        that.TaskInfo.ops = res.data.ops[0].id;
-      });
-    }
+    that.TaskInfo.deviceinfo =
+      this.$route.query.devicename + "（" + this.$route.query.deviceNo + "）";
+    let url =
+      "http://47.102.214.37:8080/ops/schedule/detail/" +
+      this.$route.query.taskID;
+    axios.get(url).then((res) => {
+      console.log(res.data);
+      that.TaskInfo.startDate = res.data.startDate;
+      that.TaskInfo.ops = res.data.ops[0].id;
+      that.TaskInfo.task = res.data.id;
+    });
     setTimeout(() => {
-      // 获取全部设备
-      axios
-        .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
-        .then((res) => {
-          for (var i = 0; i < res.data.content.length; i++) {
-            // console.log(res.data.content[i]);
-            let obj = {};
-            obj.value = res.data.content[i].id;
-            obj.label =
-              res.data.content[i].name +
-              "（" +
-              res.data.content[i].deviceNo +
-              "）";
-            that.Devices.push(obj);
-          }
-        });
       // 获取全部 OPERATOR 员工
       axios
         .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
@@ -139,8 +104,25 @@ export default {
             // console.log(res.data.content[i]);
             let obj = {};
             obj.value = res.data.content[i].id;
-            obj.label = res.data.content[i].username;
+            obj.label =
+              res.data.content[i].username +
+              "（姓名：" +
+              res.data.content[i].name +
+              "）";
             that.OpUsers.push(obj);
+          }
+        });
+      // 获取全部标准
+      axios
+        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=1000000000")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            console.log(res.data.content[i]);
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name + "（" + res.data.content[i].no + "）";
+            that.TaskOptions.push(obj);
           }
         });
     }, 300);
@@ -148,11 +130,10 @@ export default {
   data() {
     return {
       TaskInfo: {
-        scheduleType: "",
-        name: "",
+        deviceinfo: "",
         startDate: "",
-        device: [],
-        ops: [],
+        ops: "",
+        task: "",
       },
       collapseinfo: [],
       tasktime: [
@@ -181,8 +162,8 @@ export default {
           label: "每天",
         },
       ],
-      Devices: [], // 设备
       OpUsers: [], // 保养人员
+      TaskOptions: [],
     };
   },
   methods: {
@@ -192,10 +173,8 @@ export default {
       console.log(that.TaskInfo);
       // let obj = {};
       if (
-        that.TaskInfo.scheduleType == "" ||
-        that.TaskInfo.name == "" ||
         that.TaskInfo.startDate == "" ||
-        that.TaskInfo.device.length == 0 ||
+        that.TaskInfo.task.length == 0 ||
         that.TaskInfo.ops.length == 0
       ) {
         that.$message({
@@ -204,35 +183,34 @@ export default {
         });
       } else {
         let ops = [];
-        let device = [];
+        let task = [];
         ops.push({
           id: that.TaskInfo.ops,
         });
-        device.push({
-          id: that.TaskInfo.device,
+        task.push({
+          id: that.TaskInfo.task,
         });
         let url =
-          "http://47.102.214.37:8080/ops/schedule/detail/" +
-          that.$route.query.taskID;
+          "http://47.102.214.37:8080/ops/schedule/detail/" + that.TaskInfo.task;
         axios.get(url).then((res) => {
           console.log(res.data);
           let obj = {};
           obj.content = res.data.content;
           obj.id = res.data.id;
-          obj.name = that.TaskInfo.name;
+          obj.name = res.data.name;
           obj.remark = res.data.remark;
           obj.no = res.data.no;
           obj.startDate = that.TaskInfo.startDate;
-          obj.scheduleType = that.TaskInfo.scheduleType;
+          obj.scheduleType = res.data.scheduleType;
           obj.tools = res.data.tools;
-          obj.device = device;
+          obj.device = [{ id: that.$route.query.deviceID }];
           obj.ops = ops;
           console.log(obj);
           setTimeout(function() {
             axios.put(url, obj).then((res) => {
               console.log(res);
               that.$message({
-                message: "编辑成功",
+                message: "修改成功",
                 type: "success",
               });
             });

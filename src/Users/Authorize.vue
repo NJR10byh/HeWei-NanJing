@@ -248,9 +248,9 @@ export default {
   },
   methods: {
     // 批量注册
-    moreswitch(res) {
-      this.more = res;
-    },
+    // moreswitch(res) {
+    //   this.more = res;
+    // },
     register() {
       let that = this;
       if (
