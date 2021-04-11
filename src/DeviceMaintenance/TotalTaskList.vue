@@ -1104,11 +1104,12 @@ export default {
               obj.opuser = "";
               let searchtask =
                 "http://47.102.214.37:8080/device/" + res.data[a].id + "/bind";
-              let devicename = res.data[a].name;
-              let deviceNo = res.data[a].deviceNo;
-              obj.id = a + 1;
-              obj.devicename = res.data[a].name;
-              obj.deviceNo = res.data[a].deviceNo;
+              let devicename = res.data.content[a].name;
+              let deviceNo = res.data.content[a].deviceNo;
+              let deviceId = res.data.content[a].id;
+              obj.id = res.data.content[a].id;
+              obj.devicename = res.data.content[a].name;
+              obj.deviceNo = res.data.content[a].deviceNo;
               setTimeout(() => {
                 axios.get(searchtask).then((res) => {
                   console.log(res.data);
@@ -1155,7 +1156,7 @@ export default {
                     if (res.data.length > 1) {
                       for (let i = 1; i < res.data.length; i++) {
                         let arr = {};
-                        arr.id = a + 1 + " - " + i;
+                        arr.id = deviceId + " - " + i;
                         arr.opuser = "";
                         arr.devicename = devicename;
                         arr.deviceNo = deviceNo;
@@ -1324,7 +1325,8 @@ export default {
             "/bind";
           let devicename = res.data.content[a].name;
           let deviceNo = res.data.content[a].deviceNo;
-          obj.id = a + 1;
+          let deviceId = res.data.content[a].id;
+          obj.id = res.data.content[a].id;
           obj.devicename = res.data.content[a].name;
           obj.deviceNo = res.data.content[a].deviceNo;
           setTimeout(() => {
@@ -1371,11 +1373,13 @@ export default {
                 if (res.data.length > 1) {
                   for (let i = 1; i < res.data.length; i++) {
                     let arr = {};
-                    arr.id = (a + 1) * 10 + i;
+                    arr.id = deviceId + " - " + i;
                     arr.opuser = "";
                     arr.devicename = devicename;
                     arr.deviceNo = deviceNo;
+                    arr.taskid = res.data[i].id;
                     arr.taskname = res.data[i].name;
+                    arr.taskno = res.data[i].no;
                     let URL =
                       "http://47.102.214.37:8080/ops/schedule/status/" +
                       res.data[i].id;
@@ -1452,7 +1456,8 @@ export default {
             "/bind";
           let devicename = res.data.content[a].name;
           let deviceNo = res.data.content[a].deviceNo;
-          obj.id = a + 1;
+          let deviceId = res.data.content[a].id;
+          obj.id = res.data.content[a].id;
           obj.devicename = res.data.content[a].name;
           obj.deviceNo = res.data.content[a].deviceNo;
           setTimeout(() => {
@@ -1499,11 +1504,13 @@ export default {
                 if (res.data.length > 1) {
                   for (let i = 1; i < res.data.length; i++) {
                     let arr = {};
-                    arr.id = (a + 1) * 10 + i;
+                    arr.id = deviceId + " - " + i;
                     arr.opuser = "";
                     arr.devicename = devicename;
                     arr.deviceNo = deviceNo;
+                    arr.taskid = res.data[i].id;
                     arr.taskname = res.data[i].name;
+                    arr.taskno = res.data[i].no;
                     let URL =
                       "http://47.102.214.37:8080/ops/schedule/status/" +
                       res.data[i].id;

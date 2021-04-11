@@ -292,6 +292,7 @@ export default {
       let that = this;
       let url = "";
       let exportURL = "";
+      let index = 1;
       that.ifsearch = true;
       url =
         "http://47.102.214.37:8080/device/query?" +
@@ -315,6 +316,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             obj["brand"] = res.data.content[i].brand;
             obj.type = res.data.content[i].type;
@@ -368,6 +370,7 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
             obj.id = res.data.content[i].id;
+            obj.index = index++;
             obj.name = res.data.content[i].name;
             obj["brand"] = res.data.content[i].brand;
             obj.type = res.data.content[i].type;
@@ -401,6 +404,7 @@ export default {
     getAllDevice() {
       let that = this;
       let index = 1;
+      that.ifsearch = false;
       let url =
         "http://47.102.214.37:8080/device?page=0&size=" + that.page_size;
       axios({

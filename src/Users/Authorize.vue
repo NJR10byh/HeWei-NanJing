@@ -349,7 +349,7 @@ export default {
                   message: "授权成功",
                   type: "success",
                 });
-                that.$router.push("/users");
+                that.$router.push("/userList");
               })
               .catch((res) => {
                 console.log(res.response);

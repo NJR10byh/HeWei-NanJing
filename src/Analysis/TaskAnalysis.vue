@@ -666,7 +666,6 @@ export default {
       that.incompleteTimesTotal = 0;
       that.overdueTimesTotal = 0;
       that.completeRateTotal = 0;
-      console.log(that.device);
       if (
         (that.ifdeviceall == false && that.deviceselectInfo.length == 0) ||
         (that.ifopsall == false && that.opsvalue.length == 0) ||

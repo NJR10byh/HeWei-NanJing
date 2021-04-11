@@ -180,8 +180,44 @@ export default {
     axios.get("http://47.102.214.37:8080/user/query").then((res) => {
       // console.log(res.data);
       for (let i = 0; i < res.data.content.length; i++) {
-        if (res.data.content[i].role == "SUPERVISOR") {
+        if (res.data.content[i].role == "ROOT") {
           that.reporteroptions[0].options.push({
+            value: res.data.content[i].id,
+            label:
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")",
+          });
+        } else if (res.data.content[i].role == "ADMIN") {
+          that.reporteroptions[1].options.push({
+            value: res.data.content[i].id,
+            label:
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")",
+          });
+        } else if (res.data.content[i].role == "OPERATOR") {
+          that.reporteroptions[2].options.push({
+            value: res.data.content[i].id,
+            label:
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")",
+          });
+        } else if (res.data.content[i].role == "CREATOR") {
+          that.reporteroptions[3].options.push({
+            value: res.data.content[i].id,
+            label:
+              res.data.content[i].name +
+              " (用户名：" +
+              res.data.content[i].username +
+              ")",
+          });
+        } else if (res.data.content[i].role == "SUPERVISOR") {
+          that.reporteroptions[4].options.push({
             value: res.data.content[i].id,
             label:
               res.data.content[i].name +
@@ -269,6 +305,22 @@ export default {
       reportervalue: [],
       reporteroptions: [
         {
+          label: "ROOT",
+          options: [],
+        },
+        {
+          label: "ADMIN",
+          options: [],
+        },
+        {
+          label: "OPERATOR",
+          options: [],
+        },
+        {
+          label: "CREATOR",
+          options: [],
+        },
+        {
           label: "SUPERVISOR",
           options: [],
         },
@@ -346,8 +398,6 @@ export default {
       if (that.ifall) {
         if (
           that.device.length == 0 ||
-          that.reportervalue.length == 0 ||
-          that.assigneevalue.length == 0 ||
           that.startDate == "" ||
           that.endDate == "" ||
           that.startDate == null ||
@@ -414,7 +464,7 @@ export default {
               });
               break;
             case that.reportervalue.length == 1 &&
-              that.assigneevalue.length != 1:
+              that.assigneevalue.length > 1:
               for (let i = 1; i < that.assigneevalue.length; i++) {
                 URL = URL + "," + that.assigneevalue[i];
               }
@@ -453,7 +503,7 @@ export default {
                 }
               });
               break;
-            case that.reportervalue.length != 1 &&
+            case that.reportervalue.length > 1 &&
               that.assigneevalue.length == 1:
               URL =
                 "http://47.102.214.37:8080/issue/query?assignee=I" +
@@ -498,8 +548,7 @@ export default {
                 }
               });
               break;
-            case that.reportervalue.length != 1 &&
-              that.assigneevalue.length != 1:
+            case that.reportervalue.length > 1 && that.assigneevalue.length > 1:
               URL =
                 "http://47.102.214.37:8080/issue/query?assignee=I" +
                 that.assigneevalue[0];
@@ -546,14 +595,112 @@ export default {
                 }
               });
               break;
+            case that.reportervalue.length == 0 &&
+              that.assigneevalue.length == 0:
+              console.log(that.device);
+              if (that.device.length == 0) {
+                that.$message({
+                  message: "无结果",
+                  type: "warning",
+                });
+              } else {
+                that.confirmdevice();
+              }
+              break;
+            case that.reportervalue.length == 0 &&
+              that.assigneevalue.length != 0:
+              URL =
+                "http://47.102.214.37:8080/issue/query?assignee=I" +
+                that.assigneevalue[0];
+              for (let i = 1; i < that.assigneevalue.length; i++) {
+                URL = URL + "," + that.assigneevalue[i];
+              }
+              console.log(URL);
+              axios.get(URL).then((res) => {
+                console.log(res.data);
+                let arr = [];
+                for (let a = 0; a < res.data.content.length; a++) {
+                  for (let i = 0; i < res.data.content[a].device.length; i++) {
+                    that.device1.push(res.data.content[a].device[i].id);
+                  }
+                }
+                // device1去重
+                let array = [];
+                for (var i = 0; i < that.device1.length; i++) {
+                  if (array.indexOf(that.device1[i]) == -1) {
+                    array.push(that.device1[i]);
+                  }
+                }
+                that.device1 = array;
+                for (let i = 0; i < that.device.length; i++) {
+                  for (let j = 0; j < that.device1.length; j++) {
+                    if (that.device1[j] === that.device[i]) {
+                      arr.push(that.device1[j]);
+                    }
+                  }
+                }
+                that.device = arr;
+                console.log(that.device);
+                if (that.device.length == 0) {
+                  that.$message({
+                    message: "无结果",
+                    type: "warning",
+                  });
+                } else {
+                  that.confirmdevice();
+                }
+              });
+              break;
+            case that.reportervalue.length != 0 &&
+              that.assigneevalue.length == 0:
+              URL =
+                "http://47.102.214.37:8080/issue/query?reporter=I" +
+                that.reportervalue[0];
+              for (let i = 1; i < that.reportervalue.length; i++) {
+                URL = URL + "," + that.reportervalue[i];
+              }
+              console.log(URL);
+              axios.get(URL).then((res) => {
+                console.log(res.data);
+                let arr = [];
+                for (let a = 0; a < res.data.content.length; a++) {
+                  for (let i = 0; i < res.data.content[a].device.length; i++) {
+                    that.device1.push(res.data.content[a].device[i].id);
+                  }
+                }
+                // device1去重
+                let array = [];
+                for (var i = 0; i < that.device1.length; i++) {
+                  if (array.indexOf(that.device1[i]) == -1) {
+                    array.push(that.device1[i]);
+                  }
+                }
+                that.device1 = array;
+                for (let i = 0; i < that.device.length; i++) {
+                  for (let j = 0; j < that.device1.length; j++) {
+                    if (that.device1[j] === that.device[i]) {
+                      arr.push(that.device1[j]);
+                    }
+                  }
+                }
+                that.device = arr;
+                console.log(that.device);
+                if (that.device.length == 0) {
+                  that.$message({
+                    message: "无结果",
+                    type: "warning",
+                  });
+                } else {
+                  that.confirmdevice();
+                }
+              });
+              break;
             default:
               break;
           }
         }
       } else if (
         that.selectInfo.length == 0 ||
-        that.reportervalue.length == 0 ||
-        that.assigneevalue.length == 0 ||
         that.startDate == "" ||
         that.endDate == "" ||
         that.startDate == null ||
@@ -579,12 +726,6 @@ export default {
         that.device = [];
         let url =
           "http://47.102.214.37:8080/device/query?" +
-          that.selectInfo[0].ziduan +
-          "=L" +
-          that.selectInfo[0].value +
-          "%25";
-        let exportURL =
-          "http://47.102.214.37:8080/device/export?" +
           that.selectInfo[0].ziduan +
           "=L" +
           that.selectInfo[0].value +
@@ -660,7 +801,7 @@ export default {
                     });
                     break;
                   case that.reportervalue.length == 1 &&
-                    that.assigneevalue.length != 1:
+                    that.assigneevalue.length > 1:
                     for (let i = 1; i < that.assigneevalue.length; i++) {
                       URL = URL + "," + that.assigneevalue[i];
                     }
@@ -715,7 +856,7 @@ export default {
                       }
                     });
                     break;
-                  case that.reportervalue.length != 1 &&
+                  case that.reportervalue.length > 1 &&
                     that.assigneevalue.length == 1:
                     URL =
                       "http://47.102.214.37:8080/issue/query?assignee=I" +
@@ -776,8 +917,8 @@ export default {
                       }
                     });
                     break;
-                  case that.reportervalue.length != 1 &&
-                    that.assigneevalue.length != 1:
+                  case that.reportervalue.length > 1 &&
+                    that.assigneevalue.length > 1:
                     URL =
                       "http://47.102.214.37:8080/issue/query?assignee=I" +
                       that.assigneevalue[0];
@@ -839,6 +980,114 @@ export default {
                       }
                     });
                     break;
+                  case that.reportervalue.length == 0 &&
+                    that.assigneevalue.length == 0:
+                    console.log(that.device);
+                    if (that.device.length == 0) {
+                      that.$message({
+                        message: "无结果",
+                        type: "warning",
+                      });
+                    } else {
+                      that.confirmdevice();
+                    }
+                    break;
+                  case that.reportervalue.length == 0 &&
+                    that.assigneevalue.length != 0:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?assignee=I" +
+                      that.assigneevalue[0];
+                    for (let i = 1; i < that.assigneevalue.length; i++) {
+                      URL = URL + "," + that.assigneevalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      for (let i = 0; i < that.device.length; i++) {
+                        for (let j = 0; j < that.device1.length; j++) {
+                          if (that.device1[j] === that.device[i]) {
+                            arr.push(that.device1[j]);
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      console.log(that.device);
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length != 0 &&
+                    that.assigneevalue.length == 0:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?reporter=I" +
+                      that.reportervalue[0];
+                    for (let i = 1; i < that.reportervalue.length; i++) {
+                      URL = URL + "," + that.reportervalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      for (let i = 0; i < that.device.length; i++) {
+                        for (let j = 0; j < that.device1.length; j++) {
+                          if (that.device1[j] === that.device[i]) {
+                            arr.push(that.device1[j]);
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      console.log(that.device);
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
                   default:
                     break;
                 }
@@ -849,13 +1098,6 @@ export default {
           for (let i = 1; i < that.selectInfo.length; i++) {
             url =
               url +
-              "&" +
-              that.selectInfo[i].ziduan +
-              "=L" +
-              that.selectInfo[i].value +
-              "%25";
-            exportURL =
-              exportURL +
               "&" +
               that.selectInfo[i].ziduan +
               "=L" +
@@ -874,7 +1116,355 @@ export default {
               for (let a = 0; a < res.data.content.length; a++) {
                 that.device.push(res.data.content[a].id);
               }
-              that.confirmdevice();
+              setTimeout(() => {
+                let URL =
+                  "http://47.102.214.37:8080/issue/query?reporter=I" +
+                  that.reportervalue[0] +
+                  "&assignee=I" +
+                  that.assigneevalue[0];
+                switch (true) {
+                  case that.reportervalue.length == 1 &&
+                    that.assigneevalue.length == 1:
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      if (that.device.length > that.device1.length) {
+                        for (let i = 0; i < that.device.length; i++) {
+                          for (let j = 0; j < that.device1.length; j++) {
+                            if (that.device1[j] === that.device[i]) {
+                              arr.push(that.device1[j]);
+                            }
+                          }
+                        }
+                      } else {
+                        for (let i = 0; i < that.device1.length; i++) {
+                          for (let j = 0; j < that.device.length; j++) {
+                            if (that.device[j] === that.device1[i]) {
+                              arr.push(that.device[j]);
+                            }
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length == 1 &&
+                    that.assigneevalue.length > 1:
+                    for (let i = 1; i < that.assigneevalue.length; i++) {
+                      URL = URL + "," + that.assigneevalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      console.log(that.device1);
+                      console.log(that.device);
+                      if (that.device.length > that.device1.length) {
+                        for (let i = 0; i < that.device.length; i++) {
+                          for (let j = 0; j < that.device1.length; j++) {
+                            if (that.device1[j] === that.device[i]) {
+                              arr.push(that.device1[j]);
+                            }
+                          }
+                        }
+                      } else {
+                        for (let i = 0; i < that.device1.length; i++) {
+                          for (let j = 0; j < that.device.length; j++) {
+                            if (that.device[j] === that.device1[i]) {
+                              arr.push(that.device[j]);
+                            }
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length > 1 &&
+                    that.assigneevalue.length == 1:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?assignee=I" +
+                      that.assigneevalue[0] +
+                      "&reporter=I" +
+                      that.reportervalue[0];
+                    for (let i = 1; i < that.reportervalue.length; i++) {
+                      URL = URL + "," + that.reportervalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      console.log(that.device1);
+                      console.log(that.device);
+                      if (that.device.length > that.device1.length) {
+                        for (let i = 0; i < that.device.length; i++) {
+                          for (let j = 0; j < that.device1.length; j++) {
+                            if (that.device1[j] === that.device[i]) {
+                              arr.push(that.device1[j]);
+                            }
+                          }
+                        }
+                      } else {
+                        for (let i = 0; i < that.device1.length; i++) {
+                          for (let j = 0; j < that.device.length; j++) {
+                            if (that.device[j] === that.device1[i]) {
+                              arr.push(that.device[j]);
+                            }
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length > 1 &&
+                    that.assigneevalue.length > 1:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?assignee=I" +
+                      that.assigneevalue[0];
+                    for (let i = 1; i < that.assigneevalue.length; i++) {
+                      URL = URL + "," + that.assigneevalue[i];
+                    }
+                    URL += "&reporter=I" + that.reportervalue[0];
+                    for (let i = 1; i < that.reportervalue.length; i++) {
+                      URL = URL + "," + that.reportervalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      console.log(that.device1);
+                      console.log(that.device);
+                      if (that.device.length > that.device1.length) {
+                        for (let i = 0; i < that.device.length; i++) {
+                          for (let j = 0; j < that.device1.length; j++) {
+                            if (that.device1[j] === that.device[i]) {
+                              arr.push(that.device1[j]);
+                            }
+                          }
+                        }
+                      } else {
+                        for (let i = 0; i < that.device1.length; i++) {
+                          for (let j = 0; j < that.device.length; j++) {
+                            if (that.device[j] === that.device1[i]) {
+                              arr.push(that.device[j]);
+                            }
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length == 0 &&
+                    that.assigneevalue.length == 0:
+                    console.log(that.device);
+                    if (that.device.length == 0) {
+                      that.$message({
+                        message: "无结果",
+                        type: "warning",
+                      });
+                    } else {
+                      that.confirmdevice();
+                    }
+                    break;
+                  case that.reportervalue.length == 0 &&
+                    that.assigneevalue.length != 0:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?assignee=I" +
+                      that.assigneevalue[0];
+                    for (let i = 1; i < that.assigneevalue.length; i++) {
+                      URL = URL + "," + that.assigneevalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      for (let i = 0; i < that.device.length; i++) {
+                        for (let j = 0; j < that.device1.length; j++) {
+                          if (that.device1[j] === that.device[i]) {
+                            arr.push(that.device1[j]);
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      console.log(that.device);
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  case that.reportervalue.length != 0 &&
+                    that.assigneevalue.length == 0:
+                    URL =
+                      "http://47.102.214.37:8080/issue/query?reporter=I" +
+                      that.reportervalue[0];
+                    for (let i = 1; i < that.reportervalue.length; i++) {
+                      URL = URL + "," + that.reportervalue[i];
+                    }
+                    console.log(URL);
+                    axios.get(URL).then((res) => {
+                      console.log(res.data);
+                      let arr = [];
+                      for (let a = 0; a < res.data.content.length; a++) {
+                        for (
+                          let i = 0;
+                          i < res.data.content[a].device.length;
+                          i++
+                        ) {
+                          that.device1.push(res.data.content[a].device[i].id);
+                        }
+                      }
+                      // device1去重
+                      let array = [];
+                      for (var i = 0; i < that.device1.length; i++) {
+                        if (array.indexOf(that.device1[i]) == -1) {
+                          array.push(that.device1[i]);
+                        }
+                      }
+                      that.device1 = array;
+                      for (let i = 0; i < that.device.length; i++) {
+                        for (let j = 0; j < that.device1.length; j++) {
+                          if (that.device1[j] === that.device[i]) {
+                            arr.push(that.device1[j]);
+                          }
+                        }
+                      }
+                      that.device = arr;
+                      console.log(that.device);
+                      if (that.device.length == 0) {
+                        that.$message({
+                          message: "无结果",
+                          type: "warning",
+                        });
+                      } else {
+                        that.confirmdevice();
+                      }
+                    });
+                    break;
+                  default:
+                    break;
+                }
+              }, 300);
             }
           });
         }
