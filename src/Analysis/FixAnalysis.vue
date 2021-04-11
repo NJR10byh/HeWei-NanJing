@@ -1547,6 +1547,8 @@ export default {
       this.ifall = false; // 是否是全部
       this.selectvalue = "";
       this.selectInfo = [];
+      this.reportervalue = [];
+      this.assigneevalue = [];
       this.dynamicTags = []; // 搜索标签
       this.startDate = "";
       this.endDate = "";
