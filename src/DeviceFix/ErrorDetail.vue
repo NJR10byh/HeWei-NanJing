@@ -67,7 +67,7 @@
         </div>
         <div class="Part">
           <div class="part" style="width: 50%;">
-            <div class="Text">维修人员-Supervisor</div>
+            <div class="Text">维修分配人员-Supervisor</div>
             <user
               v-for="(item, index) in supervisor"
               :key="index"
