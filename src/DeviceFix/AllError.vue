@@ -729,7 +729,7 @@ export default {
                   }
                 }
                 setTimeout(() => {
-                  that.taskData.push(obj);
+                  that.taskData.unshift(obj);
                 }, 800);
               }, 300);
             }, 300);

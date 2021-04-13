@@ -15,14 +15,7 @@
         </div>
         <div class="part0" style="width: 50%;">
           <div class="Text">选择设备</div>
-          <el-select
-            v-model="device"
-            filterable
-            clearable
-            multiple
-            collapse-tags
-            placeholder="请选择"
-          >
+          <el-select v-model="device" filterable clearable placeholder="请选择">
             <el-option
               v-for="item in options1"
               :key="item.value"
@@ -297,11 +290,9 @@ export default {
           type: "warning",
         });
       } else {
-        for (let i = 0; i < that.device.length; i++) {
-          device.push({
-            id: that.device[i],
-          });
-        }
+        device.push({
+          id: that.device,
+        });
         assignee.push({
           id: that.assignee,
         });
@@ -321,6 +312,11 @@ export default {
               message: "申请成功",
               type: "success",
             });
+            setTimeout(() => {
+              that.$router.push({
+                path: "./allError",
+              });
+            }, 1000);
           })
           .catch((res) => {
             console.log(res.response);
