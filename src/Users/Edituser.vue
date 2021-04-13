@@ -236,7 +236,7 @@ export default {
 </script>
 <style lang="scss">
 .Container-edituser {
-  //   border: 1px solid red;
+  // border: 1px solid red;
   width: 100%;
   height: 100%;
   display: flex;

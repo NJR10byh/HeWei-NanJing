@@ -119,7 +119,7 @@
           <el-button
             @click="handleEdit(scope.row)"
             v-if="scope.row.taskname != undefined"
-            >修改</el-button
+            >编辑</el-button
           >
           <el-button
             @click="handleDelete(scope.row)"

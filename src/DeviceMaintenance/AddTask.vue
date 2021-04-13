@@ -46,7 +46,7 @@
       >
         <template slot-scope="scope">
           <el-button @click="showInfo(scope.$index)">以此为模版新增</el-button>
-          <el-button @click="editTask(scope.$index)">修改</el-button>
+          <el-button @click="editTask(scope.$index)">修改标准</el-button>
           <el-button @click="deleteTask(scope.$index)">删除</el-button>
         </template>
       </el-table-column>
