@@ -1104,12 +1104,12 @@ export default {
               obj.opuser = "";
               let searchtask =
                 "http://47.102.214.37:8080/device/" + res.data[a].id + "/bind";
-              let devicename = res.data.content[a].name;
-              let deviceNo = res.data.content[a].deviceNo;
-              let deviceId = res.data.content[a].id;
-              obj.id = res.data.content[a].id;
-              obj.devicename = res.data.content[a].name;
-              obj.deviceNo = res.data.content[a].deviceNo;
+              let devicename = res.data[a].name;
+              let deviceNo = res.data[a].deviceNo;
+              let deviceId = res.data[a].id;
+              obj.id = res.data[a].id;
+              obj.devicename = res.data[a].name;
+              obj.deviceNo = res.data[a].deviceNo;
               setTimeout(() => {
                 axios.get(searchtask).then((res) => {
                   console.log(res.data);

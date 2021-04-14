@@ -41,7 +41,7 @@
       <el-table-column
         prop="setting"
         label="操作"
-        width="280"
+        width="300"
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
       >
         <template slot-scope="scope">
