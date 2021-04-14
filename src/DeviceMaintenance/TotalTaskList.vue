@@ -68,7 +68,7 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <!-- <el-table-column type="selection"></el-table-column> -->
-      <el-table-column prop="id" label="序号" width="120"></el-table-column>
+      <el-table-column prop="id" label="设备ID" width="120"></el-table-column>
       <el-table-column
         prop="devicename"
         label="设备名称"

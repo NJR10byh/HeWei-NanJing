@@ -102,7 +102,7 @@
       <div>
         内容<br />
         <quill-editor
-          ref="myTextEditor"
+          ref="myQuillEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
           style="height:180px;margin-top: 5px;"
@@ -123,7 +123,7 @@
       <div>
         内容<br />
         <quill-editor
-          ref="myTextEditor"
+          ref="myQuillEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
           style="height:180px;margin-top: 5px;"
@@ -148,6 +148,17 @@
       <el-button type="warning" @click="editcontent">修改内容</el-button>
       <el-button type="danger" @click="deletecontent">删除内容</el-button>
     </el-dialog>
+    <el-upload
+      list-type="picture"
+      action=""
+      :auto-upload="false"
+      accept=".jpg, .png"
+      :show-file-list="false"
+      :on-change="getFile"
+      class="avatar-uploader"
+      style="display: none"
+    >
+    </el-upload>
   </div>
 </template>
 
@@ -158,6 +169,13 @@ import { quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
+
+// 工具栏配置
+const toolbarOptions = [
+  ["bold", "italic", "underline", "strike"], // toggled buttons
+  [{ list: "ordered" }, { list: "bullet" }],
+  ["image"],
+];
 
 export default {
   name: "AddTaskInside",
@@ -228,8 +246,23 @@ export default {
 
       contentindex: -1, // 用户展开的内容下标
 
+      // 富文本编辑器
       editorOption: {
         placeholder: "请输入保养内容",
+        modules: {
+          toolbar: {
+            container: toolbarOptions, // 工具栏
+            handlers: {
+              image: function(value) {
+                if (value) {
+                  document.querySelector(".avatar-uploader input").click();
+                } else {
+                  this.quill.format("image", false);
+                }
+              },
+            },
+          },
+        },
       },
     };
   },
@@ -245,6 +278,51 @@ export default {
     onEditorChange({ html }) {
       console.log(html);
       this.TaskInfo.detail = html;
+    },
+    // 上传图片
+    getFile(file) {
+      let that = this;
+      this.getBase64(file.raw).then((res) => {
+        const params = res.split(",");
+        console.log(params, "params");
+        if (params.length > 0) {
+          axios({
+            url: "http://47.102.214.37:8080/pic",
+            method: "post",
+            data: params[1],
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          }).then((res) => {
+            console.log(res);
+            let url = "http://47.102.214.37:8080/pic/" + res.data;
+            let quill = that.$refs.myQuillEditor.quill;
+            // 获取光标所在位置
+            let length = quill.getSelection().index;
+            // 插入图片
+            quill.insertEmbed(length, "image", url);
+            // 调整光标到最后
+            quill.setSelection(length + 1);
+          });
+        }
+      });
+    },
+    // 获取图片转base64
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
     },
     // 修改内容
     editcontent() {
