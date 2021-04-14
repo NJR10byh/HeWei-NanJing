@@ -122,7 +122,6 @@
         stripe
         class="tablestyle"
         style="width: 100%;"
-        height="460"
         id="outTable"
         @selection-change="handleDetailSelectionChange"
       >

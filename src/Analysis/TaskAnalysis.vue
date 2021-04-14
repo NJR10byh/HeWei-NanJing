@@ -148,15 +148,18 @@
           width="60"
         ></el-table-column>
         <el-table-column prop="times" label="保养总数"></el-table-column>
-
+        <el-table-column
+          prop="incompleteTimes"
+          label="未按时保养次数"
+        ></el-table-column>
         <el-table-column
           prop="overdueTimes"
-          label="未按时保养次数"
+          label="逾期完成次数"
         ></el-table-column>
         <el-table-column prop="recordTimes" label="记录次数"></el-table-column>
         <el-table-column
-          prop="incompleteTimes"
-          label="保养准点率"
+          prop="onTimeRate"
+          label="准时完成保养率"
         ></el-table-column>
         <el-table-column
           prop="completeRate"
@@ -585,13 +588,16 @@ export default {
               obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
               that.incompleteTimesTotal =
                 res.data[that.task[i]].incompleteTimes;
-              obj.completeRate = res.data[that.task[i]].completeRate;
+              obj.completeRate =
+                res.data[that.task[i]].completeRate.toFixed(2) + "%";
               that.completeRateTotal += res.data[that.task[i]].completeRate;
-
               obj.overdueTimes = res.data[that.task[i]].overdueTimes;
               that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
               obj.recordTimes = res.data[that.task[i]].recordTimes;
               that.recordTimesTotal += res.data[that.task[i]].recordTimes;
+              obj.onTimeRate = res.data[that.task[i]].onTimeRate + "%";
+              that.onTimeRateTotal += res.data[that.task[i]].onTimeRate;
+
               console.log(obj);
               setTimeout(() => {
                 that.taskAnalysisData.push(obj);
@@ -604,7 +610,10 @@ export default {
             obj.recordTimes = that.recordTimesTotal;
             obj.overdueTimes = that.overdueTimesTotal;
             obj.incompleteTimes = that.incompleteTimesTotal / that.task.length;
-            obj.completeRate = that.completeRateTotal / that.task.length;
+            obj.completeRate =
+              (that.completeRateTotal / that.task.length).toFixed(2) + "%";
+            obj.onTimeRate =
+              (that.onTimeRateTotal / that.task.length).toFixed(2) + "%";
             console.log(obj);
             that.taskAnalysisData.unshift(obj);
             setTimeout(() => {
@@ -623,18 +632,14 @@ export default {
             for (let i = 0; i < that.task.length; i++) {
               let obj = {};
               obj.taskid = index++;
-              obj.times = res.data[that.task[i]].times;
-              that.timesTotal += res.data[that.task[i]].times;
-              obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
-              that.incompleteTimesTotal =
-                res.data[that.task[i]].incompleteTimes;
-              obj.completeRate = res.data[that.task[i]].completeRate;
-              that.completeRateTotal += res.data[that.task[i]].completeRate;
-
-              obj.overdueTimes = res.data[that.task[i]].overdueTimes;
-              that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
-              obj.recordTimes = res.data[that.task[i]].recordTimes;
-              that.recordTimesTotal += res.data[that.task[i]].recordTimes;
+              obj.times = res.data[that.task[0]].times;
+              obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+              obj.completeRate =
+                res.data[that.task[0]].completeRate.toFixed(2) + "%";
+              obj.onTimeRate =
+                res.data[that.task[0]].onTimeRate.toFixed(2) + "%";
+              obj.overdueTimes = res.data[that.task[0]].overdueTimes;
+              obj.recordTimes = res.data[that.task[0]].recordTimes;
               console.log(obj);
               setTimeout(() => {
                 that.taskAnalysisData.push(obj);

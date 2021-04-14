@@ -51,6 +51,7 @@
           clearable
           multiple
           collapse-tags
+          @change="reporterchange"
         >
           <el-option-group
             v-for="group in reporteroptions"
@@ -76,6 +77,7 @@
           clearable
           multiple
           collapse-tags
+          @change="assigneechange"
         >
           <el-option-group
             v-for="group in assigneeoptions"
@@ -167,6 +169,11 @@ export default {
   components: {},
   created: function() {
     let that = this;
+    that.$message({
+      message: "选取了全部人员时，无需选择其他人员，以免搜索结果有误",
+      type: "warning",
+      duration: 5000,
+    });
     // 获取所有附加字段
     axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
       for (let i = 0; i < res.data.length; i++) {
@@ -287,7 +294,7 @@ export default {
           ],
         },
       ],
-      ifall: false,
+      ifdeviceall: false,
       selectvalue: "",
       selectmodel: "",
       dialogSearchVisible: false,
@@ -302,6 +309,7 @@ export default {
       deviceAnalysisData: [],
 
       // 报修人员
+      ifreporterall: false,
       reportervalue: [],
       reporteroptions: [
         {
@@ -324,13 +332,32 @@ export default {
           label: "SUPERVISOR",
           options: [],
         },
+        {
+          label: "全部人员",
+          options: [
+            {
+              label: "全部人员",
+              value: "reporterall",
+            },
+          ],
+        },
       ],
       // 维修人员
+      ifassigneeall: false,
       assigneevalue: [],
       assigneeoptions: [
         {
           label: "OPERATOR",
           options: [],
+        },
+        {
+          label: "全部人员",
+          options: [
+            {
+              label: "全部人员",
+              value: "assigneeall",
+            },
+          ],
         },
       ],
 
@@ -344,10 +371,10 @@ export default {
   methods: {
     devicechange(res) {
       let that = this;
-      that.ifall = false;
+      that.ifdeviceall = false;
       this.ifdevice = false;
       if (res == "all") {
-        that.ifall = true;
+        that.ifdeviceall = true;
         that.device = [];
         axios
           .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
@@ -368,6 +395,35 @@ export default {
         this.dialogSearchVisible = true;
       }
     },
+    reporterchange(res) {
+      let that = this;
+      if (res == "reporterall") {
+        that.reportervalue = [];
+        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+          // console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            that.reportervalue.push(res.data.content[i].id);
+          }
+        });
+      }
+      console.log(that.reportervalue);
+    },
+    assigneechange(res) {
+      let that = this;
+      if (res == "assigneeall") {
+        that.assigneevalue = [];
+        // 获取全部OPERATOR
+        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
+          // console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "OPERATOR") {
+              that.assigneevalue.push(res.data.content[i].id);
+            }
+          }
+        });
+      }
+      console.log(that.assigneevalue);
+    },
     submitselect() {
       this.dialogSearchVisible = false;
       this.selectInfo.push({
@@ -384,6 +440,12 @@ export default {
       this.selectInfo.splice(index, 1);
     },
     // 搜索
+    search1() {
+      let that = this;
+      console.log(that.device);
+      console.log(that.reportervalue);
+      console.log(that.assigneevalue);
+    },
     search() {
       let that = this;
       that.avgFixPeriodTotal = 0;
@@ -395,7 +457,7 @@ export default {
       console.log(that.reportervalue);
       console.log(that.assigneevalue);
       that.device1 = [];
-      if (that.ifall) {
+      if (that.ifdeviceall) {
         if (
           that.device.length == 0 ||
           that.startDate == "" ||
@@ -1544,7 +1606,9 @@ export default {
       }, 500);
     },
     clear() {
-      this.ifall = false; // 是否是全部
+      this.ifdeviceall = false; // 是否设备是全部
+      this.ifreporterall = false; // 是否报修人员是全部
+      this.ifassigneeall = false; // 是否维修人员是全部
       this.selectvalue = "";
       this.selectInfo = [];
       this.reportervalue = [];
