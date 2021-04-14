@@ -424,6 +424,7 @@ export default {
       recordTimesTotal: 0,
       incompleteTimesTotal: 0,
       completeRateTotal: 0,
+      onTimeRateTotal: 0,
     };
   },
   methods: {
