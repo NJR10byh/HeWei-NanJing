@@ -171,7 +171,7 @@
         >
           <div class="part" style="width: 100%;">
             <div class="Text">提交诊断</div>
-            <el-button @click="submitbtn">提交诊断</el-button>
+            <el-button @click="submitbtn">确认提交</el-button>
           </div>
         </div>
       </div>
@@ -567,35 +567,50 @@ export default {
     // 提交诊断
     submitbtn() {
       let that = this;
-      let obj = {};
-      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        obj.assignee = res.data.assignee;
-        obj.closed = res.data.closed;
-        obj.content = res.data.content;
-        obj.descriptionPic = res.data.descriptionPic;
-        obj.device = res.data.device;
-        obj.exceptionType = that.exceptionType;
-        obj.id = res.data.id;
-        obj.reason = that.reason;
-        obj.record = res.data.record;
-        obj.reporter = res.data.reporter;
-        obj.solution = that.solution;
-      });
-      setTimeout(() => {
-        console.log(obj);
-        axios.put(url, obj).then((res) => {
-          console.log(res);
-          that.$message({
-            message: "提交成功",
-            type: "success",
-          });
-          setTimeout(() => {
-            location.reload(); // 成功后更新UI
-          }, 300);
+      console.log(that.exceptionType, that.reason, that.solution);
+      if (
+        that.exceptionType == "" ||
+        that.reason == "" ||
+        that.solution == "" ||
+        that.exceptionType == null ||
+        that.reason == null ||
+        that.solution == null
+      ) {
+        that.$message({
+          message: "请将修复信息填写完整",
+          type: "warning",
         });
-      }, 200);
+      } else {
+        let obj = {};
+        let url = "http://47.102.214.37:8080/issue/" + that.errorid;
+        axios.get(url).then((res) => {
+          console.log(res.data);
+          obj.assignee = res.data.assignee;
+          obj.closed = res.data.closed;
+          obj.content = res.data.content;
+          obj.descriptionPic = res.data.descriptionPic;
+          obj.device = res.data.device;
+          obj.exceptionType = that.exceptionType;
+          obj.id = res.data.id;
+          obj.reason = that.reason;
+          obj.record = res.data.record;
+          obj.reporter = res.data.reporter;
+          obj.solution = that.solution;
+        });
+        setTimeout(() => {
+          console.log(obj);
+          axios.put(url, obj).then((res) => {
+            console.log(res);
+            that.$message({
+              message: "提交成功",
+              type: "success",
+            });
+            setTimeout(() => {
+              location.reload(); // 成功后更新UI
+            }, 300);
+          });
+        }, 200);
+      }
     },
   },
   components: {
