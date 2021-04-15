@@ -46,6 +46,11 @@
             >刷新列表
           </el-button>
         </div>
+        <div class="refresh check">
+          <el-button icon="el-icon-coordinate" @click="checkall"
+            >立即检查所有保养完成状态
+          </el-button>
+        </div>
       </div>
       <!-- <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
         <el-button
@@ -687,6 +692,26 @@ export default {
       console.log(index);
       this.dynamicTags.splice(index, 1);
       this.selectInfo.splice(index, 1);
+    },
+    // 立即检查所有保养完成状态
+    checkall() {
+      axios
+        .get("http://47.102.214.37:8080/root/refresh")
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.message == "ok") {
+            this.$message({
+              message: "已更新至最新状态",
+              type: "success",
+            });
+          }
+        })
+        .catch(() => {
+          this.$message({
+            message: "更新失败",
+            type: "error",
+          });
+        });
     },
     // 搜索
     search() {
@@ -1595,6 +1620,11 @@ export default {
           border: 1px solid #409eff;
           color: #409eff;
           margin-left: 10px;
+        }
+      }
+      .check {
+        .el-button {
+          width: 190px;
         }
       }
       .input {
