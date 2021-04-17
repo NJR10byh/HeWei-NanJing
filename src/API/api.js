@@ -1,19 +1,19 @@
+import axios from "axios";
+
 export default async (url, data = {}, method = "") => {
-  const baseURL = "https://netease-cloud-music-api-ivory.vercel.app";
+  const baseURL = "http://47.102.214.37:8080/";
   try {
-    return new Promise((resolve, reject) => {
-      console.log(baseURL + url + "&timestamp=" + new Date().getTime());
-      uni.request({
-        url: baseURL + url + "&timestamp=" + new Date().getTime(),
+    return new Promise((resolve) => {
+      console.log(baseURL + url);
+      axios({
+        url: baseURL + url,
         data,
         method,
-        success: (res_1) => {
-          resolve(res_1);
-        },
-        fail: (err_1) => {
-          reject(err_1);
-        },
+      }).then((res) => {
+        resolve(res);
       });
     });
-  } catch (e) {}
+  } catch (res) {
+    console.log(res);
+  }
 };

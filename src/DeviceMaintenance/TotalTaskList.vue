@@ -124,7 +124,7 @@
           <el-button
             @click="handleEdit(scope.row)"
             v-if="scope.row.taskname != undefined"
-            >编辑</el-button
+            >修改</el-button
           >
           <el-button
             @click="handleDelete(scope.row)"
@@ -1268,6 +1268,7 @@ export default {
     // 删除单个行
     handleDelete(row) {
       let that = this;
+      console.log(row);
       this.$confirm("删除后无法更改, 是否确定?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",

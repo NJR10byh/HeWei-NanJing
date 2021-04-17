@@ -179,24 +179,22 @@
 </template>
 
 <script>
-import axios from "axios";
 import User from "../components/Userinfo";
 
 export default {
-  created() {
+  created: async function() {
     this.$message({
-      message: "于 2021.04.08 11:03 完成更新",
+      message:
+        "进行了服务器端更新，更新了CREATOR权限的功能，不再支持CREATOR进行申请报修以及查看CREATOR申请的报修，修复了已知问题",
       type: "success",
-      duration: "6000",
+      duration: "10000",
     });
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      this.userRole = res.data.role;
-      this.username = res.data.username;
-      this.useremail = res.data.email;
-      this.name = res.data.name;
-      this.avatarurl = "http://47.102.214.37:8080/pic/" + res.data.avatar;
-    });
+    let res = await this.request("user/me", {}, "GET");
+    this.userRole = res.data.role;
+    this.username = res.data.username;
+    this.useremail = res.data.email;
+    this.name = res.data.name;
+    this.avatarurl = "http://47.102.214.37:8080/pic/" + res.data.avatar;
   },
   // 让页面只刷新一次
   mounted: function() {
@@ -377,19 +375,9 @@ export default {
           authName: "设备维修",
           children: [
             {
-              id: 40,
-              authName: "报修申请",
-              path: "fixApply",
-            },
-            {
               id: 41,
               authName: "全部报修",
               path: "allError",
-            },
-            {
-              id: 42,
-              authName: "我发布的",
-              path: "mySubmit",
             },
           ],
         },

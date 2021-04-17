@@ -42,7 +42,7 @@
         prop="setting"
         label="操作"
         width="300"
-        v-if="['ROOT', 'ADMIN'].includes(userRole)"
+        v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
       >
         <template slot-scope="scope">
           <el-button @click="showInfo(scope.$index)">以此为模版新增</el-button>

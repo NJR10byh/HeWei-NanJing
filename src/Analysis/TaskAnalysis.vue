@@ -231,11 +231,9 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   components: {},
-  created: function() {
+  created: async function() {
     let that = this;
     that.$message({
       message: "选取了全部人员时，请勿选择其他人员，以免搜索结果有误",
@@ -243,30 +241,26 @@ export default {
       duration: 5000,
     });
     // 获取所有附加字段
-    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      for (let i = 0; i < res.data.length; i++) {
-        that.deviceoptions[1].options.push({
-          value: res.data[i].id,
-          label: res.data[i].name,
-        });
-      }
-    });
+    let res1 = await that.request("device/info-field", {}, "GET");
+    for (let i = 0; i < res1.data.length; i++) {
+      that.deviceoptions[1].options.push({
+        value: res1.data[i].id,
+        label: res1.data[i].name,
+      });
+    }
 
     // 获取全部OPERATOR
-    axios
-      .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-      .then((res) => {
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.opsoptions[0].options.push({
-            value: res.data.content[i].id,
-            label:
-              res.data.content[i].name +
-              " (用户名：" +
-              res.data.content[i].username +
-              ")",
-          });
-        }
+    let res2 = await that.request("user/query?role==OPERATOR", {}, "GET");
+    for (let i = 0; i < res2.data.content.length; i++) {
+      that.opsoptions[0].options.push({
+        value: res2.data.content[i].id,
+        label:
+          res2.data.content[i].name +
+          " (用户名：" +
+          res2.data.content[i].username +
+          ")",
       });
+    }
   },
   data() {
     return {
@@ -429,7 +423,7 @@ export default {
   },
   methods: {
     // 搜索保养
-    taskselectchange(res) {
+    async taskselectchange(res) {
       let that = this;
       that.devicedisabled = true;
       that.opsdisabled = true;
@@ -437,18 +431,20 @@ export default {
       if (res == "taskall") {
         that.iftaskall = true;
         that.task = [];
-        axios.get("http://47.102.214.37:8080/ops/query?name=! ").then((res) => {
-          let i = 0;
-          console.log(res.data);
-          for (i = 0; i < res.data.content.length; i++) {
-            that.task.push(res.data.content[i].id);
-          }
-          if (i == res.data.content.length) {
-            // 清空搜索条件，等待下次搜索
-            that.taskselectInfo = [];
-            that.dynamicTags = [];
-          }
-        });
+        let res = await that.request(
+          "ops/schedule?page=0&size=100000000",
+          {},
+          "GET"
+        );
+        let i = 0;
+        for (i = 0; i < res.data.content.length; i++) {
+          that.task.push(res.data.content[i].id);
+        }
+        if (i == res.data.content.length) {
+          // 清空搜索条件，等待下次搜索
+          that.taskselectInfo = [];
+          that.dynamicTags = [];
+        }
       } else {
         this.dialogSearchTaskVisible = true;
       }
@@ -538,7 +534,7 @@ export default {
       this.taskselectInfo.splice(index, 1);
     },
     /* 搜索 */
-    searchdata() {
+    async searchdata() {
       let that = this;
       if (
         that.start == "" ||
@@ -573,86 +569,80 @@ export default {
             type: "warning",
           });
         } else if (that.task.length > 1) {
-          let url =
-            "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
+          let url = "analysis/schedule?sid=" + that.task[0];
           for (let i = 1; i < that.task.length; i++) {
             url = url + "," + that.task[i];
           }
           url = url + "&start=" + that.start + "&end=" + that.end;
           console.log(url);
-          axios.get(url).then((res) => {
-            for (let i = 0; i < that.task.length; i++) {
-              let obj = {};
-              obj.taskid = index++;
-              obj.times = res.data[that.task[i]].times;
-              that.timesTotal += res.data[that.task[i]].times;
-              obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
-              that.incompleteTimesTotal =
-                res.data[that.task[i]].incompleteTimes;
-              obj.completeRate =
-                res.data[that.task[i]].completeRate.toFixed(2) + "%";
-              that.completeRateTotal += res.data[that.task[i]].completeRate;
-              obj.overdueTimes = res.data[that.task[i]].overdueTimes;
-              that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
-              obj.recordTimes = res.data[that.task[i]].recordTimes;
-              that.recordTimesTotal += res.data[that.task[i]].recordTimes;
-              obj.onTimeRate = res.data[that.task[i]].onTimeRate + "%";
-              that.onTimeRateTotal += res.data[that.task[i]].onTimeRate;
-
-              console.log(obj);
-              setTimeout(() => {
-                that.taskAnalysisData.push(obj);
-              }, 600);
-            }
-            // 总计
+          let res = await that.request(url, {}, "GET");
+          for (let i = 0; i < that.task.length; i++) {
             let obj = {};
-            obj.taskid = "总计";
-            obj.times = that.timesTotal;
-            obj.recordTimes = that.recordTimesTotal;
-            obj.overdueTimes = that.overdueTimesTotal;
-            obj.incompleteTimes = that.incompleteTimesTotal / that.task.length;
+            obj.taskid = index++;
+            obj.times = res.data[that.task[i]].times;
+            that.timesTotal += res.data[that.task[i]].times;
+            obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
+            that.incompleteTimesTotal = res.data[that.task[i]].incompleteTimes;
             obj.completeRate =
-              (that.completeRateTotal / that.task.length).toFixed(2) + "%";
-            obj.onTimeRate =
-              (that.onTimeRateTotal / that.task.length).toFixed(2) + "%";
+              res.data[that.task[i]].completeRate.toFixed(2) + "%";
+            that.completeRateTotal += res.data[that.task[i]].completeRate;
+            obj.overdueTimes = res.data[that.task[i]].overdueTimes;
+            that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
+            obj.recordTimes = res.data[that.task[i]].recordTimes;
+            that.recordTimesTotal += res.data[that.task[i]].recordTimes;
+            obj.onTimeRate = res.data[that.task[i]].onTimeRate + "%";
+            that.onTimeRateTotal += res.data[that.task[i]].onTimeRate;
+
             console.log(obj);
-            that.taskAnalysisData.unshift(obj);
             setTimeout(() => {
-              that.$message({
-                message: "查询成功",
-                type: "success",
-              });
-            }, 300);
-          });
+              that.taskAnalysisData.push(obj);
+            }, 600);
+          }
+          // 总计
+          let obj = {};
+          obj.taskid = "总计";
+          obj.times = that.timesTotal;
+          obj.recordTimes = that.recordTimesTotal;
+          obj.overdueTimes = that.overdueTimesTotal;
+          obj.incompleteTimes = that.incompleteTimesTotal / that.task.length;
+          obj.completeRate =
+            (that.completeRateTotal / that.task.length).toFixed(2) + "%";
+          obj.onTimeRate =
+            (that.onTimeRateTotal / that.task.length).toFixed(2) + "%";
+          console.log(obj);
+          that.taskAnalysisData.unshift(obj);
+          setTimeout(() => {
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
+          }, 300);
         } else {
-          let url =
-            "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
+          let url = "analysis/schedule?sid=" + that.task[0];
           url = url + "&start=" + that.start + "&end=" + that.end;
-          axios.get(url).then((res) => {
-            console.log(res);
-            for (let i = 0; i < that.task.length; i++) {
-              let obj = {};
-              obj.taskid = index++;
-              obj.times = res.data[that.task[0]].times;
-              obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
-              obj.completeRate =
-                res.data[that.task[0]].completeRate.toFixed(2) + "%";
-              obj.onTimeRate =
-                res.data[that.task[0]].onTimeRate.toFixed(2) + "%";
-              obj.overdueTimes = res.data[that.task[0]].overdueTimes;
-              obj.recordTimes = res.data[that.task[0]].recordTimes;
-              console.log(obj);
-              setTimeout(() => {
-                that.taskAnalysisData.push(obj);
-              }, 600);
-            }
+          let res = that.request(url, {}, "GET");
+          console.log(res);
+          for (let i = 0; i < that.task.length; i++) {
+            let obj = {};
+            obj.taskid = index++;
+            obj.times = res.data[that.task[0]].times;
+            obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+            obj.completeRate =
+              res.data[that.task[0]].completeRate.toFixed(2) + "%";
+            obj.onTimeRate = res.data[that.task[0]].onTimeRate.toFixed(2) + "%";
+            obj.overdueTimes = res.data[that.task[0]].overdueTimes;
+            obj.recordTimes = res.data[that.task[0]].recordTimes;
+            console.log(obj);
             setTimeout(() => {
-              that.$message({
-                message: "查询成功",
-                type: "success",
-              });
-            }, 300);
-          });
+              that.taskAnalysisData.push(obj);
+            }, 600);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
+          }, 300);
         }
       }
     },
@@ -966,22 +956,22 @@ export default {
       }
     },
     // 确定设备下的taskid
-    confirmdevice() {
+    async confirmdevice() {
       let that = this;
       that.device = [];
       that.url =
-        "http://47.102.214.37:8080/device/query?" +
+        "device/query?" +
         that.deviceselectInfo[0].ziduan +
         "=L" +
         that.deviceselectInfo[0].value +
         "%25";
+
       if (that.deviceselectInfo.length == 1) {
-        axios.get(that.url).then((res) => {
-          console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
-            that.device.push(res.data.content[i].id);
-          }
-        });
+        let res = await that.request(that.url, {}, "GET");
+        console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.device.push(res.data.content[i].id);
+        }
       } else {
         for (let i = 1; i < that.deviceselectInfo.length; i++) {
           that.url =
@@ -992,41 +982,37 @@ export default {
             that.deviceselectInfo[i].value +
             "%25";
         }
-        axios.get(that.url).then((res) => {
-          console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
-            that.device.push(res.data.content[i].id);
-          }
-        });
+        let res = await that.request(that.url, {}, "GET");
+        console.log(res.data);
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.device.push(res.data.content[i].id);
+        }
       }
       setTimeout(() => {
         console.log(that.device[0]);
         if (that.device.length > 1) {
-          that.url =
-            "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
+          that.url = "ops/query?device=I" + that.device[0];
           for (let j = 1; j < that.device.length; j++) {
             that.url = that.url + "," + that.device[j];
           }
         } else {
-          that.url =
-            "http://47.102.214.37:8080/ops/query?device=I" + that.device[0];
+          that.url = "ops/query?device=I" + that.device[0];
         }
         console.log(that.url);
-        axios.get(that.url).then((res) => {
-          console.log(res.data);
-          that.task1 = [];
-          for (let i = 0; i < res.data.content.length; i++) {
-            that.task1.push(res.data.content[i].id);
-          }
-        });
+        let res = that.request(that.url, {}, "GET");
+        console.log(res.data);
+        that.task1 = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.task1.push(res.data.content[i].id);
+        }
       }, 300);
     },
     // 确定人员下的taskid
-    confirmops() {
+    async confirmops() {
       let that = this;
       if (that.opsselectInfo[0].value.length > 1) {
         that.url =
-          "http://47.102.214.37:8080/ops/query?" +
+          "ops/query?" +
           that.opsselectInfo[0].ziduan +
           "=I" +
           that.opsselectInfo[0].value[0];
@@ -1035,46 +1021,44 @@ export default {
         }
       } else {
         that.url =
-          "http://47.102.214.37:8080/ops/query?" +
+          "ops/query?" +
           that.opsselectInfo[0].ziduan +
           "==" +
           that.opsselectInfo[0].value;
       }
       console.log(that.url);
-      axios.get(that.url).then((res) => {
-        console.log(res.data);
-        that.task2 = [];
-        for (let i = 0; i < res.data.content.length; i++) {
-          that.task2.push(res.data.content[i].id);
-        }
-      });
+      let res = await that.request(that.url, {}, "GET");
+      console.log(res.data);
+      that.task2 = [];
+      for (let i = 0; i < res.data.content.length; i++) {
+        that.task2.push(res.data.content[i].id);
+      }
     },
     // 确定标准下的taskid
-    confirmtask() {
+    async confirmtask() {
       let that = this;
       // 确定第一部分
       if (that.taskselectInfo[0].ziduan == "name") {
         that.url =
-          "http://47.102.214.37:8080/ops/query?" +
+          "ops/query?" +
           that.taskselectInfo[0].ziduan +
           "=L" +
           that.taskselectInfo[0].value +
           "%25";
       } else {
         that.url =
-          "http://47.102.214.37:8080/ops/query?" +
+          "ops/query?" +
           that.taskselectInfo[0].ziduan +
           "==" +
           that.taskselectInfo[0].value;
       }
       if (that.taskselectInfo.length == 1) {
-        axios.get(that.url).then((res) => {
-          console.log(res.data);
-          that.task3 = [];
-          for (let i = 0; i < res.data.content.length; i++) {
-            that.task3.push(res.data.content[i].id);
-          }
-        });
+        let res = await that.request(that.url, {}, "GET");
+        console.log(res.data);
+        that.task3 = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.task3.push(res.data.content[i].id);
+        }
       } else {
         for (let i = 1; i < that.taskselectInfo.length; i++) {
           if (that.taskselectInfo[i].ziduan == "name") {
@@ -1094,13 +1078,12 @@ export default {
               that.taskselectInfo[i].value;
           }
         }
-        axios.get(that.url).then((res) => {
-          console.log(res.data);
-          that.task3 = [];
-          for (let i = 0; i < res.data.content.length; i++) {
-            that.task3.push(res.data.content[i].id);
-          }
-        });
+        let res = that.request(that.url, {}, "GET");
+        console.log(res.data);
+        that.task3 = [];
+        for (let i = 0; i < res.data.content.length; i++) {
+          that.task3.push(res.data.content[i].id);
+        }
       }
     },
     clear() {

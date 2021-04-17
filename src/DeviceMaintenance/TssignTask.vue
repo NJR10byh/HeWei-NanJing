@@ -180,6 +180,7 @@ export default {
           obj.content = res.data.content;
           obj.id = res.data.id;
           obj.name = res.data.name;
+          obj.no = res.data.no;
           obj.remark = res.data.remark;
           obj.scheduleType = res.data.scheduleType;
           obj.startDate = that.datevalue;

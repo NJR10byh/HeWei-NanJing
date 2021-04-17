@@ -94,12 +94,14 @@
             class="AddBtn"
             icon="el-icon-circle-plus-outline"
             @click="dialogFormVisible = true"
+            v-if="['ROOT', 'ADMIN', 'SUPERVISOR'].includes(userRole)"
             >新增字段</el-button
           >
           <el-button
             class="DelBtn"
             icon="el-icon-delete"
             @click="delectExtraInfo"
+            v-if="['ROOT', 'ADMIN', 'SUPERVISOR'].includes(userRole)"
             >删除字段</el-button
           >
         </div>
@@ -385,8 +387,11 @@ export default {
               });
             }
           })
-          .catch((err) => {
-            console.log(err);
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
       }
     },

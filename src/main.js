@@ -20,8 +20,11 @@ import "./assets/fonts/iconfont.css";
 
 // 引入axios
 import axios from "axios";
-
 Vue.prototype.$http = axios;
+
+// 引入自己封装的接口函数
+import request from "./API/api";
+Vue.prototype.request = request;
 
 Vue.config.productionTip = false;
 

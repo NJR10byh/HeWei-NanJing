@@ -327,9 +327,9 @@ export default {
               }
             }
             if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
+              obj.crux = "true";
             } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
+              obj.crux = "false";
             }
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
@@ -381,9 +381,9 @@ export default {
               }
             }
             if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
+              obj.crux = "true";
             } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
+              obj.crux = "false";
             }
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
@@ -429,9 +429,9 @@ export default {
               }
             }
             if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
+              obj.crux = "true";
             } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
+              obj.crux = "false";
             }
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
@@ -465,19 +465,27 @@ export default {
       let fd = new FormData();
       fd.append("file", val.file);
       console.log(fd);
-      axios.post("http://47.102.214.37:8080/device/import", fd).then((res) => {
-        console.log(res);
-        if (res.status == 200) {
-          that.dialogVisible = false;
+      axios
+        .post("http://47.102.214.37:8080/device/import", fd)
+        .then((res) => {
+          console.log(res);
+          if (res.status == 200) {
+            that.dialogVisible = false;
+            that.$message({
+              message: "上传成功",
+              type: "success",
+            });
+            setTimeout(function() {
+              that.getAllDevice();
+            }, 200);
+          }
+        })
+        .catch((res) => {
           that.$message({
-            message: "上传成功",
-            type: "success",
+            message: res.response.data.message,
+            type: "error",
           });
-          setTimeout(function() {
-            that.getAllDevice();
-          }, 200);
-        }
-      });
+        });
     },
     submitUpload() {
       this.$refs.upload.submit();
@@ -664,9 +672,9 @@ export default {
               }
             }
             if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
+              obj.crux = "true";
             } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
+              obj.crux = "false";
             }
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
@@ -725,9 +733,9 @@ export default {
               }
             }
             if (res.data.content[i].crux == true) {
-              obj.crux = "Y";
+              obj.crux = "true";
             } else if (res.data.content[i].crux == false) {
-              obj.crux = "N";
+              obj.crux = "false";
             }
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
