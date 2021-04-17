@@ -76,8 +76,7 @@ export default {
         return "暂无";
       } else {
         var dateee = new Date(date).toJSON();
-        this.active++;
-        return new Date(+new Date(dateee) + 8 * 3600 * 1000)
+        return new Date(+new Date(dateee) + 16 * 3600 * 1000)
           .toISOString()
           .replace(/T/g, " ")
           .replace(/\.[\d]{3}Z/, "");
@@ -92,7 +91,6 @@ export default {
         "http://47.102.214.37:8080/logging?page=0&size=" + that.page_size;
       axios.get(url).then((res) => {
         console.log(res.data);
-        console.log(JSON.parse(res.data.content[3].opContent));
         that.total = res.data.totalElements;
         for (let i = 0; i < res.data.content.length; i++) {
           let obj = {};

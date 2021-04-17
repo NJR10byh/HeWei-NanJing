@@ -142,10 +142,10 @@ export default {
             }
             setTimeout(() => {
               // 获取报修人员信息
-              let assigneeurl =
+              let reporterurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
-              axios.get(assigneeurl).then((res) => {
+                res.data.content[i].reporter.id;
+              axios.get(reporterurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =
                   res.data.name == undefined ? "未分配" : res.data.name;
@@ -260,10 +260,10 @@ export default {
             }
             setTimeout(() => {
               // 获取报修人员信息
-              let assigneeurl =
+              let reporterurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
-              axios.get(assigneeurl).then((res) => {
+                res.data.content[i].reporter.id;
+              axios.get(reporterurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =
                   res.data.name == undefined ? "未分配" : res.data.name;
@@ -339,10 +339,10 @@ export default {
             }
             setTimeout(() => {
               // 获取报修人员信息
-              let assigneeurl =
+              let reporterurl =
                 "http://47.102.214.37:8080/user/" +
-                res.data.content[i].assignee[0].id;
-              axios.get(assigneeurl).then((res) => {
+                res.data.content[i].reporter.id;
+              axios.get(reporterurl).then((res) => {
                 console.log(res.data);
                 obj.reportername =
                   res.data.name == undefined ? "未分配" : res.data.name;

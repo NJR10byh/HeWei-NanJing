@@ -1,7 +1,7 @@
 <template>
   <div
     class="Container-TssignTask"
-    v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
+    v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
   >
     <div style="padding-bottom:20px;width:100%;">
       <!-- 面包屑 -->

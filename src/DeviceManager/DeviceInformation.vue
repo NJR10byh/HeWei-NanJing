@@ -165,7 +165,12 @@
             :width="item.width"
           ></el-table-column>
         </template>
-        <el-table-column prop="setting" label="操作" width="180">
+        <el-table-column
+          prop="setting"
+          label="操作"
+          width="180"
+          v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
+        >
           <template slot-scope="scope">
             <el-button @click="handleEdit(scope.$index, scope.row)"
               >修改</el-button

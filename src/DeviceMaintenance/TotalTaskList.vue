@@ -140,7 +140,7 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <div v-if="!ifsearch">
+    <div v-if="!ifsearch && userRole != 'OPERATOR'">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -298,6 +298,7 @@ export default {
     axios.get("http://47.102.214.37:8080/user/me").then((res) => {
       console.log(res.data);
       that.userRole = res.data.role;
+      that.userid = res.data.id;
     });
     if (globaldata.taskselectInfo.length != 0) {
       that.selectInfo = globaldata.taskselectInfo;
@@ -338,6 +339,7 @@ export default {
   data() {
     return {
       userRole: "",
+      userid: -1,
       tableData: [],
       tablewidth: "150",
       // checkedDetail: [],
@@ -1006,10 +1008,8 @@ export default {
       })
         .then((res) => {
           that.tableData = [];
-          if (that.userRole != "OPERATOR") {
-            that.total = res.data.totalElements;
-            that.currentPage = 1;
-          }
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
           console.log(res.data);
           if (that.userRole != "OPERATOR") {
             for (let a = 0; a < res.data.content.length; a++) {
@@ -1138,10 +1138,17 @@ export default {
               setTimeout(() => {
                 axios.get(searchtask).then((res) => {
                   console.log(res.data);
-                  if (res.data.length != 0) {
-                    obj.taskid = res.data[0].id;
-                    obj.taskname = res.data[0].name;
-                    obj.taskno = res.data[0].no;
+                  let mytask = [];
+                  for (let i = 0; i < res.data.length; i++) {
+                    if (res.data[i].ops[0].id == that.userid) {
+                      mytask.push(res.data[i]);
+                    }
+                  }
+                  if (mytask != 0) {
+                    console.log(mytask);
+                    obj.taskid = mytask[0].id;
+                    obj.taskname = mytask[0].name;
+                    obj.taskno = mytask[0].no;
                     let URL =
                       "http://47.102.214.37:8080/ops/schedule/status/" +
                       obj.taskid;
@@ -1160,13 +1167,13 @@ export default {
 
                     // 获取人员信息
                     setTimeout(() => {
-                      if (res.data[0].ops.length == 0) {
+                      if (mytask[0].ops.length == 0) {
                         obj.opuser = "暂未分配";
                       } else {
-                        for (let k = 0; k < res.data[0].ops.length; k++) {
+                        for (let k = 0; k < mytask[0].ops.length; k++) {
                           let searchops =
                             "http://47.102.214.37:8080/user/" +
-                            res.data[0].ops[k].id;
+                            mytask[0].ops[k].id;
                           axios
                             .get(searchops)
                             .then((res) => {
@@ -1178,16 +1185,16 @@ export default {
                         }
                       }
                     }, 200);
-                    if (res.data.length > 1) {
-                      for (let i = 1; i < res.data.length; i++) {
+                    if (mytask.length > 1) {
+                      for (let i = 1; i < mytask.length; i++) {
                         let arr = {};
                         arr.id = deviceId + " - " + i;
                         arr.opuser = "";
                         arr.devicename = devicename;
                         arr.deviceNo = deviceNo;
-                        arr.taskid = res.data[i].id;
-                        arr.taskname = res.data[i].name;
-                        arr.taskno = res.data[i].no;
+                        arr.taskid = mytask[i].id;
+                        arr.taskname = mytask[i].name;
+                        arr.taskno = mytask[i].no;
                         let URL =
                           "http://47.102.214.37:8080/ops/schedule/status/" +
                           arr.taskid;
@@ -1207,13 +1214,13 @@ export default {
 
                         // 获取人员信息
                         setTimeout(() => {
-                          if (res.data[i].ops.length == 0) {
+                          if (mytask[i].ops.length == 0) {
                             arr.opuser = "暂未分配";
                           } else {
-                            for (let k = 0; k < res.data[i].ops.length; k++) {
+                            for (let k = 0; k < mytask[i].ops.length; k++) {
                               let searchops =
                                 "http://47.102.214.37:8080/user/" +
-                                res.data[i].ops[k].id;
+                                mytask[i].ops[k].id;
                               axios
                                 .get(searchops)
                                 .then((res) => {
