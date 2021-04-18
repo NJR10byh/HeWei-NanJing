@@ -13,7 +13,7 @@
           <el-step title="申请" :description="applytime"></el-step>
           <el-step title="分配" :description="assigntime"></el-step>
           <el-step title="修复" :description="fixtime"></el-step>
-          <el-step title="完成" :description="completetime"></el-step>
+          <el-step title="确认" :description="completetime"></el-step>
         </el-steps>
       </div>
       <div class="Task-info">

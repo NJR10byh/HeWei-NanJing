@@ -47,7 +47,10 @@
           </el-button>
         </div>
         <div class="refresh check">
-          <el-button icon="el-icon-coordinate" @click="checkall"
+          <el-button
+            icon="el-icon-coordinate"
+            @click="checkall"
+            v-if="['ROOT'].includes(userRole)"
             >立即检查所有保养完成状态
           </el-button>
         </div>
@@ -118,8 +121,18 @@
         <template slot-scope="scope">
           <el-button
             @click="handleDetail(scope.row)"
-            v-if="scope.row.taskname != undefined"
+            v-if="
+              scope.row.taskname != undefined && ['OPERATOR'].includes(userRole)
+            "
             >执行</el-button
+          >
+          <el-button
+            @click="handleDetail(scope.row)"
+            v-if="
+              scope.row.taskname != undefined &&
+                !['OPERATOR'].includes(userRole)
+            "
+            >查看</el-button
           >
           <el-button
             @click="handleEdit(scope.row)"

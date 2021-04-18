@@ -13,24 +13,41 @@
             style="margin-top:5px;"
           ></user>
         </div>
-        <div class="part0" style="width: 50%;">
-          <div class="Text">选择设备</div>
-          <el-select v-model="device" filterable clearable placeholder="请选择">
-            <el-option
-              v-for="item in options1"
-              :key="item.value"
-              :label="item.devicename"
-              :value="item.value"
+        <div class="part0 device" style="width: 50%;">
+          <div class="deviceselect">
+            <div class="Text">选择设备</div>
+            <el-select
+              v-model="device"
+              filterable
+              clearable
+              placeholder="请选择"
             >
-              <span style="float: left;font-size:13px;">{{
-                item.devicename
-              }}</span>
-              <span
-                style="float: right; color: #8492a6;font-size: 13px;margin-right:15px;"
-                >{{ item.devicenumber }}</span
+              <el-option
+                v-for="item in options1"
+                :key="item.value"
+                :label="item.devicename"
+                :value="item.value"
               >
-            </el-option>
-          </el-select>
+                <span style="float: left;font-size:13px;">{{
+                  item.devicename
+                }}</span>
+                <span
+                  style="float: right; color: #8492a6;font-size: 13px;margin-right:15px;"
+                  >{{ item.devicenumber }}</span
+                >
+              </el-option>
+            </el-select>
+          </div>
+          <div class="devicesinput" v-if="reporter.role == 'OPERATOR'">
+            <div class="Text">按编号添加设备</div>
+            <el-input
+              v-model="deviceno"
+              placeholder="请输入设备编号"
+            ></el-input>
+          </div>
+          <div class="devicesbtn" v-if="reporter.role == 'OPERATOR'">
+            <el-button @click="searchdevice">查找</el-button>
+          </div>
         </div>
       </div>
       <div class="Content">
@@ -114,6 +131,7 @@ export default {
       console.log(res.data);
       that.reporter.id = res.data.id;
       that.reporter.name = res.data.name;
+      that.reporter.role = res.data.role;
       that.reporter.username = res.data.username;
       that.reporter.useremail = res.data.email;
       that.reporter.avatar = "http://47.102.214.37:8080/pic/" + res.data.avatar;
@@ -190,6 +208,7 @@ export default {
       reporter: {}, // 报告人员
       // 设备选择
       device: [],
+      deviceno: "",
       options1: [],
       content: "", // 异常内容
 
@@ -327,6 +346,34 @@ export default {
           });
       }
     },
+    // OPERATOR查找设备
+    searchdevice() {
+      let that = this;
+      console.log(that.deviceno);
+      let url =
+        "http://47.102.214.37:8080/device/query?deviceNo==" + that.deviceno;
+      axios
+        .get(url)
+        .then((res) => {
+          console.log(res.data);
+          that.deviceno = "";
+          let obj = {};
+          obj.value = res.data.content[0].id;
+          obj.devicename = res.data.content[0].name;
+          obj.devicenumber = res.data.content[0].deviceNo;
+          that.options1.push(obj);
+          that.$message({
+            message: "查找成功，已添加至设备选择列表",
+            type: "success",
+          });
+        })
+        .catch((res) => {
+          that.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
+    },
   },
 };
 </script>
@@ -366,6 +413,7 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        // border: 1px solid red;
         .Text {
           // border: 1px solid red;
           font-size: 18px;
@@ -381,6 +429,38 @@ export default {
         }
         .el-select {
           margin-top: 5px;
+        }
+      }
+      .device {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        // border: 1px solid red;
+        .deviceselect {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .devicesinput {
+          margin-left: 20px;
+          .el-input {
+            margin-top: 5px;
+          }
+        }
+        .devicesbtn {
+          display: flex;
+          align-self: flex-end;
+          margin-left: 10px;
+          margin-bottom: 6px;
+          .el-button {
+            width: 60px;
+            background: #409eff;
+            border: 0;
+            padding: 12px 0;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 5px;
+          }
         }
       }
     }

@@ -21,19 +21,35 @@
             </div>
           </div>
           <h1>保养步骤：</h1>
-          <div v-for="(item, index) in content" :key="index" class="content">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox :label="index">
-                <div class="title">
-                  <span style="margin-left:5px;">{{
-                    item.contentinfotitle
-                  }}</span>
+          <div v-if="['OPERATOR'].includes(userRole)">
+            <div v-for="(item, index) in content" :key="index" class="content">
+              <el-checkbox-group v-model="checkList">
+                <el-checkbox :label="index">
+                  <div class="title">
+                    <span style="margin-left:5px;">{{
+                      item.contentinfotitle
+                    }}</span>
+                  </div>
+                </el-checkbox>
+                <div class="ql-snow">
+                  <div class="ql-editor" v-html="item.contentinfodetail"></div>
                 </div>
-              </el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </div>
+          <div
+            v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
+          >
+            <div v-for="(item, index) in content" :key="index" class="content">
+              <div class="title">
+                <span style="margin-left:5px;">{{
+                  item.contentinfotitle
+                }}</span>
+              </div>
               <div class="ql-snow">
                 <div class="ql-editor" v-html="item.contentinfodetail"></div>
               </div>
-            </el-checkbox-group>
+            </div>
           </div>
           <div v-if="checkList.length == content.length" class="form">
             <h1>记录：</h1>
@@ -193,6 +209,11 @@ const toolbarOptions = [
 export default {
   created: function() {
     let that = this;
+    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
+      console.log(res.data);
+      that.userRole = res.data.role;
+      that.userid = res.data.id;
+    });
     that.taskid = that.$route.query.taskid;
     let url =
       "http://47.102.214.37:8080/ops/schedule/detail/" +
@@ -286,6 +307,9 @@ export default {
   },
   data() {
     return {
+      userRole: "",
+      userid: "",
+
       taskid: "", //任务ID
       name: null, // 任务名称
       no: null, // 标准编号

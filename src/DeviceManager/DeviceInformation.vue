@@ -52,18 +52,28 @@
             </el-button>
           </div>
           <div class="import refresh">
-            <el-button icon="el-icon-upload2" @click="dialogVisible = true"
+            <el-button
+              icon="el-icon-upload2"
+              @click="dialogVisible = true"
+              v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
               >导入
             </el-button>
           </div>
           <div class="export refresh">
-            <el-button icon="el-icon-download" @click="exportExcel"
+            <el-button
+              icon="el-icon-download"
+              @click="exportExcel"
+              v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
               >导出
             </el-button>
           </div>
         </div>
         <div class="oper-btns-right">
-          <el-button class="bigdel-btn" icon="el-icon-delete" @click="delectAll"
+          <el-button
+            class="bigdel-btn"
+            icon="el-icon-delete"
+            @click="delectAll"
+            v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
             >批量删除</el-button
           >
         </div>
@@ -312,42 +322,50 @@ export default {
         "%25";
       if (that.selectInfo.length == 1) {
         that.exporturl = exportURL;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.tableData = [];
-          that.total = res.data.totalElements;
-          that.currentPage = 1;
-          for (var i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.index = index++;
-            obj.name = res.data.content[i].name;
-            obj["brand"] = res.data.content[i].brand;
-            obj.type = res.data.content[i].type;
-            obj.deviceNo = res.data.content[i].deviceNo;
-            if (res.data.content[i].extra.length != 0) {
-              for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                obj[res.data.content[i].extra[j].field.id] =
-                  res.data.content[i].extra[j].value;
+        axios
+          .get(url)
+          .then((res) => {
+            console.log(res.data);
+            that.tableData = [];
+            that.total = res.data.totalElements;
+            that.currentPage = 1;
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
               }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "true";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "false";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
             }
-            if (res.data.content[i].crux == true) {
-              obj.crux = "true";
-            } else if (res.data.content[i].crux == false) {
-              obj.crux = "false";
-            }
-            obj.clazz = res.data.content[i].clazz;
-            that.tableData.push(obj);
-          }
-          that.$message({
-            message: "查询成功",
-            type: "success",
-          });
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
 
-          // 搜索条件存入全局变量
-          globaldata.deviceselectInfo = that.selectInfo;
-          globaldata.devicedynamicTags = that.dynamicTags;
-        });
+            // 搜索条件存入全局变量
+            globaldata.deviceselectInfo = that.selectInfo;
+            globaldata.devicedynamicTags = that.dynamicTags;
+          })
+          .catch((res) => {
+            that.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
       } else {
         for (let i = 1; i < that.selectInfo.length; i++) {
           url =
@@ -366,42 +384,50 @@ export default {
             "%25";
         }
         that.exporturl = exportURL;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.tableData = [];
-          that.total = res.data.totalElements;
-          that.currentPage = 1;
-          for (var i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.id = res.data.content[i].id;
-            obj.index = index++;
-            obj.name = res.data.content[i].name;
-            obj["brand"] = res.data.content[i].brand;
-            obj.type = res.data.content[i].type;
-            obj.deviceNo = res.data.content[i].deviceNo;
-            if (res.data.content[i].extra.length != 0) {
-              for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                obj[res.data.content[i].extra[j].field.id] =
-                  res.data.content[i].extra[j].value;
+        axios
+          .get(url)
+          .then((res) => {
+            console.log(res.data);
+            that.tableData = [];
+            that.total = res.data.totalElements;
+            that.currentPage = 1;
+            for (var i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.name = res.data.content[i].name;
+              obj["brand"] = res.data.content[i].brand;
+              obj.type = res.data.content[i].type;
+              obj.deviceNo = res.data.content[i].deviceNo;
+              if (res.data.content[i].extra.length != 0) {
+                for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                  obj[res.data.content[i].extra[j].field.id] =
+                    res.data.content[i].extra[j].value;
+                }
               }
+              if (res.data.content[i].crux == true) {
+                obj.crux = "true";
+              } else if (res.data.content[i].crux == false) {
+                obj.crux = "false";
+              }
+              obj.clazz = res.data.content[i].clazz;
+              that.tableData.push(obj);
             }
-            if (res.data.content[i].crux == true) {
-              obj.crux = "true";
-            } else if (res.data.content[i].crux == false) {
-              obj.crux = "false";
-            }
-            obj.clazz = res.data.content[i].clazz;
-            that.tableData.push(obj);
-          }
-          that.$message({
-            message: "查询成功",
-            type: "success",
-          });
+            that.$message({
+              message: "查询成功",
+              type: "success",
+            });
 
-          // 搜索条件存入全局变量
-          globaldata.deviceselectInfo = that.selectInfo;
-          globaldata.devicedynamicTags = that.dynamicTags;
-        });
+            // 搜索条件存入全局变量
+            globaldata.deviceselectInfo = that.selectInfo;
+            globaldata.devicedynamicTags = that.dynamicTags;
+          })
+          .catch((res) => {
+            that.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
       }
     },
     // 获取全部全部信息
@@ -456,8 +482,11 @@ export default {
           // 改变导出url
           that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((res) => {
+          that.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
     // 导入
@@ -540,6 +569,12 @@ export default {
           aLink.click();
           document.body.removeChild(aLink);
           window.URL.revokeObjectURL(url);
+        })
+        .catch((res) => {
+          that.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
     // 批量删除
@@ -568,9 +603,17 @@ export default {
                   let url =
                     "http://47.102.214.37:8080/device/" + that.tableData[i].id;
                   // console.log(url);
-                  axios.delete(url).then((res) => {
-                    console.log(res);
-                  });
+                  axios
+                    .delete(url)
+                    .then((res) => {
+                      console.log(res);
+                    })
+                    .catch((res) => {
+                      that.$message({
+                        message: res.response.data.message,
+                        type: "error",
+                      });
+                    });
                 }
               });
             });
@@ -597,20 +640,28 @@ export default {
       obj.deviceNo = row.deviceNo;
       obj.crux = row.crux;
       obj.clazz = row.clazz;
-      axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-        console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          obj[res.data[i].id] = row[res.data[i].id];
-        }
-        // console.log(obj);
-        // this.$router.path({
-        //   path: "/editDevice",
-        // });
-        this.$router.push({
-          path: "/editDevice",
-          query: obj,
+      axios
+        .get("http://47.102.214.37:8080/device/info-field")
+        .then((res) => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            obj[res.data[i].id] = row[res.data[i].id];
+          }
+          // console.log(obj);
+          // this.$router.path({
+          //   path: "/editDevice",
+          // });
+          this.$router.push({
+            path: "/editDevice",
+            query: obj,
+          });
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      });
     },
     // 生成编码
     handleCode(index, row) {
@@ -631,11 +682,19 @@ export default {
         .then(() => {
           let url =
             "http://47.102.214.37:8080/device/" + that.tableData[index].id;
-          axios.delete(url).then((res) => {
-            if (res.data.message == "ok") {
-              this.getAllDevice();
-            }
-          });
+          axios
+            .delete(url)
+            .then((res) => {
+              if (res.data.message == "ok") {
+                this.getAllDevice();
+              }
+            })
+            .catch((res) => {
+              that.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         })
         .catch(() => {
           this.$message({
@@ -699,8 +758,11 @@ export default {
           // 改变导出url
           that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((res) => {
+          that.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
     // 页变化
@@ -760,16 +822,27 @@ export default {
           // 改变导出url
           that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((res) => {
+          that.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
   },
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      that.userRole = res.data.role;
-    });
+    axios
+      .get("http://47.102.214.37:8080/user/me")
+      .then((res) => {
+        that.userRole = res.data.role;
+      })
+      .catch((res) => {
+        that.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
     // 先检查是否有搜索记录
     if (globaldata.deviceselectInfo.length != 0) {
       console.log(globaldata.deviceselectInfo);
@@ -779,21 +852,29 @@ export default {
     } else {
       setTimeout(function() {
         // 获取所有附加字段
-        axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-          for (let i = 0; i < res.data.length; i++) {
-            let obj = {};
-            obj.label = res.data[i].name;
-            obj.width = "130";
-            obj.prop = res.data[i].id;
-            that.tableHead.push(obj);
-          }
-          for (let i = 0; i < res.data.length; i++) {
-            that.selectoptions[1].options.push({
-              value: res.data[i].id,
-              label: res.data[i].name,
+        axios
+          .get("http://47.102.214.37:8080/device/info-field")
+          .then((res) => {
+            for (let i = 0; i < res.data.length; i++) {
+              let obj = {};
+              obj.label = res.data[i].name;
+              obj.width = "130";
+              obj.prop = res.data[i].id;
+              that.tableHead.push(obj);
+            }
+            for (let i = 0; i < res.data.length; i++) {
+              that.selectoptions[1].options.push({
+                value: res.data[i].id,
+                label: res.data[i].name,
+              });
+            }
+          })
+          .catch((res) => {
+            that.$message({
+              message: res.response.data.message,
+              type: "error",
             });
-          }
-        });
+          });
         // 获取所有设备
         that.getAllDevice();
       }, 200);

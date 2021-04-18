@@ -94,14 +94,14 @@
             class="AddBtn"
             icon="el-icon-circle-plus-outline"
             @click="dialogFormVisible = true"
-            v-if="['ROOT', 'ADMIN', 'SUPERVISOR'].includes(userRole)"
+            v-if="['ROOT', 'ADMIN', 'SUPERVISOR', 'CREATOR'].includes(userRole)"
             >新增字段</el-button
           >
           <el-button
             class="DelBtn"
             icon="el-icon-delete"
             @click="delectExtraInfo"
-            v-if="['ROOT', 'ADMIN', 'SUPERVISOR'].includes(userRole)"
+            v-if="['ROOT', 'ADMIN', 'SUPERVISOR', 'CREATOR'].includes(userRole)"
             >删除字段</el-button
           >
         </div>

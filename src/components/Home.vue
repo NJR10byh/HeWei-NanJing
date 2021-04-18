@@ -185,9 +185,9 @@ export default {
   created: async function() {
     this.$message({
       message:
-        "进行了服务器端更新，不再支持CREATOR进行申请报修以及查看CREATOR申请的报修，修复了已知问题",
+        "进行了服务器端更新，修复了已知问题",
       type: "success",
-      duration: "10000",
+      duration: "8000",
     });
     let res = await this.request("user/me", {}, "GET");
     this.userRole = res.data.role;
@@ -496,6 +496,22 @@ export default {
               id: 43,
               authName: "我发布的",
               path: "mySubmit",
+            },
+          ],
+        },
+        {
+          id: 5,
+          authName: "数据分析",
+          children: [
+            {
+              id: 51,
+              authName: "保养分析",
+              path: "taskAnalysis",
+            },
+            {
+              id: 52,
+              authName: "维修分析",
+              path: "fixAnalysis",
             },
           ],
         },

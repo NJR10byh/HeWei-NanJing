@@ -52,7 +52,7 @@
         <el-date-picker
           v-model="datevalue"
           type="date"
-          placeholder="选择开始日期"
+          placeholder="选择下次保养开始日期"
           value-format="yyyy-MM-dd"
         >
         </el-date-picker>
@@ -171,35 +171,43 @@ export default {
         let url =
           "http://47.102.214.37:8080/ops/schedule/detail/" + that.taskvalue;
         console.log(url);
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          let obj = {};
-          deviceid.push({ id: that.devicevalue });
-          ops.push({ id: that.opsvalue });
-          obj.acceptedStandard = res.data.acceptedStandard;
-          obj.content = res.data.content;
-          obj.id = res.data.id;
-          obj.name = res.data.name;
-          obj.no = res.data.no;
-          obj.remark = res.data.remark;
-          obj.scheduleType = res.data.scheduleType;
-          obj.startDate = that.datevalue;
-          obj.side = res.data.side;
-          obj.tools = res.data.tools;
-          obj.device = deviceid;
-          obj.ops = ops;
-          obj.manager = null;
-          console.log(obj);
-          setTimeout(function() {
-            axios.put(url, obj).then((res) => {
-              console.log(res);
-              that.$message({
-                message: "分配成功",
-                type: "success",
+        console.log(that.datevalue);
+        if (new Date(that.datevalue).getTime() < new Date().getTime()) {
+          that.$message({
+            message: "下次开始日期应大于今天",
+            type: "warning",
+          });
+        } else {
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            let obj = {};
+            deviceid.push({ id: that.devicevalue });
+            ops.push({ id: that.opsvalue });
+            obj.acceptedStandard = res.data.acceptedStandard;
+            obj.content = res.data.content;
+            obj.id = res.data.id;
+            obj.name = res.data.name;
+            obj.no = res.data.no;
+            obj.remark = res.data.remark;
+            obj.scheduleType = res.data.scheduleType;
+            obj.startDate = that.datevalue;
+            obj.side = res.data.side;
+            obj.tools = res.data.tools;
+            obj.device = deviceid;
+            obj.ops = ops;
+            obj.manager = null;
+            console.log(obj);
+            setTimeout(function() {
+              axios.put(url, obj).then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "分配成功",
+                  type: "success",
+                });
               });
-            });
-          }, 200);
-        });
+            }, 200);
+          });
+        }
       }
     },
   },

@@ -16,9 +16,9 @@
                 </el-form-item>
               </div>
               <div class="part_left_0">
-                <el-form-item label="开始时间" class="task">
+                <el-form-item label="下次保养时间" class="task">
                   <el-date-picker
-                    v-model="TaskInfo.startDate"
+                    v-model="TaskInfo.nextDate"
                     type="date"
                     placeholder="选择日期"
                     value-format="yyyy-MM-dd"
@@ -91,9 +91,15 @@ export default {
       this.$route.query.taskID;
     axios.get(url).then((res) => {
       console.log(res.data);
-      that.TaskInfo.startDate = res.data.startDate;
       that.TaskInfo.ops = res.data.ops[0].id;
       that.TaskInfo.task = res.data.id;
+    });
+    let URL =
+      "http://47.102.214.37:8080/ops/schedule/status/" +
+      this.$route.query.taskID;
+    axios.get(URL).then((res) => {
+      console.log(res.data);
+      that.TaskInfo.nextDate = res.data.nextDate;
     });
     setTimeout(() => {
       // 获取全部 OPERATOR 员工
@@ -131,7 +137,7 @@ export default {
     return {
       TaskInfo: {
         deviceinfo: "",
-        startDate: "",
+        nextDate: "",
         ops: "",
         task: "",
       },
@@ -173,7 +179,7 @@ export default {
       console.log(that.TaskInfo);
       // let obj = {};
       if (
-        that.TaskInfo.startDate == "" ||
+        that.TaskInfo.nextDate == "" ||
         that.TaskInfo.task.length == 0 ||
         that.TaskInfo.ops.length == 0
       ) {
@@ -182,40 +188,48 @@ export default {
           type: "warning",
         });
       } else {
-        let ops = [];
-        let task = [];
-        ops.push({
-          id: that.TaskInfo.ops,
-        });
-        task.push({
-          id: that.TaskInfo.task,
-        });
-        let url =
-          "http://47.102.214.37:8080/ops/schedule/detail/" + that.TaskInfo.task;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          let obj = {};
-          obj.content = res.data.content;
-          obj.id = res.data.id;
-          obj.name = res.data.name;
-          obj.remark = res.data.remark;
-          obj.no = res.data.no;
-          obj.startDate = that.TaskInfo.startDate;
-          obj.scheduleType = res.data.scheduleType;
-          obj.tools = res.data.tools;
-          obj.device = [{ id: that.$route.query.deviceID }];
-          obj.ops = ops;
-          console.log(obj);
-          setTimeout(function() {
-            axios.put(url, obj).then((res) => {
-              console.log(res);
-              that.$message({
-                message: "修改成功",
-                type: "success",
+        if (new Date(that.TaskInfo.nextDate).getTime() < new Date().getTime()) {
+          that.$message({
+            message: "下次开始日期应大于今天",
+            type: "warning",
+          });
+        } else {
+          let ops = [];
+          let task = [];
+          ops.push({
+            id: that.TaskInfo.ops,
+          });
+          task.push({
+            id: that.TaskInfo.task,
+          });
+          let url =
+            "http://47.102.214.37:8080/ops/schedule/detail/" +
+            that.TaskInfo.task;
+          axios.get(url).then((res) => {
+            console.log(res.data);
+            let obj = {};
+            obj.content = res.data.content;
+            obj.id = res.data.id;
+            obj.name = res.data.name;
+            obj.remark = res.data.remark;
+            obj.no = res.data.no;
+            obj.startDate = that.TaskInfo.nextDate;
+            obj.scheduleType = res.data.scheduleType;
+            obj.tools = res.data.tools;
+            obj.device = [{ id: that.$route.query.deviceID }];
+            obj.ops = ops;
+            console.log(obj);
+            setTimeout(function() {
+              axios.put(url, obj).then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "修改成功",
+                  type: "success",
+                });
               });
-            });
-          }, 200);
-        });
+            }, 200);
+          });
+        }
       }
     },
     // 取消编辑
