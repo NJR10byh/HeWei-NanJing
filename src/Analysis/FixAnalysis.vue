@@ -1584,8 +1584,8 @@ export default {
               that.deviceAnalysisData.push(obj);
             }, 600);
           }
-          // 总计
-          if (i == that.device.length) {
+          setTimeout(() => {
+            // 总计
             console.log(that.avgFixPeriodTotal);
             let obj = {};
             obj.deviceid = "总计";
@@ -1595,7 +1595,7 @@ export default {
             obj.issueCount = that.issueCountTotal;
             console.log(obj);
             that.deviceAnalysisData.push(obj);
-          }
+          }, 500);
         });
       }
       setTimeout(() => {

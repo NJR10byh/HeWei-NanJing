@@ -231,6 +231,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   components: {},
   created: async function() {
@@ -569,74 +570,86 @@ export default {
             type: "warning",
           });
         } else if (that.task.length > 1) {
-          let url = "analysis/schedule?sid=" + that.task[0];
+          let url =
+            "http://47.102.214.37:8080/analysis/schedule?sid=" + that.task[0];
           for (let i = 1; i < that.task.length; i++) {
             url = url + "," + that.task[i];
           }
           url = url + "&start=" + that.start + "&end=" + that.end;
           console.log(url);
-          let res = await that.request(url, {}, "GET");
-          for (let i = 0; i < that.task.length; i++) {
-            let obj = {};
-            obj.taskid = index++;
-            obj.times = res.data[that.task[i]].times;
-            that.timesTotal += res.data[that.task[i]].times;
-            obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
-            that.incompleteTimesTotal = res.data[that.task[i]].incompleteTimes;
-            obj.completeRate =
-              res.data[that.task[i]].completeRate.toFixed(2) + "%";
-            that.completeRateTotal += res.data[that.task[i]].completeRate;
-            obj.overdueTimes = res.data[that.task[i]].overdueTimes;
-            that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
-            obj.recordTimes = res.data[that.task[i]].recordTimes;
-            that.recordTimesTotal += res.data[that.task[i]].recordTimes;
-            obj.onTimeRate = res.data[that.task[i]].onTimeRate + "%";
-            that.onTimeRateTotal += res.data[that.task[i]].onTimeRate;
+          axios.get(url).then((res) => {
+            for (let i = 0; i < that.task.length; i++) {
+              let obj = {};
+              obj.taskid = index++;
+              obj.times = res.data[that.task[i]].times;
+              that.timesTotal += res.data[that.task[i]].times;
+              obj.incompleteTimes = res.data[that.task[i]].incompleteTimes;
+              that.incompleteTimesTotal =
+                res.data[that.task[i]].incompleteTimes;
+              obj.completeRate =
+                res.data[that.task[i]].completeRate.toFixed(2) + "%";
+              that.completeRateTotal += res.data[that.task[i]].completeRate;
+              obj.overdueTimes = res.data[that.task[i]].overdueTimes;
+              that.overdueTimesTotal += res.data[that.task[i]].overdueTimes;
+              obj.recordTimes = res.data[that.task[i]].recordTimes;
+              that.recordTimesTotal += res.data[that.task[i]].recordTimes;
+              obj.onTimeRate = res.data[that.task[i]].onTimeRate + "%";
+              that.onTimeRateTotal += res.data[that.task[i]].onTimeRate;
 
-            console.log(obj);
-            setTimeout(() => {
-              that.taskAnalysisData.push(obj);
-            }, 600);
-          }
-          // 总计
-          let obj = {};
-          obj.taskid = "总计";
-          obj.times = that.timesTotal;
-          obj.recordTimes = that.recordTimesTotal;
-          obj.overdueTimes = that.overdueTimesTotal;
-          obj.incompleteTimes = that.incompleteTimesTotal / that.task.length;
-          obj.completeRate =
-            (that.completeRateTotal / that.task.length).toFixed(2) + "%";
-          obj.onTimeRate =
-            (that.onTimeRateTotal / that.task.length).toFixed(2) + "%";
-          console.log(obj);
-          that.taskAnalysisData.unshift(obj);
+              console.log(obj);
+              console.log(that.onTimeRateTotal);
+              setTimeout(() => {
+                that.taskAnalysisData.push(obj);
+              }, 600);
+            }
+          });
           setTimeout(() => {
+            // 总计
+            let obj = {};
+            console.log(that.onTimeRateTotal, that.completeRateTotal);
+            obj.taskid = "总计";
+            obj.times = that.timesTotal;
+            obj.recordTimes = that.recordTimesTotal;
+            obj.overdueTimes = that.overdueTimesTotal;
+            obj.incompleteTimes = that.incompleteTimesTotal / that.task.length;
+            obj.completeRate =
+              (that.completeRateTotal / that.task.length).toFixed(2) + "%";
+            obj.onTimeRate =
+              (that.onTimeRateTotal / that.task.length).toFixed(2) + "%";
+            console.log(obj);
+            that.taskAnalysisData.unshift(obj);
             that.$message({
               message: "查询成功",
               type: "success",
             });
-          }, 300);
+          }, 500);
         } else {
-          let url = "analysis/schedule?sid=" + that.task[0];
-          url = url + "&start=" + that.start + "&end=" + that.end;
-          let res = that.request(url, {}, "GET");
-          console.log(res);
-          for (let i = 0; i < that.task.length; i++) {
-            let obj = {};
-            obj.taskid = index++;
-            obj.times = res.data[that.task[0]].times;
-            obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
-            obj.completeRate =
-              res.data[that.task[0]].completeRate.toFixed(2) + "%";
-            obj.onTimeRate = res.data[that.task[0]].onTimeRate.toFixed(2) + "%";
-            obj.overdueTimes = res.data[that.task[0]].overdueTimes;
-            obj.recordTimes = res.data[that.task[0]].recordTimes;
-            console.log(obj);
-            setTimeout(() => {
-              that.taskAnalysisData.push(obj);
-            }, 600);
-          }
+          let url =
+            "http://47.102.214.37:8080/analysis/schedule?sid=" +
+            that.task[0] +
+            "&start=" +
+            that.start +
+            "&end=" +
+            that.end;
+          axios.get(url).then((res) => {
+            console.log(res);
+            for (let i = 0; i < that.task.length; i++) {
+              let obj = {};
+              obj.taskid = index++;
+              obj.times = res.data[that.task[0]].times;
+              obj.incompleteTimes = res.data[that.task[0]].incompleteTimes;
+              obj.completeRate =
+                res.data[that.task[0]].completeRate.toFixed(2) + "%";
+              obj.onTimeRate =
+                res.data[that.task[0]].onTimeRate.toFixed(2) + "%";
+              obj.overdueTimes = res.data[that.task[0]].overdueTimes;
+              obj.recordTimes = res.data[that.task[0]].recordTimes;
+              console.log(obj);
+              setTimeout(() => {
+                that.taskAnalysisData.push(obj);
+              }, 600);
+            }
+          });
           setTimeout(() => {
             that.$message({
               message: "查询成功",
