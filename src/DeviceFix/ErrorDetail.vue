@@ -266,126 +266,163 @@ export default {
     that.active = 0;
     console.log(that.$route.query);
     that.errorid = that.$route.query.errorid;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      this.userid = res.data.id;
-      this.userRole = res.data.role;
-    });
-    let url = "http://47.102.214.37:8080/issue/" + that.$route.query.errorid;
-    axios.get(url).then((res) => {
-      console.log(res.data);
-      that.reporterid = res.data.reporter.id;
-      that.errorcontent = res.data.content;
-      that.reason = res.data.reason;
-      that.solution = res.data.solution;
-      that.exceptionType = res.data.exceptionType;
-      that.closed = res.data.closed;
-      that.applytime = that.renderTime(res.data.createdAt);
-      that.assigntime = that.renderTime(res.data.assignedAt);
-      that.fixtime = that.renderTime(res.data.fixedAt);
-      that.completetime = that.renderTime(res.data.closedAt);
-      // if (res.data.closed == true) {
-      //   that.active = 3;
-      // }
-      let usersid = {};
-      usersid.fixusersid = [];
-      for (let i = 0; i < res.data.assignee.length; i++) {
-        usersid.fixusersid.push({
-          assigneeid: res.data.assignee[i].id,
-        });
-      }
-      usersid.applyusersid = res.data.reporter.id;
-      setTimeout(() => {
-        // 报修人员
-        let searchreporters =
-          "http://47.102.214.37:8080/user/query?id==" + usersid.applyusersid;
-        axios.get(searchreporters).then((res) => {
-          console.log(res.data);
-          that.applyusers.push({
-            name: res.data.content[0].name,
-            username: res.data.content[0].username,
-            useremail: res.data.content[0].email,
-            avatar:
-              "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+    that.userid = this.globaldata.userid;
+    that.userRole = this.globaldata.userRole;
+    let url = "issue/" + that.$route.query.errorid;
+    that
+      .request(url, {}, "GET")
+      .then((res) => {
+        that.reporterid = res.data.reporter.id;
+        that.errorcontent = res.data.content;
+        that.reason = res.data.reason;
+        that.solution = res.data.solution;
+        that.exceptionType = res.data.exceptionType;
+        that.closed = res.data.closed;
+        that.applytime = that.renderTime(res.data.createdAt);
+        that.assigntime = that.renderTime(res.data.assignedAt);
+        that.fixtime = that.renderTime(res.data.fixedAt);
+        that.completetime = that.renderTime(res.data.closedAt);
+        // if (res.data.closed == true) {
+        //   that.active = 3;
+        // }
+        let usersid = {};
+        usersid.fixusersid = [];
+        for (let i = 0; i < res.data.assignee.length; i++) {
+          usersid.fixusersid.push({
+            assigneeid: res.data.assignee[i].id,
           });
-        });
-        // 维修人员
-        if (usersid.fixusersid != undefined) {
-          // supervisor
-          let searchops =
-            "http://47.102.214.37:8080/user/query?id==" +
-            usersid.fixusersid[0].assigneeid;
-          axios.get(searchops).then((res) => {
-            console.log(res.data);
-            that.supervisor.push({
-              name: res.data.content[0].name,
-              username: res.data.content[0].username,
-              useremail: res.data.content[0].email,
+        }
+        usersid.applyusersid = res.data.reporter.id;
+        setTimeout(() => {
+          // 报修人员
+          let searchreporters = "user/query?id==" + usersid.applyusersid;
+          that
+            .request(searchreporters, {}, "GET")
+            .then((res) => {
+              that.applyusers.push({
+                name: res.data.content[0].name,
+                username: res.data.content[0].username,
+                useremail: res.data.content[0].email,
+                avatar:
+                  "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-          });
-          if (usersid.fixusersid.length == 1) {
-            that.operator.push({
-              name: "暂未分配",
-              username: "暂未分配",
-              useremail: "暂未分配",
-            });
-          } else {
-            that.assigned = true;
-            for (let i = 1; i < usersid.fixusersid.length; i++) {
-              // operator
-              if (usersid.fixusersid[i].assigneeid == this.userid) {
-                that.opstofix = true;
-              }
-              let searchops =
-                "http://47.102.214.37:8080/user/query?id==" +
-                usersid.fixusersid[i].assigneeid;
-
-              axios.get(searchops).then((res) => {
-                that.operator.push({
+          // 维修人员
+          if (usersid.fixusersid != undefined) {
+            // supervisor
+            let searchops =
+              "user/query?id==" + usersid.fixusersid[0].assigneeid;
+            that
+              .request(searchops, {}, "GET")
+              .then((res) => {
+                that.supervisor.push({
                   name: res.data.content[0].name,
                   username: res.data.content[0].username,
                   useremail: res.data.content[0].email,
-                  avatar:
-                    "http://47.102.214.37:8080/pic/" +
-                    res.data.content[0].avatar,
                 });
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
+            if (usersid.fixusersid.length == 1) {
+              that.operator.push({
+                name: "暂未分配",
+                username: "暂未分配",
+                useremail: "暂未分配",
+              });
+            } else {
+              that.assigned = true;
+              for (let i = 1; i < usersid.fixusersid.length; i++) {
+                // operator
+                if (usersid.fixusersid[i].assigneeid == this.userid) {
+                  that.opstofix = true;
+                }
+                let searchops =
+                  "user/query?id==" + usersid.fixusersid[i].assigneeid;
+
+                that
+                  .request(searchops, {}, "GET")
+                  .then((res) => {
+                    that.operator.push({
+                      name: res.data.content[0].name,
+                      username: res.data.content[0].username,
+                      useremail: res.data.content[0].email,
+                      avatar:
+                        "http://47.102.214.37:8080/pic/" +
+                        res.data.content[0].avatar,
+                    });
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+              }
+            }
+          }
+        }, 200);
+        // 设备信息
+        for (let i = 0; i < res.data.device.length; i++) {
+          let searchdevice = "device/" + res.data.device[i].id;
+          that
+            .request(searchdevice, {}, "GET")
+            .then((res) => {
+              let obj = {};
+              obj.id = res.data.id;
+              obj.name = res.data.name;
+              obj.brand = res.data.brand;
+              obj.deviceNo = res.data.deviceNo;
+              obj.clazz = res.data.clazz;
+              that.devicetableData.push(obj);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
+        }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
+    setTimeout(() => {
+      // 获取全部OPERATOR
+      that
+        .request("user/query", {}, "GET")
+        .then((res) => {
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "OPERATOR") {
+              that.options[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
               });
             }
           }
-        }
-      }, 200);
-      // 设备信息
-      for (let i = 0; i < res.data.device.length; i++) {
-        let searchdevice =
-          "http://47.102.214.37:8080/device/" + res.data.device[i].id;
-        axios.get(searchdevice).then((res) => {
-          let obj = {};
-          obj.id = res.data.id;
-          obj.name = res.data.name;
-          obj.brand = res.data.brand;
-          obj.deviceNo = res.data.deviceNo;
-          obj.clazz = res.data.clazz;
-          that.devicetableData.push(obj);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      }
-    });
-    setTimeout(() => {
-      // 获取全部OPERATOR
-      axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-        // console.log(res.data);
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "OPERATOR") {
-            that.options[0].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
-          }
-        }
-      });
     }, 300);
   },
   data() {
@@ -480,7 +517,6 @@ export default {
       let that = this;
       this.getBase64(file.raw).then((res) => {
         const params = res.split(",");
-        console.log(params, "params");
         if (params.length > 0) {
           axios({
             url: "http://47.102.214.37:8080/pic",
@@ -489,18 +525,24 @@ export default {
             headers: {
               "Content-Type": "text/plain",
             },
-          }).then((res) => {
-            console.log(res);
-            that.picid = res.data;
-            let url = "http://47.102.214.37:8080/pic/" + res.data;
-            let quill = that.$refs.myQuillEditor.quill;
-            // 获取光标所在位置
-            let length = quill.getSelection().index;
-            // 插入图片
-            quill.insertEmbed(length, "image", url);
-            // 调整光标到最后
-            quill.setSelection(length + 1);
-          });
+          })
+            .then((res) => {
+              that.picid = res.data;
+              let url = "http://47.102.214.37:8080/pic/" + res.data;
+              let quill = that.$refs.myQuillEditor.quill;
+              // 获取光标所在位置
+              let length = quill.getSelection().index;
+              // 插入图片
+              quill.insertEmbed(length, "image", url);
+              // 调整光标到最后
+              quill.setSelection(length + 1);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       });
     },
@@ -523,46 +565,51 @@ export default {
     },
     // 提交分配
     submitTssign() {
-      console.log(this.assigneeOp);
       let that = this;
-      let url = "http://47.102.214.37:8080/issue/" + that.errorid;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        let obj = {};
-        obj.assignee = res.data.assignee;
-        obj.closed = res.data.closed;
-        obj.content = res.data.content;
-        obj.descriptionPic = res.data.descriptionPic;
-        obj.device = res.data.device;
-        obj.exceptionType = res.data.exceptionType;
-        obj.id = res.data.id;
-        obj.reason = res.data.reason;
-        obj.record = res.data.record;
-        obj.reporter = res.data.reporter;
-        obj.solution = res.data.solution;
-        obj.assignee.push({
-          id: that.assigneeOp,
-        });
-        axios
-          .put(url, obj)
-          .then((res) => {
-            console.log(res);
-            that.$message({
-              message: "分配成功",
-              type: "success",
-            });
-            that.dialogFixVisible = false;
-            setTimeout(() => {
-              location.reload(); // 成功后更新UI
-            }, 300);
-          })
-          .catch(() => {
-            that.$message({
-              message: "分配失败",
-              type: "error",
-            });
+      let url = "issue/" + that.errorid;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          let obj = {};
+          obj.assignee = res.data.assignee;
+          obj.closed = res.data.closed;
+          obj.content = res.data.content;
+          obj.descriptionPic = res.data.descriptionPic;
+          obj.device = res.data.device;
+          obj.exceptionType = res.data.exceptionType;
+          obj.id = res.data.id;
+          obj.reason = res.data.reason;
+          obj.record = res.data.record;
+          obj.reporter = res.data.reporter;
+          obj.solution = res.data.solution;
+          obj.assignee.push({
+            id: that.assigneeOp,
           });
-      });
+          that
+            .request(url, obj, "PUT")
+            .then(() => {
+              that.$message({
+                message: "分配成功",
+                type: "success",
+              });
+              that.dialogFixVisible = false;
+              setTimeout(() => {
+                location.reload(); // 成功后更新UI
+              }, 300);
+            })
+            .catch(() => {
+              that.$message({
+                message: "分配失败",
+                type: "error",
+              });
+            });
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     },
     // 提交诊断
     submitbtn() {
@@ -582,33 +629,47 @@ export default {
         });
       } else {
         let obj = {};
-        let url = "http://47.102.214.37:8080/issue/" + that.errorid;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          obj.assignee = res.data.assignee;
-          obj.closed = res.data.closed;
-          obj.content = res.data.content;
-          obj.descriptionPic = res.data.descriptionPic;
-          obj.device = res.data.device;
-          obj.exceptionType = that.exceptionType;
-          obj.id = res.data.id;
-          obj.reason = that.reason;
-          obj.record = res.data.record;
-          obj.reporter = res.data.reporter;
-          obj.solution = that.solution;
-        });
+        let url = "issue/" + that.errorid;
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            obj.assignee = res.data.assignee;
+            obj.closed = res.data.closed;
+            obj.content = res.data.content;
+            obj.descriptionPic = res.data.descriptionPic;
+            obj.device = res.data.device;
+            obj.exceptionType = that.exceptionType;
+            obj.id = res.data.id;
+            obj.reason = that.reason;
+            obj.record = res.data.record;
+            obj.reporter = res.data.reporter;
+            obj.solution = that.solution;
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
         setTimeout(() => {
           console.log(obj);
-          axios.put(url, obj).then((res) => {
-            console.log(res);
-            that.$message({
-              message: "提交成功",
-              type: "success",
+          that
+            .request(url, obj, "PUT")
+            .then(() => {
+              that.$message({
+                message: "提交成功",
+                type: "success",
+              });
+              setTimeout(() => {
+                location.reload(); // 成功后更新UI
+              }, 300);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-            setTimeout(() => {
-              location.reload(); // 成功后更新UI
-            }, 300);
-          });
         }, 200);
       }
     },

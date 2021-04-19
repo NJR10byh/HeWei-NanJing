@@ -186,7 +186,6 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
@@ -259,30 +258,43 @@ export default {
     // 新增额外字段
     SubmitNewExtraInfo(Info) {
       let that = this;
-      axios
-        .post("http://47.102.214.37:8080/device/info-field", {
-          name: Info.name,
-          type: Info.type,
-        })
-        .then((res) => {
-          if (res.status == 201) {
-            that.tableData.push({
-              extraname: Info.name,
-              extrainfo: "",
-            });
-            // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
-            axios
-              .get("http://47.102.214.37:8080/device/info-field")
-              .then((res) => {
-                for (var j = 0; j < res.data.length; j++) {
-                  if (res.data[j].name == Info.name) {
-                    that.extraid.push(res.data[j].id);
-                    break;
-                  }
+      that
+        .request(
+          "device/info-field",
+          {
+            name: Info.name,
+            type: Info.type,
+          },
+          "POST"
+        )
+        .then(() => {
+          that.tableData.push({
+            extraname: Info.name,
+            extrainfo: "",
+          });
+          that
+            .request("device/info-field", {}, "GET")
+            .then((res) => {
+              for (var j = 0; j < res.data.length; j++) {
+                if (res.data[j].name == Info.name) {
+                  that.extraid.push(res.data[j].id);
+                  break;
                 }
+              }
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            that.dialogFormVisible = false;
-          }
+            });
+          that.dialogFormVisible = false;
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
     // 删除字段
@@ -306,21 +318,27 @@ export default {
                 console.log(element, e);
                 if (element.extraname == e.extraname) {
                   console.log(that.tableData[i]);
-                  let url =
-                    "http://47.102.214.37:8080/device/info-field/" +
-                    that.extraid[i];
-                  axios.delete(url).then((res) => {
-                    console.log(res);
-                    if (res.status == 200) {
-                      that.tableData.splice(i, 1);
+                  let url = "device/info-field/" + that.extraid[i];
+                  that
+                    .request(url, {}, "DELETE")
+                    .then((res) => {
+                      console.log(res);
+                      if (res.status == 200) {
+                        that.tableData.splice(i, 1);
+                        this.$message({
+                          message: "删除成功",
+                          type: "success",
+                        });
+                      } else {
+                        this.$message.error("删除失败");
+                      }
+                    })
+                    .catch((res) => {
                       this.$message({
-                        message: "删除成功",
-                        type: "success",
+                        message: res.response.data.message,
+                        type: "error",
                       });
-                    } else {
-                      this.$message.error("删除失败");
-                    }
-                  });
+                    });
                 }
               });
             });
@@ -362,17 +380,21 @@ export default {
             value: that.tableData[i].extrainfo,
           });
         }
-        axios
-          .put("http://47.102.214.37:8080/device", {
-            id: this.$route.query.id,
-            name: formData.name,
-            brand: formData.brand,
-            type: formData.type,
-            deviceNo: formData.deviceNo,
-            crux: obj.crux,
-            clazz: formData.clazz,
-            extra: extraobj,
-          })
+        that
+          .request(
+            "device",
+            {
+              id: this.$route.query.id,
+              name: formData.name,
+              brand: formData.brand,
+              type: formData.type,
+              deviceNo: formData.deviceNo,
+              crux: obj.crux,
+              clazz: formData.clazz,
+              extra: extraobj,
+            },
+            "PUT"
+          )
           .then((res) => {
             console.log(res);
             if (res.status == 200) {
@@ -383,8 +405,11 @@ export default {
               this.$router.push("/deviceInformation");
             }
           })
-          .catch((err) => {
-            console.log(err);
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
       }
     },
@@ -396,19 +421,29 @@ export default {
     that.form.brand = this.$route.query.brand;
     that.form.type = this.$route.query.type;
     that.form.deviceNo = this.$route.query.deviceNo;
-    that.form.crux = this.$route.query.crux;
+    this.$route.query.crux == "true"
+      ? (that.form.crux = "Y")
+      : (that.form.crux = "N");
     that.form.clazz = this.$route.query.clazz;
-    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      console.log(res.data);
-      for (var i = 0; i < res.data.length; i++) {
-        that.extraid.push(res.data[i].id);
-        that.tableData.push({
-          extraname: res.data[i].name,
-          extrainfo: this.$route.query[res.data[i].id],
-          type: res.data[i].type,
+    that
+      .request("device/info-field", {}, "GET")
+      .then((res) => {
+        console.log(res.data);
+        for (var i = 0; i < res.data.length; i++) {
+          that.extraid.push(res.data[i].id);
+          that.tableData.push({
+            extraname: res.data[i].name,
+            extrainfo: this.$route.query[res.data[i].id],
+            type: res.data[i].type,
+          });
+        }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
         });
-      }
-    });
+      });
   },
 };
 </script>

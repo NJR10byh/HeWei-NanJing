@@ -186,18 +186,23 @@ export default {
     let that = this;
     if (this.$route.query.taskID != undefined) {
       console.log(this.$route.query);
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        that.TaskInfo.name = res.data.name;
-        that.TaskInfo.no = res.data.no;
-        that.TaskInfo.tools = res.data.tools;
-        that.TaskInfo.remark = res.data.remark;
-        that.TaskInfo.content = res.data.content;
-      });
+      let url = "ops/schedule/detail/" + this.$route.query.taskID;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.TaskInfo.scheduleType = res.data.scheduleType;
+          that.TaskInfo.name = res.data.name;
+          that.TaskInfo.no = res.data.no;
+          that.TaskInfo.tools = res.data.tools;
+          that.TaskInfo.remark = res.data.remark;
+          that.TaskInfo.content = res.data.content;
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     } else {
       console.log("bbb");
     }
@@ -293,17 +298,24 @@ export default {
             headers: {
               "Content-Type": "text/plain",
             },
-          }).then((res) => {
-            console.log(res);
-            let url = "http://47.102.214.37:8080/pic/" + res.data;
-            let quill = that.$refs.myQuillEditor.quill;
-            // 获取光标所在位置
-            let length = quill.getSelection().index;
-            // 插入图片
-            quill.insertEmbed(length, "image", url);
-            // 调整光标到最后
-            quill.setSelection(length + 1);
-          });
+          })
+            .then((res) => {
+              console.log(res);
+              let url = "http://47.102.214.37:8080/pic/" + res.data;
+              let quill = that.$refs.myQuillEditor.quill;
+              // 获取光标所在位置
+              let length = quill.getSelection().index;
+              // 插入图片
+              quill.insertEmbed(length, "image", url);
+              // 调整光标到最后
+              quill.setSelection(length + 1);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       });
     },
@@ -391,8 +403,8 @@ export default {
         obj.tools = that.TaskInfo.tools;
         obj.remark = that.TaskInfo.remark;
         obj.content = that.TaskInfo.content;
-        axios
-          .post("http://47.102.214.37:8080/ops/schedule", obj)
+        that
+          .request("ops/schedule", obj, "POST")
           .then((res) => {
             console.log(res);
             that.$message({
@@ -401,7 +413,10 @@ export default {
             });
           })
           .catch((res) => {
-            console.log(res.response.data.message);
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
       }
       console.log(obj);

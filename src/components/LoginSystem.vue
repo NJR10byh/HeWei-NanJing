@@ -28,10 +28,8 @@ import qs from "qs";
 export default {
   created: function() {
     if (localStorage.getItem("token") != null) {
-      axios
-        .get("http://47.102.214.37:8080/user/me")
+      this.request("user/me", {}, "GET")
         .then((res) => {
-          console.log(res);
           this.$message({
             message: "登录成功",
             type: "success",
@@ -50,15 +48,17 @@ export default {
               this.$router.push("/totalTaskList");
               break;
             case "SUPERVISOR":
-              this.$router.push("/alreadyFixSu");
+              this.$router.push("/alreadyFix");
               break;
             default:
               break;
           }
         })
         .catch((res) => {
-          console.log(res.response);
-          return;
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     }
   },
@@ -83,7 +83,6 @@ export default {
           },
         })
         .then((res) => {
-          console.log(res);
           localStorage.setItem("token", res.data);
           this.$message({
             message: "登录成功",
@@ -92,13 +91,10 @@ export default {
           this.$router.push("/totalTaskList");
         })
         .catch((res) => {
-          console.log(res.response);
-          if (res.response.status == 403) {
-            this.$message({
-              message: res.response.data.message,
-              type: "error",
-            });
-          }
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
   },

@@ -77,8 +77,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   components: {},
   created: function() {
@@ -86,25 +84,35 @@ export default {
     console.log(this.$route.query);
     that.TaskInfo.deviceinfo =
       this.$route.query.devicename + "（" + this.$route.query.deviceNo + "）";
-    let url =
-      "http://47.102.214.37:8080/ops/schedule/detail/" +
-      this.$route.query.taskID;
-    axios.get(url).then((res) => {
-      console.log(res.data);
-      that.TaskInfo.ops = res.data.ops[0].id;
-      that.TaskInfo.task = res.data.id;
-    });
-    let URL =
-      "http://47.102.214.37:8080/ops/schedule/status/" +
-      this.$route.query.taskID;
-    axios.get(URL).then((res) => {
-      console.log(res.data);
-      that.TaskInfo.nextDate = res.data.nextDate;
-    });
+    let url = "ops/schedule/detail/" + this.$route.query.taskID;
+    that
+      .request(url, {}, "GET")
+      .then((res) => {
+        that.TaskInfo.ops = res.data.ops[0].id;
+        that.TaskInfo.task = res.data.id;
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
+    let URL = "ops/schedule/status/" + this.$route.query.taskID;
+    that
+      .request(URL, {}, "GET")
+      .then((res) => {
+        that.TaskInfo.nextDate = res.data.nextDate;
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
     setTimeout(() => {
       // 获取全部 OPERATOR 员工
-      axios
-        .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
+      that
+        .request("user/query?role==OPERATOR", {}, "GET")
         .then((res) => {
           for (var i = 0; i < res.data.content.length; i++) {
             // console.log(res.data.content[i]);
@@ -117,10 +125,16 @@ export default {
               "）";
             that.OpUsers.push(obj);
           }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
       // 获取全部标准
-      axios
-        .get("http://47.102.214.37:8080/ops/schedule?page=0&size=1000000000")
+      that
+        .request("ops/schedule?page=0&size=1000000000", {}, "GET")
         .then((res) => {
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
@@ -130,6 +144,12 @@ export default {
               res.data.content[i].name + "（" + res.data.content[i].no + "）";
             that.TaskOptions.push(obj);
           }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     }, 300);
   },
@@ -202,33 +222,47 @@ export default {
           task.push({
             id: that.TaskInfo.task,
           });
-          let url =
-            "http://47.102.214.37:8080/ops/schedule/detail/" +
-            that.TaskInfo.task;
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            let obj = {};
-            obj.content = res.data.content;
-            obj.id = res.data.id;
-            obj.name = res.data.name;
-            obj.remark = res.data.remark;
-            obj.no = res.data.no;
-            obj.startDate = that.TaskInfo.nextDate;
-            obj.scheduleType = res.data.scheduleType;
-            obj.tools = res.data.tools;
-            obj.device = [{ id: that.$route.query.deviceID }];
-            obj.ops = ops;
-            console.log(obj);
-            setTimeout(function() {
-              axios.put(url, obj).then((res) => {
-                console.log(res);
-                that.$message({
-                  message: "修改成功",
-                  type: "success",
-                });
+          let url = "ops/schedule/detail/" + that.TaskInfo.task;
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              let obj = {};
+              obj.content = res.data.content;
+              obj.id = res.data.id;
+              obj.name = res.data.name;
+              obj.remark = res.data.remark;
+              obj.no = res.data.no;
+              obj.startDate = that.TaskInfo.nextDate;
+              obj.scheduleType = res.data.scheduleType;
+              obj.tools = res.data.tools;
+              obj.device = [{ id: that.$route.query.deviceID }];
+              obj.ops = ops;
+              console.log(obj);
+              setTimeout(function() {
+                that
+                  .request(url, obj, "PUT")
+                  .then((res) => {
+                    console.log(res);
+                    that.$message({
+                      message: "修改成功",
+                      type: "success",
+                    });
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+              }, 200);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            }, 200);
-          });
+            });
         }
       }
     },

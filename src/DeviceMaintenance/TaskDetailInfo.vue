@@ -209,100 +209,122 @@ const toolbarOptions = [
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-      that.userid = res.data.id;
-    });
+    that.userRole = this.globaldata.userRole;
+    that.userid = this.globaldata.userid;
     that.taskid = that.$route.query.taskid;
-    let url =
-      "http://47.102.214.37:8080/ops/schedule/detail/" +
-      that.$route.query.taskid;
-    axios.get(url).then((res) => {
-      console.log(res.data);
-      that.name = res.data.name;
-      that.no = res.data.no;
-      // 保养内容
-      if (res.data.content != "") {
-        for (let a = 0; a < res.data.content.length; a++) {
-          that.content.push({
-            contentinfotitle: res.data.content[a].title,
-            contentinfodetail: res.data.content[a].detail,
-          });
+    let url = "ops/schedule/detail/" + that.$route.query.taskid;
+    that
+      .request(url, {}, "GET")
+      .then((res) => {
+        console.log(res.data);
+        that.name = res.data.name;
+        that.no = res.data.no;
+        // 保养内容
+        if (res.data.content != "") {
+          for (let a = 0; a < res.data.content.length; a++) {
+            that.content.push({
+              contentinfotitle: res.data.content[a].title,
+              contentinfodetail: res.data.content[a].detail,
+            });
+          }
         }
-      }
-      that.tools = res.data.tools;
-      that.remark = res.data.remark;
-      // 维护人员
-      for (let i = 0; i < res.data.ops.length; i++) {
-        let searchops = "http://47.102.214.37:8080/user/" + res.data.ops[i].id;
-        axios.get(searchops).then((res) => {
-          that.users.push({
-            name: res.data.name,
-            username: res.data.username,
-            useremail: res.data.email,
-            avatar: "http://47.102.214.37:8080/pic/" + res.data.avatar,
-          });
+        that.tools = res.data.tools;
+        that.remark = res.data.remark;
+        // 维护人员
+        for (let i = 0; i < res.data.ops.length; i++) {
+          let searchops = "user/" + res.data.ops[i].id;
+          that
+            .request(searchops, {}, "GET")
+            .then((res) => {
+              that.users.push({
+                name: res.data.name,
+                username: res.data.username,
+                useremail: res.data.email,
+                avatar: "http://47.102.214.37:8080/pic/" + res.data.avatar,
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
+        }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
         });
-      }
-    });
+      });
 
     setTimeout(() => {
       // 保养记录
       let URL =
-        "http://47.102.214.37:8080/ops/record/schedule/" +
+        "ops/record/schedule/" +
         that.$route.query.taskid +
         "?page=0&size=" +
         that.page_size;
-      axios.get(URL).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          res.data.content[i].date == null
-            ? (obj.date = "暂无")
-            : (obj.date = res.data.content[i].date);
-          res.data.content[i].realDate == null
-            ? (obj.realDate = "暂无")
-            : (obj.realDate = res.data.content[i].realDate);
-          res.data.content[i].fix == null
-            ? (obj.fix = "暂无")
-            : (obj.fix = res.data.content[i].fix);
-          res.data.content[i].hasException == false
-            ? (obj.hasException = "否")
-            : (obj.hasException = "是");
-          res.data.content[i].record == null
-            ? (obj.record = "暂无")
-            : (obj.record = res.data.content[i].record);
-          res.data.content[i].report == null
-            ? (obj.report = "暂无")
-            : (obj.report = res.data.content[i].report);
-          obj.ifpicexist = true;
-          res.data.content[i].pic == null
-            ? (obj.ifpicexist = false)
-            : (obj.pic =
-                "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
-          setTimeout(() => {
-            if (res.data.content[i].opUser == null) {
-              obj.opUser = "暂无";
-            } else {
-              let searchops =
-                "http://47.102.214.37:8080/user/" +
-                res.data.content[i].opUser.id;
-              axios
-                .get(searchops)
-                .then((res) => {
-                  obj.opUser = res.data.name;
-                })
-                .catch(() => {
-                  obj.opUser = "获取失败，请刷新重试";
-                });
-            }
-          }, 300);
-          that.taskrecordtableData.unshift(obj);
-        }
-      });
+      that
+        .request(URL, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            res.data.content[i].date == null
+              ? (obj.date = "暂无")
+              : (obj.date = res.data.content[i].date);
+            res.data.content[i].realDate == null
+              ? (obj.realDate = "暂无")
+              : (obj.realDate = res.data.content[i].realDate);
+            res.data.content[i].fix == null
+              ? (obj.fix = "暂无")
+              : (obj.fix = res.data.content[i].fix);
+            res.data.content[i].hasException == false
+              ? (obj.hasException = "否")
+              : (obj.hasException = "是");
+            res.data.content[i].record == null
+              ? (obj.record = "暂无")
+              : (obj.record = res.data.content[i].record);
+            res.data.content[i].report == null
+              ? (obj.report = "暂无")
+              : (obj.report = res.data.content[i].report);
+            obj.ifpicexist = true;
+            res.data.content[i].pic == null
+              ? (obj.ifpicexist = false)
+              : (obj.pic =
+                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+            setTimeout(() => {
+              if (res.data.content[i].opUser == null) {
+                obj.opUser = "暂无";
+              } else {
+                let searchops =
+                  "http://47.102.214.37:8080/user/" +
+                  res.data.content[i].opUser.id;
+                that
+                  .request(searchops, {}, "GET")
+                  .then((res) => {
+                    obj.opUser = res.data.name;
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+              }
+            }, 300);
+            that.taskrecordtableData.unshift(obj);
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     }, 300);
   },
   data() {
@@ -428,10 +450,7 @@ export default {
     submitrecord() {
       let that = this;
       console.log(that.form);
-      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-        console.log(res.data);
-        that.opUserid = res.data.id;
-      });
+      that.opUserid = this.globaldata.userid;
       setTimeout(() => {
         if (that.form.record == "") {
           that.$message({
@@ -452,8 +471,8 @@ export default {
           obj.opUser = { id: that.opUserid };
           setTimeout(() => {
             console.log(obj);
-            axios
-              .post("http://47.102.214.37:8080/ops/record", obj)
+            that
+              .request("ops/record", obj, "POST")
               .then((res) => {
                 console.log(res);
                 that.$message({
@@ -467,7 +486,6 @@ export default {
                 }
               })
               .catch((res) => {
-                console.log(res.response);
                 that.$message({
                   message: res.response.data.message,
                   type: "error",
@@ -492,44 +510,52 @@ export default {
         "&size=" +
         that.page_size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          res.data.content[i].date == null
-            ? (obj.date = "暂无")
-            : (obj.date = res.data.content[i].date);
-          res.data.content[i].realDate == null
-            ? (obj.realDate = "暂无")
-            : (obj.realDate = res.data.content[i].realDate);
-          res.data.content[i].fix == null
-            ? (obj.fix = "暂无")
-            : (obj.fix = res.data.content[i].fix);
-          res.data.content[i].hasException == false
-            ? (obj.hasException = "否")
-            : (obj.hasException = "是");
-          res.data.content[i].record == null
-            ? (obj.record = "暂无")
-            : (obj.record = res.data.content[i].record);
-          res.data.content[i].report == null
-            ? (obj.report = "暂无")
-            : (obj.report = res.data.content[i].report);
-          obj.ifpicexist = true;
-          res.data.content[i].pic == null
-            ? (obj.ifpicexist = false)
-            : (obj.pic =
-                "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
-          that.taskrecordtableData.unshift(obj);
-        }
-        setTimeout(() => {
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            res.data.content[i].date == null
+              ? (obj.date = "暂无")
+              : (obj.date = res.data.content[i].date);
+            res.data.content[i].realDate == null
+              ? (obj.realDate = "暂无")
+              : (obj.realDate = res.data.content[i].realDate);
+            res.data.content[i].fix == null
+              ? (obj.fix = "暂无")
+              : (obj.fix = res.data.content[i].fix);
+            res.data.content[i].hasException == false
+              ? (obj.hasException = "否")
+              : (obj.hasException = "是");
+            res.data.content[i].record == null
+              ? (obj.record = "暂无")
+              : (obj.record = res.data.content[i].record);
+            res.data.content[i].report == null
+              ? (obj.report = "暂无")
+              : (obj.report = res.data.content[i].report);
+            obj.ifpicexist = true;
+            res.data.content[i].pic == null
+              ? (obj.ifpicexist = false)
+              : (obj.pic =
+                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+            that.taskrecordtableData.unshift(obj);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          }, 300);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        }, 300);
-      });
+        });
     },
     // // 页变化
     handleCurrentChange(val) {
@@ -545,45 +571,53 @@ export default {
         "&size=" +
         that.page_size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.taskrecordtableData = [];
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          res.data.content[i].date == null
-            ? (obj.date = "暂无")
-            : (obj.date = res.data.content[i].date);
-          res.data.content[i].realDate == null
-            ? (obj.realDate = "暂无")
-            : (obj.realDate = res.data.content[i].realDate);
-          res.data.content[i].fix == null
-            ? (obj.fix = "暂无")
-            : (obj.fix = res.data.content[i].fix);
-          res.data.content[i].hasException == false
-            ? (obj.hasException = "否")
-            : (obj.hasException = "是");
-          res.data.content[i].record == null
-            ? (obj.record = "暂无")
-            : (obj.record = res.data.content[i].record);
-          res.data.content[i].report == null
-            ? (obj.report = "暂无")
-            : (obj.report = res.data.content[i].report);
-          obj.ifpicexist = true;
-          res.data.content[i].pic == null
-            ? (obj.ifpicexist = false)
-            : (obj.pic =
-                "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
-          that.taskrecordtableData.unshift(obj);
-        }
-        setTimeout(() => {
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.taskrecordtableData = [];
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.id = res.data.content[i].id;
+            res.data.content[i].date == null
+              ? (obj.date = "暂无")
+              : (obj.date = res.data.content[i].date);
+            res.data.content[i].realDate == null
+              ? (obj.realDate = "暂无")
+              : (obj.realDate = res.data.content[i].realDate);
+            res.data.content[i].fix == null
+              ? (obj.fix = "暂无")
+              : (obj.fix = res.data.content[i].fix);
+            res.data.content[i].hasException == false
+              ? (obj.hasException = "否")
+              : (obj.hasException = "是");
+            res.data.content[i].record == null
+              ? (obj.record = "暂无")
+              : (obj.record = res.data.content[i].record);
+            res.data.content[i].report == null
+              ? (obj.report = "暂无")
+              : (obj.report = res.data.content[i].report);
+            obj.ifpicexist = true;
+            res.data.content[i].pic == null
+              ? (obj.ifpicexist = false)
+              : (obj.pic =
+                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+            that.taskrecordtableData.unshift(obj);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          }, 300);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        }, 300);
-      });
+        });
     },
   },
   components: {

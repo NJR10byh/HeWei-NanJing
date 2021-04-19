@@ -21,8 +21,7 @@ import TssignTask from "@/DeviceMaintenance/TssignTask"; // 任务分配
 import FixApply from "@/DeviceFix/FixApply"; // 报修申请
 import AllError from "@/DeviceFix/AllError"; // 全部报修
 import ErrorDetail from "@/DeviceFix/ErrorDetail"; // 报修详情
-import AlreadyFixOp from "@/DeviceFix/AlreadyFixOp"; // 分配到我的（OPERATOR）
-import AlreadyFixSu from "@/DeviceFix/AlreadyFixSu"; // 分配到我的（SUPERVISOR）
+import AlreadyFix from "@/DeviceFix/AlreadyFix"; // 分配到我的
 import MySubmit from "@/DeviceFix/MySubmit"; // 我发布的
 import MySubmitDetail from "@/DeviceFix/MySubmitDetail"; // 我发布的详情
 /* 数据分析 */
@@ -138,15 +137,10 @@ var routes = [
         path: "/fixApply",
         component: FixApply,
       },
-      // 分配给我的（OPERATOR）
+      // 分配给我的
       {
-        path: "/alreadyFixOp",
-        component: AlreadyFixOp,
-      },
-      // 分配给我的（SUPERVISOR）
-      {
-        path: "/alreadyFixSu",
-        component: AlreadyFixSu,
+        path: "/alreadyFix",
+        component: AlreadyFix,
       },
       // 我发布的
       {

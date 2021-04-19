@@ -86,13 +86,10 @@ axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-    });
+    that.userRole = this.globaldata.userRole;
     setTimeout(() => {
       that.refresh();
-    }, 200);
+    }, 300);
   },
   data() {
     return {
@@ -127,10 +124,8 @@ export default {
       that.email = "";
       that.currentPage = 1;
       if (["ROOT", "ADMIN"].includes(that.userRole)) {
-        let url =
-          "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
-        axios
-          .get(url)
+        let url = "user?page=0&size=" + that.page_size;
+        this.request(url, {}, "GET")
           .then((res) => {
             console.log(res);
             that.total = res.data.totalElements;
@@ -176,19 +171,16 @@ export default {
             });
           })
           .catch((res) => {
-            console.log(res.response);
-            that.$message({
-              message: "列表刷新失败",
+            this.$message({
+              message: res.response.data.message,
               type: "error",
             });
           });
       } else {
-        that.ifsearch = true;
-        axios
-          .get("http://47.102.214.37:8080/user/query")
+        this.request("user/query", {}, "GET")
           .then((res) => {
             console.log(res);
-            that.total = res.data.content.length;
+            that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "ROOT") {
                 let obj = {};
@@ -198,7 +190,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
-                that.tableData.unshift(obj);
+                that.tableData.push(obj);
               } else if (res.data.content[i].role == "ADMIN") {
                 let obj = {};
                 obj.id = res.data.content[i].id;
@@ -231,9 +223,8 @@ export default {
             });
           })
           .catch((res) => {
-            console.log(res.response);
-            that.$message({
-              message: "列表刷新失败",
+            this.$message({
+              message: res.response.data.message,
               type: "error",
             });
           });
@@ -256,17 +247,23 @@ export default {
         type: "warning",
       })
         .then(() => {
-          let url =
-            "http://47.102.214.37:8080/user/" + that.tableData[index].id;
+          let url = "user/" + that.tableData[index].id;
           console.log(url);
-          axios.delete(url).then(() => {
-            that.tableData.splice(index, 1);
-            that.total--;
-            this.$message({
-              message: "删除成功",
-              type: "success",
+          this.request(url, {}, "DELETE")
+            .then(() => {
+              that.tableData.splice(index, 1);
+              that.total--;
+              this.$message({
+                message: "删除成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-          });
         })
         .catch(() => {
           this.$message({
@@ -294,18 +291,23 @@ export default {
               that.tableData.forEach((e, i) => {
                 if (element.id == e.id) {
                   console.log(element, e, i);
-                  let url = "http://47.102.214.37:8080/user/" + e.id;
-                  console.log(url);
-                  axios.delete(url).then(() => {
-                    console.log(i);
-                    this.$message({
-                      message: "删除成功",
-                      type: "success",
+                  let url = "user/" + e.id;
+                  this.request(url, {}, "DELETE")
+                    .then(() => {
+                      this.$message({
+                        message: "删除成功",
+                        type: "success",
+                      });
+                      that.tableData.splice(i, 1);
+                      that.checkedDetail.pop();
+                      that.total--;
+                    })
+                    .catch((res) => {
+                      this.$message({
+                        message: res.response.data.message,
+                        type: "error",
+                      });
                     });
-                    that.tableData.splice(i, 1);
-                    that.checkedDetail.pop();
-                    that.total--;
-                  });
                 }
               });
             });
@@ -324,12 +326,9 @@ export default {
       that.currentPage = 1;
       console.log(val);
       that.page_size = val;
-      let url = "http://47.102.214.37:8080/user?page=0&size=" + that.page_size;
-      console.log(url);
-      axios
-        .get(url)
+      let url = "user?page=0&size=" + that.page_size;
+      this.request(url, {}, "GET")
         .then((res) => {
-          console.log(res);
           that.total = res.data.totalElements;
           for (let i = 0; i < res.data.content.length; i++) {
             if (res.data.content[i].role == "ROOT") {
@@ -373,9 +372,8 @@ export default {
           });
         })
         .catch((res) => {
-          console.log(res.response);
-          that.$message({
-            message: "列表刷新失败",
+          this.$message({
+            message: res.response.data.message,
             type: "error",
           });
         });
@@ -388,15 +386,9 @@ export default {
       that.page = val;
       that.currentPage = val;
       console.log(val);
-      let url =
-        "http://47.102.214.37:8080/user?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.page_size;
-      axios
-        .get(url)
+      let url = "user?page=" + (that.page - 1) + "&size=" + that.page_size;
+      this.request(url, {}, "GET")
         .then((res) => {
-          console.log(res);
           that.total = res.data.totalElements;
           for (let i = 0; i < res.data.content.length; i++) {
             if (res.data.content[i].role == "ROOT") {
@@ -440,9 +432,8 @@ export default {
           });
         })
         .catch((res) => {
-          console.log(res.response);
-          that.$message({
-            message: "列表刷新失败",
+          this.$message({
+            message: res.response.data.message,
             type: "error",
           });
         });
@@ -452,8 +443,7 @@ export default {
       let that = this;
       let index = 1;
       that.ifsearch = true;
-      let url =
-        "http://47.102.214.37:8080/user/query?name==高凡&username==test-o";
+      let url = "user/query?name==高凡&username==test-o";
       if (that.username == "" && that.name == "" && that.email == "") {
         that.$message({
           message: "请输入搜索条件",
@@ -461,16 +451,12 @@ export default {
         });
         return;
       } else if (that.username != "") {
-        url = "http://47.102.214.37:8080/user/query?username==" + that.username;
+        url = "user/query?username==" + that.username;
         if (that.name != "") {
-          url =
-            "http://47.102.214.37:8080/user/query?username==" +
-            that.username +
-            "&name==" +
-            that.name;
+          url = "user/query?username==" + that.username + "&name==" + that.name;
           if (that.email != "") {
             url =
-              "http://47.102.214.37:8080/user/query?username==" +
+              "user/query?username==" +
               that.username +
               "&name==" +
               that.name +
@@ -480,44 +466,51 @@ export default {
         } else if (that.name == "") {
           if (that.email != "") {
             url =
-              "http://47.102.214.37:8080/user/query?username==" +
-              that.username +
-              "&email==" +
-              that.email;
+              "user/query?username==" + that.username + "&email==" + that.email;
           }
         }
       } else if (that.username == "") {
         if (that.name != "") {
-          url = "http://47.102.214.37:8080/user/query?name==" + that.name;
+          url = "user/query?name==" + that.name;
           if (that.email != "") {
-            url =
-              "http://47.102.214.37:8080/user/query?name==" +
-              that.name +
-              "&email==" +
-              that.email;
+            url = "user/query?name==" + that.name + "&email==" + that.email;
           }
         } else if (that.name == "") {
           if (that.email != "") {
-            url = "http://47.102.214.37:8080/user/query?email==" + that.email;
+            url = "user/query?email==" + that.email;
           }
         }
       }
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.tableData = [];
-        that.total = res.data.content.length;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.id = res.data.content[i].id;
-          obj.index = index++;
-          obj.username = res.data.content[i].username;
-          obj.userrole = res.data.content[i].role;
-          obj.name = res.data.content[i].name;
-          obj.email = res.data.content[i].email;
-          that.tableData.push(obj);
-        }
-      });
+      this.request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.tableData = [];
+          that.total = res.data.content.length;
+          if (res.data.content.length == 0) {
+            this.$message({
+              message: "未找到结果",
+              type: "warning",
+            });
+          } else {
+            for (let i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.id = res.data.content[i].id;
+              obj.index = index++;
+              obj.username = res.data.content[i].username;
+              obj.userrole = res.data.content[i].role;
+              obj.name = res.data.content[i].name;
+              obj.email = res.data.content[i].email;
+              that.tableData.push(obj);
+            }
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     },
   },
 };

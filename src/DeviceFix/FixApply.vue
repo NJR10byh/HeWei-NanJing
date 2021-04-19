@@ -9,7 +9,7 @@
             :name="reporter.name"
             :username="reporter.username"
             :useremail="reporter.useremail"
-            :avatar="reporter.avatar"
+            :avatar="reporter.avatarurl"
             style="margin-top:5px;"
           ></user>
         </div>
@@ -126,22 +126,18 @@ export default {
     let userRole = "";
     console.log();
     // 获取当前登录用户基本信息
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      userRole = res.data.role;
-      console.log(res.data);
-      that.reporter.id = res.data.id;
-      that.reporter.name = res.data.name;
-      that.reporter.role = res.data.role;
-      that.reporter.username = res.data.username;
-      that.reporter.useremail = res.data.email;
-      that.reporter.avatar = "http://47.102.214.37:8080/pic/" + res.data.avatar;
-    });
+    that.reporter.id = this.globaldata.userid;
+    that.reporter.name = this.globaldata.name;
+    that.reporter.role = this.globaldata.userRole;
+    that.reporter.username = this.globaldata.username;
+    that.reporter.useremail = this.globaldata.useremail;
+    that.reporter.avatarurl = this.globaldata.avatarurl;
     setTimeout(() => {
       // 如果当前登录用户不是 OPERATOR ，则获取全部设备
       if (userRole != "" && userRole != "OPERATOR") {
         // 获取全部设备
-        axios
-          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
+        that
+          .resquest("device?page=0&size=1000000000", {}, "GET")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
@@ -150,11 +146,67 @@ export default {
               obj.devicenumber = res.data.content[i].deviceNo;
               that.options1.push(obj);
             }
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
         // 获取全部SUPERVISOR
-        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-          // console.log(res.data);
-          setTimeout(function() {
+        that
+          .resquest("user/query", {}, "GET")
+          .then((res) => {
+            // console.log(res.data);
+            setTimeout(function() {
+              for (let i = 0; i < res.data.content.length; i++) {
+                if (res.data.content[i].role == "SUPERVISOR") {
+                  that.options2[0].options.push({
+                    value: res.data.content[i].id,
+                    label:
+                      res.data.content[i].name +
+                      " (用户名：" +
+                      res.data.content[i].username +
+                      ")",
+                  });
+                }
+              }
+            }, 300);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
+      // 如果当前登录用户是 OPERATOR ，则获取与他关联的设备
+      else if (userRole != "" && userRole == "OPERATOR") {
+        // 获取全部分配到自己的设备
+        that
+          .resquest("my/device", {}, "GET")
+          .then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.length; i++) {
+              // console.log(res.data.content[i]);
+              let obj = {};
+              obj.value = res.data[i].id;
+              obj.devicename = res.data[i].name;
+              obj.devicenumber = res.data[i].deviceNo;
+              that.options1.push(obj);
+            }
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+        // 获取全部SUPERVISOR
+        that
+          .resquest("user/query", {}, "GET")
+          .then((res) => {
+            // console.log(res.data);
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "SUPERVISOR") {
                 that.options2[0].options.push({
@@ -167,39 +219,13 @@ export default {
                 });
               }
             }
-          }, 300);
-        });
-      }
-      // 如果当前登录用户是 OPERATOR ，则获取与他关联的设备
-      else if (userRole != "" && userRole == "OPERATOR") {
-        // 获取全部分配到自己的设备
-        axios.get("http://47.102.214.37:8080/my/device").then((res) => {
-          console.log(res.data);
-          for (var i = 0; i < res.data.length; i++) {
-            // console.log(res.data.content[i]);
-            let obj = {};
-            obj.value = res.data[i].id;
-            obj.devicename = res.data[i].name;
-            obj.devicenumber = res.data[i].deviceNo;
-            that.options1.push(obj);
-          }
-        });
-        // 获取全部SUPERVISOR
-        axios.get("http://47.102.214.37:8080/user/query").then((res) => {
-          // console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
-            if (res.data.content[i].role == "SUPERVISOR") {
-              that.options2[0].options.push({
-                value: res.data.content[i].id,
-                label:
-                  res.data.content[i].name +
-                  " (用户名：" +
-                  res.data.content[i].username +
-                  ")",
-              });
-            }
-          }
-        });
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
       }
     }, 300);
   },
@@ -261,17 +287,24 @@ export default {
             headers: {
               "Content-Type": "text/plain",
             },
-          }).then((res) => {
-            console.log(res);
-            let url = "http://47.102.214.37:8080/pic/" + res.data;
-            let quill = that.$refs.myQuillEditor.quill;
-            // 获取光标所在位置
-            let length = quill.getSelection().index;
-            // 插入图片
-            quill.insertEmbed(length, "image", url);
-            // 调整光标到最后
-            quill.setSelection(length + 1);
-          });
+          })
+            .then((res) => {
+              console.log(res);
+              let url = "http://47.102.214.37:8080/pic/" + res.data;
+              let quill = that.$refs.myQuillEditor.quill;
+              // 获取光标所在位置
+              let length = quill.getSelection().index;
+              // 插入图片
+              quill.insertEmbed(length, "image", url);
+              // 调整光标到最后
+              quill.setSelection(length + 1);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       });
     },
@@ -323,8 +356,8 @@ export default {
           reporter: { id: that.reporter.id },
         };
         console.log(obj);
-        axios
-          .post("http://47.102.214.37:8080/issue", obj)
+        that
+          .resquest("issue", obj, "POST")
           .then((res) => {
             console.log(res);
             that.$message({
@@ -338,7 +371,6 @@ export default {
             }, 1000);
           })
           .catch((res) => {
-            console.log(res.response);
             this.$message({
               message: res.response.data.message,
               type: "error",
@@ -352,8 +384,8 @@ export default {
       console.log(that.deviceno);
       let url =
         "http://47.102.214.37:8080/device/query?deviceNo==" + that.deviceno;
-      axios
-        .get(url)
+      that
+        .resquest(url, {}, "GET")
         .then((res) => {
           console.log(res.data);
           that.deviceno = "";

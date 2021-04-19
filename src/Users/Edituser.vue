@@ -61,18 +61,32 @@ export default {
     let that = this;
     console.log(that.$route.query);
     if (that.$route.query.id != undefined) {
-      let url = "http://47.102.214.37:8080/user/" + that.$route.query.id;
-      axios.get(url).then((res) => {
-        that.userid = res.data.id;
-        that.name = res.data.name;
-        that.email = res.data.email;
-      });
+      let url = "user/" + that.$route.query.id;
+      this.request(url, {}, "GET")
+        .then((res) => {
+          that.userid = res.data.id;
+          that.name = res.data.name;
+          that.email = res.data.email;
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     } else {
-      axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-        that.userid = res.data.id;
-        that.name = res.data.name;
-        that.email = res.data.email;
-      });
+      this.request("user/me", {}, "GET")
+        .then((res) => {
+          that.userid = res.data.id;
+          that.name = res.data.name;
+          that.email = res.data.email;
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     }
   },
   data() {
@@ -161,40 +175,44 @@ export default {
       console.log(that.confirmpassword);
       if (that.password === that.confirmpassword) {
         if (that.$route.query.id != undefined) {
-          let url = "http://47.102.214.37:8080/user/" + that.userid;
-          axios.get(url).then((res) => {
-            // console.log(res.data);
-            let obj = {
-              email: that.email,
-              id: res.data.id,
-              name: that.name,
-              role: res.data.role,
-              username: res.data.username,
-              enable: res.data.enable,
-              password: that.confirmpassword,
-              avatar: that.picid,
-            };
-            setTimeout(function() {
-              console.log(obj);
-              axios
-                .put(url, obj)
-                .then((res) => {
-                  console.log(res);
-                  that.$message({
-                    message: "修改成功",
-                    type: "success",
+          let url = "user/" + that.userid;
+          this.request(url, {}, "GET")
+            .then((res) => {
+              let obj = {
+                email: that.email,
+                id: res.data.id,
+                name: that.name,
+                role: res.data.role,
+                username: res.data.username,
+                enable: res.data.enable,
+                password: that.confirmpassword,
+                avatar: that.picid,
+              };
+              setTimeout(function() {
+                this.request(url, obj, "PUT")
+                  .then((res) => {
+                    console.log(res);
+                    that.$message({
+                      message: "修改成功",
+                      type: "success",
+                    });
+                    // location.reload();
+                  })
+                  .catch((res) => {
+                    console.log(res.response);
+                    that.$message({
+                      message: "修改失败",
+                      type: "error",
+                    });
                   });
-                  location.reload();
-                })
-                .catch((res) => {
-                  console.log(res.response);
-                  that.$message({
-                    message: "修改失败",
-                    type: "error",
-                  });
-                });
-            }, 200);
-          });
+              }, 300);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         } else {
           let obj = {
             email: that.email,
@@ -202,25 +220,22 @@ export default {
             password: that.confirmpassword,
             avatar: that.picid,
           };
-          setTimeout(function() {
-            axios
-              .post("http://47.102.214.37:8080/user/me/edit", obj)
-              .then((res) => {
-                console.log(res);
-                that.$message({
-                  message: "修改成功",
-                  type: "success",
-                });
-                location.reload();
-              })
-              .catch((res) => {
-                console.log(res.response);
-                that.$message({
-                  message: "修改失败",
-                  type: "error",
-                });
+          let url = "user/me/edit";
+          this.request(url, obj, "POST")
+            .then((res) => {
+              console.log(res);
+              that.$message({
+                message: "修改成功",
+                type: "success",
               });
-          }, 200);
+              location.reload();
+            })
+            .catch((res) => {
+              that.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       } else {
         this.$message({

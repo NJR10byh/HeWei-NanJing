@@ -1,3 +1,10 @@
+// 当前登录人员信息
+var userid = "";
+var userRole = "";
+var username = "";
+var useremail = "";
+var name = "";
+var avatarurl = "";
 // 设备查询
 var deviceselectInfo = [];
 var devicedynamicTags = [];
@@ -18,6 +25,13 @@ var fixdynamicTags = [];
 // var fixAnalysisInfo = [];
 // var fixAnalysisdynamicTags = [];
 export default {
+  userid,
+  userRole,
+  useremail,
+  username,
+  name,
+  avatarurl,
+
   deviceselectInfo,
   devicedynamicTags,
 

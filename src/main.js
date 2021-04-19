@@ -26,6 +26,10 @@ Vue.prototype.$http = axios;
 import request from "./API/api";
 Vue.prototype.request = request;
 
+// 引入全局变量
+import globaldata from "./GlobalData/globaldata";
+Vue.prototype.globaldata = globaldata;
+
 Vue.config.productionTip = false;
 
 // 安装 ElementUI 插件

@@ -182,19 +182,34 @@
 import User from "../components/Userinfo";
 
 export default {
-  created: async function() {
+  created: function() {
     this.$message({
-      message:
-        "进行了服务器端更新，修复了已知问题",
+      message: "进行了服务器端更新，修复了已知问题",
       type: "success",
       duration: "8000",
     });
-    let res = await this.request("user/me", {}, "GET");
-    this.userRole = res.data.role;
-    this.username = res.data.username;
-    this.useremail = res.data.email;
-    this.name = res.data.name;
-    this.avatarurl = "http://47.102.214.37:8080/pic/" + res.data.avatar;
+    this.request("user/me", {}, "GET")
+      .then((res) => {
+        this.userRole = res.data.role;
+        this.username = res.data.username;
+        this.useremail = res.data.email;
+        this.name = res.data.name;
+        this.avatarurl = "http://47.102.214.37:8080/pic/" + res.data.avatar;
+        // 当前登录人员信息存入全局变量
+        this.globaldata.userid = res.data.id;
+        this.globaldata.userRole = res.data.role;
+        this.globaldata.username = res.data.username;
+        this.globaldata.useremail = res.data.email;
+        this.globaldata.name = res.data.name;
+        this.globaldata.avatarurl =
+          "http://47.102.214.37:8080/pic/" + res.data.avatar;
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
   },
   // 让页面只刷新一次
   mounted: function() {
@@ -418,7 +433,7 @@ export default {
             {
               id: 41,
               authName: "分配到我的",
-              path: "alreadyFixOp",
+              path: "alreadyFix",
             },
             {
               id: 42,
@@ -490,7 +505,7 @@ export default {
             {
               id: 42,
               authName: "分配到我的",
-              path: "alreadyFixSu",
+              path: "alreadyFix",
             },
             {
               id: 43,
@@ -578,9 +593,6 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
-  .el-container {
-    // height: 100%;
-  }
   .el-header {
     width: 100%;
     // border: 1px solid red;

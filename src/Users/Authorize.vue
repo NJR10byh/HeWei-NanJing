@@ -114,19 +114,16 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      this.userRole = res.data.role;
-      if (this.userRole == "ADMIN") {
-        that.options2.shift();
-      }
-    });
-    axios.get("http://47.102.214.37:8080/user/query?role=!ROOT").then((res) => {
-      console.log(res.data);
-      setTimeout(function() {
+    that.userRole = this.globaldata.userRole;
+    if (this.userRole == "ADMIN") {
+      that.options2.shift();
+    }
+    this.request("user/query?role=!ROOT", {}, "GET")
+      .then((res) => {
+        console.log(res.data);
         for (let i = 0; i < res.data.content.length; i++) {
           if (res.data.content[i].role == "ADMIN") {
             that.options1[0].options.push({
@@ -171,8 +168,13 @@ export default {
             });
           }
         }
-      }, 200);
-    });
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
   },
   data() {
     return {
@@ -270,43 +272,44 @@ export default {
           message: "两次密码输入不一致",
           type: "error",
         });
-      } else if (that.more == true) {
-        console.log(that.piliang);
-        let i = 0;
-        for (i = 0; i < that.piliang; i++) {
-          axios
-            .post("http://47.102.214.37:8080/user/register", {
-              name: that.name,
-              username: that.username,
-              email: that.email,
-              password: that.confirmpassword,
-              role: that.value_left,
-            })
-            .then(() => {
-              that.name = "";
-              that.username = "";
-              that.email = "";
-              that.password = "";
-              that.confirmpassword = "";
-              that.value_left = "";
-              that.piliang = "";
-            });
-        }
-        if (i == that.piliang) {
-          that.$message({
-            message: "批量注册成功",
-            type: "success",
-          });
-        }
-      } else {
-        axios
-          .post("http://47.102.214.37:8080/user/register", {
-            name: that.name,
-            username: that.username,
-            email: that.email,
-            password: that.confirmpassword,
-            role: that.value_left,
-          })
+      }
+      // else if (that.more == true) {
+      //   console.log(that.piliang);
+      //   let i = 0;
+      //   for (i = 0; i < that.piliang; i++) {
+      //     axios
+      //       .post("http://47.102.214.37:8080/user/register", {
+      //         name: that.name,
+      //         username: that.username,
+      //         email: that.email,
+      //         password: that.confirmpassword,
+      //         role: that.value_left,
+      //       })
+      //       .then(() => {
+      //         that.name = "";
+      //         that.username = "";
+      //         that.email = "";
+      //         that.password = "";
+      //         that.confirmpassword = "";
+      //         that.value_left = "";
+      //         that.piliang = "";
+      //       });
+      //   }
+      //   if (i == that.piliang) {
+      //     that.$message({
+      //       message: "批量注册成功",
+      //       type: "success",
+      //     });
+      //   }
+      // }
+      else {
+        let obj = {};
+        obj.name = that.name;
+        obj.username = that.username;
+        obj.email = that.email;
+        obj.password = that.confirmpassword;
+        obj.role = that.value_left;
+        this.request("user/register", obj, "POST")
           .then((res) => {
             console.log(res);
             that.$message({
@@ -319,6 +322,12 @@ export default {
             that.password = "";
             that.confirmpassword = "";
             that.value_left = "";
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
       }
     },
@@ -328,8 +337,8 @@ export default {
       console.log(that.value2);
       for (let i = 0; i < that.value1.length; i++) {
         console.log(that.value1[i]);
-        let url = "http://47.102.214.37:8080/user/" + that.value1[i];
-        axios.get(url).then((res) => {
+        let url = "user/" + that.value1[i];
+        this.request(url, {}, "GET").then((res) => {
           // console.log(res.data);
           let obj = {
             email: res.data.email,
@@ -341,8 +350,8 @@ export default {
           };
           setTimeout(function() {
             console.log(obj);
-            axios
-              .put(url, obj)
+            that
+              .request(url, obj, "PUT")
               .then((res) => {
                 console.log(res);
                 that.$message({

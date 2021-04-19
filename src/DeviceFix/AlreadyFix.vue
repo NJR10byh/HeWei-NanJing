@@ -1,9 +1,9 @@
 <template>
-  <div class="Container-FixDiagnosis">
+  <div class="Container-AlreadyFix">
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">我发布的</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">分配到我的</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="refresh">
       <el-button icon="el-icon-refresh" @click="refresh">刷新列表 </el-button>
@@ -55,9 +55,6 @@
       <el-table-column prop="setting" label="操作" width="180">
         <template slot-scope="scope">
           <el-button @click="errordetail(scope.$index)">查看详情</el-button>
-          <el-button @click="reverterror(scope.$index)" v-if="!iffixed"
-            >撤销</el-button
-          >
         </template>
       </el-table-column>
     </el-table>
@@ -84,13 +81,11 @@ export default {
     return {
       taskData: [],
       tablewidth: "150",
-      iffixed: false,
 
       // 分页
       currentPage: 1, //  页面显示的当前页数
       page_size: 15, //  页面显示的每页显示条数
       page: 1, // 当前页数
-      size: 5, // 每页显示条数
       total: 0, // 总数
     };
   },
@@ -109,11 +104,10 @@ export default {
       }
     },
 
-    // 刷新列表
     refresh() {
       let that = this;
       that.taskData = [];
-      let url = "issue/reporter?page=0&size=" + that.page_size;
+      let url = "issue/assignee?page=0&size=" + that.page_size;
       that
         .request(url, {}, "GET")
         .then((res) => {
@@ -158,6 +152,7 @@ export default {
                 that
                   .request(assigneeurl, {}, "GET")
                   .then((res) => {
+                    console.log(res.data);
                     obj.reportername =
                       res.data.name == undefined ? "未分配" : res.data.name;
                   })
@@ -182,6 +177,7 @@ export default {
                       that
                         .request(assigneeurl, {}, "GET")
                         .then((res) => {
+                          console.log(res.data);
                           obj.assigneename += res.data.name + " / ";
                         })
                         .catch((res) => {
@@ -213,53 +209,23 @@ export default {
           });
         });
     },
-    // 报修详情
     errordetail(index) {
       let that = this;
       console.log(that.taskData[index]);
       that.$router.push({
-        path: "./mySubmitDetail",
+        path: "./errorDetail",
         query: that.taskData[index],
       });
     },
-    // 撤销
-    reverterror(index) {
-      let that = this;
-      console.log(that.taskData[index]);
-      this.$confirm("确定撤销此报修申请吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }).then(() => {
-        let url = "issue/revert/" + that.taskData[index].errorid;
-        that
-          .request(url, {}, "POST")
-          .then(() => {
-            that.$message({
-              message: "撤销成功",
-              type: "success",
-            });
-            that.refresh();
-          })
-          .catch(() => {
-            that.$message({
-              message: "撤销失败",
-              type: "error",
-            });
-          });
-      });
-    },
-
-    /* 分页 */
     // 表格方法
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       let that = this;
       that.taskData = [];
       console.log(val);
-      that.size = val;
       that.page_size = val;
-      let url = "issue/reporter?page=0&size=" + that.size;
+      that.currentPage = 1;
+      let url = "issue/assignee?page=0" + "&size=" + that.page_size;
       console.log(url);
       that
         .request(url, {}, "GET")
@@ -305,6 +271,7 @@ export default {
                 that
                   .request(assigneeurl, {}, "GET")
                   .then((res) => {
+                    console.log(res.data);
                     obj.reportername =
                       res.data.name == undefined ? "未分配" : res.data.name;
                   })
@@ -329,6 +296,7 @@ export default {
                       that
                         .request(assigneeurl, {}, "GET")
                         .then((res) => {
+                          console.log(res.data);
                           obj.assigneename += res.data.name + " / ";
                         })
                         .catch((res) => {
@@ -366,7 +334,8 @@ export default {
       that.page = val;
       that.currentPage = val;
       console.log(val);
-      let url = "issue/reporter?page=" + (that.page - 1) + "&size=" + that.size;
+      let url =
+        "issue/assignee?page=0" + (that.page - 1) + "&size=" + that.page_size;
       console.log(url);
       that
         .request(url, {}, "GET")
@@ -412,6 +381,7 @@ export default {
                 that
                   .request(assigneeurl, {}, "GET")
                   .then((res) => {
+                    console.log(res.data);
                     obj.reportername =
                       res.data.name == undefined ? "未分配" : res.data.name;
                   })
@@ -431,19 +401,33 @@ export default {
                       k < res.data.content[i].assignee.length;
                       k++
                     ) {
-                      let assigneeurl =
-                        "user/" + res.data.content[i].assignee[k].id;
-                      that
-                        .request(assigneeurl, {}, "GET")
-                        .then((res) => {
-                          obj.assigneename += res.data.name + " / ";
-                        })
-                        .catch((res) => {
-                          this.$message({
-                            message: res.response.data.message,
-                            type: "error",
-                          });
-                        });
+                      if (res.data.content[i].assignee.length == 1) {
+                        obj.assigneename = "未分配";
+                      } else {
+                        for (
+                          let k = 1;
+                          k < res.data.content[i].assignee.length;
+                          k++
+                        ) {
+                          let assigneeurl =
+                            "user/" + res.data.content[i].assignee[k].id;
+                          that
+                            .request(assigneeurl, {}, "GET")
+                            .then((res) => {
+                              console.log(res.data);
+                              obj.assigneename += res.data.name + " / ";
+                            })
+                            .catch((res) => {
+                              this.$message({
+                                message: res.response.data.message,
+                                type: "error",
+                              });
+                            });
+                        }
+                      }
+                      setTimeout(() => {
+                        that.taskData.push(obj);
+                      }, 800);
                     }
                   }
                   setTimeout(() => {
@@ -471,7 +455,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.Container-FixDiagnosis {
+.Container-AlreadyFix {
   .breadcrumb {
     height: 30px;
     line-height: 30px;

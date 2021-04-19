@@ -188,7 +188,6 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
@@ -261,11 +260,15 @@ export default {
           confirmButtonText: "确定",
         });
       } else {
-        axios
-          .post("http://47.102.214.37:8080/device/info-field", {
-            name: Info.name,
-            type: Info.type,
-          })
+        that
+          .request(
+            "device/info-field",
+            {
+              name: Info.name,
+              type: Info.type,
+            },
+            "POST"
+          )
           .then((res) => {
             console.log(res);
             that.$message({
@@ -277,9 +280,8 @@ export default {
               extrainfo: "",
               type: Info.type,
             });
-            // 在此进行字段id获取，避免axios异步请求导致的  _ob_: Observer无法遍历
-            axios
-              .get("http://47.102.214.37:8080/device/info-field")
+            that
+              .request("device/info-field", {}, "GET")
               .then((res) => {
                 console.log(res);
                 for (var j = 0; j < res.data.length; j++) {
@@ -288,8 +290,20 @@ export default {
                     break;
                   }
                 }
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
               });
             that.dialogFormVisible = false;
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
       }
     },
@@ -317,21 +331,27 @@ export default {
                 if (element.extraname == e.extraname) {
                   console.log(that.tableData[i]);
                   console.log(that.extraid[i]);
-                  let url =
-                    "http://47.102.214.37:8080/device/info-field/" +
-                    that.extraid[i];
-                  axios.delete(url).then((res) => {
-                    console.log(res);
-                    if (res.status == 200) {
-                      that.tableData.splice(i, 1);
+                  let url = "device/info-field/" + that.extraid[i];
+                  that
+                    .request(url, {}, "DELETE")
+                    .then((res) => {
+                      console.log(res);
+                      if (res.status == 200) {
+                        that.tableData.splice(i, 1);
+                        this.$message({
+                          message: "删除成功",
+                          type: "success",
+                        });
+                      } else {
+                        this.$message.error("删除失败");
+                      }
+                    })
+                    .catch((res) => {
                       this.$message({
-                        message: "删除成功",
-                        type: "success",
+                        message: res.response.data.message,
+                        type: "error",
                       });
-                    } else {
-                      this.$message.error("删除失败");
-                    }
-                  });
+                    });
                 }
               });
             });
@@ -369,16 +389,20 @@ export default {
             value: that.tableData[i].extrainfo,
           });
         }
-        axios
-          .post("http://47.102.214.37:8080/device", {
-            name: formData.name,
-            brand: formData.brand,
-            type: formData.type,
-            deviceNo: formData.deviceNo,
-            crux: obj.crux,
-            clazz: formData.clazz,
-            extra: bbb,
-          })
+        that
+          .request(
+            "device",
+            {
+              name: formData.name,
+              brand: formData.brand,
+              type: formData.type,
+              deviceNo: formData.deviceNo,
+              crux: obj.crux,
+              clazz: formData.clazz,
+              extra: bbb,
+            },
+            "POST"
+          )
           .then((res) => {
             if (res.data.message == "ok") {
               this.$message({
@@ -398,13 +422,11 @@ export default {
   },
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-    });
-    setTimeout(function() {
-      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-        axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
+    that.userRole = that.globaldata.userRole;
+    if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+      that
+        .request("device/info-field", {}, "GET")
+        .then((res) => {
           console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {
             that.extraid.push(res.data[i].id);
@@ -414,9 +436,14 @@ export default {
               type: res.data[i].type,
             });
           }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      }
-    }, 200);
+    }
   },
 };
 </script>

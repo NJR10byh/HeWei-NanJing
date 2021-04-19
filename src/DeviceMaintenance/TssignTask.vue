@@ -67,66 +67,78 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   name: "AddTaskInside",
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-      that.userID = res.data.id;
-    });
-    setTimeout(function() {
-      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-        // 获取全部任务
-        axios
-          .get("http://47.102.214.37:8080/ops/schedule?page=0&size=1000000000")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              console.log(res.data.content[i]);
-              obj.value = res.data.content[i].id;
-              obj.label =
-                res.data.content[i].name + "（" + res.data.content[i].no + "）";
-              that.taskoptions.push(obj);
-            }
+    that.userRole = this.globaldata.userRole;
+    that.userID = this.globaldata.userid;
+    if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+      // 获取全部任务
+      that
+        .request("ops/schedule?page=0&size=1000000000", {}, "GET")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            console.log(res.data.content[i]);
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name + "（" + res.data.content[i].no + "）";
+            that.taskoptions.push(obj);
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        // 获取全部设备
-        axios
-          .get("http://47.102.214.37:8080/device?page=0&size=1000000000")
-          .then((res) => {
-            console.log(res.data);
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i]);
-              let obj = {};
-              obj.value = res.data.content[i].id;
-              obj.label =
-                res.data.content[i].name +
-                "（" +
-                res.data.content[i].deviceNo +
-                "）";
-              that.deviceoptions.push(obj);
-            }
+        });
+      // 获取全部设备
+      that
+        .request("device?page=0&size=1000000000", {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.content.length; i++) {
+            // console.log(res.data.content[i]);
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].name +
+              "（" +
+              res.data.content[i].deviceNo +
+              "）";
+            that.deviceoptions.push(obj);
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        // 获取全部 OPERATOR 员工
-        axios
-          .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
-          .then((res) => {
-            for (var i = 0; i < res.data.content.length; i++) {
-              // console.log(res.data.content[i]);
-              let obj = {};
-              obj.value = res.data.content[i].id;
-              obj.label =
-                res.data.content[i].username +
-                "（姓名：" +
-                res.data.content[i].name +
-                "）";
-              that.opsoptions.push(obj);
-            }
+        });
+      // 获取全部 OPERATOR 员工
+      that
+        .request("user/query?role==OPERATOR", {}, "GET")
+        .then((res) => {
+          for (var i = 0; i < res.data.content.length; i++) {
+            // console.log(res.data.content[i]);
+            let obj = {};
+            obj.value = res.data.content[i].id;
+            obj.label =
+              res.data.content[i].username +
+              "（姓名：" +
+              res.data.content[i].name +
+              "）";
+            that.opsoptions.push(obj);
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-      }
-    }, 200);
+        });
+    }
   },
   data() {
     return {
@@ -168,8 +180,7 @@ export default {
       } else {
         let deviceid = [];
         let ops = [];
-        let url =
-          "http://47.102.214.37:8080/ops/schedule/detail/" + that.taskvalue;
+        let url = "ops/schedule/detail/" + that.taskvalue;
         console.log(url);
         console.log(that.datevalue);
         if (new Date(that.datevalue).getTime() < new Date().getTime()) {
@@ -178,35 +189,51 @@ export default {
             type: "warning",
           });
         } else {
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            let obj = {};
-            deviceid.push({ id: that.devicevalue });
-            ops.push({ id: that.opsvalue });
-            obj.acceptedStandard = res.data.acceptedStandard;
-            obj.content = res.data.content;
-            obj.id = res.data.id;
-            obj.name = res.data.name;
-            obj.no = res.data.no;
-            obj.remark = res.data.remark;
-            obj.scheduleType = res.data.scheduleType;
-            obj.startDate = that.datevalue;
-            obj.side = res.data.side;
-            obj.tools = res.data.tools;
-            obj.device = deviceid;
-            obj.ops = ops;
-            obj.manager = null;
-            console.log(obj);
-            setTimeout(function() {
-              axios.put(url, obj).then((res) => {
-                console.log(res);
-                that.$message({
-                  message: "分配成功",
-                  type: "success",
-                });
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              let obj = {};
+              deviceid.push({ id: that.devicevalue });
+              ops.push({ id: that.opsvalue });
+              obj.acceptedStandard = res.data.acceptedStandard;
+              obj.content = res.data.content;
+              obj.id = res.data.id;
+              obj.name = res.data.name;
+              obj.no = res.data.no;
+              obj.remark = res.data.remark;
+              obj.scheduleType = res.data.scheduleType;
+              obj.startDate = that.datevalue;
+              obj.side = res.data.side;
+              obj.tools = res.data.tools;
+              obj.device = deviceid;
+              obj.ops = ops;
+              obj.manager = null;
+              console.log(obj);
+              setTimeout(function() {
+                that
+                  .request(url, obj, "PUT")
+                  .then((res) => {
+                    console.log(res);
+                    that.$message({
+                      message: "分配成功",
+                      type: "success",
+                    });
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+              }, 200);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            }, 200);
-          });
+            });
         }
       }
     },

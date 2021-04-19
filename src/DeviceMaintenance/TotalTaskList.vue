@@ -302,20 +302,14 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import globaldata from "../GlobalData/globaldata";
-
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      that.userRole = res.data.role;
-      that.userid = res.data.id;
-    });
-    if (globaldata.taskselectInfo.length != 0) {
-      that.selectInfo = globaldata.taskselectInfo;
-      that.dynamicTags = globaldata.taskdynamicTags;
+    that.userRole = that.globaldata.userRole;
+    that.userid = that.globaldata.userid;
+    if (that.globaldata.taskselectInfo.length != 0) {
+      that.selectInfo = that.globaldata.taskselectInfo;
+      that.dynamicTags = that.globaldata.taskdynamicTags;
       that.search();
     } else {
       setTimeout(() => {
@@ -323,18 +317,26 @@ export default {
       }, 300);
     }
     // 获取所有附加字段
-    axios.get("http://47.102.214.37:8080/device/info-field").then((res) => {
-      for (let i = 0; i < res.data.length; i++) {
-        that.deviceoptions[1].options.push({
-          value: res.data[i].id,
-          label: res.data[i].name,
+    that
+      .request("device/info-field", {}, "GET")
+      .then((res) => {
+        for (let i = 0; i < res.data.length; i++) {
+          that.deviceoptions[1].options.push({
+            value: res.data[i].id,
+            label: res.data[i].name,
+          });
+        }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
         });
-      }
-    });
+      });
 
     // 获取全部OPERATOR
-    axios
-      .get("http://47.102.214.37:8080/user/query?role==OPERATOR")
+    that
+      .request("user/query?role==OPERATOR", {}, "GET")
       .then((res) => {
         console.log(res.data);
         for (let i = 0; i < res.data.content.length; i++) {
@@ -347,6 +349,12 @@ export default {
               ")",
           });
         }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
       });
   },
   data() {
@@ -524,23 +532,31 @@ export default {
       let arr = [];
       let url = "";
       url =
-        "http://47.102.214.37:8080/device/query?" +
+        "device/query?" +
         that.selectInfo2[0].ziduan +
         "=L" +
         that.selectInfo2[0].value +
         "%25";
       if (that.selectInfo2.length == 1) {
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
-            arr.push(res.data.content[i].id);
-          }
-          that.selectInfo.push({
-            ziduan: "device",
-            value: arr,
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            console.log(res.data);
+            for (let i = 0; i < res.data.content.length; i++) {
+              arr.push(res.data.content[i].id);
+            }
+            that.selectInfo.push({
+              ziduan: "device",
+              value: arr,
+            });
+            that.dynamicTags.push("device / " + arr);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
-          that.dynamicTags.push("device / " + arr);
-        });
       } else {
         for (let i = 1; i < that.selectInfo2.length; i++) {
           url =
@@ -551,17 +567,25 @@ export default {
             that.selectInfo2[i].value +
             "%25";
         }
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          for (let i = 0; i < res.data.content.length; i++) {
-            arr.push(res.data.content[i].id);
-          }
-          that.selectInfo.push({
-            ziduan: "device",
-            value: arr,
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            console.log(res.data);
+            for (let i = 0; i < res.data.content.length; i++) {
+              arr.push(res.data.content[i].id);
+            }
+            that.selectInfo.push({
+              ziduan: "device",
+              value: arr,
+            });
+            that.dynamicTags.push("device / " + arr);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
           });
-          that.dynamicTags.push("device / " + arr);
-        });
       }
     },
     //  设备标签移除
@@ -600,99 +624,111 @@ export default {
         that.selectvalue = "";
         that.selectmodel = "";
         that.dynamicTags = [];
-        globaldata.deviceselectInfo = [];
-        globaldata.devicedynamicTags = [];
-        let url =
-          "http://47.102.214.37:8080/ops/query?startDate=B" +
-          this.start +
-          "," +
-          this.end;
-        axios.get(url).then((res) => {
-          console.log(res.data);
-          that.total = res.data.totalElements;
-          for (let i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.opuser = "";
-            obj.devicename = "";
-            obj.deviceNo = "";
-            obj.id = res.data.content[i].id;
-            obj.taskname =
-              res.data.content[i].name == null
-                ? "未分配"
-                : res.data.content[i].name;
-            obj.taskno =
-              res.data.content[i].no == null
-                ? "未分配"
-                : res.data.content[i].no;
-            let URL =
-              "http://47.102.214.37:8080/ops/schedule/status/" +
-              res.data.content[i].id;
-            axios.get(URL).then((res) => {
-              if (res.data.nextDate == null) {
-                obj.nextDate = "暂无";
-              } else {
-                obj.nextDate = res.data.nextDate;
-              }
-              if (res.data.nextDateDay == null) {
-                obj.deadline = "暂无";
-              } else {
-                obj.deadline = res.data.nextDateDay;
-              }
-            });
-            // 获取设备信息
-            setTimeout(() => {
-              if (res.data.content[i].device.length == 0) {
-                obj.devicename = "暂未分配";
-                obj.deviceNo = "暂未分配";
-              } else {
-                for (let j = 0; j < res.data.content[i].device.length; j++) {
-                  let url =
-                    "http://47.102.214.37:8080/device/" +
-                    res.data.content[i].device[j].id;
-                  axios
-                    .get(url)
-                    .then((res) => {
-                      obj.devicename += res.data.name + " / ";
-                      obj.deviceNo += res.data.deviceNo + " / ";
-                    })
-                    .catch(() => {
-                      obj.device = "获取失败";
-                    });
-                }
-              }
-
-              // 获取人员信息
+        that.globaldata.deviceselectInfo = [];
+        that.globaldata.devicedynamicTags = [];
+        let url = "ops/query?startDate=B" + this.start + "," + this.end;
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            console.log(res.data);
+            that.total = res.data.totalElements;
+            for (let i = 0; i < res.data.content.length; i++) {
+              let obj = {};
+              obj.opuser = "";
+              obj.devicename = "";
+              obj.deviceNo = "";
+              obj.id = res.data.content[i].id;
+              obj.taskname =
+                res.data.content[i].name == null
+                  ? "未分配"
+                  : res.data.content[i].name;
+              obj.taskno =
+                res.data.content[i].no == null
+                  ? "未分配"
+                  : res.data.content[i].no;
+              let URL = "ops/schedule/status/" + res.data.content[i].id;
+              that
+                .request(URL, {}, "GET")
+                .then((res) => {
+                  if (res.data.nextDate == null) {
+                    obj.nextDate = "暂无";
+                  } else {
+                    obj.nextDate = res.data.nextDate;
+                  }
+                  if (res.data.nextDateDay == null) {
+                    obj.deadline = "暂无";
+                  } else {
+                    obj.deadline = res.data.nextDateDay;
+                  }
+                })
+                .catch((res) => {
+                  this.$message({
+                    message: res.response.data.message,
+                    type: "error",
+                  });
+                });
+              // 获取设备信息
               setTimeout(() => {
-                if (res.data.content[i].ops.length == 0) {
-                  obj.opuser = "暂未分配";
+                if (res.data.content[i].device.length == 0) {
+                  obj.devicename = "暂未分配";
+                  obj.deviceNo = "暂未分配";
                 } else {
-                  for (let k = 0; k < res.data.content[i].ops.length; k++) {
-                    let searchops =
-                      "http://47.102.214.37:8080/user/" +
-                      res.data.content[i].ops[k].id;
-                    axios
-                      .get(searchops)
+                  for (let j = 0; j < res.data.content[i].device.length; j++) {
+                    let url = "device/" + res.data.content[i].device[j].id;
+                    that
+                      .request(url, {}, "GET")
                       .then((res) => {
-                        obj.opuser += res.data.name + " / ";
+                        obj.devicename += res.data.name + " / ";
+                        obj.deviceNo += res.data.deviceNo + " / ";
                       })
-                      .catch(() => {
-                        obj.opuser = "获取失败";
+                      .catch((res) => {
+                        this.$message({
+                          message: res.response.data.message,
+                          type: "error",
+                        });
                       });
                   }
                 }
+
+                // 获取人员信息
                 setTimeout(() => {
-                  that.tableData.push(obj);
-                }, 600);
+                  if (res.data.content[i].ops.length == 0) {
+                    obj.opuser = "暂未分配";
+                  } else {
+                    for (let k = 0; k < res.data.content[i].ops.length; k++) {
+                      let searchops = "user/" + res.data.content[i].ops[k].id;
+                      that
+                        .request(searchops, {}, "GET")
+                        .then((res) => {
+                          obj.opuser += res.data.name + " / ";
+                        })
+                        .catch((res) => {
+                          this.$message({
+                            message: res.response.data.message,
+                            type: "error",
+                          });
+                        });
+                    }
+                  }
+                  setTimeout(() => {
+                    that.tableData.push(obj);
+                  }, 600);
+                }, 300);
               }, 300);
-            }, 300);
-          }
-          setTimeout(() => {
-            that.$message({
-              message: "刷新成功",
-              type: "success",
+            }
+            setTimeout(() => {
+              that.$message({
+                message: "刷新成功",
+                type: "success",
+              });
+            }, 600);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
             });
-          }, 600);
-        });
+          });
       } else {
         this.selectInfo.push({
           ziduan: this.selectvalue,
@@ -710,8 +746,7 @@ export default {
     },
     // 立即检查所有保养完成状态
     checkall() {
-      axios
-        .get("http://47.102.214.37:8080/root/refresh")
+      this.request("root/refresh", {}, "GET")
         .then((res) => {
           console.log(res.data);
           if (res.data.message == "ok") {
@@ -743,7 +778,7 @@ export default {
         // 确定第一部分
         if (that.selectInfo[0].ziduan == "name") {
           url =
-            "http://47.102.214.37:8080/ops/query?" +
+            "ops/query?" +
             that.selectInfo[0].ziduan +
             "=L" +
             that.selectInfo[0].value +
@@ -757,7 +792,7 @@ export default {
           ) {
             if (that.selectInfo[0].value.length > 1) {
               url =
-                "http://47.102.214.37:8080/ops/query?" +
+                "ops/query?" +
                 that.selectInfo[0].ziduan +
                 "=I" +
                 that.selectInfo[0].value[0];
@@ -766,106 +801,126 @@ export default {
               }
             } else {
               url =
-                "http://47.102.214.37:8080/ops/query?" +
+                "ops/query?" +
                 that.selectInfo[0].ziduan +
                 "==" +
                 that.selectInfo[0].value;
             }
           } else {
             url =
-              "http://47.102.214.37:8080/ops/query?" +
+              "ops/query?" +
               that.selectInfo[0].ziduan +
               "==" +
               that.selectInfo[0].value;
           }
         }
         if (that.selectInfo.length == 1) {
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            that.total = res.data.totalElements;
-            for (let i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.opuser = "";
-              obj.devicename = "";
-              obj.deviceNo = "";
-              obj.id = res.data.content[i].device[0].id;
-              obj.taskname =
-                res.data.content[i].name == null
-                  ? "未分配"
-                  : res.data.content[i].name;
-              obj.taskno =
-                res.data.content[i].no == null
-                  ? "未分配"
-                  : res.data.content[i].no;
-              let URL =
-                "http://47.102.214.37:8080/ops/schedule/status/" +
-                res.data.content[i].id;
-              axios.get(URL).then((res) => {
-                if (res.data.nextDate == null) {
-                  obj.nextDate = "暂无";
-                } else {
-                  obj.nextDate = res.data.nextDate;
-                }
-                if (res.data.nextDateDay == null) {
-                  obj.deadline = "暂无";
-                } else {
-                  obj.deadline = res.data.nextDateDay;
-                }
-              });
-              // 获取设备信息
-              setTimeout(() => {
-                if (res.data.content[i].device.length == 0) {
-                  obj.devicename = "暂未分配";
-                  obj.deviceNo = "暂未分配";
-                } else {
-                  for (let j = 0; j < res.data.content[i].device.length; j++) {
-                    let url =
-                      "http://47.102.214.37:8080/device/" +
-                      res.data.content[i].device[j].id;
-                    axios
-                      .get(url)
-                      .then((res) => {
-                        obj.devicename += res.data.name + " / ";
-                        obj.deviceNo += res.data.deviceNo + " / ";
-                      })
-                      .catch(() => {
-                        obj.device = "获取失败";
-                      });
-                  }
-                }
-
-                // 获取人员信息
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              that.total = res.data.totalElements;
+              for (let i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.opuser = "";
+                obj.devicename = "";
+                obj.deviceNo = "";
+                obj.id = res.data.content[i].id;
+                obj.taskname =
+                  res.data.content[i].name == null
+                    ? "未分配"
+                    : res.data.content[i].name;
+                obj.taskno =
+                  res.data.content[i].no == null
+                    ? "未分配"
+                    : res.data.content[i].no;
+                let URL = "ops/schedule/status/" + res.data.content[i].id;
+                that
+                  .request(URL, {}, "GET")
+                  .then((res) => {
+                    if (res.data.nextDate == null) {
+                      obj.nextDate = "暂无";
+                    } else {
+                      obj.nextDate = res.data.nextDate;
+                    }
+                    if (res.data.nextDateDay == null) {
+                      obj.deadline = "暂无";
+                    } else {
+                      obj.deadline = res.data.nextDateDay;
+                    }
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+                // 获取设备信息
                 setTimeout(() => {
-                  if (res.data.content[i].ops.length == 0) {
-                    obj.opuser = "暂未分配";
+                  if (res.data.content[i].device.length == 0) {
+                    obj.devicename = "暂未分配";
+                    obj.deviceNo = "暂未分配";
                   } else {
-                    for (let k = 0; k < res.data.content[i].ops.length; k++) {
-                      let searchops =
-                        "http://47.102.214.37:8080/user/" +
-                        res.data.content[i].ops[k].id;
-                      axios
-                        .get(searchops)
+                    for (
+                      let j = 0;
+                      j < res.data.content[i].device.length;
+                      j++
+                    ) {
+                      let url = "device/" + res.data.content[i].device[j].id;
+                      that
+                        .request(url, {}, "GET")
                         .then((res) => {
-                          obj.opuser += res.data.name + " / ";
+                          obj.devicename += res.data.name + " / ";
+                          obj.deviceNo += res.data.deviceNo + " / ";
                         })
-                        .catch(() => {
-                          obj.opuser = "获取失败";
+                        .catch((res) => {
+                          this.$message({
+                            message: res.response.data.message,
+                            type: "error",
+                          });
                         });
                     }
                   }
+
+                  // 获取人员信息
                   setTimeout(() => {
-                    that.tableData.push(obj);
-                  }, 600);
+                    if (res.data.content[i].ops.length == 0) {
+                      obj.opuser = "暂未分配";
+                    } else {
+                      for (let k = 0; k < res.data.content[i].ops.length; k++) {
+                        let searchops = "user/" + res.data.content[i].ops[k].id;
+                        that
+                          .request(searchops, {}, "GET")
+                          .then((res) => {
+                            obj.opuser += res.data.name + " / ";
+                          })
+                          .catch((res) => {
+                            this.$message({
+                              message: res.response.data.message,
+                              type: "error",
+                            });
+                          });
+                      }
+                    }
+                    setTimeout(() => {
+                      that.tableData.push(obj);
+                    }, 600);
+                  }, 300);
                 }, 300);
-              }, 300);
-            }
-            setTimeout(() => {
-              that.$message({
-                message: "刷新成功",
-                type: "success",
+              }
+              setTimeout(() => {
+                that.$message({
+                  message: "刷新成功",
+                  type: "success",
+                });
+              }, 600);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            }, 600);
-          });
+            });
         } else {
           console.log(that.selectInfo);
           for (let i = 1; i < that.selectInfo.length; i++) {
@@ -910,92 +965,113 @@ export default {
               }
             }
           }
-          axios.get(url).then((res) => {
-            console.log(res.data);
-            that.total = res.data.totalElements;
-            for (let i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.opuser = "";
-              obj.devicename = "";
-              obj.deviceNo = "";
-              obj.id = res.data.content[i].device[0].id;
-              obj.taskname =
-                res.data.content[i].name == null
-                  ? "未分配"
-                  : res.data.content[i].name;
-              obj.taskno =
-                res.data.content[i].no == null
-                  ? "未分配"
-                  : res.data.content[i].no;
-              let URL =
-                "http://47.102.214.37:8080/ops/schedule/status/" +
-                res.data.content[i].id;
-              axios.get(URL).then((res) => {
-                if (res.data.nextDate == null) {
-                  obj.nextDate = "暂无";
-                } else {
-                  obj.nextDate = res.data.nextDate;
-                }
-                if (res.data.nextDateDay == null) {
-                  obj.deadline = "暂无";
-                } else {
-                  obj.deadline = res.data.nextDateDay;
-                }
-              });
-              // 获取设备信息
-              setTimeout(() => {
-                if (res.data.content[i].device.length == 0) {
-                  obj.devicename = "暂未分配";
-                  obj.deviceNo = "暂未分配";
-                } else {
-                  for (let j = 0; j < res.data.content[i].device.length; j++) {
-                    let url =
-                      "http://47.102.214.37:8080/device/" +
-                      res.data.content[i].device[j].id;
-                    axios
-                      .get(url)
-                      .then((res) => {
-                        obj.devicename += res.data.name + " / ";
-                        obj.deviceNo += res.data.deviceNo + " / ";
-                      })
-                      .catch(() => {
-                        obj.device = "获取失败";
-                      });
-                  }
-                }
-
-                // 获取人员信息
+          let url = "ops/query?startDate=B" + this.start + "," + this.end;
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              that.total = res.data.totalElements;
+              for (let i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.opuser = "";
+                obj.devicename = "";
+                obj.deviceNo = "";
+                obj.id = res.data.content[i].id;
+                obj.taskname =
+                  res.data.content[i].name == null
+                    ? "未分配"
+                    : res.data.content[i].name;
+                obj.taskno =
+                  res.data.content[i].no == null
+                    ? "未分配"
+                    : res.data.content[i].no;
+                let URL = "ops/schedule/status/" + res.data.content[i].id;
+                that
+                  .request(URL, {}, "GET")
+                  .then((res) => {
+                    if (res.data.nextDate == null) {
+                      obj.nextDate = "暂无";
+                    } else {
+                      obj.nextDate = res.data.nextDate;
+                    }
+                    if (res.data.nextDateDay == null) {
+                      obj.deadline = "暂无";
+                    } else {
+                      obj.deadline = res.data.nextDateDay;
+                    }
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+                // 获取设备信息
                 setTimeout(() => {
-                  if (res.data.content[i].ops.length == 0) {
-                    obj.opuser = "暂未分配";
+                  if (res.data.content[i].device.length == 0) {
+                    obj.devicename = "暂未分配";
+                    obj.deviceNo = "暂未分配";
                   } else {
-                    for (let k = 0; k < res.data.content[i].ops.length; k++) {
-                      let searchops =
-                        "http://47.102.214.37:8080/user/" +
-                        res.data.content[i].ops[k].id;
-                      axios
-                        .get(searchops)
+                    for (
+                      let j = 0;
+                      j < res.data.content[i].device.length;
+                      j++
+                    ) {
+                      let url = "device/" + res.data.content[i].device[j].id;
+                      that
+                        .request(url, {}, "GET")
                         .then((res) => {
-                          obj.opuser += res.data.name + " / ";
+                          obj.devicename += res.data.name + " / ";
+                          obj.deviceNo += res.data.deviceNo + " / ";
                         })
-                        .catch(() => {
-                          obj.opuser = "获取失败";
+                        .catch((res) => {
+                          this.$message({
+                            message: res.response.data.message,
+                            type: "error",
+                          });
                         });
                     }
                   }
+
+                  // 获取人员信息
                   setTimeout(() => {
-                    that.tableData.push(obj);
-                  }, 600);
+                    if (res.data.content[i].ops.length == 0) {
+                      obj.opuser = "暂未分配";
+                    } else {
+                      for (let k = 0; k < res.data.content[i].ops.length; k++) {
+                        let searchops = "user/" + res.data.content[i].ops[k].id;
+                        that
+                          .request(searchops, {}, "GET")
+                          .then((res) => {
+                            obj.opuser += res.data.name + " / ";
+                          })
+                          .catch((res) => {
+                            this.$message({
+                              message: res.response.data.message,
+                              type: "error",
+                            });
+                          });
+                      }
+                    }
+                    setTimeout(() => {
+                      that.tableData.push(obj);
+                    }, 600);
+                  }, 300);
                 }, 300);
-              }, 300);
-            }
-            setTimeout(() => {
-              that.$message({
-                message: "刷新成功",
-                type: "success",
+              }
+              setTimeout(() => {
+                that.$message({
+                  message: "刷新成功",
+                  type: "success",
+                });
+              }, 600);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            }, 600);
-          });
+            });
         }
       }
     },
@@ -1011,14 +1087,12 @@ export default {
       let that = this;
       let url = "";
       if (that.userRole != "OPERATOR") {
-        url = "http://47.102.214.37:8080/device?page=0&size=" + that.page_size;
+        url = "device?page=0&size=" + that.page_size;
       } else {
-        url = "http://47.102.214.37:8080/my/device";
+        url = "my/device";
       }
-      axios({
-        method: "GET",
-        url: url,
-      })
+      that
+        .request(url, {}, "GET")
         .then((res) => {
           that.tableData = [];
           that.total = res.data.totalElements;
@@ -1029,10 +1103,7 @@ export default {
               let obj = {};
               obj.children = [];
               obj.opuser = "";
-              let searchtask =
-                "http://47.102.214.37:8080/device/" +
-                res.data.content[a].id +
-                "/bind";
+              let searchtask = "device/" + res.data.content[a].id + "/bind";
               let devicename = res.data.content[a].name;
               let deviceNo = res.data.content[a].deviceNo;
               let deviceId = res.data.content[a].id;
@@ -1040,15 +1111,13 @@ export default {
               obj.devicename = res.data.content[a].name;
               obj.deviceNo = res.data.content[a].deviceNo;
               setTimeout(() => {
-                axios.get(searchtask).then((res) => {
+                that.request(searchtask, {}, "GET").then((res) => {
                   if (res.data.length != 0) {
                     obj.taskid = res.data[0].id;
                     obj.taskname = res.data[0].name;
                     obj.taskno = res.data[0].no;
-                    let URL =
-                      "http://47.102.214.37:8080/ops/schedule/status/" +
-                      obj.taskid;
-                    axios.get(URL).then((res) => {
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
                       if (res.data.nextDate == null) {
                         obj.nextDate = "暂无";
                       } else {
@@ -1067,11 +1136,9 @@ export default {
                         obj.opuser = "暂未分配";
                       } else {
                         for (let k = 0; k < res.data[0].ops.length; k++) {
-                          let searchops =
-                            "http://47.102.214.37:8080/user/" +
-                            res.data[0].ops[k].id;
-                          axios
-                            .get(searchops)
+                          let searchops = "user/" + res.data[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
                             .then((res) => {
                               obj.opuser += res.data.name + " / ";
                             })
@@ -1091,10 +1158,8 @@ export default {
                         arr.taskid = res.data[i].id;
                         arr.taskname = res.data[i].name;
                         arr.taskno = res.data[i].no;
-                        let URL =
-                          "http://47.102.214.37:8080/ops/schedule/status/" +
-                          arr.taskid;
-                        axios.get(URL).then((res) => {
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
                           if (res.data.nextDate == null) {
                             arr.nextDate = "暂无";
                           } else {
@@ -1113,11 +1178,9 @@ export default {
                             arr.opuser = "暂未分配";
                           } else {
                             for (let k = 0; k < res.data[i].ops.length; k++) {
-                              let searchops =
-                                "http://47.102.214.37:8080/user/" +
-                                res.data[i].ops[k].id;
-                              axios
-                                .get(searchops)
+                              let searchops = "user/" + res.data[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
                                 .then((res) => {
                                   arr.opuser += res.data.name + " / ";
                                 })
@@ -1140,8 +1203,7 @@ export default {
               let obj = {};
               obj.children = [];
               obj.opuser = "";
-              let searchtask =
-                "http://47.102.214.37:8080/device/" + res.data[a].id + "/bind";
+              let searchtask = "device/" + res.data[a].id + "/bind";
               let devicename = res.data[a].name;
               let deviceNo = res.data[a].deviceNo;
               let deviceId = res.data[a].id;
@@ -1149,7 +1211,7 @@ export default {
               obj.devicename = res.data[a].name;
               obj.deviceNo = res.data[a].deviceNo;
               setTimeout(() => {
-                axios.get(searchtask).then((res) => {
+                that.request(searchtask, {}, "GET").then((res) => {
                   console.log(res.data);
                   let mytask = [];
                   for (let i = 0; i < res.data.length; i++) {
@@ -1162,10 +1224,8 @@ export default {
                     obj.taskid = mytask[0].id;
                     obj.taskname = mytask[0].name;
                     obj.taskno = mytask[0].no;
-                    let URL =
-                      "http://47.102.214.37:8080/ops/schedule/status/" +
-                      obj.taskid;
-                    axios.get(URL).then((res) => {
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
                       if (res.data.nextDate == null) {
                         obj.nextDate = "暂无";
                       } else {
@@ -1184,11 +1244,9 @@ export default {
                         obj.opuser = "暂未分配";
                       } else {
                         for (let k = 0; k < mytask[0].ops.length; k++) {
-                          let searchops =
-                            "http://47.102.214.37:8080/user/" +
-                            mytask[0].ops[k].id;
-                          axios
-                            .get(searchops)
+                          let searchops = "user/" + mytask[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
                             .then((res) => {
                               obj.opuser += res.data.name + " / ";
                             })
@@ -1208,10 +1266,8 @@ export default {
                         arr.taskid = mytask[i].id;
                         arr.taskname = mytask[i].name;
                         arr.taskno = mytask[i].no;
-                        let URL =
-                          "http://47.102.214.37:8080/ops/schedule/status/" +
-                          arr.taskid;
-                        axios.get(URL).then((res) => {
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
                           console.log(res.data);
                           if (res.data.nextDate == null) {
                             arr.nextDate = "暂无";
@@ -1231,11 +1287,9 @@ export default {
                             arr.opuser = "暂未分配";
                           } else {
                             for (let k = 0; k < mytask[i].ops.length; k++) {
-                              let searchops =
-                                "http://47.102.214.37:8080/user/" +
-                                mytask[i].ops[k].id;
-                              axios
-                                .get(searchops)
+                              let searchops = "user/" + mytask[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
                                 .then((res) => {
                                   arr.opuser += res.data.name + " / ";
                                 })
@@ -1265,11 +1319,14 @@ export default {
           that.selectvalue = "";
           that.selectmodel = "";
           that.dynamicTags = [];
-          globaldata.deviceselectInfo = [];
-          globaldata.devicedynamicTags = [];
+          that.globaldata.deviceselectInfo = [];
+          that.globaldata.devicedynamicTags = [];
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
     },
     // 修改任务
@@ -1296,57 +1353,26 @@ export default {
       })
         .then(() => {
           let url = "http://47.102.214.37:8080/ops/schedule/" + row.taskid;
-          axios.delete(url).then(() => {
-            that.getAllDevice();
-            this.$message({
-              message: "删除成功",
-              type: "success",
+          that
+            .request(url, {}, "DELETE")
+            .then(() => {
+              that.getAllDevice();
+              this.$message({
+                message: "删除成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-          });
         })
         .catch(() => {
           that.$message.info("已取消删除");
         });
     },
-    // // 批量删除字段
-    // delectExtraInfo() {
-    //   let that = this;
-    //   if (this.checkedDetail.length == 0) {
-    //     that.$alert("请先选择要删除的数据", "提示", {
-    //       confirmButtonText: "确定",
-    //     });
-    //   } else {
-    //     that
-    //       .$confirm("是否确定?", "提示", {
-    //         confirmButtonText: "确定",
-    //         cancelButtonText: "取消",
-    //         type: "warning",
-    //       })
-    //       .then(() => {
-    //         that.checkedDetail.forEach((element) => {
-    //           that.tableData.forEach((e, i) => {
-    //             if (element.taskid == e.taskid) {
-    //               console.log(element, e, i);
-    //               let url =
-    //                 "http://47.102.214.37:8080/ops/schedule/" + e.taskid;
-    //               axios.delete(url).then(() => {
-    //                 this.$message({
-    //                   message: "删除成功",
-    //                   type: "success",
-    //                 });
-    //                 that.tableData.splice(i, 1);
-    //                 that.checkedDetail.pop();
-    //                 that.total--;
-    //               });
-    //             }
-    //           });
-    //         });
-    //       })
-    //       .catch(() => {
-    //         this.$message.info("已取消删除");
-    //       });
-    //   }
-    // },
     // 表格方法
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
@@ -1355,127 +1381,245 @@ export default {
       that.currentPage = 1;
       console.log(val);
       that.page_size = val;
-      let url =
-        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.page_size;
+      let url = "device?page=0" + "&size=" + that.page_size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let a = 0; a < res.data.content.length; a++) {
-          let obj = {};
-          obj.children = [];
-          obj.opuser = "";
-          let searchtask =
-            "http://47.102.214.37:8080/device/" +
-            res.data.content[a].id +
-            "/bind";
-          let devicename = res.data.content[a].name;
-          let deviceNo = res.data.content[a].deviceNo;
-          let deviceId = res.data.content[a].id;
-          obj.id = res.data.content[a].id;
-          obj.devicename = res.data.content[a].name;
-          obj.deviceNo = res.data.content[a].deviceNo;
-          setTimeout(() => {
-            axios.get(searchtask).then((res) => {
-              console.log(res.data);
-              if (res.data.length != 0) {
-                obj.taskname = res.data[0].name;
-                let URL =
-                  "http://47.102.214.37:8080/ops/schedule/status/" +
-                  res.data[0].id;
-                axios.get(URL).then((res) => {
-                  if (res.data.nextDate == null) {
-                    obj.nextDate = "暂无";
-                  } else {
-                    obj.nextDate = res.data.nextDate;
-                  }
-                  if (res.data.nextDateDay == null) {
-                    obj.deadline = "暂无";
-                  } else {
-                    obj.deadline = res.data.nextDateDay;
-                  }
-                });
-
-                // 获取人员信息
-                setTimeout(() => {
-                  if (res.data[0].ops.length == 0) {
-                    obj.opuser = "暂未分配";
-                  } else {
-                    for (let k = 0; k < res.data[0].ops.length; k++) {
-                      let searchops =
-                        "http://47.102.214.37:8080/user/" +
-                        res.data[0].ops[k].id;
-                      axios
-                        .get(searchops)
-                        .then((res) => {
-                          obj.opuser += res.data.name + " / ";
-                        })
-                        .catch(() => {
-                          obj.opuser = "获取失败";
-                        });
-                    }
-                  }
-                }, 200);
-                if (res.data.length > 1) {
-                  for (let i = 1; i < res.data.length; i++) {
-                    let arr = {};
-                    arr.id = deviceId + " - " + i;
-                    arr.opuser = "";
-                    arr.devicename = devicename;
-                    arr.deviceNo = deviceNo;
-                    arr.taskid = res.data[i].id;
-                    arr.taskname = res.data[i].name;
-                    arr.taskno = res.data[i].no;
-                    let URL =
-                      "http://47.102.214.37:8080/ops/schedule/status/" +
-                      res.data[i].id;
-                    axios.get(URL).then((res) => {
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.tableData = [];
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          console.log(res.data);
+          if (that.userRole != "OPERATOR") {
+            for (let a = 0; a < res.data.content.length; a++) {
+              let obj = {};
+              obj.children = [];
+              obj.opuser = "";
+              let searchtask = "device/" + res.data.content[a].id + "/bind";
+              let devicename = res.data.content[a].name;
+              let deviceNo = res.data.content[a].deviceNo;
+              let deviceId = res.data.content[a].id;
+              obj.id = res.data.content[a].id;
+              obj.devicename = res.data.content[a].name;
+              obj.deviceNo = res.data.content[a].deviceNo;
+              setTimeout(() => {
+                that.request(searchtask, {}, "GET").then((res) => {
+                  if (res.data.length != 0) {
+                    obj.taskid = res.data[0].id;
+                    obj.taskname = res.data[0].name;
+                    obj.taskno = res.data[0].no;
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
                       if (res.data.nextDate == null) {
-                        arr.nextDate = "暂无";
+                        obj.nextDate = "暂无";
                       } else {
-                        arr.nextDate = res.data.nextDate;
+                        obj.nextDate = res.data.nextDate;
                       }
                       if (res.data.nextDateDay == null) {
-                        arr.deadline = "暂无";
+                        obj.deadline = "暂无";
                       } else {
-                        arr.deadline = res.data.nextDateDay;
+                        obj.deadline = res.data.nextDateDay;
                       }
                     });
 
                     // 获取人员信息
                     setTimeout(() => {
-                      if (res.data[i].ops.length == 0) {
-                        arr.opuser = "暂未分配";
+                      if (res.data[0].ops.length == 0) {
+                        obj.opuser = "暂未分配";
                       } else {
-                        for (let k = 0; k < res.data[i].ops.length; k++) {
-                          let searchops =
-                            "http://47.102.214.37:8080/user/" +
-                            res.data[i].ops[k].id;
-                          axios
-                            .get(searchops)
+                        for (let k = 0; k < res.data[0].ops.length; k++) {
+                          let searchops = "user/" + res.data[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
                             .then((res) => {
-                              arr.opuser += res.data.name + " / ";
+                              obj.opuser += res.data.name + " / ";
                             })
                             .catch(() => {
-                              arr.opuser = "获取失败";
+                              obj.opuser = "获取失败";
                             });
                         }
                       }
                     }, 200);
-                    obj.children.push(arr);
+                    if (res.data.length > 1) {
+                      for (let i = 1; i < res.data.length; i++) {
+                        let arr = {};
+                        arr.id = deviceId + " - " + i;
+                        arr.opuser = "";
+                        arr.devicename = devicename;
+                        arr.deviceNo = deviceNo;
+                        arr.taskid = res.data[i].id;
+                        arr.taskname = res.data[i].name;
+                        arr.taskno = res.data[i].no;
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
+                          if (res.data.nextDate == null) {
+                            arr.nextDate = "暂无";
+                          } else {
+                            arr.nextDate = res.data.nextDate;
+                          }
+                          if (res.data.nextDateDay == null) {
+                            arr.deadline = "暂无";
+                          } else {
+                            arr.deadline = res.data.nextDateDay;
+                          }
+                        });
+
+                        // 获取人员信息
+                        setTimeout(() => {
+                          if (res.data[i].ops.length == 0) {
+                            arr.opuser = "暂未分配";
+                          } else {
+                            for (let k = 0; k < res.data[i].ops.length; k++) {
+                              let searchops = "user/" + res.data[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
+                                .then((res) => {
+                                  arr.opuser += res.data.name + " / ";
+                                })
+                                .catch(() => {
+                                  arr.opuser = "获取失败";
+                                });
+                            }
+                          }
+                        }, 200);
+                        obj.children.push(arr);
+                      }
+                    }
                   }
-                }
-              }
-            });
-          }, 300);
-          console.log(obj);
-          that.tableData.push(obj);
-        }
-        this.$message({
-          message: "数据已更新",
-          type: "success",
+                });
+              }, 300);
+              that.tableData.push(obj);
+            }
+          } else {
+            for (let a = 0; a < res.data.length; a++) {
+              let obj = {};
+              obj.children = [];
+              obj.opuser = "";
+              let searchtask = "device/" + res.data[a].id + "/bind";
+              let devicename = res.data[a].name;
+              let deviceNo = res.data[a].deviceNo;
+              let deviceId = res.data[a].id;
+              obj.id = res.data[a].id;
+              obj.devicename = res.data[a].name;
+              obj.deviceNo = res.data[a].deviceNo;
+              setTimeout(() => {
+                that.request(searchtask, {}, "GET").then((res) => {
+                  console.log(res.data);
+                  let mytask = [];
+                  for (let i = 0; i < res.data.length; i++) {
+                    if (res.data[i].ops[0].id == that.userid) {
+                      mytask.push(res.data[i]);
+                    }
+                  }
+                  if (mytask != 0) {
+                    console.log(mytask);
+                    obj.taskid = mytask[0].id;
+                    obj.taskname = mytask[0].name;
+                    obj.taskno = mytask[0].no;
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
+                      if (res.data.nextDate == null) {
+                        obj.nextDate = "暂无";
+                      } else {
+                        obj.nextDate = res.data.nextDate;
+                      }
+                      if (res.data.nextDateDay == null) {
+                        obj.deadline = "暂无";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
+                    });
+
+                    // 获取人员信息
+                    setTimeout(() => {
+                      if (mytask[0].ops.length == 0) {
+                        obj.opuser = "暂未分配";
+                      } else {
+                        for (let k = 0; k < mytask[0].ops.length; k++) {
+                          let searchops = "user/" + mytask[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
+                            .then((res) => {
+                              obj.opuser += res.data.name + " / ";
+                            })
+                            .catch(() => {
+                              obj.opuser = "获取失败";
+                            });
+                        }
+                      }
+                    }, 200);
+                    if (mytask.length > 1) {
+                      for (let i = 1; i < mytask.length; i++) {
+                        let arr = {};
+                        arr.id = deviceId + " - " + i;
+                        arr.opuser = "";
+                        arr.devicename = devicename;
+                        arr.deviceNo = deviceNo;
+                        arr.taskid = mytask[i].id;
+                        arr.taskname = mytask[i].name;
+                        arr.taskno = mytask[i].no;
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
+                          console.log(res.data);
+                          if (res.data.nextDate == null) {
+                            arr.nextDate = "暂无";
+                          } else {
+                            arr.nextDate = res.data.nextDate;
+                          }
+                          if (res.data.nextDateDay == null) {
+                            arr.deadline = "暂无";
+                          } else {
+                            arr.deadline = res.data.nextDateDay;
+                          }
+                        });
+
+                        // 获取人员信息
+                        setTimeout(() => {
+                          if (mytask[i].ops.length == 0) {
+                            arr.opuser = "暂未分配";
+                          } else {
+                            for (let k = 0; k < mytask[i].ops.length; k++) {
+                              let searchops = "user/" + mytask[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
+                                .then((res) => {
+                                  arr.opuser += res.data.name + " / ";
+                                })
+                                .catch(() => {
+                                  arr.opuser = "获取失败";
+                                });
+                            }
+                          }
+                        }, 200);
+                        // obj.children.push(arr);
+                        obj.children.push(arr);
+                      }
+                    }
+                  }
+                });
+              }, 300);
+              console.log(obj);
+              that.tableData.push(obj);
+            }
+          }
+          this.$message({
+            message: "数据已更新",
+            type: "success",
+          });
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          that.globaldata.deviceselectInfo = [];
+          that.globaldata.devicedynamicTags = [];
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      });
     },
     // // 页变化
     handleCurrentChange(val) {
@@ -1484,129 +1628,244 @@ export default {
       that.page = val;
       that.currentPage = val;
       console.log(val);
-      let url =
-        "http://47.102.214.37:8080/device?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.page_size;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let a = 0; a < res.data.content.length; a++) {
-          let obj = {};
-          obj.children = [];
-          obj.opuser = "";
-          let searchtask =
-            "http://47.102.214.37:8080/device/" +
-            res.data.content[a].id +
-            "/bind";
-          let devicename = res.data.content[a].name;
-          let deviceNo = res.data.content[a].deviceNo;
-          let deviceId = res.data.content[a].id;
-          obj.id = res.data.content[a].id;
-          obj.devicename = res.data.content[a].name;
-          obj.deviceNo = res.data.content[a].deviceNo;
-          setTimeout(() => {
-            axios.get(searchtask).then((res) => {
-              console.log(res.data);
-              if (res.data.length != 0) {
-                obj.taskname = res.data[0].name;
-                let URL =
-                  "http://47.102.214.37:8080/ops/schedule/status/" +
-                  res.data[0].id;
-                axios.get(URL).then((res) => {
-                  if (res.data.nextDate == null) {
-                    obj.nextDate = "暂无";
-                  } else {
-                    obj.nextDate = res.data.nextDate;
-                  }
-                  if (res.data.nextDateDay == null) {
-                    obj.deadline = "暂无";
-                  } else {
-                    obj.deadline = res.data.nextDateDay;
-                  }
-                });
-
-                // 获取人员信息
-                setTimeout(() => {
-                  if (res.data[0].ops.length == 0) {
-                    obj.opuser = "暂未分配";
-                  } else {
-                    for (let k = 0; k < res.data[0].ops.length; k++) {
-                      let searchops =
-                        "http://47.102.214.37:8080/user/" +
-                        res.data[0].ops[k].id;
-                      axios
-                        .get(searchops)
-                        .then((res) => {
-                          obj.opuser += res.data.name + " / ";
-                        })
-                        .catch(() => {
-                          obj.opuser = "获取失败";
-                        });
-                    }
-                  }
-                }, 200);
-                if (res.data.length > 1) {
-                  for (let i = 1; i < res.data.length; i++) {
-                    let arr = {};
-                    arr.id = deviceId + " - " + i;
-                    arr.opuser = "";
-                    arr.devicename = devicename;
-                    arr.deviceNo = deviceNo;
-                    arr.taskid = res.data[i].id;
-                    arr.taskname = res.data[i].name;
-                    arr.taskno = res.data[i].no;
-                    let URL =
-                      "http://47.102.214.37:8080/ops/schedule/status/" +
-                      res.data[i].id;
-                    axios.get(URL).then((res) => {
+      let url = "device?page=" + (that.page - 1) + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.tableData = [];
+          that.total = res.data.totalElements;
+          that.currentPage = 1;
+          console.log(res.data);
+          if (that.userRole != "OPERATOR") {
+            for (let a = 0; a < res.data.content.length; a++) {
+              let obj = {};
+              obj.children = [];
+              obj.opuser = "";
+              let searchtask = "device/" + res.data.content[a].id + "/bind";
+              let devicename = res.data.content[a].name;
+              let deviceNo = res.data.content[a].deviceNo;
+              let deviceId = res.data.content[a].id;
+              obj.id = res.data.content[a].id;
+              obj.devicename = res.data.content[a].name;
+              obj.deviceNo = res.data.content[a].deviceNo;
+              setTimeout(() => {
+                that.request(searchtask, {}, "GET").then((res) => {
+                  if (res.data.length != 0) {
+                    obj.taskid = res.data[0].id;
+                    obj.taskname = res.data[0].name;
+                    obj.taskno = res.data[0].no;
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
                       if (res.data.nextDate == null) {
-                        arr.nextDate = "暂无";
+                        obj.nextDate = "暂无";
                       } else {
-                        arr.nextDate = res.data.nextDate;
+                        obj.nextDate = res.data.nextDate;
                       }
                       if (res.data.nextDateDay == null) {
-                        arr.deadline = "暂无";
+                        obj.deadline = "暂无";
                       } else {
-                        arr.deadline = res.data.nextDateDay;
+                        obj.deadline = res.data.nextDateDay;
                       }
                     });
 
                     // 获取人员信息
                     setTimeout(() => {
-                      if (res.data[i].ops.length == 0) {
-                        arr.opuser = "暂未分配";
+                      if (res.data[0].ops.length == 0) {
+                        obj.opuser = "暂未分配";
                       } else {
-                        for (let k = 0; k < res.data[i].ops.length; k++) {
-                          let searchops =
-                            "http://47.102.214.37:8080/user/" +
-                            res.data[i].ops[k].id;
-                          axios
-                            .get(searchops)
+                        for (let k = 0; k < res.data[0].ops.length; k++) {
+                          let searchops = "user/" + res.data[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
                             .then((res) => {
-                              arr.opuser += res.data.name + " / ";
+                              obj.opuser += res.data.name + " / ";
                             })
                             .catch(() => {
-                              arr.opuser = "获取失败";
+                              obj.opuser = "获取失败";
                             });
                         }
                       }
                     }, 200);
-                    obj.children.push(arr);
+                    if (res.data.length > 1) {
+                      for (let i = 1; i < res.data.length; i++) {
+                        let arr = {};
+                        arr.id = deviceId + " - " + i;
+                        arr.opuser = "";
+                        arr.devicename = devicename;
+                        arr.deviceNo = deviceNo;
+                        arr.taskid = res.data[i].id;
+                        arr.taskname = res.data[i].name;
+                        arr.taskno = res.data[i].no;
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
+                          if (res.data.nextDate == null) {
+                            arr.nextDate = "暂无";
+                          } else {
+                            arr.nextDate = res.data.nextDate;
+                          }
+                          if (res.data.nextDateDay == null) {
+                            arr.deadline = "暂无";
+                          } else {
+                            arr.deadline = res.data.nextDateDay;
+                          }
+                        });
+
+                        // 获取人员信息
+                        setTimeout(() => {
+                          if (res.data[i].ops.length == 0) {
+                            arr.opuser = "暂未分配";
+                          } else {
+                            for (let k = 0; k < res.data[i].ops.length; k++) {
+                              let searchops = "user/" + res.data[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
+                                .then((res) => {
+                                  arr.opuser += res.data.name + " / ";
+                                })
+                                .catch(() => {
+                                  arr.opuser = "获取失败";
+                                });
+                            }
+                          }
+                        }, 200);
+                        obj.children.push(arr);
+                      }
+                    }
                   }
-                }
-              }
-            });
-          }, 300);
-          console.log(obj);
-          that.tableData.push(obj);
-        }
-        this.$message({
-          message: "数据已更新",
-          type: "success",
+                });
+              }, 300);
+              that.tableData.push(obj);
+            }
+          } else {
+            for (let a = 0; a < res.data.length; a++) {
+              let obj = {};
+              obj.children = [];
+              obj.opuser = "";
+              let searchtask = "device/" + res.data[a].id + "/bind";
+              let devicename = res.data[a].name;
+              let deviceNo = res.data[a].deviceNo;
+              let deviceId = res.data[a].id;
+              obj.id = res.data[a].id;
+              obj.devicename = res.data[a].name;
+              obj.deviceNo = res.data[a].deviceNo;
+              setTimeout(() => {
+                that.request(searchtask, {}, "GET").then((res) => {
+                  console.log(res.data);
+                  let mytask = [];
+                  for (let i = 0; i < res.data.length; i++) {
+                    if (res.data[i].ops[0].id == that.userid) {
+                      mytask.push(res.data[i]);
+                    }
+                  }
+                  if (mytask != 0) {
+                    console.log(mytask);
+                    obj.taskid = mytask[0].id;
+                    obj.taskname = mytask[0].name;
+                    obj.taskno = mytask[0].no;
+                    let URL = "ops/schedule/status/" + obj.taskid;
+                    that.request(URL, {}, "GET").then((res) => {
+                      if (res.data.nextDate == null) {
+                        obj.nextDate = "暂无";
+                      } else {
+                        obj.nextDate = res.data.nextDate;
+                      }
+                      if (res.data.nextDateDay == null) {
+                        obj.deadline = "暂无";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
+                    });
+
+                    // 获取人员信息
+                    setTimeout(() => {
+                      if (mytask[0].ops.length == 0) {
+                        obj.opuser = "暂未分配";
+                      } else {
+                        for (let k = 0; k < mytask[0].ops.length; k++) {
+                          let searchops = "user/" + mytask[0].ops[k].id;
+                          that
+                            .request(searchops, {}, "GET")
+                            .then((res) => {
+                              obj.opuser += res.data.name + " / ";
+                            })
+                            .catch(() => {
+                              obj.opuser = "获取失败";
+                            });
+                        }
+                      }
+                    }, 200);
+                    if (mytask.length > 1) {
+                      for (let i = 1; i < mytask.length; i++) {
+                        let arr = {};
+                        arr.id = deviceId + " - " + i;
+                        arr.opuser = "";
+                        arr.devicename = devicename;
+                        arr.deviceNo = deviceNo;
+                        arr.taskid = mytask[i].id;
+                        arr.taskname = mytask[i].name;
+                        arr.taskno = mytask[i].no;
+                        let URL = "ops/schedule/status/" + arr.taskid;
+                        that.request(URL, {}, "GET").then((res) => {
+                          console.log(res.data);
+                          if (res.data.nextDate == null) {
+                            arr.nextDate = "暂无";
+                          } else {
+                            arr.nextDate = res.data.nextDate;
+                          }
+                          if (res.data.nextDateDay == null) {
+                            arr.deadline = "暂无";
+                          } else {
+                            arr.deadline = res.data.nextDateDay;
+                          }
+                        });
+
+                        // 获取人员信息
+                        setTimeout(() => {
+                          if (mytask[i].ops.length == 0) {
+                            arr.opuser = "暂未分配";
+                          } else {
+                            for (let k = 0; k < mytask[i].ops.length; k++) {
+                              let searchops = "user/" + mytask[i].ops[k].id;
+                              that
+                                .request(searchops, {}, "GET")
+                                .then((res) => {
+                                  arr.opuser += res.data.name + " / ";
+                                })
+                                .catch(() => {
+                                  arr.opuser = "获取失败";
+                                });
+                            }
+                          }
+                        }, 200);
+                        // obj.children.push(arr);
+                        obj.children.push(arr);
+                      }
+                    }
+                  }
+                });
+              }, 300);
+              console.log(obj);
+              that.tableData.push(obj);
+            }
+          }
+          this.$message({
+            message: "数据已更新",
+            type: "success",
+          });
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          that.globaldata.deviceselectInfo = [];
+          that.globaldata.devicedynamicTags = [];
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      });
     },
   },
 };

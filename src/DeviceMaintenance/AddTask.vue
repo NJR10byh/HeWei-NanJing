@@ -67,17 +67,11 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   created: function() {
     let that = this;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      // console.log(res.data);
-      that.userRole = res.data.role;
-    });
-    setTimeout(function() {
-      that.refresh();
-    }, 300);
+    that.userRole = this.globaldata.userRole;
+    that.refresh();
   },
   data() {
     return {
@@ -129,16 +123,22 @@ export default {
           type: "warning",
         })
         .then(() => {
-          let url =
-            "http://47.102.214.37:8080/ops/schedule/" +
-            that.taskData[index].taskID;
-          axios.delete(url).then(() => {
-            that.taskData.splice(index, 1);
-            this.$message({
-              message: "删除成功",
-              type: "success",
+          let url = "ops/schedule/" + that.taskData[index].taskID;
+          that
+            .request(url, {}, "DELETE")
+            .then(() => {
+              that.taskData.splice(index, 1);
+              this.$message({
+                message: "删除成功",
+                type: "success",
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-          });
         })
         .catch(() => {
           that.$message.info("已取消删除");
@@ -162,19 +162,24 @@ export default {
             that.checkedDetail.forEach((element) => {
               that.taskData.forEach((e, i) => {
                 if (element.taskID == e.taskID) {
-                  console.log(i);
-                  let url =
-                    "http://47.102.214.37:8080/ops/schedule/" + e.taskID;
-                  console.log(url);
-                  axios.delete(url).then(() => {
-                    that.taskData.splice(i, 1);
-                    this.$message({
-                      message: "删除成功",
-                      type: "success",
+                  let url = "ops/schedule/" + e.taskID;
+                  that
+                    .request(url, {}, "DELETE")
+                    .then(() => {
+                      that.taskData.splice(i, 1);
+                      this.$message({
+                        message: "删除成功",
+                        type: "success",
+                      });
+                      that.taskData.splice(i, 1);
+                      that.checkedDetail.pop();
+                    })
+                    .catch((res) => {
+                      this.$message({
+                        message: res.response.data.message,
+                        type: "error",
+                      });
                     });
-                    that.taskData.splice(i, 1);
-                    that.checkedDetail.pop();
-                  });
                 }
               });
             });
@@ -188,10 +193,8 @@ export default {
       let that = this;
       that.taskData = [];
       that.currentPage = 1;
-      let url =
-        "http://47.102.214.37:8080/ops/schedule?page=0&size=" + that.page_size;
-      axios.get(url).then((res) => {
-        console.log(res.data);
+      let url = "ops/schedule?page=0&size=" + that.page_size;
+      that.request(url, {}, "GET").then((res) => {
         that.total = res.data.totalElements;
         for (var i = 0; i < res.data.content.length; i++) {
           that.taskData.push({
@@ -200,10 +203,17 @@ export default {
             no: res.data.content[i].no,
           });
         }
-        that.$message({
-          message: "刷新成功",
-          type: "success",
-        });
+        that
+          .$message({
+            message: "刷新成功",
+            type: "success",
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
       });
     },
     // 表格方法
@@ -214,26 +224,29 @@ export default {
       that.currentPage = 1;
       console.log(val);
       that.page_size = val;
-      let url =
-        "http://47.102.214.37:8080/ops/schedule?page=0" +
-        "&size=" +
-        that.page_size;
-      console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (var i = 0; i < res.data.content.length; i++) {
-          that.taskData.push({
-            taskID: res.data.content[i].id,
-            name: res.data.content[i].name,
-            no: res.data.content[i].no,
+      let url = "ops/schedule?page=0" + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.total = res.data.totalElements;
+          for (var i = 0; i < res.data.content.length; i++) {
+            that.taskData.push({
+              taskID: res.data.content[i].id,
+              name: res.data.content[i].name,
+              no: res.data.content[i].no,
+            });
+          }
+          that.$message({
+            message: "刷新成功",
+            type: "success",
           });
-        }
-        that.$message({
-          message: "刷新成功",
-          type: "success",
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      });
     },
     // // 页变化
     handleCurrentChange(val) {
@@ -241,27 +254,30 @@ export default {
       that.taskData = [];
       that.page = val;
       that.currentPage = val;
-      console.log(val);
       let url =
-        "http://47.102.214.37:8080/ops/schedule?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.page_size;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (var i = 0; i < res.data.content.length; i++) {
-          that.taskData.push({
-            taskID: res.data.content[i].id,
-            name: res.data.content[i].name,
-            no: res.data.content[i].no,
+        "ops/schedule?page=" + (that.page - 1) + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.total = res.data.totalElements;
+          for (var i = 0; i < res.data.content.length; i++) {
+            that.taskData.push({
+              taskID: res.data.content[i].id,
+              name: res.data.content[i].name,
+              no: res.data.content[i].no,
+            });
+          }
+          that.$message({
+            message: "刷新成功",
+            type: "success",
           });
-        }
-        that.$message({
-          message: "刷新成功",
-          type: "success",
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
         });
-      });
     },
   },
 };

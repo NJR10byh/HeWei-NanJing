@@ -166,7 +166,6 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 import User from "../components/Userinfo";
 
 export default {
@@ -175,102 +174,138 @@ export default {
     that.active = 0;
     console.log(that.$route.query);
     that.errorid = that.$route.query.errorid;
-    axios.get("http://47.102.214.37:8080/user/me").then((res) => {
-      console.log(res.data);
-      this.userid = res.data.id;
-    });
-    let url = "http://47.102.214.37:8080/issue/" + that.$route.query.errorid;
-    axios.get(url).then((res) => {
-      console.log(res.data);
-      that.reporterid = res.data.reporter.id;
-      that.errorcontent = res.data.content;
-      that.errordescription = res.data.descriptionPic;
-      that.reason = res.data.reason;
-      that.solution = res.data.solution;
-      that.exceptionType = res.data.exceptionType;
-      that.closed = res.data.closed;
-      that.applytime = that.renderTime(res.data.createdAt);
-      that.assigntime = that.renderTime(res.data.assignedAt);
-      that.fixtime = that.renderTime(res.data.fixedAt);
-      that.completetime = that.renderTime(res.data.closedAt);
-      let usersid = {};
-      usersid.fixusersid = [];
-      for (let i = 0; i < res.data.assignee.length; i++) {
-        usersid.fixusersid.push({
-          assigneeid: res.data.assignee[i].id,
-        });
-      }
-      usersid.applyusersid = res.data.reporter.id;
-      setTimeout(() => {
-        // 报修人员
-        let searchreporters =
-          "http://47.102.214.37:8080/user/query?id==" + usersid.applyusersid;
-        axios.get(searchreporters).then((res) => {
-          that.applyusers.push({
-            name: res.data.content[0].name,
-            username: res.data.content[0].username,
-            useremail: res.data.content[0].email,
-            avatar:
-              "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+    that.userid = this.globaldata.userid;
+    let url = "issue/" + that.$route.query.errorid;
+    that
+      .request(url, {}, "GET")
+      .then((res) => {
+        that.reporterid = res.data.reporter.id;
+        that.errorcontent = res.data.content;
+        that.reason = res.data.reason;
+        that.solution = res.data.solution;
+        that.exceptionType = res.data.exceptionType;
+        that.closed = res.data.closed;
+        that.applytime = that.renderTime(res.data.createdAt);
+        that.assigntime = that.renderTime(res.data.assignedAt);
+        that.fixtime = that.renderTime(res.data.fixedAt);
+        that.completetime = that.renderTime(res.data.closedAt);
+        // if (res.data.closed == true) {
+        //   that.active = 3;
+        // }
+        let usersid = {};
+        usersid.fixusersid = [];
+        for (let i = 0; i < res.data.assignee.length; i++) {
+          usersid.fixusersid.push({
+            assigneeid: res.data.assignee[i].id,
           });
-        });
-        // 维修人员
-        if (usersid.fixusersid != undefined) {
-          // supervisor
-          let searchops =
-            "http://47.102.214.37:8080/user/query?id==" +
-            usersid.fixusersid[0].assigneeid;
-          axios.get(searchops).then((res) => {
-            console.log(res.data);
-            that.supervisor.push({
-              name: res.data.content[0].name,
-              username: res.data.content[0].username,
-              useremail: res.data.content[0].email,
-              avatar:
-                "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+        }
+        usersid.applyusersid = res.data.reporter.id;
+        setTimeout(() => {
+          // 报修人员
+          let searchreporters = "user/query?id==" + usersid.applyusersid;
+          that
+            .request(searchreporters, {}, "GET")
+            .then((res) => {
+              that.applyusers.push({
+                name: res.data.content[0].name,
+                username: res.data.content[0].username,
+                useremail: res.data.content[0].email,
+                avatar:
+                  "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+              });
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-          });
-          if (usersid.fixusersid.length == 1) {
-            that.operator.push({
-              name: "暂未分配",
-              username: "暂未分配",
-              useremail: "暂未分配",
-            });
-          } else {
-            for (let i = 1; i < usersid.fixusersid.length; i++) {
-              // operator
-              let searchops =
-                "http://47.102.214.37:8080/user/query?id==" +
-                usersid.fixusersid[i].assigneeid;
-              axios.get(searchops).then((res) => {
-                that.operator.push({
+          // 维修人员
+          if (usersid.fixusersid != undefined) {
+            // supervisor
+            let searchops =
+              "user/query?id==" + usersid.fixusersid[0].assigneeid;
+            that
+              .request(searchops, {}, "GET")
+              .then((res) => {
+                that.supervisor.push({
                   name: res.data.content[0].name,
                   username: res.data.content[0].username,
                   useremail: res.data.content[0].email,
-                  avatar:
-                    "http://47.102.214.37:8080/pic/" +
-                    res.data.content[0].avatar,
+                });
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
                 });
               });
+            if (usersid.fixusersid.length == 1) {
+              that.operator.push({
+                name: "暂未分配",
+                username: "暂未分配",
+                useremail: "暂未分配",
+              });
+            } else {
+              that.assigned = true;
+              for (let i = 1; i < usersid.fixusersid.length; i++) {
+                // operator
+                if (usersid.fixusersid[i].assigneeid == this.userid) {
+                  that.opstofix = true;
+                }
+                let searchops =
+                  "user/query?id==" + usersid.fixusersid[i].assigneeid;
+
+                that
+                  .request(searchops, {}, "GET")
+                  .then((res) => {
+                    that.operator.push({
+                      name: res.data.content[0].name,
+                      username: res.data.content[0].username,
+                      useremail: res.data.content[0].email,
+                      avatar:
+                        "http://47.102.214.37:8080/pic/" +
+                        res.data.content[0].avatar,
+                    });
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
+                  });
+              }
             }
           }
+        }, 200);
+        // 设备信息
+        for (let i = 0; i < res.data.device.length; i++) {
+          let searchdevice = "device/" + res.data.device[i].id;
+          that
+            .request(searchdevice, {}, "GET")
+            .then((res) => {
+              let obj = {};
+              obj.id = res.data.id;
+              obj.name = res.data.name;
+              obj.brand = res.data.brand;
+              obj.deviceNo = res.data.deviceNo;
+              obj.clazz = res.data.clazz;
+              that.devicetableData.push(obj);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
-      }, 200);
-      // 设备信息
-      for (let i = 0; i < res.data.device.length; i++) {
-        let searchdevice =
-          "http://47.102.214.37:8080/device/" + res.data.device[i].id;
-        axios.get(searchdevice).then((res) => {
-          let obj = {};
-          obj.id = res.data.id;
-          obj.name = res.data.name;
-          obj.brand = res.data.brand;
-          obj.deviceNo = res.data.deviceNo;
-          obj.clazz = res.data.clazz;
-          that.devicetableData.push(obj);
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
         });
-      }
-    });
+      });
   },
   data() {
     return {
@@ -328,20 +363,24 @@ export default {
           type: "warning",
         })
         .then(() => {
-          let url =
-            "http://47.102.214.37:8080/issue/close/" +
-            that.$route.query.errorid +
-            "?closed=true";
-          axios.post(url).then((res) => {
-            console.log(res.data);
-            that.$message({
-              message: "接受处理成功",
-              type: "success",
+          let url = "issue/close/" + that.$route.query.errorid + "?closed=true";
+          that
+            .request(url, {}, "POST")
+            .then(() => {
+              that.$message({
+                message: "接受处理成功",
+                type: "success",
+              });
+              setTimeout(() => {
+                location.reload(); // 成功后更新UI
+              }, 300);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-            setTimeout(() => {
-              location.reload(); // 成功后更新UI
-            }, 300);
-          });
         })
         .catch(() => {
           this.$message({
@@ -360,19 +399,24 @@ export default {
         })
         .then(() => {
           let url =
-            "http://47.102.214.37:8080/issue/close/" +
-            that.$route.query.errorid +
-            "?closed=false";
-          axios.post(url).then((res) => {
-            console.log(res.data);
-            that.$message({
-              message: "拒绝处理成功",
-              type: "success",
+            "issue/close/" + that.$route.query.errorid + "?closed=false";
+          that
+            .request(url, {}, "POST")
+            .then(() => {
+              that.$message({
+                message: "拒绝处理成功",
+                type: "success",
+              });
+              setTimeout(() => {
+                location.reload(); // 成功后更新UI
+              }, 300);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
             });
-            setTimeout(() => {
-              location.reload(); // 成功后更新UI
-            }, 300);
-          });
         })
         .catch(() => {
           this.$message({

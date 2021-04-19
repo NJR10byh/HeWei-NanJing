@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   components: {},
   created: function() {
@@ -87,42 +85,47 @@ export default {
       let that = this;
       that.LogData = [];
       that.currentPage = 1;
-      let url =
-        "http://47.102.214.37:8080/logging?page=0&size=" + that.page_size;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.logid = res.data.content[i].id;
-          obj.logcontent = res.data.content[i].opName;
-          obj.opContent = res.data.content[i].opContent;
-          obj.logtime = that.renderTime(res.data.content[i].createdAt);
-          // 获取人员信息
-          setTimeout(() => {
-            let searchops =
-              "http://47.102.214.37:8080/user/" +
-              res.data.content[i].operator.id;
-            axios
-              .get(searchops)
-              .then((res) => {
-                obj.loguser = res.data.name;
-              })
-              .catch(() => {
-                obj.loguser = "获取失败";
-              });
+      let url = "logging?page=0&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.logid = res.data.content[i].id;
+            obj.logcontent = res.data.content[i].opName;
+            obj.opContent = res.data.content[i].opContent;
+            obj.logtime = that.renderTime(res.data.content[i].createdAt);
+            // 获取人员信息
             setTimeout(() => {
-              that.LogData.push(obj);
-            }, 1000);
-          }, 300);
-        }
-        setTimeout(() => {
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+              let searchops = "user/" + res.data.content[i].operator.id;
+              that
+                .request(searchops, {}, "GET")
+                .then((res) => {
+                  obj.loguser = res.data.name;
+                })
+                .catch(() => {
+                  obj.loguser = "获取失败";
+                });
+              setTimeout(() => {
+                that.LogData.push(obj);
+              }, 1000);
+            }, 300);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          }, 600);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        }, 600);
-      });
+        });
     },
     detail(index) {
       let that = this;
@@ -140,44 +143,49 @@ export default {
       that.currentPage = 1;
       console.log(val);
       that.page_size = val;
-      let url =
-        "http://47.102.214.37:8080/logging?page=0" + "&size=" + that.page_size;
+      let url = "logging?page=0" + "&size=" + that.page_size;
       console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.logid = res.data.content[i].id;
-          obj.logcontent = res.data.content[i].opName;
-          obj.opContent = res.data.content[i].opContent;
-          obj.logtime = that.renderTime(res.data.content[i].createdAt);
-          // 获取人员信息
-          setTimeout(() => {
-            let searchops =
-              "http://47.102.214.37:8080/user/" +
-              res.data.content[i].operator.id;
-            axios
-              .get(searchops)
-              .then((res) => {
-                console.log(res.data);
-                obj.loguser = res.data.name;
-              })
-              .catch(() => {
-                obj.loguser = "获取失败";
-              });
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.logid = res.data.content[i].id;
+            obj.logcontent = res.data.content[i].opName;
+            obj.opContent = res.data.content[i].opContent;
+            obj.logtime = that.renderTime(res.data.content[i].createdAt);
+            // 获取人员信息
             setTimeout(() => {
-              that.LogData.push(obj);
-            }, 1000);
-          }, 300);
-        }
-        setTimeout(() => {
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+              let searchops = "user/" + res.data.content[i].operator.id;
+              that
+                .request(searchops, {}, "GET")
+                .then((res) => {
+                  console.log(res.data);
+                  obj.loguser = res.data.name;
+                })
+                .catch(() => {
+                  obj.loguser = "获取失败";
+                });
+              setTimeout(() => {
+                that.LogData.push(obj);
+              }, 1000);
+            }, 300);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          }, 600);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        }, 600);
-      });
+        });
     },
     // // 页变化
     handleCurrentChange(val) {
@@ -185,46 +193,47 @@ export default {
       that.LogData = [];
       that.page = val;
       that.currentPage = val;
-      let url =
-        "http://47.102.214.37:8080/logging?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.page_size;
-      console.log(url);
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.total = res.data.totalElements;
-        for (let i = 0; i < res.data.content.length; i++) {
-          let obj = {};
-          obj.logid = res.data.content[i].id;
-          obj.logcontent = res.data.content[i].opName;
-          obj.opContent = res.data.content[i].opContent;
-          obj.logtime = that.renderTime(res.data.content[i].createdAt);
-          // 获取人员信息
-          setTimeout(() => {
-            let searchops =
-              "http://47.102.214.37:8080/user/" +
-              res.data.content[i].operator.id;
-            axios
-              .get(searchops)
-              .then((res) => {
-                obj.loguser = res.data.name;
-              })
-              .catch(() => {
-                obj.loguser = "获取失败";
-              });
+      let url = "logging?page=" + (that.page - 1) + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          that.total = res.data.totalElements;
+          for (let i = 0; i < res.data.content.length; i++) {
+            let obj = {};
+            obj.logid = res.data.content[i].id;
+            obj.logcontent = res.data.content[i].opName;
+            obj.opContent = res.data.content[i].opContent;
+            obj.logtime = that.renderTime(res.data.content[i].createdAt);
+            // 获取人员信息
             setTimeout(() => {
-              that.LogData.push(obj);
-            }, 1000);
-          }, 300);
-        }
-        setTimeout(() => {
-          that.$message({
-            message: "刷新成功",
-            type: "success",
+              let searchops = "user/" + res.data.content[i].operator.id;
+              that
+                .request(searchops, {}, "GET")
+                .then((res) => {
+                  obj.loguser = res.data.name;
+                })
+                .catch(() => {
+                  obj.loguser = "获取失败";
+                });
+              setTimeout(() => {
+                that.LogData.push(obj);
+              }, 1000);
+            }, 300);
+          }
+          setTimeout(() => {
+            that.$message({
+              message: "刷新成功",
+              type: "success",
+            });
+          }, 600);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-        }, 600);
-      });
+        });
     },
   },
 };

@@ -186,20 +186,23 @@ export default {
     let that = this;
     if (this.$route.query.taskID != undefined) {
       console.log(this.$route.query);
-      let url =
-        "http://47.102.214.37:8080/ops/schedule/detail/" +
-        this.$route.query.taskID;
-      axios.get(url).then((res) => {
-        console.log(res.data);
-        that.TaskInfo.scheduleType = res.data.scheduleType;
-        that.TaskInfo.name = res.data.name;
-        that.TaskInfo.no = res.data.no;
-        that.TaskInfo.tools = res.data.tools;
-        that.TaskInfo.remark = res.data.remark;
-        that.TaskInfo.content = res.data.content;
-      });
-    } else {
-      console.log("bbb");
+      let url = "ops/schedule/detail/" + this.$route.query.taskID;
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.TaskInfo.scheduleType = res.data.scheduleType;
+          that.TaskInfo.name = res.data.name;
+          that.TaskInfo.no = res.data.no;
+          that.TaskInfo.tools = res.data.tools;
+          that.TaskInfo.remark = res.data.remark;
+          that.TaskInfo.content = res.data.content;
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     }
   },
   data() {
@@ -293,17 +296,23 @@ export default {
             headers: {
               "Content-Type": "text/plain",
             },
-          }).then((res) => {
-            console.log(res);
-            let url = "http://47.102.214.37:8080/pic/" + res.data;
-            let quill = that.$refs.myQuillEditor.quill;
-            // 获取光标所在位置
-            let length = quill.getSelection().index;
-            // 插入图片
-            quill.insertEmbed(length, "image", url);
-            // 调整光标到最后
-            quill.setSelection(length + 1);
-          });
+          })
+            .then((res) => {
+              let url = "http://47.102.214.37:8080/pic/" + res.data;
+              let quill = that.$refs.myQuillEditor.quill;
+              // 获取光标所在位置
+              let length = quill.getSelection().index;
+              // 插入图片
+              quill.insertEmbed(length, "image", url);
+              // 调整光标到最后
+              quill.setSelection(length + 1);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       });
     },
@@ -384,34 +393,43 @@ export default {
           type: "warning",
         });
       } else {
-        let url =
-          "http://47.102.214.37:8080/ops/schedule/detail/" +
-          that.$route.query.taskID;
-        axios.get(url).then((res) => {
-          let obj = {};
-          obj.content = that.TaskInfo.content;
-          obj.id = res.data.id;
-          obj.name = that.TaskInfo.name;
-          obj.remark = that.TaskInfo.remark;
-          obj.startDate = that.TaskInfo.startDate;
-          obj.scheduleType = that.TaskInfo.scheduleType;
-          obj.no = that.TaskInfo.no;
-          obj.tools = that.TaskInfo.tools;
-          obj.device = res.data.device;
-          obj.ops = res.data.ops;
-          axios
-            .put(url, obj)
-            .then((res) => {
-              console.log(res);
-              that.$message({
-                message: "修改成功",
-                type: "success",
+        let url = "ops/schedule/detail/" + that.$route.query.taskID;
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            let obj = {};
+            obj.content = that.TaskInfo.content;
+            obj.id = res.data.id;
+            obj.name = that.TaskInfo.name;
+            obj.remark = that.TaskInfo.remark;
+            obj.startDate = that.TaskInfo.startDate;
+            obj.scheduleType = that.TaskInfo.scheduleType;
+            obj.no = that.TaskInfo.no;
+            obj.tools = that.TaskInfo.tools;
+            obj.device = res.data.device;
+            obj.ops = res.data.ops;
+            that
+              .request(url, obj, "PUT")
+              .then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "修改成功",
+                  type: "success",
+                });
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
               });
-            })
-            .catch((res) => {
-              console.log(res.response.data.message);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
             });
-        });
+          });
       }
     },
     // 取消编辑

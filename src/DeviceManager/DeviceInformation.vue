@@ -182,15 +182,9 @@
           v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
         >
           <template slot-scope="scope">
-            <el-button @click="handleEdit(scope.$index, scope.row)"
-              >修改</el-button
-            >
-            <el-button @click="handleCode(scope.$index, scope.row)"
-              >编码</el-button
-            >
-            <el-button @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button
-            >
+            <el-button @click="handleEdit(scope.row)">修改</el-button>
+            <el-button @click="handleCode(scope.row)">编码</el-button>
+            <el-button @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -309,21 +303,21 @@ export default {
       let index = 1;
       that.ifsearch = true;
       url =
-        "http://47.102.214.37:8080/device/query?" +
+        "device/query?" +
         that.selectInfo[0].ziduan +
         "=L" +
         that.selectInfo[0].value +
         "%25";
       exportURL =
-        "http://47.102.214.37:8080/device/export?" +
+        "device/export?" +
         that.selectInfo[0].ziduan +
         "=L" +
         that.selectInfo[0].value +
         "%25";
       if (that.selectInfo.length == 1) {
         that.exporturl = exportURL;
-        axios
-          .get(url)
+        that
+          .request(url, {}, "GET")
           .then((res) => {
             console.log(res.data);
             that.tableData = [];
@@ -384,8 +378,8 @@ export default {
             "%25";
         }
         that.exporturl = exportURL;
-        axios
-          .get(url)
+        that
+          .request(url, {}, "GET")
           .then((res) => {
             console.log(res.data);
             that.tableData = [];
@@ -435,12 +429,9 @@ export default {
       let that = this;
       let index = 1;
       that.ifsearch = false;
-      let url =
-        "http://47.102.214.37:8080/device?page=0&size=" + that.page_size;
-      axios({
-        method: "GET",
-        url: url,
-      })
+      let url = "device?page=0&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
         .then((res) => {
           that.tableData = [];
           that.total = res.data.totalElements;
@@ -480,7 +471,7 @@ export default {
           globaldata.devicedynamicTags = [];
 
           // 改变导出url
-          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
+          that.exporturl = "device/export?name=! ";
         })
         .catch((res) => {
           that.$message({
@@ -499,8 +490,8 @@ export default {
       let fd = new FormData();
       fd.append("file", val.file);
       console.log(fd);
-      axios
-        .post("http://47.102.214.37:8080/device/import", fd)
+      that
+        .request("device/import", fd, "POST")
         .then((res) => {
           console.log(res);
           if (res.status == 200) {
@@ -550,8 +541,16 @@ export default {
       /* 后段导出 */
       let that = this;
       console.log(that.exporturl);
+      // that
+      //   .request(
+      //     that.exporturl,
+      //     {
+      //       responseType: "blob", // 二进制流
+      //     },
+      //     "GET"
+      //   )
       axios
-        .get(that.exporturl, {
+        .get("http://47.102.214.37:8080/" + that.exporturl, {
           responseType: "blob", // 二进制流
         })
         .then((res) => {
@@ -600,11 +599,9 @@ export default {
               that.tableData.forEach((e, i) => {
                 if (element.id == e.id) {
                   console.log(that.tableData[i]);
-                  let url =
-                    "http://47.102.214.37:8080/device/" + that.tableData[i].id;
-                  // console.log(url);
-                  axios
-                    .delete(url)
+                  let url = "device/" + that.tableData[i].id;
+                  that
+                    .request(url, {}, "DELETE")
                     .then((res) => {
                       console.log(res);
                     })
@@ -630,8 +627,9 @@ export default {
       }
     },
     // 修改设备信息
-    handleEdit(index, row) {
-      // console.log(index, row);
+    handleEdit(row) {
+      console.log(row);
+      let that = this;
       let obj = {};
       obj.id = row.id;
       obj.name = row.name;
@@ -640,8 +638,8 @@ export default {
       obj.deviceNo = row.deviceNo;
       obj.crux = row.crux;
       obj.clazz = row.clazz;
-      axios
-        .get("http://47.102.214.37:8080/device/info-field")
+      that
+        .request("device/info-field", {}, "GET")
         .then((res) => {
           console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {
@@ -664,7 +662,7 @@ export default {
         });
     },
     // 生成编码
-    handleCode(index, row) {
+    handleCode(row) {
       console.log(row);
       this.$router.push({
         path: "./code",
@@ -672,7 +670,7 @@ export default {
       });
     },
     // 删除单个行
-    handleDelete(index) {
+    handleDelete(row) {
       let that = this;
       this.$confirm("删除后无法更改, 是否确定?", "提示", {
         confirmButtonText: "确定",
@@ -680,10 +678,9 @@ export default {
         type: "warning",
       })
         .then(() => {
-          let url =
-            "http://47.102.214.37:8080/device/" + that.tableData[index].id;
-          axios
-            .delete(url)
+          let url = "device/" + row.id;
+          that
+            .request(url, {}, "DELETE")
             .then((res) => {
               if (res.data.message == "ok") {
                 this.getAllDevice();
@@ -711,13 +708,9 @@ export default {
       that.tableData = [];
       console.log(val);
       that.page_size = val;
-      let url =
-        "http://47.102.214.37:8080/device?page=0" + "&size=" + that.page_size;
-      console.log(url);
-      axios({
-        method: "GET",
-        url: url,
-      })
+      let url = "device?page=0" + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
         .then((res) => {
           that.total = res.data.totalElements;
           that.currentPage = 1;
@@ -756,7 +749,7 @@ export default {
           globaldata.devicedynamicTags = [];
 
           // 改变导出url
-          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
+          that.exporturl = "device/export?name=! ";
         })
         .catch((res) => {
           that.$message({
@@ -772,16 +765,9 @@ export default {
       that.page = val;
       that.currentPage = val;
       console.log(val);
-      let url =
-        "http://47.102.214.37:8080/device?page=" +
-        (that.page - 1) +
-        "&size=" +
-        that.page_size;
-      console.log(url);
-      axios({
-        method: "GET",
-        url: url,
-      })
+      let url = "device?page=" + (that.page - 1) + "&size=" + that.page_size;
+      that
+        .request(url, {}, "GET")
         .then((res) => {
           that.tableData = [];
           that.total = res.data.totalElements;
@@ -820,7 +806,7 @@ export default {
           globaldata.devicedynamicTags = [];
 
           // 改变导出url
-          that.exporturl = "http://47.102.214.37:8080/device/export?name=! ";
+          that.exporturl = "device/export?name=! ";
         })
         .catch((res) => {
           that.$message({
@@ -832,17 +818,7 @@ export default {
   },
   created: function() {
     let that = this;
-    axios
-      .get("http://47.102.214.37:8080/user/me")
-      .then((res) => {
-        that.userRole = res.data.role;
-      })
-      .catch((res) => {
-        that.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
-      });
+    that.userRole = that.globaldata.userRole;
     // 先检查是否有搜索记录
     if (globaldata.deviceselectInfo.length != 0) {
       console.log(globaldata.deviceselectInfo);
@@ -852,8 +828,8 @@ export default {
     } else {
       setTimeout(function() {
         // 获取所有附加字段
-        axios
-          .get("http://47.102.214.37:8080/device/info-field")
+        that
+          .request("device/info-field", {}, "GET")
           .then((res) => {
             for (let i = 0; i < res.data.length; i++) {
               let obj = {};
