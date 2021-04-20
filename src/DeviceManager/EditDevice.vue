@@ -255,40 +255,23 @@ export default {
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
     },
-    // 新增额外字段
-    SubmitNewExtraInfo(Info) {
+    // 获取额外字段
+    getExtraInfo() {
       let that = this;
+      that.tableData = [];
+      that.extraid = [];
       that
-        .request(
-          "device/info-field",
-          {
-            name: Info.name,
-            type: Info.type,
-          },
-          "POST"
-        )
-        .then(() => {
-          that.tableData.push({
-            extraname: Info.name,
-            extrainfo: "",
-          });
-          that
-            .request("device/info-field", {}, "GET")
-            .then((res) => {
-              for (var j = 0; j < res.data.length; j++) {
-                if (res.data[j].name == Info.name) {
-                  that.extraid.push(res.data[j].id);
-                  break;
-                }
-              }
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
+        .request("device/info-field", {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            that.extraid.push(res.data[i].id);
+            that.tableData.push({
+              extraname: res.data[i].name,
+              extrainfo: "",
+              type: res.data[i].type,
             });
-          that.dialogFormVisible = false;
+          }
         })
         .catch((res) => {
           this.$message({
@@ -296,6 +279,61 @@ export default {
             type: "error",
           });
         });
+    },
+    // 新增额外字段
+    SubmitNewExtraInfo(Info) {
+      let that = this;
+      if (Info.name == "" || Info.type == undefined) {
+        this.$alert("请将基本信息填写完整！", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        that
+          .request(
+            "device/info-field",
+            {
+              name: Info.name,
+              type: Info.type,
+            },
+            "POST"
+          )
+          .then((res) => {
+            console.log(res);
+            that.$message({
+              message: "新增字段成功",
+              type: "success",
+            });
+            that.tableData.push({
+              extraname: Info.name,
+              extrainfo: "",
+              type: Info.type,
+            });
+            that
+              .request("device/info-field", {}, "GET")
+              .then((res) => {
+                console.log(res);
+                for (var j = 0; j < res.data.length; j++) {
+                  if (res.data[j].name == Info.name) {
+                    that.extraid.push(res.data[j].id);
+                    break;
+                  }
+                }
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
+            that.dialogFormVisible = false;
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
     },
     // 删除字段
     delectExtraInfo() {
@@ -342,6 +380,9 @@ export default {
                 }
               });
             });
+            setTimeout(function() {
+              that.getExtraInfo();
+            }, 300);
           })
           .catch(() => {
             this.$message({
@@ -425,25 +466,7 @@ export default {
       ? (that.form.crux = "Y")
       : (that.form.crux = "N");
     that.form.clazz = this.$route.query.clazz;
-    that
-      .request("device/info-field", {}, "GET")
-      .then((res) => {
-        console.log(res.data);
-        for (var i = 0; i < res.data.length; i++) {
-          that.extraid.push(res.data[i].id);
-          that.tableData.push({
-            extraname: res.data[i].name,
-            extrainfo: this.$route.query[res.data[i].id],
-            type: res.data[i].type,
-          });
-        }
-      })
-      .catch((res) => {
-        this.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
-      });
+    that.getExtraInfo();
   },
 };
 </script>

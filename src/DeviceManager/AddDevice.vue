@@ -199,7 +199,6 @@ export default {
       checkedDetail: [], //选择框
       tableData: [],
       extraid: [],
-      extraobj: [],
       rules: {
         name: [
           {
@@ -251,10 +250,36 @@ export default {
     handleDetailSelectionChange(selection) {
       this.checkedDetail = selection;
     },
+    // 获取额外字段
+    getExtraInfo() {
+      let that = this;
+      that.tableData = [];
+      that.extraid = [];
+      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+        that
+          .request("device/info-field", {}, "GET")
+          .then((res) => {
+            console.log(res.data);
+            for (var i = 0; i < res.data.length; i++) {
+              that.extraid.push(res.data[i].id);
+              that.tableData.push({
+                extraname: res.data[i].name,
+                extrainfo: "",
+                type: res.data[i].type,
+              });
+            }
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
+    },
     // 新增额外字段
     SubmitNewExtraInfo(Info) {
       let that = this;
-      console.log(Info);
       if (Info.name == "" || Info.type == undefined) {
         this.$alert("请将基本信息填写完整！", "提示", {
           confirmButtonText: "确定",
@@ -355,6 +380,9 @@ export default {
                 }
               });
             });
+            setTimeout(() => {
+              that.getExtraInfo();
+            }, 300);
           })
           .catch(() => {
             this.$message.info("已取消删除");
@@ -423,27 +451,7 @@ export default {
   created: function() {
     let that = this;
     that.userRole = that.globaldata.userRole;
-    if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-      that
-        .request("device/info-field", {}, "GET")
-        .then((res) => {
-          console.log(res.data);
-          for (var i = 0; i < res.data.length; i++) {
-            that.extraid.push(res.data[i].id);
-            that.tableData.push({
-              extraname: res.data[i].name,
-              extrainfo: "",
-              type: res.data[i].type,
-            });
-          }
-        })
-        .catch((res) => {
-          this.$message({
-            message: res.response.data.message,
-            type: "error",
-          });
-        });
-    }
+    that.getExtraInfo();
   },
 };
 </script>

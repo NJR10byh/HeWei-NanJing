@@ -183,6 +183,9 @@ export default {
                 }
               });
             });
+            setTimeout(() => {
+              that.refresh();
+            }, 300);
           })
           .catch(() => {
             this.$message.info("已取消删除");

@@ -617,7 +617,7 @@ export default {
             });
             setTimeout(function() {
               that.getAllDevice();
-            }, 200);
+            }, 300);
           })
           .catch(() => {
             this.$message({
