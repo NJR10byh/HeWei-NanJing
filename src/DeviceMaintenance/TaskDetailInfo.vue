@@ -191,7 +191,6 @@
 </template>
 
 <script>
-import axios from "axios";
 // 富文本编辑
 import { quillEditor } from "vue-quill-editor";
 // require styles
@@ -405,24 +404,21 @@ export default {
       this.getBase64(file.raw).then((res) => {
         const params = res.split(",");
         if (params.length > 0) {
-          axios({
-            url: "http://1.15.236.205/pic",
-            method: "post",
-            data: params[1],
-            headers: {
+          that
+            .request("pic", params[1], "POST", {
               "Content-Type": "text/plain",
-            },
-          }).then((res) => {
-            console.log(res);
-            let url = "http://1.15.236.205/pic/" + res.data;
-            let quill = that.$refs.myQuillEditor.quill;
-            // 获取光标所在位置
-            let length = quill.getSelection().index;
-            // 插入图片
-            quill.insertEmbed(length, "image", url);
-            // 调整光标到最后
-            quill.setSelection(length + 1);
-          });
+            })
+            .then((res) => {
+              console.log(res);
+              let url = "http://1.15.236.205/pic/" + res.data;
+              let quill = that.$refs.myQuillEditor.quill;
+              // 获取光标所在位置
+              let length = quill.getSelection().index;
+              // 插入图片
+              quill.insertEmbed(length, "image", url);
+              // 调整光标到最后
+              quill.setSelection(length + 1);
+            });
         }
       });
     },

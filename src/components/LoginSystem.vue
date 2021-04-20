@@ -22,8 +22,6 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-axios.defaults.withCredentials = true;
 import qs from "qs";
 export default {
   created: function() {
@@ -76,12 +74,8 @@ export default {
         username: that.username,
         password: that.password,
       });
-      axios
-        .post("http://1.15.236.205:8080/login", params, {
-          headers: {
-            Authorization: "token",
-          },
-        })
+      that
+        .request("login", params, "POST", {})
         .then((res) => {
           localStorage.setItem("token", res.data);
           this.$message({

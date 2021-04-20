@@ -56,6 +56,7 @@
 </template>
 <script>
 import axios from "axios";
+axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
   created: function() {
     let that = this;
@@ -111,13 +112,8 @@ export default {
         const params = res.split(",");
         console.log(params, "params");
         if (params.length > 0) {
-          axios({
-            url: "http://1.15.236.205:8080/pic",
-            method: "post",
-            data: params[1],
-            headers: {
-              "Content-Type": "text/plain",
-            },
+          this.request("pic", params[1], "POST", {
+            "Content-Type": "text/plain",
           }).then((res) => {
             console.log(res);
             that.picid = res.data;

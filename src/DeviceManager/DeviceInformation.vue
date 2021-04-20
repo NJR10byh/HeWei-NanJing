@@ -205,7 +205,7 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 // import XLSX from "xlsx";
 // import FileSaver from "file-saver";
 import globaldata from "../GlobalData/globaldata";
@@ -486,10 +486,8 @@ export default {
     },
     UpLoad(val) {
       let that = this;
-      console.log(val.file);
       let fd = new FormData();
       fd.append("file", val.file);
-      console.log(fd);
       that
         .request("device/import", fd, "POST")
         .then((res) => {
@@ -506,6 +504,7 @@ export default {
           }
         })
         .catch((res) => {
+          console.log(res);
           that.$message({
             message: res.response.data.message,
             type: "error",
@@ -549,10 +548,12 @@ export default {
       //     },
       //     "GET"
       //   )
-      axios
-        .get("http://1.15.236.205:8080/" + that.exporturl, {
-          responseType: "blob", // 二进制流
-        })
+      that
+        .request(that.exporturl, {}, "GET", {}, "blob")
+        // axios
+        //   .get("http://1.15.236.205:8080/" + that.exporturl, {
+        //     responseType: "blob", // 二进制流
+        //   })
         .then((res) => {
           console.log(res);
           if (!res) return;

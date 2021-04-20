@@ -194,27 +194,28 @@ export default {
       that.taskData = [];
       that.currentPage = 1;
       let url = "ops/schedule?page=0&size=" + that.page_size;
-      that.request(url, {}, "GET").then((res) => {
-        that.total = res.data.totalElements;
-        for (var i = 0; i < res.data.content.length; i++) {
-          that.taskData.push({
-            taskID: res.data.content[i].id,
-            name: res.data.content[i].name,
-            no: res.data.content[i].no,
-          });
-        }
-        that
-          .$message({
+      that
+        .request(url, {}, "GET")
+        .then((res) => {
+          that.total = res.data.totalElements;
+          for (var i = 0; i < res.data.content.length; i++) {
+            that.taskData.push({
+              taskID: res.data.content[i].id,
+              name: res.data.content[i].name,
+              no: res.data.content[i].no,
+            });
+          }
+          that.$message({
             message: "刷新成功",
             type: "success",
-          })
-          .catch((res) => {
-            this.$message({
-              message: res.response.data.message,
-              type: "error",
-            });
           });
-      });
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     },
     // 表格方法
     handleSizeChange(val) {

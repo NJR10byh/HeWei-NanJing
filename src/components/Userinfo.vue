@@ -1,7 +1,8 @@
 <template>
   <div class="User_info">
     <div class="user_info_icon">
-      <img :src="avatar" />
+      <img :src="avatar" v-if="ifavator == true" id="img" />
+      <img src="@/assets/img/avator.png" v-else />
     </div>
     <div class="user_info_detail">
       <div class="info"><span>姓名：</span>{{ name }}</div>
@@ -14,7 +15,9 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      ifavator: "",
+    };
   },
   props: {
     name: String,
@@ -22,8 +25,11 @@ export default {
     useremail: String,
     avatar: String,
   },
-  mounted() {
-    this.data = this.searchList;
+  created() {
+    setTimeout(() => {
+      console.log(this.avatar);
+      this.ifavator = this.avatar == "无" ? false : true;
+    }, 300);
   },
   methods: {},
 };

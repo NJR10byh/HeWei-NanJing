@@ -246,7 +246,6 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 import User from "../components/Userinfo";
 import { quillEditor } from "vue-quill-editor";
 // require styles
@@ -518,14 +517,10 @@ export default {
       this.getBase64(file.raw).then((res) => {
         const params = res.split(",");
         if (params.length > 0) {
-          axios({
-            url: "http://1.15.236.205:8080/pic",
-            method: "post",
-            data: params[1],
-            headers: {
+          that
+            .request("pic", params[1], "POST", {
               "Content-Type": "text/plain",
-            },
-          })
+            })
             .then((res) => {
               that.picid = res.data;
               let url = "http://1.15.236.205:8080/pic/" + res.data;

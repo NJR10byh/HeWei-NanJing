@@ -190,11 +190,18 @@ export default {
     });
     this.request("user/me", {}, "GET")
       .then((res) => {
+        console.log(res.data);
+        this.avatarurl =
+          res.data.avatar == null
+            ? "无"
+            : "http://1.15.236.205:8080/pic/" + res.data.avatar;
+        this.request("pic/" + res.data.avatar, {}, "GET").then((res) => {
+          console.log(res);
+        });
         this.userRole = res.data.role;
         this.username = res.data.username;
         this.useremail = res.data.email;
         this.name = res.data.name;
-        this.avatarurl = "http://1.15.236.205:8080/pic/" + res.data.avatar;
         // 当前登录人员信息存入全局变量
         this.globaldata.userid = res.data.id;
         this.globaldata.userRole = res.data.role;
