@@ -185,7 +185,8 @@ export default {
                 avatar: that.picid,
               };
               setTimeout(function() {
-                this.request(url, obj, "PUT")
+                that
+                  .request(url, obj, "PUT")
                   .then((res) => {
                     console.log(res);
                     that.$message({
