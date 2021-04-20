@@ -278,7 +278,7 @@ export default {
       //   let i = 0;
       //   for (i = 0; i < that.piliang; i++) {
       //     axios
-      //       .post("http://47.102.214.37:8080/user/register", {
+      //       .post("http://1.15.236.205:8080/user/register", {
       //         name: that.name,
       //         username: that.username,
       //         email: that.email,

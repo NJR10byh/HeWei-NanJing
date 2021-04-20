@@ -304,7 +304,7 @@ export default {
                 username: res.data.content[0].username,
                 useremail: res.data.content[0].email,
                 avatar:
-                  "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+                  "http://1.15.236.205:8080/pic/" + res.data.content[0].avatar,
               });
             })
             .catch((res) => {
@@ -357,7 +357,7 @@ export default {
                       username: res.data.content[0].username,
                       useremail: res.data.content[0].email,
                       avatar:
-                        "http://47.102.214.37:8080/pic/" +
+                        "http://1.15.236.205:8080/pic/" +
                         res.data.content[0].avatar,
                     });
                   })
@@ -519,7 +519,7 @@ export default {
         const params = res.split(",");
         if (params.length > 0) {
           axios({
-            url: "http://47.102.214.37:8080/pic",
+            url: "http://1.15.236.205:8080/pic",
             method: "post",
             data: params[1],
             headers: {
@@ -528,7 +528,7 @@ export default {
           })
             .then((res) => {
               that.picid = res.data;
-              let url = "http://47.102.214.37:8080/pic/" + res.data;
+              let url = "http://1.15.236.205:8080/pic/" + res.data;
               let quill = that.$refs.myQuillEditor.quill;
               // 获取光标所在位置
               let length = quill.getSelection().index;

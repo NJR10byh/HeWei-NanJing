@@ -77,7 +77,7 @@ export default {
         password: that.password,
       });
       axios
-        .post("http://47.102.214.37:8080/login", params, {
+        .post("http://1.15.236.205:8080/login", params, {
           headers: {
             Authorization: "token",
           },

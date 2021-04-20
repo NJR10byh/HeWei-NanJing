@@ -1352,7 +1352,7 @@ export default {
         type: "warning",
       })
         .then(() => {
-          let url = "http://47.102.214.37:8080/ops/schedule/" + row.taskid;
+          let url = "ops/schedule/" + row.taskid;
           that
             .request(url, {}, "DELETE")
             .then(() => {

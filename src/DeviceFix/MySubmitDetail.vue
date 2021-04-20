@@ -211,7 +211,7 @@ export default {
                 username: res.data.content[0].username,
                 useremail: res.data.content[0].email,
                 avatar:
-                  "http://47.102.214.37:8080/pic/" + res.data.content[0].avatar,
+                  "http://1.15.236.205:8080/pic/" + res.data.content[0].avatar,
               });
             })
             .catch((res) => {
@@ -264,7 +264,7 @@ export default {
                       username: res.data.content[0].username,
                       useremail: res.data.content[0].email,
                       avatar:
-                        "http://47.102.214.37:8080/pic/" +
+                        "http://1.15.236.205:8080/pic/" +
                         res.data.content[0].avatar,
                     });
                   })

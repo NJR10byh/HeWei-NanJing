@@ -49,8 +49,7 @@ export default {
   },
   created: function() {
     console.log(this.$route.query);
-    this.url =
-      "http://47.102.214.37:8080/device/barcode/" + this.$route.query.id;
+    this.url = "device/barcode/" + this.$route.query.id;
   },
 };
 </script>

@@ -295,14 +295,12 @@ export default {
             res.data.content[i].pic == null
               ? (obj.ifpicexist = false)
               : (obj.pic =
-                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+                  "http://1.15.236.205/pic/" + res.data.content[i].pic);
             setTimeout(() => {
               if (res.data.content[i].opUser == null) {
                 obj.opUser = "暂无";
               } else {
-                let searchops =
-                  "http://47.102.214.37:8080/user/" +
-                  res.data.content[i].opUser.id;
+                let searchops = "user/" + res.data.content[i].opUser.id;
                 that
                   .request(searchops, {}, "GET")
                   .then((res) => {
@@ -408,7 +406,7 @@ export default {
         const params = res.split(",");
         if (params.length > 0) {
           axios({
-            url: "http://47.102.214.37:8080/pic",
+            url: "http://1.15.236.205/pic",
             method: "post",
             data: params[1],
             headers: {
@@ -416,7 +414,7 @@ export default {
             },
           }).then((res) => {
             console.log(res);
-            let url = "http://47.102.214.37:8080/pic/" + res.data;
+            let url = "http://1.15.236.205/pic/" + res.data;
             let quill = that.$refs.myQuillEditor.quill;
             // 获取光标所在位置
             let length = quill.getSelection().index;
@@ -504,7 +502,7 @@ export default {
       that.taskrecordtableData = [];
       console.log(val);
       let url =
-        "http://47.102.214.37:8080/ops/record/schedule/" +
+        "ops/record/schedule/" +
         that.$route.query.taskid +
         "?page=0" +
         "&size=" +
@@ -540,7 +538,7 @@ export default {
             res.data.content[i].pic == null
               ? (obj.ifpicexist = false)
               : (obj.pic =
-                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+                  "http://1.15.236.205:8080/pic/" + res.data.content[i].pic);
             that.taskrecordtableData.unshift(obj);
           }
           setTimeout(() => {
@@ -564,7 +562,7 @@ export default {
       that.currentPage = val;
       console.log(val);
       let url =
-        "http://47.102.214.37:8080/ops/record/schedule/" +
+        "ops/record/schedule/" +
         that.$route.query.taskid +
         "?page=" +
         (that.page - 1) +
@@ -602,7 +600,7 @@ export default {
             res.data.content[i].pic == null
               ? (obj.ifpicexist = false)
               : (obj.pic =
-                  "http://47.102.214.37:8080/pic/" + res.data.content[i].pic);
+                  "http://1.15.236.205:8080/pic/" + res.data.content[i].pic);
             that.taskrecordtableData.unshift(obj);
           }
           setTimeout(() => {
