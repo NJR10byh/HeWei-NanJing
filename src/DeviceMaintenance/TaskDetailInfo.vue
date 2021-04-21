@@ -534,7 +534,7 @@ export default {
             res.data.content[i].pic == null
               ? (obj.ifpicexist = false)
               : (obj.pic =
-                  "http://1.15.236.205:8080/pic/" + res.data.content[i].pic);
+                  "http://1.15.236.205/api/pic/" + res.data.content[i].pic);
             that.taskrecordtableData.unshift(obj);
           }
           setTimeout(() => {
@@ -596,7 +596,7 @@ export default {
             res.data.content[i].pic == null
               ? (obj.ifpicexist = false)
               : (obj.pic =
-                  "http://1.15.236.205:8080/pic/" + res.data.content[i].pic);
+                  "http://1.15.236.205/api/pic/" + res.data.content[i].pic);
             that.taskrecordtableData.unshift(obj);
           }
           setTimeout(() => {

@@ -9,7 +9,7 @@ export default async (
   headers = {},
   responseType = ""
 ) => {
-  const baseURL = "http://1.15.236.205:8080/";
+  const baseURL = "http://1.15.236.205/api/";
   try {
     return new Promise((success, error) => {
       console.log(baseURL + url);

@@ -84,7 +84,7 @@
             <el-upload
               ref="upload"
               drag
-              action="http://1.15.236.205:8080/device/import"
+              action="http://1.15.236.205/api/device/import"
               multiple
               :http-request="UpLoad"
               :auto-upload="false"
@@ -551,7 +551,7 @@ export default {
       that
         .request(that.exporturl, {}, "GET", {}, "blob")
         // axios
-        //   .get("http://1.15.236.205:8080/" + that.exporturl, {
+        //   .get("http://1.15.236.205/api/" + that.exporturl, {
         //     responseType: "blob", // 二进制流
         //   })
         .then((res) => {

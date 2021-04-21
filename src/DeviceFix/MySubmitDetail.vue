@@ -214,7 +214,7 @@ export default {
                 avatar:
                   res.data.content[0].avatar == null
                     ? undefined
-                    : "http://1.15.236.205:8080/pic/" +
+                    : "http://1.15.236.205/api/pic/" +
                       res.data.content[0].avatar,
               });
             })
@@ -240,7 +240,7 @@ export default {
                 obj.avatar =
                   res.data.content[0].avatar == null
                     ? undefined
-                    : "http://1.15.236.205:8080/pic/" +
+                    : "http://1.15.236.205/api/pic/" +
                       res.data.content[0].avatar;
                 console.log(obj);
                 that.supervisor.push(obj);
@@ -278,7 +278,7 @@ export default {
                       avatar:
                         res.data.content[0].avatar == null
                           ? undefined
-                          : "http://1.15.236.205:8080/pic/" +
+                          : "http://1.15.236.205/api/pic/" +
                             res.data.content[0].avatar,
                     });
                   })

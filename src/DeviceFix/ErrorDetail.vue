@@ -306,7 +306,7 @@ export default {
                 avatar:
                   res.data.content[0].avatar == null
                     ? undefined
-                    : "http://1.15.236.205:8080/pic/" +
+                    : "http://1.15.236.205/api/pic/" +
                       res.data.content[0].avatar,
               });
             })
@@ -332,7 +332,7 @@ export default {
                   avatar:
                     res.data.content[0].avatar == null
                       ? undefined
-                      : "http://1.15.236.205:8080/pic/" +
+                      : "http://1.15.236.205/api/pic/" +
                         res.data.content[0].avatar,
                 });
               })
@@ -369,7 +369,7 @@ export default {
                       avatar:
                         res.data.content[0].avatar == null
                           ? undefined
-                          : "http://1.15.236.205:8080/pic/" +
+                          : "http://1.15.236.205/api/pic/" +
                             res.data.content[0].avatar,
                     });
                   })
@@ -550,7 +550,7 @@ export default {
             })
             .then((res) => {
               that.picid = res.data;
-              let url = "http://1.15.236.205:8080/pic/" + res.data;
+              let url = "http://1.15.236.205/api/pic/" + res.data;
               let quill = that.$refs.myQuillEditor.quill;
               // 获取光标所在位置
               let length = quill.getSelection().index;

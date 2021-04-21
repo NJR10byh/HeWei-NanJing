@@ -194,7 +194,7 @@ export default {
         this.avatarurl =
           res.data.avatar == null
             ? undefined
-            : "http://1.15.236.205:8080/pic/" + res.data.avatar;
+            : "http://1.15.236.205/api/pic/" + res.data.avatar;
         this.userRole = res.data.role;
         this.username = res.data.username;
         this.useremail = res.data.email;
@@ -208,7 +208,7 @@ export default {
         this.globaldata.avatarurl =
           res.data.avatar == null
             ? undefined
-            : "http://1.15.236.205:8080/pic/" + res.data.avatar;
+            : "http://1.15.236.205/api/pic/" + res.data.avatar;
       })
       .catch((res) => {
         this.$message({

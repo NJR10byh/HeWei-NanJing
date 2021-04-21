@@ -286,7 +286,7 @@ export default {
             })
             .then((res) => {
               console.log(res);
-              let url = "http://1.15.236.205:8080/pic/" + res.data;
+              let url = "http://1.15.236.205/api/pic/" + res.data;
               let quill = that.$refs.myQuillEditor.quill;
               // 获取光标所在位置
               let length = quill.getSelection().index;
