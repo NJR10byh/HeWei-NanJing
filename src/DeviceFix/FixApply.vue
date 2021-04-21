@@ -125,6 +125,7 @@ export default {
     let userRole = "";
     console.log();
     // 获取当前登录用户基本信息
+    userRole = this.globaldata.userRole;
     that.reporter.id = this.globaldata.userid;
     that.reporter.name = this.globaldata.name;
     that.reporter.role = this.globaldata.userRole;
@@ -136,7 +137,7 @@ export default {
       if (userRole != "" && userRole != "OPERATOR") {
         // 获取全部设备
         that
-          .resquest("device?page=0&size=1000000000", {}, "GET")
+          .request("device?page=0&size=1000000000", {}, "GET")
           .then((res) => {
             for (var i = 0; i < res.data.content.length; i++) {
               let obj = {};
@@ -154,9 +155,9 @@ export default {
           });
         // 获取全部SUPERVISOR
         that
-          .resquest("user/query", {}, "GET")
+          .request("user/query", {}, "GET")
           .then((res) => {
-            // console.log(res.data);
+            console.log(res.data);
             setTimeout(function() {
               for (let i = 0; i < res.data.content.length; i++) {
                 if (res.data.content[i].role == "SUPERVISOR") {
@@ -183,7 +184,7 @@ export default {
       else if (userRole != "" && userRole == "OPERATOR") {
         // 获取全部分配到自己的设备
         that
-          .resquest("my/device", {}, "GET")
+          .request("my/device", {}, "GET")
           .then((res) => {
             console.log(res.data);
             for (var i = 0; i < res.data.length; i++) {
@@ -203,9 +204,9 @@ export default {
           });
         // 获取全部SUPERVISOR
         that
-          .resquest("user/query", {}, "GET")
+          .request("user/query", {}, "GET")
           .then((res) => {
-            // console.log(res.data);
+            console.log(res.data);
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "SUPERVISOR") {
                 that.options2[0].options.push({
@@ -352,7 +353,7 @@ export default {
         };
         console.log(obj);
         that
-          .resquest("issue", obj, "POST")
+          .request("issue", obj, "POST")
           .then((res) => {
             console.log(res);
             that.$message({
@@ -361,7 +362,7 @@ export default {
             });
             setTimeout(() => {
               that.$router.push({
-                path: "./allError",
+                path: "./fixApply",
               });
             }, 1000);
           })
@@ -379,19 +380,26 @@ export default {
       console.log(that.deviceno);
       let url = "device/query?deviceNo==" + that.deviceno;
       that
-        .resquest(url, {}, "GET")
+        .request(url, {}, "GET")
         .then((res) => {
           console.log(res.data);
-          that.deviceno = "";
-          let obj = {};
-          obj.value = res.data.content[0].id;
-          obj.devicename = res.data.content[0].name;
-          obj.devicenumber = res.data.content[0].deviceNo;
-          that.options1.push(obj);
-          that.$message({
-            message: "查找成功，已添加至设备选择列表",
-            type: "success",
-          });
+          if (res.data.content.length == 0) {
+            that.$message({
+              message: "无结果",
+              type: "warning",
+            });
+          } else {
+            that.deviceno = "";
+            let obj = {};
+            obj.value = res.data.content[0].id;
+            obj.devicename = res.data.content[0].name;
+            obj.devicenumber = res.data.content[0].deviceNo;
+            that.options1.push(obj);
+            that.$message({
+              message: "查找成功，已添加至设备选择列表",
+              type: "success",
+            });
+          }
         })
         .catch((res) => {
           that.$message({

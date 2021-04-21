@@ -206,12 +206,16 @@ export default {
           that
             .request(searchreporters, {}, "GET")
             .then((res) => {
+              console.log(res.data);
               that.applyusers.push({
                 name: res.data.content[0].name,
                 username: res.data.content[0].username,
                 useremail: res.data.content[0].email,
                 avatar:
-                  "http://1.15.236.205:8080/pic/" + res.data.content[0].avatar,
+                  res.data.content[0].avatar == null
+                    ? undefined
+                    : "http://1.15.236.205:8080/pic/" +
+                      res.data.content[0].avatar,
               });
             })
             .catch((res) => {
@@ -228,11 +232,18 @@ export default {
             that
               .request(searchops, {}, "GET")
               .then((res) => {
-                that.supervisor.push({
-                  name: res.data.content[0].name,
-                  username: res.data.content[0].username,
-                  useremail: res.data.content[0].email,
-                });
+                console.log(res.data);
+                let obj = {};
+                obj.name = res.data.content[0].name;
+                obj.username = res.data.content[0].username;
+                obj.useremail = res.data.content[0].email;
+                obj.avatar =
+                  res.data.content[0].avatar == null
+                    ? undefined
+                    : "http://1.15.236.205:8080/pic/" +
+                      res.data.content[0].avatar;
+                console.log(obj);
+                that.supervisor.push(obj);
               })
               .catch((res) => {
                 this.$message({
@@ -245,6 +256,7 @@ export default {
                 name: "暂未分配",
                 username: "暂未分配",
                 useremail: "暂未分配",
+                avatar: undefined,
               });
             } else {
               that.assigned = true;
@@ -264,8 +276,10 @@ export default {
                       username: res.data.content[0].username,
                       useremail: res.data.content[0].email,
                       avatar:
-                        "http://1.15.236.205:8080/pic/" +
-                        res.data.content[0].avatar,
+                        res.data.content[0].avatar == null
+                          ? undefined
+                          : "http://1.15.236.205:8080/pic/" +
+                            res.data.content[0].avatar,
                     });
                   })
                   .catch((res) => {
@@ -277,7 +291,7 @@ export default {
               }
             }
           }
-        }, 200);
+        }, 500);
         // 设备信息
         for (let i = 0; i < res.data.device.length; i++) {
           let searchdevice = "device/" + res.data.device[i].id;

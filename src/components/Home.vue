@@ -193,11 +193,8 @@ export default {
         console.log(res.data);
         this.avatarurl =
           res.data.avatar == null
-            ? "无"
+            ? undefined
             : "http://1.15.236.205:8080/pic/" + res.data.avatar;
-        this.request("pic/" + res.data.avatar, {}, "GET").then((res) => {
-          console.log(res);
-        });
         this.userRole = res.data.role;
         this.username = res.data.username;
         this.useremail = res.data.email;
@@ -209,7 +206,9 @@ export default {
         this.globaldata.useremail = res.data.email;
         this.globaldata.name = res.data.name;
         this.globaldata.avatarurl =
-          "http://1.15.236.205:8080/pic/" + res.data.avatar;
+          res.data.avatar == null
+            ? undefined
+            : "http://1.15.236.205:8080/pic/" + res.data.avatar;
       })
       .catch((res) => {
         this.$message({

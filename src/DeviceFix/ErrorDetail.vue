@@ -300,10 +300,14 @@ export default {
             .then((res) => {
               that.applyusers.push({
                 name: res.data.content[0].name,
+                userid: res.data.content[0].id,
                 username: res.data.content[0].username,
                 useremail: res.data.content[0].email,
                 avatar:
-                  "http://1.15.236.205:8080/pic/" + res.data.content[0].avatar,
+                  res.data.content[0].avatar == null
+                    ? undefined
+                    : "http://1.15.236.205:8080/pic/" +
+                      res.data.content[0].avatar,
               });
             })
             .catch((res) => {
@@ -322,8 +326,14 @@ export default {
               .then((res) => {
                 that.supervisor.push({
                   name: res.data.content[0].name,
+                  userid: res.data.content[0].id,
                   username: res.data.content[0].username,
                   useremail: res.data.content[0].email,
+                  avatar:
+                    res.data.content[0].avatar == null
+                      ? undefined
+                      : "http://1.15.236.205:8080/pic/" +
+                        res.data.content[0].avatar,
                 });
               })
               .catch((res) => {
@@ -337,6 +347,7 @@ export default {
                 name: "暂未分配",
                 username: "暂未分配",
                 useremail: "暂未分配",
+                avatar: undefined,
               });
             } else {
               that.assigned = true;
@@ -356,8 +367,10 @@ export default {
                       username: res.data.content[0].username,
                       useremail: res.data.content[0].email,
                       avatar:
-                        "http://1.15.236.205:8080/pic/" +
-                        res.data.content[0].avatar,
+                        res.data.content[0].avatar == null
+                          ? undefined
+                          : "http://1.15.236.205:8080/pic/" +
+                            res.data.content[0].avatar,
                     });
                   })
                   .catch((res) => {
@@ -403,26 +416,40 @@ export default {
       that
         .request("user/query", {}, "GET")
         .then((res) => {
+          console.log(res);
           for (let i = 0; i < res.data.content.length; i++) {
             if (res.data.content[i].role == "OPERATOR") {
-              that.options[0].options.push({
-                value: res.data.content[i].id,
-                label:
-                  res.data.content[i].name +
-                  " (用户名：" +
-                  res.data.content[i].username +
-                  ")",
-              });
+              if (that.applyusers[0].userid == res.data.content[i].id) {
+                that.options[0].options.push({
+                  value: res.data.content[i].id,
+                  label:
+                    res.data.content[i].name +
+                    " (用户名：" +
+                    res.data.content[i].username +
+                    ")",
+                  disabled: true,
+                });
+              } else {
+                that.options[0].options.push({
+                  value: res.data.content[i].id,
+                  label:
+                    res.data.content[i].name +
+                    " (用户名：" +
+                    res.data.content[i].username +
+                    ")",
+                });
+              }
             }
           }
         })
         .catch((res) => {
+          console.log(res);
           this.$message({
             message: res.response.data.message,
             type: "error",
           });
         });
-    }, 300);
+    }, 500);
   },
   data() {
     return {
@@ -562,49 +589,57 @@ export default {
     submitTssign() {
       let that = this;
       let url = "issue/" + that.errorid;
-      that
-        .request(url, {}, "GET")
-        .then((res) => {
-          let obj = {};
-          obj.assignee = res.data.assignee;
-          obj.closed = res.data.closed;
-          obj.content = res.data.content;
-          obj.descriptionPic = res.data.descriptionPic;
-          obj.device = res.data.device;
-          obj.exceptionType = res.data.exceptionType;
-          obj.id = res.data.id;
-          obj.reason = res.data.reason;
-          obj.record = res.data.record;
-          obj.reporter = res.data.reporter;
-          obj.solution = res.data.solution;
-          obj.assignee.push({
-            id: that.assigneeOp,
-          });
-          that
-            .request(url, obj, "PUT")
-            .then(() => {
-              that.$message({
-                message: "分配成功",
-                type: "success",
-              });
-              that.dialogFixVisible = false;
-              setTimeout(() => {
-                location.reload(); // 成功后更新UI
-              }, 300);
-            })
-            .catch(() => {
-              that.$message({
-                message: "分配失败",
-                type: "error",
-              });
-            });
-        })
-        .catch((res) => {
-          this.$message({
-            message: res.response.data.message,
-            type: "error",
-          });
+      console.log(that.assigneeOp == "");
+      if (that.assigneeOp == "") {
+        this.$message({
+          message: "请选择维修人员",
+          type: "warning",
         });
+      } else {
+        that
+          .request(url, {}, "GET")
+          .then((res) => {
+            let obj = {};
+            obj.assignee = res.data.assignee;
+            obj.closed = res.data.closed;
+            obj.content = res.data.content;
+            obj.descriptionPic = res.data.descriptionPic;
+            obj.device = res.data.device;
+            obj.exceptionType = res.data.exceptionType;
+            obj.id = res.data.id;
+            obj.reason = res.data.reason;
+            obj.record = res.data.record;
+            obj.reporter = res.data.reporter;
+            obj.solution = res.data.solution;
+            obj.assignee.push({
+              id: that.assigneeOp,
+            });
+            that
+              .request(url, obj, "PUT")
+              .then(() => {
+                that.$message({
+                  message: "分配成功",
+                  type: "success",
+                });
+                that.dialogFixVisible = false;
+                setTimeout(() => {
+                  location.reload(); // 成功后更新UI
+                }, 300);
+              })
+              .catch(() => {
+                that.$message({
+                  message: "分配失败",
+                  type: "error",
+                });
+              });
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
     },
     // 提交诊断
     submitbtn() {

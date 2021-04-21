@@ -27,9 +27,10 @@ export default {
   },
   created() {
     setTimeout(() => {
+      this.ifavator = false;
       console.log(this.avatar);
-      this.ifavator = this.avatar == "无" ? false : true;
-    }, 300);
+      this.ifavator = this.avatar == undefined ? false : true;
+    }, 500);
   },
   methods: {},
 };
