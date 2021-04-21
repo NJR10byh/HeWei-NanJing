@@ -523,7 +523,7 @@ export default {
       } else {
         var dateee = new Date(date).toJSON();
         this.active++;
-        return new Date(+new Date(dateee) + 16 * 3600 * 1000)
+        return new Date(+new Date(dateee) + 8 * 3600 * 1000)
           .toISOString()
           .replace(/T/g, " ")
           .replace(/\.[\d]{3}Z/, "");
