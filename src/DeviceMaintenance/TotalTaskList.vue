@@ -3,14 +3,14 @@
     <!-- 搜索 -->
     <div class="head-btn">
       <div class="oper-btns-left">
-        <div class="select">
+        <div class="select" v-if="userRole != 'OPERATOR'">
           <el-select
             v-model="selectvalue"
             placeholder="请选择搜索字段"
             filterable
             clearable
             @change="selectchange"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             <el-option-group
               v-for="group in selectoptions"
@@ -27,18 +27,18 @@
             </el-option-group>
           </el-select>
         </div>
-        <div>
+        <div v-if="userRole != 'OPERATOR'">
           <el-tag
             :key="tag"
             v-for="tag in dynamicTags"
             closable
             @close="handleClose(tag)"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             {{ tag }}
           </el-tag>
         </div>
-        <div class="search">
+        <div class="search" v-if="userRole != 'OPERATOR'">
           <el-button icon="el-icon-search" @click="search">搜索</el-button>
         </div>
         <div class="refresh">
@@ -70,7 +70,7 @@
       :data="tableData"
       stripe
       border
-      style="width:100%;"
+      style="width: 100%"
       class="extraTable"
       row-key="id"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
@@ -89,12 +89,12 @@
       ></el-table-column>
       <el-table-column
         prop="taskname"
-        label="保养标准"
+        label="标准名称"
         :width="tablewidth"
       ></el-table-column>
       <el-table-column
         prop="taskno"
-        label="保养编号"
+        label="标准编号"
         :width="tablewidth"
       ></el-table-column>
       <el-table-column
@@ -130,7 +130,7 @@
             @click="handleDetail(scope.row)"
             v-if="
               scope.row.taskname != undefined &&
-                !['OPERATOR'].includes(userRole)
+              !['OPERATOR'].includes(userRole)
             "
             >查看</el-button
           >
@@ -142,7 +142,7 @@
           <el-button
             @click="handleDelete(scope.row)"
             v-if="scope.row.taskname != undefined"
-            >删除</el-button
+            >解绑</el-button
           >
         </template>
       </el-table-column>
@@ -169,7 +169,7 @@
       <el-input
         v-model="selectmodel"
         placeholder="请输入搜索内容"
-        v-if="selectvalue == 'name'"
+        v-if="['name', 'no'].includes(selectvalue)"
       ></el-input>
 
       <!-- 保养周期 -->
@@ -218,13 +218,13 @@
           </el-option>
         </el-option-group>
       </el-select>
-      <div v-if="selectvalue == 'device'" style="margin-top:10px;">
+      <div v-if="selectvalue == 'device'" style="margin-top: 10px">
         <el-tag
           :key="tag"
           v-for="tag in devicedynamicTags"
           closable
           @close="devicehandleClose(tag)"
-          style="margin-left:5px;"
+          style="margin-left: 5px"
         >
           {{ tag }}
         </el-tag>
@@ -279,7 +279,7 @@
         placeholder="选择结束日期"
         value-format="yyyy-MM-dd"
         v-if="selectvalue == 'timeChoose'"
-        style="margin-top:20px;"
+        style="margin-top: 20px"
       >
       </el-date-picker>
       <span slot="footer" class="dialog-footer">
@@ -303,7 +303,7 @@
 </template>
 <script>
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = that.globaldata.userRole;
     that.userid = that.globaldata.userid;
@@ -372,7 +372,11 @@ export default {
           options: [
             {
               value: "name",
-              label: "保养标准",
+              label: "标准名称",
+            },
+            {
+              value: "no",
+              label: "标准编号",
             },
             {
               value: "scheduleType",
@@ -535,8 +539,7 @@ export default {
         "device/query?" +
         that.selectInfo2[0].ziduan +
         "=L" +
-        that.selectInfo2[0].value +
-        "%25";
+        that.selectInfo2[0].value;
       if (that.selectInfo2.length == 1) {
         that
           .request(url, {}, "GET")
@@ -564,8 +567,7 @@ export default {
             "&" +
             that.selectInfo2[i].ziduan +
             "=L" +
-            that.selectInfo2[i].value +
-            "%25";
+            that.selectInfo2[i].value;
         }
         that
           .request(url, {}, "GET")
@@ -637,7 +639,10 @@ export default {
               obj.opuser = "";
               obj.devicename = "";
               obj.deviceNo = "";
-              obj.id = res.data.content[i].id;
+              obj.id =
+                res.data.content[i].device.length == 0
+                  ? "暂无"
+                  : res.data.content[i].device[0].id;
               obj.taskname =
                 res.data.content[i].name == null
                   ? "未分配"
@@ -781,8 +786,7 @@ export default {
             "ops/query?" +
             that.selectInfo[0].ziduan +
             "=L" +
-            that.selectInfo[0].value +
-            "%25";
+            that.selectInfo[0].value;
         } else {
           console.log(that.selectInfo[0]);
           // 设备、人员支持多选
@@ -825,7 +829,10 @@ export default {
                 obj.opuser = "";
                 obj.devicename = "";
                 obj.deviceNo = "";
-                obj.id = res.data.content[i].id;
+                obj.id =
+                  res.data.content[i].device.length == 0
+                    ? "暂无"
+                    : res.data.content[i].device[0].id;
                 obj.taskname =
                   res.data.content[i].name == null
                     ? "未分配"
@@ -930,8 +937,7 @@ export default {
                 "&" +
                 that.selectInfo[i].ziduan +
                 "=L" +
-                that.selectInfo[i].value +
-                "%25";
+                that.selectInfo[i].value;
             } else {
               if (
                 that.selectInfo[i].ziduan == "device" ||
@@ -965,7 +971,6 @@ export default {
               }
             }
           }
-          let url = "ops/query?startDate=B" + this.start + "," + this.end;
           that
             .request(url, {}, "GET")
             .then((res) => {
@@ -976,7 +981,10 @@ export default {
                 obj.opuser = "";
                 obj.devicename = "";
                 obj.deviceNo = "";
-                obj.id = res.data.content[i].id;
+                obj.id =
+                  res.data.content[i].device.length == 0
+                    ? "暂无"
+                    : res.data.content[i].device[0].id;
                 obj.taskname =
                   res.data.content[i].name == null
                     ? "未分配"
@@ -1085,6 +1093,7 @@ export default {
     // 获取全部全部信息
     getAllDevice() {
       let that = this;
+      that.ifsearch = false;
       let url = "";
       if (that.userRole != "OPERATOR") {
         url = "device?page=0&size=" + that.page_size;
@@ -1346,31 +1355,49 @@ export default {
     handleDelete(row) {
       let that = this;
       console.log(row);
-      this.$confirm("删除后无法更改, 是否确定?", "提示", {
+      this.$confirm("确定解绑?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          let url = "ops/schedule/" + row.taskid;
-          that
-            .request(url, {}, "DELETE")
-            .then(() => {
-              that.getAllDevice();
-              this.$message({
-                message: "删除成功",
-                type: "success",
-              });
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
-            });
+          let url = "ops/schedule/detail/" + row.taskid;
+          that.request(url, {}, "GET").then((res) => {
+            console.log(res.data);
+            let obj = {};
+            obj.content = res.data.content;
+            obj.id = res.data.id;
+            obj.name = res.data.name;
+            obj.remark = res.data.remark;
+            obj.no = res.data.no;
+            obj.startDate = res.data.startDate;
+            obj.scheduleType = res.data.scheduleType;
+            obj.tools = res.data.tools;
+            obj.device = [];
+            obj.ops = [];
+            console.log(obj);
+            setTimeout(function () {
+              that
+                .request(url, obj, "PUT")
+                .then((res) => {
+                  console.log(res);
+                  that.$message({
+                    message: "解绑成功",
+                    type: "success",
+                  });
+                  that.getAllDevice();
+                })
+                .catch((res) => {
+                  this.$message({
+                    message: res.response.data.message,
+                    type: "error",
+                  });
+                });
+            }, 500);
+          });
         })
         .catch(() => {
-          that.$message.info("已取消删除");
+          that.$message.info("已取消解绑");
         });
     },
     // 表格方法
@@ -1634,7 +1661,6 @@ export default {
         .then((res) => {
           that.tableData = [];
           that.total = res.data.totalElements;
-          that.currentPage = 1;
           console.log(res.data);
           if (that.userRole != "OPERATOR") {
             for (let a = 0; a < res.data.content.length; a++) {

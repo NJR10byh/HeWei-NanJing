@@ -88,6 +88,7 @@ export default {
     that
       .request(url, {}, "GET")
       .then((res) => {
+        console.log(res.data);
         that.TaskInfo.ops = res.data.ops[0].id;
         that.TaskInfo.task = res.data.id;
       })
@@ -136,9 +137,9 @@ export default {
       that
         .request("ops/schedule?page=0&size=1000000000", {}, "GET")
         .then((res) => {
+          console.log(res.data);
           for (var i = 0; i < res.data.content.length; i++) {
             let obj = {};
-            console.log(res.data.content[i]);
             obj.value = res.data.content[i].id;
             obj.label =
               res.data.content[i].name + "（" + res.data.content[i].no + "）";
@@ -255,7 +256,7 @@ export default {
                       type: "error",
                     });
                   });
-              }, 200);
+              }, 500);
             })
             .catch((res) => {
               this.$message({

@@ -183,11 +183,6 @@ import User from "../components/Userinfo";
 
 export default {
   created: function() {
-    this.$message({
-      message: "进行了服务器端更新，修复了已知问题",
-      type: "success",
-      duration: "8000",
-    });
     this.request("user/me", {}, "GET")
       .then((res) => {
         console.log(res.data);

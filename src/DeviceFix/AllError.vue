@@ -15,7 +15,7 @@
             filterable
             clearable
             @change="selectchange"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             <el-option-group
               v-for="group in selectoptions"
@@ -38,7 +38,7 @@
             v-for="tag in dynamicTags"
             closable
             @close="handleClose(tag)"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             {{ tag }}
           </el-tag>
@@ -59,7 +59,7 @@
       :data="taskData"
       stripe
       border
-      style="width:100%;"
+      style="width: 100%"
       class="extraTable"
     >
       <el-table-column
@@ -146,13 +146,13 @@
           </el-option>
         </el-option-group>
       </el-select>
-      <div v-if="selectvalue == 'device'" style="margin-top:10px;">
+      <div v-if="selectvalue == 'device'" style="margin-top: 10px">
         <el-tag
           :key="tag"
           v-for="tag in devicedynamicTags"
           closable
           @close="devicehandleClose(tag)"
-          style="margin-left:5px;"
+          style="margin-left: 5px"
         >
           {{ tag }}
         </el-tag>
@@ -225,7 +225,7 @@
         placeholder="选择结束日期"
         value-format="yyyy-MM-dd"
         v-if="selectvalue == 'timeChoose'"
-        style="margin-top:20px;"
+        style="margin-top: 20px"
       >
       </el-date-picker>
       <span slot="footer" class="dialog-footer">
@@ -248,9 +248,8 @@
   </div>
 </template>
 <script>
-
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = this.globaldata.userRole;
     if (this.globaldata.fixselectInfo.length != 0) {
@@ -619,14 +618,16 @@ export default {
                 obj.reportertime = that.renderTime(
                   res.data.content[i].createdAt
                 );
-                if (res.data.content[i].assignedAt == null) {
-                  obj.assigneestatus = "已申请";
-                } else if (res.data.content[i].fixedAt == null) {
+                if (res.data.content[i].assignedAt != null) {
                   obj.assigneestatus = "已分配";
-                } else if (res.data.content[i].closedAt == null) {
+                }
+                if (res.data.content[i].fixedAt != null) {
                   obj.assigneestatus = "已修复";
-                } else if (res.data.content[i].closedAt != null) {
-                  obj.assigneestatus = "已完成";
+                }
+                if (res.data.content[i].closed == true) {
+                  if (res.data.content[i].closedAt != null) {
+                    obj.assigneestatus = "已完成";
+                  }
                 }
                 // 获取设备信息
                 setTimeout(() => {
@@ -738,14 +739,16 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-            if (res.data.content[i].assignedAt == null) {
-              obj.assigneestatus = "已申请";
-            } else if (res.data.content[i].fixedAt == null) {
+            if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
-            } else if (res.data.content[i].closedAt == null) {
+            }
+            if (res.data.content[i].fixedAt != null) {
               obj.assigneestatus = "已修复";
-            } else if (res.data.content[i].closedAt != null) {
-              obj.assigneestatus = "已完成";
+            }
+            if (res.data.content[i].closed == true) {
+              if (res.data.content[i].closedAt != null) {
+                obj.assigneestatus = "已完成";
+              }
             }
             // 获取设备信息
             setTimeout(() => {
@@ -891,14 +894,16 @@ export default {
               obj.errordeviceNo = "";
               obj.assigneename = "";
               obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-              if (res.data.content[i].assignedAt == null) {
-                obj.assigneestatus = "已申请";
-              } else if (res.data.content[i].fixedAt == null) {
+              if (res.data.content[i].assignedAt != null) {
                 obj.assigneestatus = "已分配";
-              } else if (res.data.content[i].closedAt == null) {
+              }
+              if (res.data.content[i].fixedAt != null) {
                 obj.assigneestatus = "已修复";
-              } else if (res.data.content[i].closedAt != null) {
-                obj.assigneestatus = "已完成";
+              }
+              if (res.data.content[i].closed == true) {
+                if (res.data.content[i].closedAt != null) {
+                  obj.assigneestatus = "已完成";
+                }
               }
               // 获取设备信息
               setTimeout(() => {
@@ -1035,14 +1040,16 @@ export default {
               obj.errordeviceNo = "";
               obj.assigneename = "";
               obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-              if (res.data.content[i].assignedAt == null) {
-                obj.assigneestatus = "已申请";
-              } else if (res.data.content[i].fixedAt == null) {
+              if (res.data.content[i].assignedAt != null) {
                 obj.assigneestatus = "已分配";
-              } else if (res.data.content[i].closedAt == null) {
+              }
+              if (res.data.content[i].fixedAt != null) {
                 obj.assigneestatus = "已修复";
-              } else if (res.data.content[i].closedAt != null) {
-                obj.assigneestatus = "已完成";
+              }
+              if (res.data.content[i].closed == true) {
+                if (res.data.content[i].closedAt != null) {
+                  obj.assigneestatus = "已完成";
+                }
               }
               // 获取设备信息
               setTimeout(() => {
@@ -1147,14 +1154,16 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-            if (res.data.content[i].assignedAt == null) {
-              obj.assigneestatus = "已申请";
-            } else if (res.data.content[i].fixedAt == null) {
+            if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
-            } else if (res.data.content[i].closedAt == null) {
+            }
+            if (res.data.content[i].fixedAt != null) {
               obj.assigneestatus = "已修复";
-            } else if (res.data.content[i].closedAt != null) {
-              obj.assigneestatus = "已完成";
+            }
+            if (res.data.content[i].closed == true) {
+              if (res.data.content[i].closedAt != null) {
+                obj.assigneestatus = "已完成";
+              }
             }
             // 获取设备信息
             setTimeout(() => {
@@ -1256,14 +1265,16 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
-            if (res.data.content[i].assignedAt == null) {
-              obj.assigneestatus = "已申请";
-            } else if (res.data.content[i].fixedAt == null) {
+            if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
-            } else if (res.data.content[i].closedAt == null) {
+            }
+            if (res.data.content[i].fixedAt != null) {
               obj.assigneestatus = "已修复";
-            } else if (res.data.content[i].closedAt != null) {
-              obj.assigneestatus = "已完成";
+            }
+            if (res.data.content[i].closed == true) {
+              if (res.data.content[i].closedAt != null) {
+                obj.assigneestatus = "已完成";
+              }
             }
             // 获取设备信息
             setTimeout(() => {

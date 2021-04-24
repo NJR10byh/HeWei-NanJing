@@ -36,7 +36,7 @@
       :data="tableData"
       stripe
       border
-      style="width:100%;"
+      style="width: 100%"
       class="extraTable"
       @selection-change="handleDetailSelectionChange"
     >
@@ -82,7 +82,7 @@
 </template>
 <script>
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = this.globaldata.userRole;
     setTimeout(() => {

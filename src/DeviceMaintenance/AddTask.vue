@@ -16,7 +16,7 @@
           </el-button>
         </div>
       </div>
-      <div class="oper-btns-right" v-if="['ROOT', 'ADMIN'].includes(userRole)">
+      <div class="oper-btns-right" v-if="['ROOT', 'ADMIN','CREATOR'].includes(userRole)">
         <el-button
           class="bigdel-btn"
           icon="el-icon-delete"

@@ -37,14 +37,14 @@
               ></el-input>
             </el-form-item>
             <el-form-item
-              label="设备型号/规格: "
+              label="设备型号: "
               :label-width="formLabelWidth"
               prop="type"
             >
               <el-input
                 v-model="form.type"
                 autocomplete="off"
-                placeholder="请输入设备型号/规格"
+                placeholder="请输入设备型号"
               ></el-input>
             </el-form-item>
             <el-form-item
@@ -59,7 +59,7 @@
               ></el-input>
             </el-form-item>
             <el-form-item
-              label="是否为关键设备:"
+              label="关键设备:"
               :label-width="formLabelWidth"
               prop="crux"
             >

@@ -149,7 +149,7 @@
         ></el-table-column>
         <el-table-column
           prop="type"
-          label="设备型号/规格"
+          label="设备型号"
           width="150"
         ></el-table-column>
         <el-table-column
@@ -159,7 +159,7 @@
         ></el-table-column>
         <el-table-column
           prop="crux"
-          label="是否为关键设备"
+          label="关键设备"
           width="150"
         ></el-table-column>
         <el-table-column
@@ -603,9 +603,6 @@ export default {
                   let url = "device/" + that.tableData[i].id;
                   that
                     .request(url, {}, "DELETE")
-                    .then((res) => {
-                      console.log(res);
-                    })
                     .catch((res) => {
                       that.$message({
                         message: res.response.data.message,
@@ -617,7 +614,11 @@ export default {
             });
             setTimeout(function() {
               that.getAllDevice();
-            }, 300);
+              setTimeout(function() {
+                that.getAllDevice();
+              }, 1000);
+            }, 1000);
+            
           })
           .catch(() => {
             this.$message({

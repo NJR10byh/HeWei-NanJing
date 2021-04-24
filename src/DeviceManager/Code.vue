@@ -17,7 +17,7 @@
 export default {
   data() {
     return {
-      url: undefined,
+      url: "",
     };
   },
   methods: {
@@ -49,7 +49,7 @@ export default {
   },
   created: function() {
     console.log(this.$route.query);
-    this.url = "device/barcode/" + this.$route.query.id;
+    this.url = "http://1.15.236.205/api/device/barcode/" + this.$route.query.id;
   },
 };
 </script>

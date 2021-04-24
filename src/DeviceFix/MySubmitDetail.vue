@@ -3,9 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
-      <el-breadcrumb-item class="active"
-        >报修流水号：{{ errorid }}
-      </el-breadcrumb-item>
+      <el-breadcrumb-item class="active">我发布的详情 </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Step">
@@ -21,18 +19,18 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               申请
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">报修流水号</div>
             <div class="Info">{{ errorid }}</div>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">报修人员</div>
             <user
               v-for="(item, index) in applyusers"
@@ -41,12 +39,12 @@
               :username="item.username"
               :useremail="item.useremail"
               :avatar="item.avatar"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
@@ -59,14 +57,14 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               分配
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">维修人员-Supervisor</div>
             <user
               v-for="(item, index) in supervisor"
@@ -74,10 +72,10 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">维修人员-Operator</div>
             <user
               v-for="(item, index) in operator"
@@ -85,18 +83,18 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">报修设备</div>
             <el-table
               :data="devicetableData"
               stripe
               border
-              style="margin-top:10px;width:100%;"
+              style="margin-top: 10px; width: 100%"
               class="extraTable"
             >
               <el-table-column prop="id" label="设备ID"></el-table-column>
@@ -116,24 +114,24 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               修复
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">异常类型</div>
             <div class="Info">{{ exceptionType }}</div>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">发生原因</div>
             <div class="Info">{{ reason }}</div>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">异常解决措施和处理结果</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="solution"></div>
@@ -141,20 +139,20 @@
           </div>
         </div>
       </div>
-      <div class="Task-info Last" v-if="reporterid == userid && !closed">
+      <div class="Task-info Last" v-if="reporterid == userid && openconfirm">
         <div class="Part">
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               完成
             </div>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
-            <div class="Text ">接受维修处理</div>
+          <div class="part" style="width: 100%">
+            <div class="Text">接受维修处理</div>
             <div class="backbtn_right">
               <el-button @click="confirm" class="confirm">确认</el-button>
               <el-button @click="refuse" class="refuse">拒绝</el-button>
@@ -169,7 +167,7 @@
 import User from "../components/Userinfo";
 
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.active = 0;
     console.log(that.$route.query);
@@ -179,19 +177,28 @@ export default {
     that
       .request(url, {}, "GET")
       .then((res) => {
+        console.log(res.data);
         that.reporterid = res.data.reporter.id;
         that.errorcontent = res.data.content;
         that.reason = res.data.reason;
         that.solution = res.data.solution;
         that.exceptionType = res.data.exceptionType;
         that.closed = res.data.closed;
-        that.applytime = that.renderTime(res.data.createdAt);
-        that.assigntime = that.renderTime(res.data.assignedAt);
-        that.fixtime = that.renderTime(res.data.fixedAt);
-        that.completetime = that.renderTime(res.data.closedAt);
-        // if (res.data.closed == true) {
-        //   that.active = 3;
-        // }
+        if (res.data.createdAt != null) {
+          that.applytime = that.renderTime(res.data.createdAt);
+        }
+        if (res.data.assignedAt != null) {
+          that.assigntime = that.renderTime(res.data.assignedAt);
+        }
+        if (res.data.fixedAt != null) {
+          that.fixtime = that.renderTime(res.data.fixedAt);
+          that.openconfirm = true;
+        }
+        if (res.data.closed == true) {
+          if (res.data.closedAt != null) {
+            that.completetime = that.renderTime(res.data.closedAt);
+          }
+        }
         let usersid = {};
         usersid.fixusersid = [];
         for (let i = 0; i < res.data.assignee.length; i++) {
@@ -328,6 +335,7 @@ export default {
       // 步骤条
       active: 0,
       closed: false, // 是否确认
+      openconfirm: false, // 是否允许确认
 
       /* 申请 */
       errorid: "",
@@ -362,7 +370,7 @@ export default {
       } else {
         var dateee = new Date(date).toJSON();
         this.active++;
-        return new Date(+new Date(dateee) + 16 * 3600 * 1000)
+        return new Date(+new Date(dateee) + 8 * 3600 * 1000)
           .toISOString()
           .replace(/T/g, " ")
           .replace(/\.[\d]{3}Z/, "");

@@ -3,9 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
-      <el-breadcrumb-item class="active"
-        >报修流水号：{{ errorid }}
-      </el-breadcrumb-item>
+      <el-breadcrumb-item class="active">查看详情 </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="Task-container">
       <div class="Step">
@@ -21,18 +19,18 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               申请
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">报修流水号</div>
             <div class="Info">{{ errorid }}</div>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">报修人员</div>
             <user
               v-for="(item, index) in applyusers"
@@ -41,12 +39,12 @@
               :username="item.username"
               :useremail="item.useremail"
               :avatar="item.avatar"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
@@ -59,14 +57,14 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               分配
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">维修分配人员-Supervisor</div>
             <user
               v-for="(item, index) in supervisor"
@@ -75,10 +73,10 @@
               :username="item.username"
               :useremail="item.useremail"
               :avatar="item.avatar"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">维修人员-Operator</div>
             <user
               v-for="(item, index) in operator"
@@ -87,18 +85,18 @@
               :username="item.username"
               :useremail="item.useremail"
               :avatar="item.avatar"
-              style="margin-top:10px;"
+              style="margin-top: 10px"
             ></user>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">报修设备</div>
             <el-table
               :data="devicetableData"
               stripe
               border
-              style="margin-top:10px;width:100%;"
+              style="margin-top: 10px; width: 100%"
               class="extraTable"
             >
               <el-table-column prop="id" label="设备ID"></el-table-column>
@@ -116,7 +114,7 @@
           class="Part lastpart TssignFixBtn"
           v-if="userRole == 'SUPERVISOR' && assigned == false"
         >
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">分配申请</div>
             <el-button @click="TssignFix">分配此申请</el-button>
           </div>
@@ -128,14 +126,14 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               修复
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">异常类型</div>
             <el-input
               type="text"
@@ -143,7 +141,7 @@
               placeholder="异常类型"
             ></el-input>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">发生原因</div>
             <el-input
               type="text"
@@ -153,14 +151,14 @@
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part result" style="width: 100%;">
-            <div class="Text ">异常解决措施和处理结果</div>
+          <div class="part result" style="width: 100%">
+            <div class="Text">异常解决措施和处理结果</div>
             <!-- 富文本编辑器 -->
             <quill-editor
               ref="myQuillEditor"
               v-model="solution"
               :options="editorOption"
-              style="height:70%;margin-top: 5px;width:100%;"
+              style="height: 70%; margin-top: 5px; width: 100%"
               @change="onEditorChange($event)"
             ></quill-editor>
           </div>
@@ -169,7 +167,7 @@
           class="Part lastpart TssignFixBtn"
           v-if="userRole == 'OPERATOR' && !closed"
         >
-          <div class="part" style="width: 100%;">
+          <div class="part" style="width: 100%">
             <div class="Text">提交诊断</div>
             <el-button @click="submitbtn">确认提交</el-button>
           </div>
@@ -184,25 +182,25 @@
           <div class="part">
             <div
               class="Text"
-              style="color:#409eff;font-size:30px;font-weight:normal;"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
             >
               修复
             </div>
           </div>
         </div>
         <div class="Part">
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">异常类型</div>
             <div class="Info">{{ exceptionType }}</div>
           </div>
-          <div class="part" style="width: 50%;">
+          <div class="part" style="width: 50%">
             <div class="Text">发生原因</div>
             <div class="Info">{{ reason }}</div>
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%;">
-            <div class="Text ">异常解决措施和处理结果</div>
+          <div class="part" style="width: 100%">
+            <div class="Text">异常解决措施和处理结果</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="solution"></div>
             </div>
@@ -260,7 +258,7 @@ const toolbarOptions = [
 ];
 
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.active = 0;
     console.log(that.$route.query);
@@ -277,13 +275,21 @@ export default {
         that.solution = res.data.solution;
         that.exceptionType = res.data.exceptionType;
         that.closed = res.data.closed;
-        that.applytime = that.renderTime(res.data.createdAt);
-        that.assigntime = that.renderTime(res.data.assignedAt);
-        that.fixtime = that.renderTime(res.data.fixedAt);
-        that.completetime = that.renderTime(res.data.closedAt);
-        // if (res.data.closed == true) {
-        //   that.active = 3;
-        // }
+        if (res.data.createdAt != null) {
+          that.applytime = that.renderTime(res.data.createdAt);
+        }
+        if (res.data.assignedAt != null) {
+          that.assigntime = that.renderTime(res.data.assignedAt);
+        }
+        if (res.data.fixedAt != null) {
+          that.fixtime = that.renderTime(res.data.fixedAt);
+          that.openconfirm = true;
+        }
+        if (res.data.closed == true) {
+          if (res.data.closedAt != null) {
+            that.completetime = that.renderTime(res.data.closedAt);
+          }
+        }
         let usersid = {};
         usersid.fixusersid = [];
         for (let i = 0; i < res.data.assignee.length; i++) {
@@ -495,7 +501,7 @@ export default {
           toolbar: {
             container: toolbarOptions, // 工具栏
             handlers: {
-              image: function(value) {
+              image: function (value) {
                 if (value) {
                   document.querySelector(".avatar-uploader input").click();
                 } else {
@@ -570,17 +576,17 @@ export default {
     },
     // 获取图片转base64
     getBase64(file) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         const reader = new FileReader();
         let imgResult = "";
         reader.readAsDataURL(file);
-        reader.onload = function() {
+        reader.onload = function () {
           imgResult = reader.result;
         };
-        reader.onerror = function(error) {
+        reader.onerror = function (error) {
           reject(error);
         };
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           resolve(imgResult);
         };
       });

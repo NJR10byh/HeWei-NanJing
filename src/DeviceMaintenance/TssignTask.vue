@@ -3,7 +3,7 @@
     class="Container-TssignTask"
     v-if="['ROOT', 'ADMIN', 'CREATOR', 'SUPERVISOR'].includes(userRole)"
   >
-    <div style="padding-bottom:20px;width:100%;">
+    <div style="padding-bottom: 20px; width: 100%">
       <!-- 面包屑 -->
       <el-breadcrumb class="Breadcrumb">
         <el-breadcrumb-item class="pathActive">设备保养</el-breadcrumb-item>
@@ -69,11 +69,11 @@
 <script>
 export default {
   name: "AddTaskInside",
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = this.globaldata.userRole;
     that.userID = this.globaldata.userid;
-    if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
+    if (["ROOT", "ADMIN", "CREATOR", "SUPERVISOR"].includes(that.userRole)) {
       // 获取全部任务
       that
         .request("ops/schedule?page=0&size=1000000000", {}, "GET")
@@ -210,7 +210,7 @@ export default {
               obj.ops = ops;
               obj.manager = null;
               console.log(obj);
-              setTimeout(function() {
+              setTimeout(function () {
                 that
                   .request(url, obj, "PUT")
                   .then((res) => {
