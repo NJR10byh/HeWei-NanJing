@@ -142,7 +142,7 @@
           :data="tableData"
           stripe
           border
-          style="width:100%;"
+          style="width: 100%"
           class="extraTable"
           @selection-change="handleDetailSelectionChange"
         >
@@ -266,11 +266,20 @@ export default {
           console.log(res.data);
           for (var i = 0; i < res.data.length; i++) {
             that.extraid.push(res.data[i].id);
-            that.tableData.push({
-              extraname: res.data[i].name,
-              extrainfo: that.$route.query[res.data[i].id],
-              type: res.data[i].type,
-            });
+            if (res.data[i].type == "Bool") {
+              that.tableData.push({
+                extraname: res.data[i].name,
+                extrainfo:
+                  that.$route.query[res.data[i].id] == "true" ? "Y" : "N",
+                type: res.data[i].type,
+              });
+            } else {
+              that.tableData.push({
+                extraname: res.data[i].name,
+                extrainfo: that.$route.query[res.data[i].id],
+                type: res.data[i].type,
+              });
+            }
           }
         })
         .catch((res) => {
@@ -380,7 +389,7 @@ export default {
                 }
               });
             });
-            setTimeout(function() {
+            setTimeout(function () {
               that.getExtraInfo();
             }, 300);
           })
@@ -455,7 +464,7 @@ export default {
       }
     },
   },
-  created: function() {
+  created: function () {
     console.log(this.$route.query);
     let that = this;
     that.form.name = this.$route.query.name;
