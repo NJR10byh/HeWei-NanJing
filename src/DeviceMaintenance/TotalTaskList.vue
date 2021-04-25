@@ -706,7 +706,7 @@ export default {
                       that
                         .request(searchops, {}, "GET")
                         .then((res) => {
-                          obj.opuser += res.data.name + " / ";
+                          obj.opuser = res.data.name;
                         })
                         .catch((res) => {
                           this.$message({
@@ -774,6 +774,7 @@ export default {
       let that = this;
       let url = "";
       that.ifsearch = true;
+      that.index = 1;
       that.tableData = [];
       if (that.selectInfo.length == 0) {
         that.$message({
@@ -830,10 +831,11 @@ export default {
                 obj.opuser = "";
                 obj.devicename = "";
                 obj.deviceNo = "";
+                obj.deviceID = "";
                 obj.id =
                   res.data.content[i].device.length == 0
                     ? "暂无"
-                    : res.data.content[i].device[0].id;
+                    : that.index++;
                 obj.taskname =
                   res.data.content[i].name == null
                     ? "未分配"
@@ -842,6 +844,7 @@ export default {
                   res.data.content[i].no == null
                     ? "未分配"
                     : res.data.content[i].no;
+                obj.taskid = res.data.content[i].id;
                 let URL = "ops/schedule/status/" + res.data.content[i].id;
                 that
                   .request(URL, {}, "GET")
@@ -878,8 +881,9 @@ export default {
                       that
                         .request(url, {}, "GET")
                         .then((res) => {
-                          obj.devicename += res.data.name + " / ";
-                          obj.deviceNo += res.data.deviceNo + " / ";
+                          obj.devicename = res.data.name;
+                          obj.deviceNo = res.data.deviceNo;
+                          obj.deviceID = res.data.id;
                         })
                         .catch((res) => {
                           this.$message({
@@ -900,7 +904,7 @@ export default {
                         that
                           .request(searchops, {}, "GET")
                           .then((res) => {
-                            obj.opuser += res.data.name + " / ";
+                            obj.opuser = res.data.name;
                           })
                           .catch((res) => {
                             this.$message({
@@ -922,6 +926,8 @@ export default {
                   type: "success",
                 });
               }, 600);
+              that.globaldata.taskselectInfo = that.selectInfo;
+              that.globaldata.taskdynamicTags = that.dynamicTags;
             })
             .catch((res) => {
               this.$message({
@@ -982,10 +988,11 @@ export default {
                 obj.opuser = "";
                 obj.devicename = "";
                 obj.deviceNo = "";
+                obj.deviceID = "";
                 obj.id =
                   res.data.content[i].device.length == 0
                     ? "暂无"
-                    : res.data.content[i].device[0].id;
+                    : that.index++;
                 obj.taskname =
                   res.data.content[i].name == null
                     ? "未分配"
@@ -994,6 +1001,7 @@ export default {
                   res.data.content[i].no == null
                     ? "未分配"
                     : res.data.content[i].no;
+                obj.taskid = res.data.content[i].id;
                 let URL = "ops/schedule/status/" + res.data.content[i].id;
                 that
                   .request(URL, {}, "GET")
@@ -1030,8 +1038,9 @@ export default {
                       that
                         .request(url, {}, "GET")
                         .then((res) => {
-                          obj.devicename += res.data.name + " / ";
-                          obj.deviceNo += res.data.deviceNo + " / ";
+                          obj.devicename += res.data.name;
+                          obj.deviceNo += res.data.deviceNo;
+                          obj.deviceID = res.data.id;
                         })
                         .catch((res) => {
                           this.$message({
@@ -1052,7 +1061,7 @@ export default {
                         that
                           .request(searchops, {}, "GET")
                           .then((res) => {
-                            obj.opuser += res.data.name + " / ";
+                            obj.opuser = res.data.name;
                           })
                           .catch((res) => {
                             this.$message({
@@ -1074,6 +1083,8 @@ export default {
                   type: "success",
                 });
               }, 600);
+              that.globaldata.taskselectInfo = that.selectInfo;
+              that.globaldata.taskdynamicTags = that.dynamicTags;
             })
             .catch((res) => {
               this.$message({
@@ -1095,7 +1106,6 @@ export default {
     // 递归载入列表数据
     getData(a, length, data, role) {
       let that = this;
-      console.log(a, length, data);
       let devicename = "";
       let deviceID = "";
       let deviceNo = "";
@@ -1112,7 +1122,6 @@ export default {
         searchtask = "device/" + data[a].id + "/bind";
       }
       that.request(searchtask, {}, "GET").then((res) => {
-        console.log(res.data);
         if (res.data.length != 0) {
           for (let i = 0; i < res.data.length; i++) {
             let obj = {};
@@ -1125,7 +1134,6 @@ export default {
             obj.taskno = res.data[i].no;
             let URL = "ops/schedule/status/" + res.data[i].id;
             that.request(URL, {}, "GET").then((res) => {
-              console.log(res.data);
               if (res.data.nextDate == null) {
                 obj.nextDate = "暂无";
               } else {
@@ -1147,14 +1155,13 @@ export default {
                 that
                   .request(searchops, {}, "GET")
                   .then((res) => {
-                    obj.opuser += res.data.name + " / ";
+                    obj.opuser = res.data.name;
                   })
                   .catch(() => {
                     obj.opuser = "获取失败";
                   });
               }
             }
-            console.log(obj);
             obj.id = that.index++;
             setTimeout(() => {
               that.tableData.push(obj);
@@ -1172,7 +1179,6 @@ export default {
           setTimeout(() => {
             that.tableData.push(obj);
           }, 300);
-          console.log(a);
           if (++a < length) {
             that.getData(a, length, data, role);
           }

@@ -58,7 +58,7 @@
 import axios from "axios";
 axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     console.log(that.$route.query);
     if (that.$route.query.id != undefined) {
@@ -131,24 +131,24 @@ export default {
     },
     // 获取图片转base64
     getBase64(file) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         const reader = new FileReader();
         let imgResult = "";
         reader.readAsDataURL(file);
-        reader.onload = function() {
+        reader.onload = function () {
           imgResult = reader.result;
         };
-        reader.onerror = function(error) {
+        reader.onerror = function (error) {
           reject(error);
         };
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           resolve(imgResult);
         };
       });
     },
 
     // 验证邮箱
-    Email: function() {
+    Email: function () {
       //   let Email = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
       let Email = new RegExp(
         "^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$"
@@ -169,78 +169,85 @@ export default {
       console.log(that.userid);
       console.log(that.password);
       console.log(that.confirmpassword);
-      if (that.password === that.confirmpassword) {
-        if (that.$route.query.id != undefined) {
-          let url = "user/" + that.userid;
-          this.request(url, {}, "GET")
-            .then((res) => {
-              let obj = {
-                email: that.email,
-                id: res.data.id,
-                name: that.name,
-                role: res.data.role,
-                username: res.data.username,
-                enable: res.data.enable,
-                password: that.confirmpassword,
-                avatar: that.picid,
-              };
-              setTimeout(function() {
-                that
-                  .request(url, obj, "PUT")
-                  .then((res) => {
-                    console.log(res);
-                    that.$message({
-                      message: "修改成功",
-                      type: "success",
-                    });
-                    // location.reload();
-                  })
-                  .catch((res) => {
-                    console.log(res.response);
-                    that.$message({
-                      message: "修改失败",
-                      type: "error",
-                    });
-                  });
-              }, 300);
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
-            });
-        } else {
-          let obj = {
-            email: that.email,
-            name: that.name,
-            password: that.confirmpassword,
-            avatar: that.picid,
-          };
-          let url = "user/me/edit";
-          this.request(url, obj, "POST")
-            .then((res) => {
-              console.log(res);
-              that.$message({
-                message: "修改成功",
-                type: "success",
-              });
-              location.reload();
-            })
-            .catch((res) => {
-              that.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
-            });
-        }
-      } else {
+      if (that.name == "" || that.email == "") {
         this.$message({
-          message: "两次密码输入不一致，请重新输入",
+          message: "请将姓名和邮箱填写完整",
           type: "warning",
         });
-        this.password = "";
-        this.confirmpassword = "";
+      } else {
+        if (that.password === that.confirmpassword) {
+          if (that.$route.query.id != undefined) {
+            let url = "user/" + that.userid;
+            this.request(url, {}, "GET")
+              .then((res) => {
+                let obj = {
+                  email: that.email,
+                  id: res.data.id,
+                  name: that.name,
+                  role: res.data.role,
+                  username: res.data.username,
+                  enable: res.data.enable,
+                  password: that.confirmpassword,
+                  avatar: that.picid,
+                };
+                setTimeout(function () {
+                  that
+                    .request(url, obj, "PUT")
+                    .then((res) => {
+                      console.log(res);
+                      that.$message({
+                        message: "修改成功",
+                        type: "success",
+                      });
+                      location.reload();
+                    })
+                    .catch((res) => {
+                      console.log(res.response);
+                      that.$message({
+                        message: "修改失败",
+                        type: "error",
+                      });
+                    });
+                }, 300);
+              })
+              .catch((res) => {
+                this.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
+          } else {
+            let obj = {
+              email: that.email,
+              name: that.name,
+              password: that.confirmpassword,
+              avatar: that.picid,
+            };
+            let url = "user/me/edit";
+            this.request(url, obj, "POST")
+              .then((res) => {
+                console.log(res);
+                that.$message({
+                  message: "修改成功",
+                  type: "success",
+                });
+                location.reload();
+              })
+              .catch((res) => {
+                that.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
+          }
+        } else {
+          this.$message({
+            message: "两次密码输入不一致，请重新输入",
+            type: "warning",
+          });
+          this.password = "";
+          this.confirmpassword = "";
+        }
       }
     },
   },

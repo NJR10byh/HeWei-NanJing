@@ -84,13 +84,14 @@ export default {
     console.log(this.$route.query);
     that.TaskInfo.deviceinfo =
       this.$route.query.devicename + "（" + this.$route.query.deviceNo + "）";
+    that.TaskInfo.task = this.$route.query.taskid * 1;
+    that.TaskInfo.nextDate = this.$route.query.nextDate;
     let url = "ops/schedule/detail/" + this.$route.query.taskid;
     that
       .request(url, {}, "GET")
       .then((res) => {
         console.log(res.data);
         that.TaskInfo.ops = res.data.ops[0].id;
-        that.TaskInfo.task = res.data.id;
       })
       .catch((res) => {
         this.$message({
@@ -98,18 +99,18 @@ export default {
           type: "error",
         });
       });
-    let URL = "ops/schedule/status/" + this.$route.query.taskid;
-    that
-      .request(URL, {}, "GET")
-      .then((res) => {
-        that.TaskInfo.nextDate = res.data.nextDate;
-      })
-      .catch((res) => {
-        this.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
-      });
+    // let URL = "ops/schedule/status/" + this.$route.query.taskid;
+    // that
+    //   .request(URL, {}, "GET")
+    //   .then((res) => {
+    //     that.TaskInfo.nextDate = res.data.nextDate;
+    //   })
+    //   .catch((res) => {
+    //     this.$message({
+    //       message: res.response.data.message,
+    //       type: "error",
+    //     });
+    //   });
     setTimeout(() => {
       // 获取全部 OPERATOR 员工
       that
@@ -199,71 +200,80 @@ export default {
       let that = this;
       console.log(that.TaskInfo);
       // let obj = {};
-      if (
-        that.TaskInfo.nextDate == "" ||
-        that.TaskInfo.task.length == 0 ||
-        that.TaskInfo.ops.length == 0
-      ) {
+      if (that.$route.query.deviceID == "") {
         that.$message({
-          message: "请将信息填写完整",
-          type: "warning",
+          message: "未分配设备，请先分配设备！",
+          type: "error",
         });
       } else {
-        if (new Date(that.TaskInfo.nextDate).getTime() < new Date().getTime()) {
+        if (
+          that.TaskInfo.nextDate == "" ||
+          that.TaskInfo.task.length == 0 ||
+          that.TaskInfo.ops.length == 0
+        ) {
           that.$message({
-            message: "下次开始日期应大于今天",
+            message: "请将信息填写完整",
             type: "warning",
           });
         } else {
-          let ops = [];
-          let task = [];
-          ops.push({
-            id: that.TaskInfo.ops,
-          });
-          task.push({
-            id: that.TaskInfo.task,
-          });
-          let url = "ops/schedule/detail/" + that.TaskInfo.task;
-          that
-            .request(url, {}, "GET")
-            .then((res) => {
-              console.log(res.data);
-              let obj = {};
-              obj.content = res.data.content;
-              obj.id = res.data.id;
-              obj.name = res.data.name;
-              obj.remark = res.data.remark;
-              obj.no = res.data.no;
-              obj.startDate = that.TaskInfo.nextDate;
-              obj.scheduleType = res.data.scheduleType;
-              obj.tools = res.data.tools;
-              obj.device = [{ id: that.$route.query.deviceID }];
-              obj.ops = ops;
-              console.log(obj);
-              setTimeout(function () {
-                that
-                  .request(url, obj, "PUT")
-                  .then((res) => {
-                    console.log(res);
-                    that.$message({
-                      message: "修改成功",
-                      type: "success",
-                    });
-                  })
-                  .catch((res) => {
-                    this.$message({
-                      message: res.response.data.message,
-                      type: "error",
-                    });
-                  });
-              }, 500);
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
+          if (
+            new Date(that.TaskInfo.nextDate).getTime() < new Date().getTime()
+          ) {
+            that.$message({
+              message: "下次开始日期应大于今天",
+              type: "warning",
             });
+          } else {
+            let ops = [];
+            let task = [];
+            ops.push({
+              id: that.TaskInfo.ops,
+            });
+            task.push({
+              id: that.TaskInfo.task,
+            });
+            let url = "ops/schedule/detail/" + that.TaskInfo.task;
+            that
+              .request(url, {}, "GET")
+              .then((res) => {
+                console.log(res.data);
+                let obj = {};
+                obj.content = res.data.content;
+                obj.id = res.data.id;
+                obj.name = res.data.name;
+                obj.remark = res.data.remark;
+                obj.no = res.data.no;
+                obj.startDate = that.TaskInfo.nextDate;
+                obj.scheduleType = res.data.scheduleType;
+                obj.tools = res.data.tools;
+                obj.device = [{ id: that.$route.query.deviceID }];
+                obj.ops = ops;
+                console.log(obj);
+                setTimeout(function () {
+                  that
+                    .request(url, obj, "PUT")
+                    .then((res) => {
+                      console.log(res);
+                      that.$message({
+                        message: "修改成功",
+                        type: "success",
+                      });
+                    })
+                    .catch((res) => {
+                      that.$message({
+                        message: res.response.data.message,
+                        type: "error",
+                      });
+                    });
+                }, 500);
+              })
+              .catch((res) => {
+                that.$message({
+                  message: res.response.data.message,
+                  type: "error",
+                });
+              });
+          }
         }
       }
     },
