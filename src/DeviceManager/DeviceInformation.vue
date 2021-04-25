@@ -38,7 +38,7 @@
               v-for="tag in dynamicTags"
               closable
               @close="handleClose(tag)"
-              style="margin-left:5px;"
+              style="margin-left: 5px"
             >
               {{ tag }}
             </el-tag>
@@ -79,7 +79,12 @@
         </div>
         <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
           <div
-            style="display:flex;flex-direction: column;justify-content: center;align-items: center"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
           >
             <el-upload
               ref="upload"
@@ -95,13 +100,16 @@
               <div class="el-upload__text">
                 将文件拖到此处，或<em>点击上传</em>
               </div>
-              <div class="el-upload__tip" slot="tip">
-                只能上传 xlsx 文件
-              </div>
+              <div class="el-upload__tip" slot="tip">只能上传 xlsx 文件</div>
             </el-upload>
-            <div style="margin-top: 10px;">
+            <div style="margin-top: 10px">
               <el-button
-                style="border: 0;background:#409eff;color:#fff;font-weight:bold;"
+                style="
+                  border: 0;
+                  background: #409eff;
+                  color: #fff;
+                  font-weight: bold;
+                "
                 @click="submitUpload"
                 >确认上传</el-button
               >
@@ -131,7 +139,7 @@
         tooltip-effect="dark"
         stripe
         class="tablestyle"
-        style="width: 100%;"
+        style="width: 100%"
         id="outTable"
         @selection-change="handleDetailSelectionChange"
       >
@@ -433,6 +441,7 @@ export default {
       that
         .request(url, {}, "GET")
         .then((res) => {
+          console.log(res.data);
           that.tableData = [];
           that.total = res.data.totalElements;
           that.currentPage = 1;
@@ -498,7 +507,7 @@ export default {
               message: "上传成功",
               type: "success",
             });
-            setTimeout(function() {
+            setTimeout(function () {
               that.getAllDevice();
             }, 200);
           }
@@ -601,24 +610,21 @@ export default {
                 if (element.id == e.id) {
                   console.log(that.tableData[i]);
                   let url = "device/" + that.tableData[i].id;
-                  that
-                    .request(url, {}, "DELETE")
-                    .catch((res) => {
-                      that.$message({
-                        message: res.response.data.message,
-                        type: "error",
-                      });
+                  that.request(url, {}, "DELETE").catch((res) => {
+                    that.$message({
+                      message: res.response.data.message,
+                      type: "error",
                     });
+                  });
                 }
               });
             });
-            setTimeout(function() {
+            setTimeout(function () {
               that.getAllDevice();
-              setTimeout(function() {
+              setTimeout(function () {
                 that.getAllDevice();
               }, 1000);
             }, 1000);
-            
           })
           .catch(() => {
             this.$message({
@@ -818,7 +824,7 @@ export default {
         });
     },
   },
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = that.globaldata.userRole;
     // 先检查是否有搜索记录
@@ -828,7 +834,7 @@ export default {
       that.dynamicTags = globaldata.devicedynamicTags;
       that.search();
     } else {
-      setTimeout(function() {
+      setTimeout(function () {
         // 获取所有附加字段
         that
           .request("device/info-field", {}, "GET")

@@ -79,12 +79,12 @@
 <script>
 export default {
   components: {},
-  created: function() {
+  created: function () {
     let that = this;
     console.log(this.$route.query);
     that.TaskInfo.deviceinfo =
       this.$route.query.devicename + "（" + this.$route.query.deviceNo + "）";
-    let url = "ops/schedule/detail/" + this.$route.query.taskID;
+    let url = "ops/schedule/detail/" + this.$route.query.taskid;
     that
       .request(url, {}, "GET")
       .then((res) => {
@@ -98,7 +98,7 @@ export default {
           type: "error",
         });
       });
-    let URL = "ops/schedule/status/" + this.$route.query.taskID;
+    let URL = "ops/schedule/status/" + this.$route.query.taskid;
     that
       .request(URL, {}, "GET")
       .then((res) => {
@@ -240,7 +240,7 @@ export default {
               obj.device = [{ id: that.$route.query.deviceID }];
               obj.ops = ops;
               console.log(obj);
-              setTimeout(function() {
+              setTimeout(function () {
                 that
                   .request(url, obj, "PUT")
                   .then((res) => {

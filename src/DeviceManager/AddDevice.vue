@@ -144,7 +144,7 @@
           :data="tableData"
           stripe
           border
-          style="width:100%;"
+          style="width: 100%"
           class="extraTable"
           @selection-change="handleDetailSelectionChange"
         >
@@ -412,6 +412,11 @@ export default {
           obj.crux = false;
         }
         for (var i = 0; i < that.tableData.length; i++) {
+          if (that.tableData[i].extrainfo == "Y") {
+            that.tableData[i].extrainfo = true;
+          } else if (that.tableData[i].extrainfo == "N") {
+            that.tableData[i].extrainfo = false;
+          }
           bbb.push({
             field: { id: that.extraid[i] },
             value: that.tableData[i].extrainfo,
@@ -448,7 +453,7 @@ export default {
       }
     },
   },
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = that.globaldata.userRole;
     that.getExtraInfo();
