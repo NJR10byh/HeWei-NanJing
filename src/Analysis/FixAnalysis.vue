@@ -36,13 +36,13 @@
             v-for="tag in dynamicTags"
             closable
             @close="handleClose(tag)"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             {{ tag }}
           </el-tag>
         </div>
       </div>
-      <div class="searchtask" style="margin-top:10px;">
+      <div class="searchtask" style="margin-top: 10px">
         选择报修人员：
         <el-select
           v-model="reportervalue"
@@ -68,7 +68,7 @@
           </el-option-group>
         </el-select>
       </div>
-      <div class="searchtask" style="margin-top:10px;">
+      <div class="searchtask" style="margin-top: 10px">
         选择维修人员：
         <el-select
           v-model="assigneevalue"
@@ -95,7 +95,7 @@
         </el-select>
       </div>
       <div class="searchpart">
-        <div style="margin-left:5px;">
+        <div style="margin-left: 5px">
           <el-date-picker
             v-model="startDate"
             type="date"
@@ -104,7 +104,7 @@
           >
           </el-date-picker>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-date-picker
             v-model="endDate"
             type="date"
@@ -113,10 +113,10 @@
           >
           </el-date-picker>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-button @click="search">查询</el-button>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-button class="clear" @click="clear">清空条件</el-button>
         </div>
       </div>
@@ -128,7 +128,7 @@
         :data="deviceAnalysisData"
         stripe
         border
-        style="width:100%;"
+        style="width: 100%"
         class="extraTable"
       >
         <el-table-column
@@ -165,7 +165,7 @@
 <script>
 export default {
   components: {},
-  created: function() {
+  created: function () {
     let that = this;
     that.$message({
       message: "选取了全部人员时，无需选择其他人员，以免搜索结果有误",
@@ -1825,15 +1825,22 @@ export default {
             setTimeout(() => {
               // 总计
               console.log(that.avgFixPeriodTotal);
+              console.log(that.deviceAnalysisData);
               let obj = {};
               obj.deviceid = "总计";
-              obj.avgFixPeriod = that.avgFixPeriodTotal;
-              obj.avgIssuePeriod = that.avgIssuePeriodTotal;
-              obj.unhealthyTime = that.unhealthyTimeTotal;
+              obj.avgFixPeriod = (
+                (that.avgFixPeriodTotal * 1) /
+                that.deviceAnalysisData.length
+              ).toFixed(3);
+              obj.avgIssuePeriod = (
+                (that.avgIssuePeriodTotal * 1) /
+                that.deviceAnalysisData.length
+              ).toFixed(3);
+              obj.unhealthyTime = that.unhealthyTimeTotal.toFixed(3);
               obj.issueCount = that.issueCountTotal;
               console.log(obj);
-              that.deviceAnalysisData.push(obj);
-            }, 500);
+              that.deviceAnalysisData.unshift(obj);
+            }, 800);
           })
           .catch((res) => {
             this.$message({

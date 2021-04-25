@@ -36,7 +36,7 @@
             v-for="tag in devicedynamicTags"
             closable
             @close="devicehandleClose(tag)"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             {{ tag }}
           </el-tag>
@@ -99,14 +99,14 @@
             v-for="tag in taskdynamicTags"
             closable
             @close="taskhandleClose(tag)"
-            style="margin-left:5px;"
+            style="margin-left: 5px"
           >
             {{ tag }}
           </el-tag>
         </div>
       </div>
       <div class="searchpart">
-        <div style="margin-left:5px;">
+        <div style="margin-left: 5px">
           <el-date-picker
             v-model="start"
             type="date"
@@ -115,7 +115,7 @@
           >
           </el-date-picker>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-date-picker
             v-model="end"
             type="date"
@@ -124,10 +124,10 @@
           >
           </el-date-picker>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-button @click="search">查询</el-button>
         </div>
-        <div style="margin-left:10px;">
+        <div style="margin-left: 10px">
           <el-button class="clear" @click="clear">清空条件</el-button>
         </div>
       </div>
@@ -139,7 +139,7 @@
         :data="taskAnalysisData"
         stripe
         border
-        style="width:100%;"
+        style="width: 100%"
         class="extraTable"
       >
         <el-table-column
@@ -233,7 +233,7 @@
 <script>
 export default {
   components: {},
-  created: async function() {
+  created: async function () {
     let that = this;
     that.$message({
       message: "选取了全部人员时，请勿选择其他人员，以免搜索结果有误",
@@ -536,6 +536,12 @@ export default {
     /* 搜索 */
     async searchdata() {
       let that = this;
+      that.timesTotal = 0;
+      that.overdueTimesTotal = 0;
+      that.recordTimesTotal = 0;
+      that.incompleteTimesTotal = 0;
+      that.completeRateTotal = 0;
+      that.onTimeRateTotal = 0;
       if (
         that.start == "" ||
         that.end == "" ||
@@ -579,6 +585,7 @@ export default {
             .request(url, {}, "GET")
             .then((res) => {
               for (let i = 0; i < that.task.length; i++) {
+                console.log(res.data[that.task[i]]);
                 let obj = {};
                 obj.taskid = index++;
                 obj.times = res.data[that.task[i]].times;
