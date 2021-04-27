@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <el-breadcrumb class="breadcrumb" separator="/">
       <el-breadcrumb-item class="pathActive">设备维修</el-breadcrumb-item>
-      <el-breadcrumb-item class="active">全部异常</el-breadcrumb-item>
+      <el-breadcrumb-item class="active">全部报修</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 搜索 -->
     <div class="head-btn">

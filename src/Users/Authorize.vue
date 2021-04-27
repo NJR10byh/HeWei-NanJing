@@ -115,66 +115,13 @@
 </template>
 <script>
 export default {
-  created: function() {
+  created: function () {
     let that = this;
     that.userRole = this.globaldata.userRole;
     if (this.userRole == "ADMIN") {
       that.options2.shift();
     }
-    this.request("user/query?role=!ROOT", {}, "GET")
-      .then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < res.data.content.length; i++) {
-          if (res.data.content[i].role == "ADMIN") {
-            that.options1[0].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
-            that.options2[0].disabled = true;
-            // console.log(that.options2[0].disabled);
-          }
-          if (res.data.content[i].role == "CREATOR") {
-            that.options1[1].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
-          }
-          if (res.data.content[i].role == "OPERATOR") {
-            that.options1[2].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
-          }
-          if (res.data.content[i].role == "SUPERVISOR") {
-            that.options1[3].options.push({
-              value: res.data.content[i].id,
-              label:
-                res.data.content[i].name +
-                " (用户名：" +
-                res.data.content[i].username +
-                ")",
-            });
-          }
-        }
-      })
-      .catch((res) => {
-        this.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
-      });
+    that.getuser();
   },
   data() {
     return {
@@ -253,6 +200,69 @@ export default {
     // moreswitch(res) {
     //   this.more = res;
     // },
+    // 获取人员信息
+    getuser() {
+      let that = this;
+      that.options1[0].options = [];
+      that.options1[1].options = [];
+      that.options1[2].options = [];
+      that.options1[3].options = [];
+      that
+        .request("user/query?role=!ROOT", {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < res.data.content.length; i++) {
+            if (res.data.content[i].role == "ADMIN") {
+              that.options1[0].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+              that.options2[0].disabled = true;
+              // console.log(that.options2[0].disabled);
+            }
+            if (res.data.content[i].role == "CREATOR") {
+              that.options1[1].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+            }
+            if (res.data.content[i].role == "OPERATOR") {
+              that.options1[2].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+            }
+            if (res.data.content[i].role == "SUPERVISOR") {
+              that.options1[3].options.push({
+                value: res.data.content[i].id,
+                label:
+                  res.data.content[i].name +
+                  " (用户名：" +
+                  res.data.content[i].username +
+                  ")",
+              });
+            }
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
+    },
     register() {
       let that = this;
       if (
@@ -316,12 +326,7 @@ export default {
               message: "注册成功",
               type: "success",
             });
-            that.name = "";
-            that.username = "";
-            that.email = "";
-            that.password = "";
-            that.confirmpassword = "";
-            that.value_left = "";
+            that.getuser();
           })
           .catch((res) => {
             this.$message({
@@ -348,7 +353,7 @@ export default {
             username: res.data.username,
             enable: res.data.enable,
           };
-          setTimeout(function() {
+          setTimeout(function () {
             console.log(obj);
             that
               .request(url, obj, "PUT")

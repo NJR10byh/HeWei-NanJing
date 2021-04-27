@@ -418,18 +418,27 @@ export default {
         });
       } else {
         let obj = {};
-        if (formData.crux == "Y") {
-          obj.crux = true;
-        } else if (formData.crux == "N") {
-          obj.crux = false;
-        }
+        // if (formData.crux == "Y") {
+        //   obj.crux = true;
+        // } else if (formData.crux == "N") {
+        //   obj.crux = false;
+        // }
+        obj.crux = obj.crux == "Y" ? true : false;
         let extraobj = [];
         for (var i = 0; i < that.tableData.length; i++) {
+          if (
+            that.tableData[i].extrainfo == "Y" ||
+            that.tableData[i].extrainfo == "N"
+          ) {
+            that.tableData[i].extrainfo =
+              that.tableData[i].extrainfo == "Y" ? "true" : "false";
+          }
           extraobj.push({
             field: { id: that.extraid[i] },
             value: that.tableData[i].extrainfo,
           });
         }
+        console.log(extraobj);
         that
           .request(
             "device",

@@ -441,7 +441,7 @@ export default {
       let that = this;
       let index = 1;
       that.ifsearch = true;
-      let url = "user/query?name==高凡&username==test-o";
+      let url = "";
       if (that.username == "" && that.name == "" && that.email == "") {
         that.$message({
           message: "请输入搜索条件",
@@ -449,14 +449,14 @@ export default {
         });
         return;
       } else if (that.username != "") {
-        url = "user/query?username==" + that.username;
+        url = "user/query?username=L" + that.username;
         if (that.name != "") {
-          url = "user/query?username==" + that.username + "&name==" + that.name;
+          url = "user/query?username=L" + that.username + "&name=L" + that.name;
           if (that.email != "") {
             url =
-              "user/query?username==" +
+              "user/query?username=L" +
               that.username +
-              "&name==" +
+              "&name=L" +
               that.name +
               "&email==" +
               that.email;
@@ -464,14 +464,14 @@ export default {
         } else if (that.name == "") {
           if (that.email != "") {
             url =
-              "user/query?username==" + that.username + "&email==" + that.email;
+              "user/query?username=L" + that.username + "&email==" + that.email;
           }
         }
       } else if (that.username == "") {
         if (that.name != "") {
-          url = "user/query?name==" + that.name;
+          url = "user/query?name=L" + that.name;
           if (that.email != "") {
-            url = "user/query?name==" + that.name + "&email==" + that.email;
+            url = "user/query?name=L" + that.name + "&email==" + that.email;
           }
         } else if (that.name == "") {
           if (that.email != "") {

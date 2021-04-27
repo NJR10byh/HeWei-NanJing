@@ -98,6 +98,13 @@
             >新增字段</el-button
           >
           <el-button
+            class="EditBtn"
+            icon="el-icon-edit"
+            @click="EditExtraInfoDialog = true"
+            v-if="['ROOT', 'ADMIN', 'SUPERVISOR', 'CREATOR'].includes(userRole)"
+            >修改字段</el-button
+          >
+          <el-button
             class="DelBtn"
             icon="el-icon-delete"
             @click="delectExtraInfo"
@@ -105,40 +112,6 @@
             >删除字段</el-button
           >
         </div>
-        <el-dialog
-          title="新增字段"
-          :visible.sync="dialogFormVisible"
-          class="addExtraInfoDialog"
-        >
-          <el-form :model="ExtraInfoDialog">
-            <el-form-item label="字段名称: " label-width="100px">
-              <el-input
-                v-model="ExtraInfoDialog.name"
-                autocomplete="off"
-                placeholder="请输入字段名称"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="字段类型: " label-width="100px">
-              <el-select
-                v-model="ExtraInfoDialog.type"
-                placeholder="请选择字段类型"
-              >
-                <el-option label="String (字符串型)" value="String"></el-option>
-                <el-option label="Date (日期型)" value="Date"></el-option>
-                <el-option label="Integer (数字型)" value="Integer"></el-option>
-                <el-option label="Bool (布尔型)" value="Bool"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
-          <div slot="footer">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              @click="SubmitNewExtraInfo(ExtraInfoDialog)"
-              >确 定</el-button
-            >
-          </div>
-        </el-dialog>
         <el-table
           ref="multipleTable"
           :data="tableData"
@@ -185,6 +158,86 @@
         <div class="ExtraInfoTable"></div>
       </div>
     </div>
+    <el-dialog
+      title="新增字段"
+      :visible.sync="dialogFormVisible"
+      class="addExtraInfoDialog"
+    >
+      <el-form :model="ExtraInfoDialog">
+        <el-form-item label="字段名称: " label-width="100px">
+          <el-input
+            v-model="ExtraInfoDialog.name"
+            autocomplete="off"
+            placeholder="请输入字段名称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="字段类型: " label-width="100px">
+          <el-select
+            v-model="ExtraInfoDialog.type"
+            placeholder="请选择字段类型"
+          >
+            <el-option label="String (字符串型)" value="String"></el-option>
+            <el-option label="Date (日期型)" value="Date"></el-option>
+            <el-option label="Integer (数字型)" value="Integer"></el-option>
+            <el-option label="Bool (布尔型)" value="Bool"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="SubmitNewExtraInfo(ExtraInfoDialog)"
+          >确 定</el-button
+        >
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="修改字段"
+      :visible.sync="EditExtraInfoDialog"
+      class="EditExtraInfoDialog"
+    >
+      <el-form :model="EditedExtraInfoDialog">
+        <el-form-item label="字段: " label-width="100px">
+          <el-select
+            v-model="EditedExtraInfoDialog.type"
+            placeholder="请选择需要修改的字段"
+          >
+            <el-option label="String (字符串型)" value="String"></el-option>
+            <el-option label="Date (日期型)" value="Date"></el-option>
+            <el-option label="Integer (数字型)" value="Integer"></el-option>
+            <el-option label="Bool (布尔型)" value="Bool"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="字段名称: " label-width="100px">
+          <el-input
+            v-model="EditedExtraInfoDialog.name"
+            autocomplete="off"
+            placeholder="需要修改的字段名称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="字段类型: " label-width="100px">
+          <el-select
+            v-model="EditedExtraInfoDialog.type"
+            placeholder="需要修改的字段类型"
+            size="larger"
+          >
+            <el-option label="String (字符串型)" value="String"></el-option>
+            <el-option label="Date (日期型)" value="Date"></el-option>
+            <el-option label="Integer (数字型)" value="Integer"></el-option>
+            <el-option label="Bool (布尔型)" value="Bool"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button class="editcancel" @click="EditExtraInfoDialog = false"
+          >取 消</el-button
+        >
+        <el-button
+          type="warning"
+          @click="SubmitEditedExtraInfo(EditedExtraInfoDialog)"
+          >确 定</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -193,9 +246,11 @@ export default {
     return {
       userRole: "", //用户类型
       form: {},
-      ExtraInfoDialog: {},
+      ExtraInfoDialog: {}, // 新增的字段信息
+      EditedExtraInfoDialog: {}, // 修改的字段信息
       formLabelWidth: "150px",
       dialogFormVisible: false,
+      EditExtraInfoDialog: false, // 修改字段
       checkedDetail: [], //选择框
       tableData: [],
       extraid: [],
@@ -331,6 +386,15 @@ export default {
             });
           });
       }
+    },
+    // 提交修改后的字段信息
+    SubmitEditedExtraInfo() {
+      let that = this;
+      that.$message({
+        message: "尚未开放",
+        type: "warning",
+      });
+      that.EditExtraInfoDialog = false;
     },
     // 批量删除字段
     delectExtraInfo() {
@@ -537,6 +601,15 @@ export default {
           border-color: #409eff;
           color: #409eff;
         }
+        .EditBtn {
+          height: 30px;
+          padding: 0 10px;
+          border-radius: 5px;
+          font-size: 12px;
+          width: 85px;
+          border-color: #f79f1f;
+          color: #f79f1f;
+        }
         .DelBtn {
           height: 30px;
           padding: 0 10px;
@@ -555,8 +628,11 @@ export default {
           border-color: #f96b6c;
           color: #f96b6c;
         }
+        .EditBtn:hover {
+          background: #ffe7bc;
+        }
         .DelBtn:hover {
-          background: #ffcfcf;
+          background: #ffd1d1;
         }
       }
       .extraTable {
@@ -619,6 +695,42 @@ export default {
         // border: 1px solid red;
         margin-top: -20px;
       }
+    }
+  }
+  .EditExtraInfoDialog {
+    .el-dialog {
+      max-width: 450px;
+      box-shadow: 0px 2px 14px 0px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      .el-dialog__header {
+        background: linear-gradient(-270deg, #ffbc40, #f79f1f);
+        border-radius: 10px 10px 0px 0px;
+        padding: 16px 20px;
+        .el-dialog__title {
+          color: #fff;
+          font-size: 18px;
+        }
+        .el-dialog__headerbtn {
+          &:hover {
+            .el-dialog__close {
+              color: #fffdef;
+            }
+          }
+          .el-icon-close {
+            color: #ccc;
+            font-size: 18px;
+          }
+        }
+      }
+      .dialog-footer {
+        // border: 1px solid red;
+        margin-top: -20px;
+      }
+    }
+    .editcancel:hover {
+      color: #f79f1f;
+      background: #ffe7bc;
+      border-color: #f79f1f;
     }
   }
 }
