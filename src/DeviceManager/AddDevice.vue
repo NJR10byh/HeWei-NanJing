@@ -198,13 +198,16 @@
       <el-form :model="EditedExtraInfoDialog">
         <el-form-item label="字段: " label-width="100px">
           <el-select
-            v-model="EditedExtraInfoDialog.type"
+            v-model="EditedExtraInfoDialog.id"
             placeholder="请选择需要修改的字段"
           >
-            <el-option label="String (字符串型)" value="String"></el-option>
-            <el-option label="Date (日期型)" value="Date"></el-option>
-            <el-option label="Integer (数字型)" value="Integer"></el-option>
-            <el-option label="Bool (布尔型)" value="Bool"></el-option>
+            <el-option
+              v-for="item in ExtraInfoOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="字段名称: " label-width="100px">
@@ -248,6 +251,7 @@ export default {
       form: {},
       ExtraInfoDialog: {}, // 新增的字段信息
       EditedExtraInfoDialog: {}, // 修改的字段信息
+      ExtraInfoOptions: [],
       formLabelWidth: "150px",
       dialogFormVisible: false,
       EditExtraInfoDialog: false, // 修改字段
@@ -322,6 +326,10 @@ export default {
                 extrainfo: "",
                 type: res.data[i].type,
               });
+              let obj = {};
+              obj.value = res.data[i].id;
+              obj.label = res.data[i].name + "（" + res.data[i].type + "）";
+              that.ExtraInfoOptions.push(obj);
             }
           })
           .catch((res) => {
@@ -390,11 +398,24 @@ export default {
     // 提交修改后的字段信息
     SubmitEditedExtraInfo() {
       let that = this;
-      that.$message({
-        message: "尚未开放",
-        type: "warning",
-      });
-      that.EditExtraInfoDialog = false;
+      // that.EditExtraInfoDialog = false;
+      console.log(that.EditedExtraInfoDialog);
+      that
+        .request("device/info-field", that.EditedExtraInfoDialog, "POST")
+        .then(() => {
+          this.$message({
+            message: "修改成功",
+            type: "success",
+          });
+          that.EditExtraInfoDialog = false;
+          that.getExtraInfo();
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     },
     // 批量删除字段
     delectExtraInfo() {
