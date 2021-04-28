@@ -318,6 +318,7 @@ export default {
       let that = this;
       that.tableData = [];
       that.extraid = [];
+      that.ExtraInfoOptions = [];
       that
         .request("device/info-field", {}, "GET")
         .then((res) => {
@@ -409,25 +410,37 @@ export default {
     // 提交修改后的字段信息
     SubmitEditedExtraInfo() {
       let that = this;
-      // that.EditExtraInfoDialog = false;
-      console.log(that.EditedExtraInfoDialog);
-      let url = "device/info-field/id" + that.EditedExtraInfoDialog.id;
-      that
-        .request(url, that.EditedExtraInfoDialog, "POST")
-        .then(() => {
-          this.$message({
-            message: "修改成功",
-            type: "success",
-          });
-          that.EditExtraInfoDialog = false;
-          that.getExtraInfo();
-        })
-        .catch((res) => {
-          this.$message({
-            message: res.response.data.message,
-            type: "error",
-          });
+      console.log(that.EditedExtraInfoDialog.name);
+      if (
+        that.EditedExtraInfoDialog.id == undefined ||
+        that.EditedExtraInfoDialog.name == "" ||
+        that.EditedExtraInfoDialog.name == undefined ||
+        that.EditedExtraInfoDialog.type == undefined
+      ) {
+        that.$message({
+          message: "请将修改字段信息填写完整",
+          type: "warning",
         });
+      } else {
+        let url = "device/info-field/edit/" + that.EditedExtraInfoDialog.id;
+        that
+          .request(url, that.EditedExtraInfoDialog, "PUT")
+          .then(() => {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+            that.EditExtraInfoDialog = false;
+            that.getExtraInfo();
+            that.EditedExtraInfoDialog = {};
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
     },
     // 删除字段
     delectExtraInfo() {

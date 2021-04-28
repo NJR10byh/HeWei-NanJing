@@ -314,31 +314,39 @@ export default {
       let that = this;
       that.tableData = [];
       that.extraid = [];
-      if (["ROOT", "ADMIN", "CREATOR"].includes(that.userRole)) {
-        that
-          .request("device/info-field", {}, "GET")
-          .then((res) => {
-            console.log(res.data);
-            for (var i = 0; i < res.data.length; i++) {
-              that.extraid.push(res.data[i].id);
+      that.ExtraInfoOptions = [];
+      that
+        .request("device/info-field", {}, "GET")
+        .then((res) => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            that.extraid.push(res.data[i].id);
+            if (res.data[i].type == "Bool") {
               that.tableData.push({
                 extraname: res.data[i].name,
-                extrainfo: "",
+                extrainfo:
+                  that.$route.query[res.data[i].id] == "true" ? "Y" : "N",
                 type: res.data[i].type,
               });
-              let obj = {};
-              obj.value = res.data[i].id;
-              obj.label = res.data[i].name + "（" + res.data[i].type + "）";
-              that.ExtraInfoOptions.push(obj);
+            } else {
+              that.tableData.push({
+                extraname: res.data[i].name,
+                extrainfo: that.$route.query[res.data[i].id],
+                type: res.data[i].type,
+              });
             }
-          })
-          .catch((res) => {
-            this.$message({
-              message: res.response.data.message,
-              type: "error",
-            });
+            let obj = {};
+            obj.value = res.data[i].id;
+            obj.label = res.data[i].name + "（" + res.data[i].type + "）";
+            that.ExtraInfoOptions.push(obj);
+          }
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
           });
-      }
+        });
     },
     // 新增额外字段
     SubmitNewExtraInfo(Info) {
@@ -363,28 +371,7 @@ export default {
               message: "新增字段成功",
               type: "success",
             });
-            that.tableData.push({
-              extraname: Info.name,
-              extrainfo: "",
-              type: Info.type,
-            });
-            that
-              .request("device/info-field", {}, "GET")
-              .then((res) => {
-                console.log(res);
-                for (var j = 0; j < res.data.length; j++) {
-                  if (res.data[j].name == Info.name) {
-                    that.extraid.push(res.data[j].id);
-                    break;
-                  }
-                }
-              })
-              .catch((res) => {
-                this.$message({
-                  message: res.response.data.message,
-                  type: "error",
-                });
-              });
+            that.getExtraInfo();
             that.dialogFormVisible = false;
           })
           .catch((res) => {
@@ -398,24 +385,37 @@ export default {
     // 提交修改后的字段信息
     SubmitEditedExtraInfo() {
       let that = this;
-      // that.EditExtraInfoDialog = false;
-      console.log(that.EditedExtraInfoDialog);
-      that
-        .request("device/info-field", that.EditedExtraInfoDialog, "POST")
-        .then(() => {
-          this.$message({
-            message: "修改成功",
-            type: "success",
-          });
-          that.EditExtraInfoDialog = false;
-          that.getExtraInfo();
-        })
-        .catch((res) => {
-          this.$message({
-            message: res.response.data.message,
-            type: "error",
-          });
+      console.log(that.EditedExtraInfoDialog.name);
+      if (
+        that.EditedExtraInfoDialog.id == undefined ||
+        that.EditedExtraInfoDialog.name == "" ||
+        that.EditedExtraInfoDialog.name == undefined ||
+        that.EditedExtraInfoDialog.type == undefined
+      ) {
+        that.$message({
+          message: "请将修改字段信息填写完整",
+          type: "warning",
         });
+      } else {
+        let url = "device/info-field/edit/" + that.EditedExtraInfoDialog.id;
+        that
+          .request(url, that.EditedExtraInfoDialog, "PUT")
+          .then(() => {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+            that.EditExtraInfoDialog = false;
+            that.getExtraInfo();
+            that.EditedExtraInfoDialog = {};
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
+      }
     },
     // 批量删除字段
     delectExtraInfo() {
@@ -446,15 +446,11 @@ export default {
                     .request(url, {}, "DELETE")
                     .then((res) => {
                       console.log(res);
-                      if (res.status == 200) {
-                        that.tableData.splice(i, 1);
-                        this.$message({
-                          message: "删除成功",
-                          type: "success",
-                        });
-                      } else {
-                        this.$message.error("删除失败");
-                      }
+                      that.tableData.splice(i, 1);
+                      this.$message({
+                        message: "删除成功",
+                        type: "success",
+                      });
                     })
                     .catch((res) => {
                       this.$message({
