@@ -1808,12 +1808,18 @@ export default {
             for (i = 0; i < that.device.length; i++) {
               let obj = {};
               obj.deviceid = index++;
-              obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod;
+              obj.avgFixPeriod = res.data[that.device[i]].avgFixPeriod.toFixed(
+                3
+              );
               that.avgFixPeriodTotal += res.data[that.device[i]].avgFixPeriod;
-              obj.avgIssuePeriod = res.data[that.device[i]].avgIssuePeriod;
+              obj.avgIssuePeriod = res.data[
+                that.device[i]
+              ].avgIssuePeriod.toFixed(3);
               that.avgIssuePeriodTotal +=
                 res.data[that.device[i]].avgIssuePeriod;
-              obj.unhealthyTime = res.data[that.device[i]].unhealthyTime;
+              obj.unhealthyTime = res.data[
+                that.device[i]
+              ].unhealthyTime.toFixed(3);
               that.unhealthyTimeTotal += res.data[that.device[i]].unhealthyTime;
               obj.issueCount = res.data[that.device[i]].issueCount;
               that.issueCountTotal += res.data[that.device[i]].issueCount;
@@ -1824,8 +1830,6 @@ export default {
             }
             setTimeout(() => {
               // 总计
-              console.log(that.avgFixPeriodTotal);
-              console.log(that.deviceAnalysisData);
               let obj = {};
               obj.deviceid = "总计";
               obj.avgFixPeriod = (

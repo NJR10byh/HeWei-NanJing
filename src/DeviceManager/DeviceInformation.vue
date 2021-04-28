@@ -744,10 +744,6 @@ export default {
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
           }
-          this.$message({
-            message: "已获取全部设备",
-            type: "success",
-          });
           // 清空搜索条件，等待下次搜索
           that.selectInfo = [];
           that.selectvalue = "";
@@ -801,10 +797,6 @@ export default {
             obj.clazz = res.data.content[i].clazz;
             that.tableData.push(obj);
           }
-          this.$message({
-            message: "已获取全部设备",
-            type: "success",
-          });
           // 清空搜索条件，等待下次搜索
           that.selectInfo = [];
           that.selectvalue = "";

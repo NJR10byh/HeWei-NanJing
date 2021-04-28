@@ -411,8 +411,9 @@ export default {
       let that = this;
       // that.EditExtraInfoDialog = false;
       console.log(that.EditedExtraInfoDialog);
+      let url = "device/info-field/id" + that.EditedExtraInfoDialog.id;
       that
-        .request("device/info-field", that.EditedExtraInfoDialog, "POST")
+        .request(url, that.EditedExtraInfoDialog, "POST")
         .then(() => {
           this.$message({
             message: "修改成功",
