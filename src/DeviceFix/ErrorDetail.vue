@@ -43,12 +43,33 @@
             ></user>
           </div>
         </div>
-        <div class="Part lastpart">
+        <div class="Part">
           <div class="part" style="width: 100%">
             <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
             </div>
+          </div>
+        </div>
+        <div class="Part lastpart">
+          <div class="part" style="width: 100%">
+            <div class="Text">报修设备</div>
+            <el-table
+              :data="devicetableData"
+              stripe
+              border
+              style="margin-top: 10px; width: 100%"
+              class="extraTable"
+            >
+              <el-table-column prop="id" label="设备ID"></el-table-column>
+              <el-table-column prop="name" label="设备名称"></el-table-column>
+              <el-table-column prop="brand" label="设备品牌"></el-table-column>
+              <el-table-column
+                prop="deviceNo"
+                label="设备编号"
+              ></el-table-column>
+              <el-table-column prop="clazz" label="设备分类"></el-table-column>
+            </el-table>
           </div>
         </div>
       </div>
@@ -63,7 +84,7 @@
             </div>
           </div>
         </div>
-        <div class="Part">
+        <div class="Part lastpart">
           <div class="part" style="width: 50%">
             <div class="Text">维修分配人员-Supervisor</div>
             <user
@@ -87,27 +108,6 @@
               :avatar="item.avatar"
               style="margin-top: 10px"
             ></user>
-          </div>
-        </div>
-        <div class="Part lastpart">
-          <div class="part" style="width: 100%">
-            <div class="Text">报修设备</div>
-            <el-table
-              :data="devicetableData"
-              stripe
-              border
-              style="margin-top: 10px; width: 100%"
-              class="extraTable"
-            >
-              <el-table-column prop="id" label="设备ID"></el-table-column>
-              <el-table-column prop="name" label="设备名称"></el-table-column>
-              <el-table-column prop="brand" label="设备品牌"></el-table-column>
-              <el-table-column
-                prop="deviceNo"
-                label="设备编号"
-              ></el-table-column>
-              <el-table-column prop="clazz" label="设备分类"></el-table-column>
-            </el-table>
           </div>
         </div>
         <div

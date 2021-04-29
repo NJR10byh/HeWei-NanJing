@@ -515,13 +515,12 @@ export default {
           confirmButtonText: "确定",
         });
       } else {
-        let obj = {};
         // if (formData.crux == "Y") {
         //   obj.crux = true;
         // } else if (formData.crux == "N") {
         //   obj.crux = false;
         // }
-        obj.crux = obj.crux == "Y" ? true : false;
+        formData.crux = formData.crux == "Y" ? true : false;
         let extraobj = [];
         for (var i = 0; i < that.tableData.length; i++) {
           if (
@@ -536,7 +535,6 @@ export default {
             value: that.tableData[i].extrainfo,
           });
         }
-        console.log(extraobj);
         that
           .request(
             "device",
@@ -546,7 +544,7 @@ export default {
               brand: formData.brand,
               type: formData.type,
               deviceNo: formData.deviceNo,
-              crux: obj.crux,
+              crux: formData.crux,
               clazz: formData.clazz,
               extra: extraobj,
             },

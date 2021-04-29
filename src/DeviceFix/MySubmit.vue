@@ -126,6 +126,9 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+            if (res.data.content[i].createdAt != null) {
+              obj.assigneestatus = "已申请";
+            }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }
@@ -275,6 +278,9 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+            if (res.data.content[i].createdAt != null) {
+              obj.assigneestatus = "已申请";
+            }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }
@@ -384,6 +390,9 @@ export default {
             obj.errordeviceNo = "";
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
+            if (res.data.content[i].createdAt != null) {
+              obj.assigneestatus = "已申请";
+            }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }

@@ -43,48 +43,12 @@
             ></user>
           </div>
         </div>
-        <div class="Part lastpart">
+        <div class="Part">
           <div class="part" style="width: 100%">
             <div class="Text">异常描述和异常处理请求</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="errorcontent"></div>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="Task-info">
-        <div class="Part">
-          <div class="part">
-            <div
-              class="Text"
-              style="color: #409eff; font-size: 30px; font-weight: normal"
-            >
-              分配
-            </div>
-          </div>
-        </div>
-        <div class="Part">
-          <div class="part" style="width: 50%">
-            <div class="Text">维修人员-Supervisor</div>
-            <user
-              v-for="(item, index) in supervisor"
-              :key="index"
-              :name="item.name"
-              :username="item.username"
-              :useremail="item.useremail"
-              style="margin-top: 10px"
-            ></user>
-          </div>
-          <div class="part" style="width: 50%">
-            <div class="Text">维修人员-Operator</div>
-            <user
-              v-for="(item, index) in operator"
-              :key="index"
-              :name="item.name"
-              :username="item.username"
-              :useremail="item.useremail"
-              style="margin-top: 10px"
-            ></user>
           </div>
         </div>
         <div class="Part lastpart">
@@ -106,6 +70,42 @@
               ></el-table-column>
               <el-table-column prop="clazz" label="设备分类"></el-table-column>
             </el-table>
+          </div>
+        </div>
+      </div>
+      <div class="Task-info">
+        <div class="Part">
+          <div class="part">
+            <div
+              class="Text"
+              style="color: #409eff; font-size: 30px; font-weight: normal"
+            >
+              分配
+            </div>
+          </div>
+        </div>
+        <div class="Part lastpart">
+          <div class="part" style="width: 50%">
+            <div class="Text">维修人员-Supervisor</div>
+            <user
+              v-for="(item, index) in supervisor"
+              :key="index"
+              :name="item.name"
+              :username="item.username"
+              :useremail="item.useremail"
+              style="margin-top: 10px"
+            ></user>
+          </div>
+          <div class="part" style="width: 50%">
+            <div class="Text">维修人员-Operator</div>
+            <user
+              v-for="(item, index) in operator"
+              :key="index"
+              :name="item.name"
+              :username="item.username"
+              :useremail="item.useremail"
+              style="margin-top: 10px"
+            ></user>
           </div>
         </div>
       </div>
@@ -153,9 +153,15 @@
         <div class="Part lastpart">
           <div class="part" style="width: 100%">
             <div class="Text">接受维修处理</div>
-            <div class="backbtn_right">
+            <div class="backbtn_right" v-if="!closed">
               <el-button @click="confirm" class="confirm">确认</el-button>
               <el-button @click="refuse" class="refuse">拒绝</el-button>
+            </div>
+            <div
+              style="font-weight: bold; margin-top: 10px; color: #4cd137"
+              v-else
+            >
+              已确认
             </div>
           </div>
         </div>
