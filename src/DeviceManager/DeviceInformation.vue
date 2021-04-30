@@ -77,60 +77,6 @@
             >批量删除</el-button
           >
         </div>
-        <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            "
-          >
-            <el-upload
-              ref="upload"
-              drag
-              action="http://1.15.236.205/api/device/import"
-              multiple
-              :http-request="UpLoad"
-              :auto-upload="false"
-              accept=".xlsx"
-              :on-preview="handlePreview"
-            >
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">
-                将文件拖到此处，或<em>点击上传</em>
-              </div>
-              <div class="el-upload__tip" slot="tip">只能上传 xlsx 文件</div>
-            </el-upload>
-            <div style="margin-top: 10px">
-              <el-button
-                style="
-                  border: 0;
-                  background: #409eff;
-                  color: #fff;
-                  font-weight: bold;
-                "
-                @click="submitUpload"
-                >确认上传</el-button
-              >
-            </div>
-          </div>
-        </el-dialog>
-        <!-- 搜索条件 -->
-        <el-dialog
-          title="搜索条件"
-          :visible.sync="dialogSearchVisible"
-          width="35%"
-        >
-          <el-input
-            v-model="selectmodel"
-            placeholder="请输入搜索内容"
-          ></el-input>
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogSearchVisible = false">取 消</el-button>
-            <el-button type="primary" @click="submitselect">确 定</el-button>
-          </span>
-        </el-dialog>
       </div>
       <!-- table -->
       <el-table
@@ -209,6 +155,51 @@
         ></el-pagination>
       </div>
     </el-main>
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="35%">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <el-upload
+          ref="upload"
+          drag
+          action="http://1.15.236.205/api/device/import"
+          multiple
+          :http-request="UpLoad"
+          :auto-upload="false"
+          accept=".xlsx"
+          :on-preview="handlePreview"
+        >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传 xlsx 文件</div>
+        </el-upload>
+        <div style="margin-top: 10px">
+          <el-button
+            style="
+              border: 0;
+              background: #409eff;
+              color: #fff;
+              font-weight: bold;
+            "
+            @click="submitUpload"
+            >确认上传</el-button
+          >
+        </div>
+      </div>
+    </el-dialog>
+    <!-- 搜索条件 -->
+    <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
+      <el-input v-model="selectmodel" placeholder="请输入搜索内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogSearchVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitselect">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 

@@ -640,8 +640,8 @@ export default {
                     that
                       .request(deviceurl, {}, "GET")
                       .then((res) => {
-                        obj.errordevicename += res.data.name + " / ";
-                        obj.errordeviceNo += res.data.deviceNo + " / ";
+                        obj.errordevicename = res.data.name;
+                        obj.errordeviceNo = res.data.deviceNo;
                       })
                       .catch((res) => {
                         this.$message({
@@ -763,8 +763,8 @@ export default {
                 that
                   .request(deviceurl, {}, "GET")
                   .then((res) => {
-                    obj.errordevicename += res.data.name + " / ";
-                    obj.errordeviceNo += res.data.deviceNo + " / ";
+                    obj.errordevicename = res.data.name;
+                    obj.errordeviceNo = res.data.deviceNo;
                   })
                   .catch((res) => {
                     this.$message({
@@ -921,8 +921,8 @@ export default {
                   that
                     .request(deviceurl, {}, "GET")
                     .then((res) => {
-                      obj.errordevicename += res.data.name + " / ";
-                      obj.errordeviceNo += res.data.deviceNo + " / ";
+                      obj.errordevicename = res.data.name;
+                      obj.errordeviceNo = res.data.deviceNo;
                     })
                     .catch((res) => {
                       this.$message({
@@ -1070,8 +1070,8 @@ export default {
                   that
                     .request(deviceurl, {}, "GET")
                     .then((res) => {
-                      obj.errordevicename += res.data.name + " / ";
-                      obj.errordeviceNo += res.data.deviceNo + " / ";
+                      obj.errordevicename = res.data.name;
+                      obj.errordeviceNo = res.data.deviceNo;
                     })
                     .catch((res) => {
                       this.$message({
@@ -1187,8 +1187,8 @@ export default {
                 that
                   .request(deviceurl, {}, "GET")
                   .then((res) => {
-                    obj.errordevicename += res.data.name + " / ";
-                    obj.errordeviceNo += res.data.deviceNo + " / ";
+                    obj.errordevicename = res.data.name;
+                    obj.errordeviceNo = res.data.deviceNo;
                   })
                   .catch((res) => {
                     this.$message({
@@ -1260,7 +1260,7 @@ export default {
           });
         });
     },
-    // // 页变化
+    // 页变化
     handleCurrentChange(val) {
       let that = this;
       that.page = val;

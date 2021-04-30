@@ -131,11 +131,15 @@
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%">
+          <div class="part" style="width: 50%">
             <div class="Text">异常解决措施和处理结果</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="solution"></div>
             </div>
+          </div>
+          <div class="part" style="width: 50%">
+            <div class="Text">报修人员拒绝原因</div>
+            <div class="Info">{{ refusereason }}</div>
           </div>
         </div>
       </div>
@@ -167,6 +171,18 @@
         </div>
       </div>
     </div>
+    <el-dialog title="拒绝原因" :visible.sync="refusedialog" width="35%">
+      <el-input
+        v-model="refusereason"
+        placeholder="请输入拒绝原因"
+        type="textarea"
+        rows="6"
+      ></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="refusedialog = false">取 消</el-button>
+        <el-button type="primary" @click="submitrefusereason">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -338,6 +354,7 @@ export default {
     return {
       userid: "", // 当前登录人员id
       reporterid: "",
+      refusedialog: false, // 拒绝原因弹出框
       // 步骤条
       active: 0,
       closed: false, // 是否确认
@@ -360,6 +377,7 @@ export default {
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施和处理结果
       exceptionType: "", // 异常类型
+      refusereason: "", // 拒绝原因
 
       // 时间线
       applytime: "",
@@ -417,6 +435,7 @@ export default {
           });
         });
     },
+    // 拒绝
     refuse() {
       let that = this;
       that
@@ -426,6 +445,7 @@ export default {
           type: "warning",
         })
         .then(() => {
+          that.refusedialog = true;
           let url =
             "issue/close/" + that.$route.query.errorid + "?closed=false";
           that
@@ -435,9 +455,7 @@ export default {
                 message: "拒绝处理成功",
                 type: "success",
               });
-              setTimeout(() => {
-                location.reload(); // 成功后更新UI
-              }, 300);
+              that.refusedialog = true;
             })
             .catch((res) => {
               this.$message({
@@ -452,6 +470,34 @@ export default {
             message: "已取消",
           });
         });
+    },
+    // 提交拒绝原因
+    submitrefusereason() {
+      let that = this;
+      console.log(that.refusereason);
+      that.$message({
+        message: "更新中，暂未开放",
+        type: "warning",
+      });
+      // let url = "";
+      // that
+      //   .request(url, { refusereason: that.refusereason }, "POST")
+      //   .then(() => {
+      //     that.$message({
+      //       message: "拒绝原因提交成功",
+      //       type: "success",
+      //     });
+      //     that.refusedialog = false;
+      //     setTimeout(() => {
+      //       location.reload(); // 成功后更新UI
+      //     }, 300);
+      //   })
+      //   .catch((res) => {
+      //     that.$message({
+      //       message: res.response.data.message,
+      //       type: "error",
+      //     });
+      //   });
     },
     // 预览图片
     imgurl(url) {

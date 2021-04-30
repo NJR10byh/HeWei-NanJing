@@ -199,11 +199,15 @@
           </div>
         </div>
         <div class="Part lastpart">
-          <div class="part" style="width: 100%">
+          <div class="part" style="width: 50%">
             <div class="Text">异常解决措施和处理结果</div>
             <div class="ql-snow">
               <div class="ql-editor" v-html="solution"></div>
             </div>
+          </div>
+          <div class="part" style="width: 50%">
+            <div class="Text">报修人员拒绝原因</div>
+            <div class="Info">{{ refusereason }}</div>
           </div>
         </div>
       </div>
@@ -494,6 +498,8 @@ export default {
       reason: "", // 异常发生原因
       solution: "", // 异常解决措施和处理结果
       exceptionType: "", // 异常类型
+      refusereason: "", // 拒绝原因
+
       // 富文本编辑器
       editorOption: {
         placeholder: "请输入异常描述和异常处理请求",
