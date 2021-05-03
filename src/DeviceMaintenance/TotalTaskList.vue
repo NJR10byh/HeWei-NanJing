@@ -1122,10 +1122,10 @@ export default {
         searchtask = "device/" + data[a].id + "/bind";
       }
       that.request(searchtask, {}, "GET").then((res) => {
+        console.log(res.data);
         if (res.data.length != 0) {
           for (let i = 0; i < res.data.length; i++) {
             let obj = {};
-            obj.opuser = "";
             obj.devicename = devicename;
             obj.deviceNo = deviceNo;
             obj.deviceID = deviceID;
@@ -1155,17 +1155,19 @@ export default {
                 that
                   .request(searchops, {}, "GET")
                   .then((res) => {
-                    obj.opuser = res.data.name;
+                    console.log(res.data);
+                    setTimeout(() => {
+                      obj.opuser = "";
+                      obj.opuser = res.data.name;
+                      obj.id = that.index++;
+                      that.tableData.push(obj);
+                    }, 300);
                   })
                   .catch(() => {
                     obj.opuser = "获取失败";
                   });
               }
             }
-            obj.id = that.index++;
-            setTimeout(() => {
-              that.tableData.push(obj);
-            }, 300);
           }
           if (++a < length) {
             that.getData(a, length, data, role);
@@ -1175,10 +1177,10 @@ export default {
           obj.devicename = devicename;
           obj.deviceNo = deviceNo;
           obj.deviceID = deviceID;
-          obj.id = that.index++;
           setTimeout(() => {
+            obj.id = that.index++;
             that.tableData.push(obj);
-          }, 300);
+          }, 400);
           if (++a < length) {
             that.getData(a, length, data, role);
           }

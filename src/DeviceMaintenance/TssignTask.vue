@@ -107,7 +107,8 @@ export default {
           for (var i = 0; i < res.data.content.length; i++) {
             // console.log(res.data.content[i]);
             let obj = {};
-            obj.value = res.data.content[i].id;
+            obj.value =
+              res.data.content[i].id + "/" + res.data.content[i].deviceNo;
             obj.label =
               res.data.content[i].name +
               "(" +
@@ -201,14 +202,22 @@ export default {
             .then((res) => {
               console.log(res.data);
               let obj = {};
-              deviceid.push({ id: that.devicevalue });
+              deviceid.push({
+                id: that.devicevalue.split("/")[0] * 1,
+                deviceNo: that.devicevalue.split("/")[1],
+              });
               for (let i = 0; i < that.opsvalue.length; i++) {
                 ops.push({
                   id: that.opsvalue[i],
                 });
               }
               obj.acceptedStandard = res.data.acceptedStandard;
-              obj.content = res.data.content;
+              obj.content = [
+                {
+                  title: res.data.content[0].title,
+                  detail: res.data.content[0].detail,
+                },
+              ];
               obj.id = res.data.id;
               obj.name = res.data.name;
               obj.no = res.data.no;
@@ -232,7 +241,7 @@ export default {
                     });
                   })
                   .catch((res) => {
-                    this.$message({
+                    that.$message({
                       message: res.response.data.message,
                       type: "error",
                     });
