@@ -37,7 +37,13 @@
       </div>
       <div>
         第三步：
-        <el-select v-model="opsvalue" placeholder="请选择保养人员" filterable>
+        <el-select
+          v-model="opsvalue"
+          placeholder="请选择保养人员"
+          filterable
+          multiple
+          size="large"
+        >
           <el-option
             v-for="item in opsoptions"
             :key="item.value"
@@ -83,7 +89,7 @@ export default {
             console.log(res.data.content[i]);
             obj.value = res.data.content[i].id;
             obj.label =
-              res.data.content[i].name + "（" + res.data.content[i].no + "）";
+              res.data.content[i].name + "(" + res.data.content[i].no + ")";
             that.taskoptions.push(obj);
           }
         })
@@ -104,9 +110,9 @@ export default {
             obj.value = res.data.content[i].id;
             obj.label =
               res.data.content[i].name +
-              "（" +
+              "(" +
               res.data.content[i].deviceNo +
-              "）";
+              ")";
             that.deviceoptions.push(obj);
           }
         })
@@ -126,9 +132,9 @@ export default {
             obj.value = res.data.content[i].id;
             obj.label =
               res.data.content[i].username +
-              "（姓名：" +
+              "(姓名: " +
               res.data.content[i].name +
-              "）";
+              ")";
             that.opsoptions.push(obj);
           }
         })
@@ -181,7 +187,8 @@ export default {
         let deviceid = [];
         let ops = [];
         let url = "ops/schedule/detail/" + that.taskvalue;
-        console.log(url);
+        let url_task = "ops/schedule/bind/" + that.taskvalue;
+        console.log(url, url_task);
         console.log(that.datevalue);
         if (new Date(that.datevalue).getTime() < new Date().getTime()) {
           that.$message({
@@ -195,7 +202,11 @@ export default {
               console.log(res.data);
               let obj = {};
               deviceid.push({ id: that.devicevalue });
-              ops.push({ id: that.opsvalue });
+              for (let i = 0; i < that.opsvalue.length; i++) {
+                ops.push({
+                  id: that.opsvalue[i],
+                });
+              }
               obj.acceptedStandard = res.data.acceptedStandard;
               obj.content = res.data.content;
               obj.id = res.data.id;
@@ -212,7 +223,7 @@ export default {
               console.log(obj);
               setTimeout(function () {
                 that
-                  .request(url, obj, "PUT")
+                  .request(url_task, obj, "PUT")
                   .then((res) => {
                     console.log(res);
                     that.$message({

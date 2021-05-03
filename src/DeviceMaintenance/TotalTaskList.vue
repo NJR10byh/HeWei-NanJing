@@ -1239,46 +1239,29 @@ export default {
     handleDelete(row) {
       let that = this;
       console.log(row);
-      this.$confirm("确定解绑?", "提示", {
+      this.$confirm("解绑会删除相关的保养记录，是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          let url = "ops/schedule/detail/" + row.taskid;
-          that.request(url, {}, "GET").then((res) => {
-            console.log(res.data);
-            let obj = {};
-            obj.content = res.data.content;
-            obj.id = res.data.id;
-            obj.name = res.data.name;
-            obj.remark = res.data.remark;
-            obj.no = res.data.no;
-            obj.startDate = res.data.startDate;
-            obj.scheduleType = res.data.scheduleType;
-            obj.tools = res.data.tools;
-            obj.device = [];
-            obj.ops = [];
-            console.log(obj);
-            setTimeout(function () {
-              that
-                .request(url, obj, "PUT")
-                .then((res) => {
-                  console.log(res);
-                  that.$message({
-                    message: "解绑成功",
-                    type: "success",
-                  });
-                  that.getAllDevice();
-                })
-                .catch((res) => {
-                  this.$message({
-                    message: res.response.data.message,
-                    type: "error",
-                  });
-                });
-            }, 500);
-          });
+          let url = "ops/schedule/" + row.taskid;
+          that
+            .request(url, {}, "DELETE")
+            .then((res) => {
+              console.log(res.data);
+              that.$message({
+                message: "解绑成功",
+                type: "success",
+              });
+              that.getAllDevice();
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         })
         .catch(() => {
           that.$message.info("已取消解绑");

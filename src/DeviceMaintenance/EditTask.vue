@@ -28,21 +28,11 @@
               </div>
             </div>
             <div class="part_right">
-              <el-form-item label="选择标准" class="task">
-                <el-select
-                  clearable
-                  filterable
-                  placeholder="请选择保养标准"
-                  v-model="TaskInfo.task"
-                >
-                  <el-option
-                    v-for="item in TaskOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
+              <el-form-item
+                label="标准（如果需要修改标准，请先解绑）"
+                class="task name"
+              >
+                <span> {{ TaskInfo.task }}</span>
               </el-form-item>
               <el-form-item label="人员选择" class="task">
                 <el-select
@@ -91,6 +81,7 @@ export default {
       .request(url, {}, "GET")
       .then((res) => {
         console.log(res.data);
+        that.TaskInfo.task = res.data.name + "(" + res.data.no + ")";
         that.TaskInfo.ops = res.data.ops[0].id;
       })
       .catch((res) => {
@@ -99,18 +90,19 @@ export default {
           type: "error",
         });
       });
-    // let URL = "ops/schedule/status/" + this.$route.query.taskid;
-    // that
-    //   .request(URL, {}, "GET")
-    //   .then((res) => {
-    //     that.TaskInfo.nextDate = res.data.nextDate;
-    //   })
-    //   .catch((res) => {
-    //     this.$message({
-    //       message: res.response.data.message,
-    //       type: "error",
-    //     });
-    //   });
+    let URL = "ops/schedule/status/" + this.$route.query.taskid;
+    that
+      .request(URL, {}, "GET")
+      .then((res) => {
+        console.log(res.data);
+        that.TaskInfo.nextDate = res.data.nextDate;
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
     setTimeout(() => {
       // 获取全部 OPERATOR 员工
       that
@@ -122,9 +114,9 @@ export default {
             obj.value = res.data.content[i].id;
             obj.label =
               res.data.content[i].username +
-              "（姓名：" +
+              "(姓名：" +
               res.data.content[i].name +
-              "）";
+              ")";
             that.OpUsers.push(obj);
           }
         })
@@ -135,24 +127,24 @@ export default {
           });
         });
       // 获取全部标准
-      that
-        .request("ops/schedule?page=0&size=1000000000", {}, "GET")
-        .then((res) => {
-          console.log(res.data);
-          for (var i = 0; i < res.data.content.length; i++) {
-            let obj = {};
-            obj.value = res.data.content[i].id;
-            obj.label =
-              res.data.content[i].name + "（" + res.data.content[i].no + "）";
-            that.TaskOptions.push(obj);
-          }
-        })
-        .catch((res) => {
-          this.$message({
-            message: res.response.data.message,
-            type: "error",
-          });
-        });
+      // that
+      //   .request("ops/schedule?page=0&size=1000000000", {}, "GET")
+      //   .then((res) => {
+      //     console.log(res.data);
+      //     for (var i = 0; i < res.data.content.length; i++) {
+      //       let obj = {};
+      //       obj.value = res.data.content[i].id;
+      //       obj.label =
+      //         res.data.content[i].name + "(" + res.data.content[i].no + ")";
+      //       that.TaskOptions.push(obj);
+      //     }
+      //   })
+      //   .catch((res) => {
+      //     this.$message({
+      //       message: res.response.data.message,
+      //       type: "error",
+      //     });
+      //   });
     }, 300);
   },
   data() {
@@ -164,32 +156,6 @@ export default {
         task: "",
       },
       collapseinfo: [],
-      tasktime: [
-        {
-          value: "Predictability",
-          label: "未知",
-        },
-        {
-          value: "Yearly",
-          label: "每年",
-        },
-        {
-          value: "Seasonally",
-          label: "每季度",
-        },
-        {
-          value: "Monthly",
-          label: "每月",
-        },
-        {
-          value: "Weekly",
-          label: "每周",
-        },
-        {
-          value: "Daily",
-          label: "每天",
-        },
-      ],
       OpUsers: [], // 保养人员
       TaskOptions: [],
     };
@@ -375,6 +341,17 @@ export default {
             justify-content: center;
             align-items: flex-start;
             font-weight: 500;
+            .task {
+              font-weight: bold;
+            }
+            .name {
+              display: flex;
+              flex-direction: column;
+              span {
+                font-size: 20px;
+                font-weight: normal;
+              }
+            }
           }
         }
         // 下面俩按钮
