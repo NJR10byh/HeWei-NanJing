@@ -619,13 +619,13 @@ export default {
                   res.data.content[i].createdAt
                 );
                 if (res.data.content[i].createdAt != null) {
-                  obj.assigneestatus = "已申请";
+                  obj.assigneestatus = "未分配";
                 }
                 if (res.data.content[i].assignedAt != null) {
                   obj.assigneestatus = "已分配";
                 }
                 if (res.data.content[i].fixedAt != null) {
-                  obj.assigneestatus = "已修复";
+                  obj.assigneestatus = "待确认";
                 }
                 if (res.data.content[i].closed == true) {
                   if (res.data.content[i].closedAt != null) {
@@ -682,7 +682,7 @@ export default {
                             .request(assigneeurl, {}, "GET")
                             .then((res) => {
                               console.log(res.data);
-                              obj.assigneename += res.data.name + " / ";
+                              obj.assigneename = res.data.name;
                             })
                             .catch((res) => {
                               this.$message({
@@ -743,13 +743,13 @@ export default {
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
             if (res.data.content[i].createdAt != null) {
-              obj.assigneestatus = "已申请";
+              obj.assigneestatus = "未分配";
             }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }
             if (res.data.content[i].fixedAt != null) {
-              obj.assigneestatus = "已修复";
+              obj.assigneestatus = "待确认";
             }
             if (res.data.content[i].closed == true) {
               if (res.data.content[i].closedAt != null) {
@@ -805,7 +805,7 @@ export default {
                         .request(assigneeurl, {}, "GET")
                         .then((res) => {
                           console.log(res.data);
-                          obj.assigneename += res.data.name + " / ";
+                          obj.assigneename = res.data.name;
                         })
                         .catch((res) => {
                           this.$message({
@@ -901,13 +901,13 @@ export default {
               obj.assigneename = "";
               obj.reportertime = that.renderTime(res.data.content[i].createdAt);
               if (res.data.content[i].createdAt != null) {
-                obj.assigneestatus = "已申请";
+                obj.assigneestatus = "未分配";
               }
               if (res.data.content[i].assignedAt != null) {
                 obj.assigneestatus = "已分配";
               }
               if (res.data.content[i].fixedAt != null) {
-                obj.assigneestatus = "已修复";
+                obj.assigneestatus = "待确认";
               }
               if (res.data.content[i].closed == true) {
                 if (res.data.content[i].closedAt != null) {
@@ -963,7 +963,7 @@ export default {
                           .request(assigneeurl, {}, "GET")
                           .then((res) => {
                             console.log(res.data);
-                            obj.assigneename += res.data.name + " / ";
+                            obj.assigneename = res.data.name;
                           })
                           .catch((res) => {
                             this.$message({
@@ -1050,13 +1050,13 @@ export default {
               obj.assigneename = "";
               obj.reportertime = that.renderTime(res.data.content[i].createdAt);
               if (res.data.content[i].createdAt != null) {
-                obj.assigneestatus = "已申请";
+                obj.assigneestatus = "未分配";
               }
               if (res.data.content[i].assignedAt != null) {
                 obj.assigneestatus = "已分配";
               }
               if (res.data.content[i].fixedAt != null) {
-                obj.assigneestatus = "已修复";
+                obj.assigneestatus = "待确认";
               }
               if (res.data.content[i].closed == true) {
                 if (res.data.content[i].closedAt != null) {
@@ -1112,7 +1112,7 @@ export default {
                           .request(assigneeurl, {}, "GET")
                           .then((res) => {
                             console.log(res.data);
-                            obj.assigneename += res.data.name + " / ";
+                            obj.assigneename = res.data.name;
                           })
                           .catch((res) => {
                             this.$message({
@@ -1167,13 +1167,13 @@ export default {
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
             if (res.data.content[i].createdAt != null) {
-              obj.assigneestatus = "已申请";
+              obj.assigneestatus = "未分配";
             }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }
             if (res.data.content[i].fixedAt != null) {
-              obj.assigneestatus = "已修复";
+              obj.assigneestatus = "待确认";
             }
             if (res.data.content[i].closed == true) {
               if (res.data.content[i].closedAt != null) {
@@ -1229,7 +1229,7 @@ export default {
                         .request(assigneeurl, {}, "GET")
                         .then((res) => {
                           console.log(res.data);
-                          obj.assigneename += res.data.name + " / ";
+                          obj.assigneename = res.data.name;
                         })
                         .catch((res) => {
                           this.$message({
@@ -1281,13 +1281,13 @@ export default {
             obj.assigneename = "";
             obj.reportertime = that.renderTime(res.data.content[i].createdAt);
             if (res.data.content[i].createdAt != null) {
-              obj.assigneestatus = "已申请";
+              obj.assigneestatus = "未分配";
             }
             if (res.data.content[i].assignedAt != null) {
               obj.assigneestatus = "已分配";
             }
             if (res.data.content[i].fixedAt != null) {
-              obj.assigneestatus = "已修复";
+              obj.assigneestatus = "待确认";
             }
             if (res.data.content[i].closed == true) {
               if (res.data.content[i].closedAt != null) {
@@ -1343,7 +1343,7 @@ export default {
                         .request(assigneeurl, {}, "GET")
                         .then((res) => {
                           console.log(res.data);
-                          obj.assigneename += res.data.name + " / ";
+                          obj.assigneename = res.data.name;
                         })
                         .catch((res) => {
                           this.$message({

@@ -49,6 +49,8 @@ export default {
     img {
       width: 40px;
       height: 40px;
+      // border: 1px solid #409eff;
+      border-radius: 6px;
     }
   }
   .user_info_detail {

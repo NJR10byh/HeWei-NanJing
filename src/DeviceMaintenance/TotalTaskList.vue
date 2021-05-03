@@ -684,8 +684,8 @@ export default {
                     that
                       .request(url, {}, "GET")
                       .then((res) => {
-                        obj.devicename += res.data.name + " / ";
-                        obj.deviceNo += res.data.deviceNo + " / ";
+                        obj.devicename = res.data.name;
+                        obj.deviceNo = res.data.deviceNo;
                       })
                       .catch((res) => {
                         this.$message({
@@ -1203,15 +1203,22 @@ export default {
           that.total = res.data.totalElements;
           that.currentPage = 1;
           console.log(res.data);
-          if (that.userRole != "OPERATOR") {
-            that.getData(0, res.data.content.length, res.data, that.userRole);
+          if (res.data.length == 0) {
+            this.$message({
+              message: "暂无保养任务",
+              type: "warning",
+            });
           } else {
-            that.getData(0, res.data.length, res.data, that.userRole);
+            if (that.userRole != "OPERATOR") {
+              that.getData(0, res.data.content.length, res.data, that.userRole);
+            } else {
+              that.getData(0, res.data.length, res.data, that.userRole);
+            }
+            this.$message({
+              message: "数据已更新",
+              type: "success",
+            });
           }
-          this.$message({
-            message: "数据已更新",
-            type: "success",
-          });
           // 清空搜索条件，等待下次搜索
           that.selectInfo = [];
           that.selectvalue = "";

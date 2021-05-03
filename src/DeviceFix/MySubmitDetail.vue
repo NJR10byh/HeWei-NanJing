@@ -93,6 +93,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top: 10px"
             ></user>
           </div>
@@ -104,6 +105,7 @@
               :name="item.name"
               :username="item.username"
               :useremail="item.useremail"
+              :avatar="item.avatar"
               style="margin-top: 10px"
             ></user>
           </div>
@@ -202,10 +204,13 @@ export default {
         console.log(res.data);
         that.reporterid = res.data.reporter.id;
         that.errorcontent = res.data.content;
-        that.reason = res.data.reason;
-        that.solution = res.data.solution;
-        that.exceptionType = res.data.exceptionType;
+        that.reason = res.data.reason == null ? "暂无" : res.data.reason;
+        that.solution = res.data.solution == null ? "暂无" : res.data.solution;
+        that.exceptionType =
+          res.data.exceptionType == null ? "暂无" : res.data.exceptionType;
         that.closed = res.data.closed;
+        that.refusereason =
+          res.data.rejectReason == null ? "无" : res.data.rejectReason;
         if (res.data.createdAt != null) {
           that.applytime = that.renderTime(res.data.createdAt);
         }
@@ -300,16 +305,18 @@ export default {
                 that
                   .request(searchops, {}, "GET")
                   .then((res) => {
-                    that.operator.push({
-                      name: res.data.content[0].name,
-                      username: res.data.content[0].username,
-                      useremail: res.data.content[0].email,
-                      avatar:
-                        res.data.content[0].avatar == null
-                          ? undefined
-                          : "http://1.15.236.205/api/pic/" +
-                            res.data.content[0].avatar,
-                    });
+                    console.log(res.data.content[0].avatar);
+                    let obj = {};
+                    obj.name = res.data.content[0].name;
+                    obj.username = res.data.content[0].username;
+                    obj.useremail = res.data.content[0].email;
+                    obj.avatar =
+                      res.data.content[0].avatar == null
+                        ? undefined
+                        : "http://1.15.236.205/api/pic/" +
+                          res.data.content[0].avatar;
+                    console.log(obj);
+                    that.operator.push(obj);
                   })
                   .catch((res) => {
                     this.$message({
@@ -446,23 +453,6 @@ export default {
         })
         .then(() => {
           that.refusedialog = true;
-          let url =
-            "issue/close/" + that.$route.query.errorid + "?closed=false";
-          that
-            .request(url, {}, "POST")
-            .then(() => {
-              that.$message({
-                message: "拒绝处理成功",
-                type: "success",
-              });
-              that.refusedialog = true;
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
-            });
         })
         .catch(() => {
           this.$message({
@@ -475,29 +465,30 @@ export default {
     submitrefusereason() {
       let that = this;
       console.log(that.refusereason);
-      that.$message({
-        message: "更新中，暂未开放",
-        type: "warning",
-      });
-      // let url = "";
-      // that
-      //   .request(url, { refusereason: that.refusereason }, "POST")
-      //   .then(() => {
-      //     that.$message({
-      //       message: "拒绝原因提交成功",
-      //       type: "success",
-      //     });
-      //     that.refusedialog = false;
-      //     setTimeout(() => {
-      //       location.reload(); // 成功后更新UI
-      //     }, 300);
-      //   })
-      //   .catch((res) => {
-      //     that.$message({
-      //       message: res.response.data.message,
-      //       type: "error",
-      //     });
-      //   });
+      let url =
+        "issue/close/" +
+        that.$route.query.errorid +
+        "?closed=false" +
+        "&reason=" +
+        that.refusereason;
+      that
+        .request(url, {}, "POST")
+        .then(() => {
+          that.$message({
+            message: "拒绝处理成功",
+            type: "success",
+          });
+          that.refusedialog = false;
+          setTimeout(() => {
+            location.reload(); // 成功后更新UI
+          }, 300);
+        })
+        .catch((res) => {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        });
     },
     // 预览图片
     imgurl(url) {

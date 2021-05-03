@@ -150,7 +150,7 @@
             ></el-input>
           </div>
         </div>
-        <div class="Part lastpart">
+        <div class="Part">
           <div class="part result" style="width: 100%">
             <div class="Text">异常解决措施和处理结果</div>
             <!-- 富文本编辑器 -->
@@ -161,6 +161,12 @@
               style="height: 70%; margin-top: 5px; width: 100%"
               @change="onEditorChange($event)"
             ></quill-editor>
+          </div>
+        </div>
+        <div class="Part">
+          <div class="part" style="width: 100%">
+            <div class="Text">报修人员拒绝原因</div>
+            <div class="Info">{{ refusereason }}</div>
           </div>
         </div>
         <div
@@ -273,12 +279,16 @@ export default {
     that
       .request(url, {}, "GET")
       .then((res) => {
+        console.log(res.data);
         that.reporterid = res.data.reporter.id;
         that.errorcontent = res.data.content;
-        that.reason = res.data.reason;
-        that.solution = res.data.solution;
-        that.exceptionType = res.data.exceptionType;
+        that.reason = res.data.reason == null ? "暂无" : res.data.reason;
+        that.solution = res.data.solution == null ? "暂无" : res.data.solution;
+        that.exceptionType =
+          res.data.exceptionType == null ? "暂无" : res.data.exceptionType;
         that.closed = res.data.closed;
+        that.refusereason =
+          res.data.rejectReason == null ? "无" : res.data.rejectReason;
         if (res.data.createdAt != null) {
           that.applytime = that.renderTime(res.data.createdAt);
         }
@@ -334,6 +344,7 @@ export default {
             that
               .request(searchops, {}, "GET")
               .then((res) => {
+                console.log(res);
                 that.supervisor.push({
                   name: res.data.content[0].name,
                   userid: res.data.content[0].id,
@@ -703,7 +714,7 @@ export default {
                 type: "success",
               });
               setTimeout(() => {
-                location.reload(); // 成功后更新UI
+                // location.reload(); // 成功后更新UI
               }, 300);
             })
             .catch((res) => {
