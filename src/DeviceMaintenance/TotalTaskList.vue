@@ -158,9 +158,19 @@
         :current-page="currentPage"
         :page-sizes="[15, 30, 50, 100]"
         :page-size="page_size"
-        layout="sizes,total, prev, pager, next, jumper"
+        layout="slot, sizes, prev, pager, next, jumper"
         :total="total"
-      ></el-pagination>
+      >
+        <span style="font-size: 14px; color: #888; font-weight: normal"
+          >共<span style="font-size: 14px; color: #000; font-weight: bold">{{
+            total
+          }}</span
+          >个设备&nbsp;&nbsp;（当前页最多展示<span
+            style="font-size: 14px; color: #000; font-weight: bold"
+            >{{ page_size }}</span
+          >个设备）
+        </span>
+      </el-pagination>
     </div>
     <!-- 搜索条件 -->
     <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
@@ -521,6 +531,7 @@ export default {
     // 设备
     deviceselectchange() {
       this.dialogSearchDeviceVisible = true;
+      this.devicevalue = "";
     },
     // 设备选择
     devicesubmitselect() {

@@ -8,6 +8,7 @@ var avatarurl = "";
 // 设备查询
 var deviceselectInfo = [];
 var devicedynamicTags = [];
+var extrainfo_Date = [];
 
 // 保养查询
 var taskselectInfo = [];
@@ -34,6 +35,7 @@ export default {
 
   deviceselectInfo,
   devicedynamicTags,
+  extrainfo_Date,
 
   taskselectInfo,
   taskdynamicTags,

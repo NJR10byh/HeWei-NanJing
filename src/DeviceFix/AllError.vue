@@ -207,8 +207,10 @@
       </el-select>
       <!-- 维修状态 -->
       <el-radio-group v-model="closed" v-if="selectvalue == 'closed'">
+        <el-radio-button label="未分配"></el-radio-button>
+        <el-radio-button label="已分配"></el-radio-button>
+        <el-radio-button label="待确认"></el-radio-button>
         <el-radio-button label="已完成"></el-radio-button>
-        <el-radio-button label="未完成"></el-radio-button>
       </el-radio-group>
       <!-- 时间范围 -->
       <el-date-picker
@@ -572,20 +574,38 @@ export default {
           break;
         case "closed":
           console.log(this.closed);
-          if (this.closed == "已完成") {
-            this.selectInfo.push({
-              ziduan: this.selectvalue,
-              value: "TRUE",
-            });
-            this.dynamicTags.push(this.selectvalue + " / " + this.closed);
-          } else {
-            this.selectInfo.push({
-              ziduan: this.selectvalue,
-              value: "FALSE",
-            });
-            this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+          switch (this.closed) {
+            case "未分配":
+              this.selectInfo.push({
+                ziduan: this.selectvalue,
+                value: "false&assignedAt=N",
+              });
+              this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+              break;
+            case "已分配":
+              this.selectInfo.push({
+                ziduan: this.selectvalue,
+                value: "false&assignedAt=M&fixedAt=N",
+              });
+              this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+              break;
+            case "待确认":
+              this.selectInfo.push({
+                ziduan: this.selectvalue,
+                value: "false&assignedAt=M&fixedAt=M",
+              });
+              this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+              break;
+            case "已完成":
+              this.selectInfo.push({
+                ziduan: this.selectvalue,
+                value: "true",
+              });
+              this.dynamicTags.push(this.selectvalue + " / " + this.closed);
+              break;
+            default:
+              break;
           }
-
           break;
         case "timeChoose":
           var that = this;

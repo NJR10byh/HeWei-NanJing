@@ -57,12 +57,17 @@
         v-if="['ROOT', 'ADMIN'].includes(userRole)"
       >
         <template slot-scope="scope">
-          <el-button @click="handleEdit(scope.$index, scope.row)"
+          <el-button
+            @click="handleEdit(scope.$index, scope.row)"
+            v-if="scope.row.enable"
             >修改</el-button
           >
-          <el-button @click="handleDelete(scope.$index, scope.row)"
+          <el-button
+            @click="handleDelete(scope.$index, scope.row)"
+            v-if="scope.row.enable"
             >删除</el-button
           >
+          <span v-if="!scope.row.enable">已删除</span>
         </template>
       </el-table-column>
     </el-table>
@@ -125,7 +130,7 @@ export default {
         let url = "user?page=0&size=" + that.page_size;
         this.request(url, {}, "GET")
           .then((res) => {
-            console.log(res);
+            console.log(res.data.content);
             that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
               if (res.data.content[i].role == "ROOT") {
@@ -136,6 +141,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               } else if (res.data.content[i].role == "ADMIN") {
                 let obj = {};
@@ -145,6 +151,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               }
             }
@@ -160,6 +167,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               }
             }
@@ -188,6 +196,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               } else if (res.data.content[i].role == "ADMIN") {
                 let obj = {};
@@ -197,6 +206,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               }
             }
@@ -212,6 +222,7 @@ export default {
                 obj.userrole = res.data.content[i].role;
                 obj.name = res.data.content[i].name;
                 obj.email = res.data.content[i].email;
+                obj.enable = res.data.content[i].enable;
                 that.tableData.push(obj);
               }
             }
@@ -229,12 +240,12 @@ export default {
       }
     },
     // 编辑员工信息
-    handleEdit(index) {
-      console.log(this.tableData[index]);
-      this.$router.push({
-        path: "/edituser",
-        query: this.tableData[index],
-      });
+    handleEdit(index, row) {
+      console.log(this.tableData[index], row);
+      // this.$router.push({
+      //   path: "/edituser",
+      //   query: this.tableData[index],
+      // });
     },
     // 删除单个行
     handleDelete(index) {
@@ -337,6 +348,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             } else if (res.data.content[i].role == "ADMIN") {
               let obj = {};
@@ -346,6 +358,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             }
           }
@@ -361,6 +374,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             }
           }
@@ -397,6 +411,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             } else if (res.data.content[i].role == "ADMIN") {
               let obj = {};
@@ -406,6 +421,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             }
           }
@@ -421,6 +437,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             }
           }
@@ -499,6 +516,7 @@ export default {
               obj.userrole = res.data.content[i].role;
               obj.name = res.data.content[i].name;
               obj.email = res.data.content[i].email;
+              obj.enable = res.data.content[i].enable;
               that.tableData.push(obj);
             }
           }

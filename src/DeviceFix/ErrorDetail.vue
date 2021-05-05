@@ -714,7 +714,7 @@ export default {
                 type: "success",
               });
               setTimeout(() => {
-                // location.reload(); // 成功后更新UI
+                location.reload(); // 成功后更新UI
               }, 300);
             })
             .catch((res) => {

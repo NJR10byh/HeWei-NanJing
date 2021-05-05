@@ -194,7 +194,35 @@
     </el-dialog>
     <!-- 搜索条件 -->
     <el-dialog title="搜索条件" :visible.sync="dialogSearchVisible" width="35%">
-      <el-input v-model="selectmodel" placeholder="请输入搜索内容"></el-input>
+      <el-input
+        v-model="selectmodel"
+        placeholder="请输入搜索内容"
+        v-if="ExtraInfo_String.includes(selectvalue)"
+      ></el-input>
+      <el-input
+        v-model="selectmodel"
+        type="number"
+        placeholder="请输入搜索内容"
+        v-if="ExtraInfo_Int.includes(selectvalue)"
+      ></el-input>
+      <el-radio-group
+        v-model="selectmodel"
+        v-if="ExtraInfo_Bool.includes(selectvalue)"
+      >
+        <el-radio-button label="是"></el-radio-button>
+        <el-radio-button label="否"></el-radio-button>
+      </el-radio-group>
+      <el-date-picker
+        v-model="selectmodel"
+        v-if="ExtraInfo_Date.includes(selectvalue)"
+        type="daterange"
+        unlink-panels
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        value-format="yyyy-MM-dd"
+      >
+      </el-date-picker>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogSearchVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitselect">确 定</el-button>
@@ -229,7 +257,7 @@ export default {
             },
             {
               value: "type",
-              label: "设备型号/规格",
+              label: "设备型号",
             },
             {
               value: "deviceNo",
@@ -246,6 +274,10 @@ export default {
           options: [],
         },
       ],
+      ExtraInfo_Date: [], // 日期型附加字段
+      ExtraInfo_String: ["name", "brand", "type", "deviceNo", "clazz"], // 字符型附加字段
+      ExtraInfo_Int: [], // 整数型附加字段
+      ExtraInfo_Bool: [], // 布尔型附加字段
       selectvalue: "",
       selectmodel: "",
       dialogSearchVisible: false,
@@ -278,14 +310,46 @@ export default {
     },
     selectchange() {
       this.dialogSearchVisible = true;
+      this.selectmodel = "";
     },
     submitselect() {
-      this.dialogSearchVisible = false;
-      this.selectInfo.push({
-        ziduan: this.selectvalue,
-        value: this.selectmodel,
-      });
-      this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+      if (this.ExtraInfo_Date.includes(this.selectvalue)) {
+        if (this.selectmodel == null) {
+          this.$message({
+            message: "请选择起止日期",
+            type: "warning",
+          });
+        } else if (
+          new Date(this.selectmodel[0]).getTime() > new Date().getTime() ||
+          new Date(this.selectmodel[1]).getTime() > new Date().getTime()
+        ) {
+          this.$message({
+            message: "开始或结束日期必须小于今天",
+            type: "warning",
+          });
+        } else {
+          this.dialogSearchVisible = false;
+          this.selectInfo.push({
+            ziduan: this.selectvalue,
+            value: this.selectmodel,
+          });
+          this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+        }
+      } else {
+        if (this.selectmodel == "") {
+          this.$message({
+            message: "请将查询信息填写完整",
+            type: "warning",
+          });
+        } else {
+          this.dialogSearchVisible = false;
+          this.selectInfo.push({
+            ziduan: this.selectvalue,
+            value: this.selectmodel,
+          });
+          this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
+        }
+      }
     },
     // 标签移除
     handleClose(tag) {
@@ -301,18 +365,30 @@ export default {
       let exportURL = "";
       let index = 1;
       that.ifsearch = true;
-      url =
-        "device/query?" +
-        that.selectInfo[0].ziduan +
-        "=L" +
-        that.selectInfo[0].value +
-        "%25";
-      exportURL =
-        "device/export?" +
-        that.selectInfo[0].ziduan +
-        "=L" +
-        that.selectInfo[0].value +
-        "%25";
+      console.log(that.selectInfo);
+      if (globaldata.extrainfo_Date.includes(that.selectInfo[0].ziduan)) {
+        url =
+          "device/query?" +
+          that.selectInfo[0].ziduan +
+          "=B" +
+          that.selectInfo[0].value;
+        exportURL =
+          "device/export?" +
+          that.selectInfo[0].ziduan +
+          "=B" +
+          that.selectInfo[0].value;
+      } else {
+        url =
+          "device/query?" +
+          that.selectInfo[0].ziduan +
+          "=L" +
+          that.selectInfo[0].value;
+        exportURL =
+          "device/export?" +
+          that.selectInfo[0].ziduan +
+          "=L" +
+          that.selectInfo[0].value;
+      }
       if (that.selectInfo.length == 1) {
         that.exporturl = exportURL;
         that
@@ -320,38 +396,45 @@ export default {
           .then((res) => {
             console.log(res.data);
             that.tableData = [];
-            that.total = res.data.totalElements;
-            that.currentPage = 1;
-            for (var i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.id = res.data.content[i].id;
-              obj.index = index++;
-              obj.name = res.data.content[i].name;
-              obj["brand"] = res.data.content[i].brand;
-              obj.type = res.data.content[i].type;
-              obj.deviceNo = res.data.content[i].deviceNo;
-              if (res.data.content[i].extra.length != 0) {
-                for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                  obj[res.data.content[i].extra[j].field.id] =
-                    res.data.content[i].extra[j].value;
+            if (res.data.content.length == 0) {
+              that.$message({
+                message: "无结果",
+                type: "warning",
+              });
+            } else {
+              that.total = res.data.totalElements;
+              that.currentPage = 1;
+              for (var i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.name = res.data.content[i].name;
+                obj["brand"] = res.data.content[i].brand;
+                obj.type = res.data.content[i].type;
+                obj.deviceNo = res.data.content[i].deviceNo;
+                if (res.data.content[i].extra.length != 0) {
+                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                    obj[res.data.content[i].extra[j].field.id] =
+                      res.data.content[i].extra[j].value;
+                  }
                 }
+                if (res.data.content[i].crux == true) {
+                  obj.crux = "true";
+                } else if (res.data.content[i].crux == false) {
+                  obj.crux = "false";
+                }
+                obj.clazz = res.data.content[i].clazz;
+                that.tableData.push(obj);
               }
-              if (res.data.content[i].crux == true) {
-                obj.crux = "true";
-              } else if (res.data.content[i].crux == false) {
-                obj.crux = "false";
-              }
-              obj.clazz = res.data.content[i].clazz;
-              that.tableData.push(obj);
-            }
-            that.$message({
-              message: "查询成功",
-              type: "success",
-            });
+              that.$message({
+                message: "查询成功",
+                type: "success",
+              });
 
-            // 搜索条件存入全局变量
-            globaldata.deviceselectInfo = that.selectInfo;
-            globaldata.devicedynamicTags = that.dynamicTags;
+              // 搜索条件存入全局变量
+              globaldata.deviceselectInfo = that.selectInfo;
+              globaldata.devicedynamicTags = that.dynamicTags;
+            }
           })
           .catch((res) => {
             that.$message({
@@ -360,21 +443,19 @@ export default {
             });
           });
       } else {
+        console.log(globaldata.extrainfo_Date);
         for (let i = 1; i < that.selectInfo.length; i++) {
-          url =
-            url +
-            "&" +
-            that.selectInfo[i].ziduan +
-            "=L" +
-            that.selectInfo[i].value +
-            "%25";
-          exportURL =
-            exportURL +
-            "&" +
-            that.selectInfo[i].ziduan +
-            "=L" +
-            that.selectInfo[i].value +
-            "%25";
+          if (globaldata.extrainfo_Date.includes(that.selectInfo[i].ziduan)) {
+            url +=
+              "&" + that.selectInfo[i].ziduan + "=B" + that.selectInfo[i].value;
+            exportURL +=
+              "&" + that.selectInfo[i].ziduan + "=B" + that.selectInfo[i].value;
+          } else {
+            url +=
+              "&" + that.selectInfo[i].ziduan + "=L" + that.selectInfo[i].value;
+            exportURL +=
+              "&" + that.selectInfo[i].ziduan + "=L" + that.selectInfo[i].value;
+          }
         }
         that.exporturl = exportURL;
         that
@@ -382,38 +463,45 @@ export default {
           .then((res) => {
             console.log(res.data);
             that.tableData = [];
-            that.total = res.data.totalElements;
-            that.currentPage = 1;
-            for (var i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.id = res.data.content[i].id;
-              obj.index = index++;
-              obj.name = res.data.content[i].name;
-              obj["brand"] = res.data.content[i].brand;
-              obj.type = res.data.content[i].type;
-              obj.deviceNo = res.data.content[i].deviceNo;
-              if (res.data.content[i].extra.length != 0) {
-                for (var j = 0; j < res.data.content[i].extra.length; j++) {
-                  obj[res.data.content[i].extra[j].field.id] =
-                    res.data.content[i].extra[j].value;
+            if (res.data.content.length == 0) {
+              that.$message({
+                message: "无结果",
+                type: "warning",
+              });
+            } else {
+              that.total = res.data.totalElements;
+              that.currentPage = 1;
+              for (var i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.id = res.data.content[i].id;
+                obj.index = index++;
+                obj.name = res.data.content[i].name;
+                obj["brand"] = res.data.content[i].brand;
+                obj.type = res.data.content[i].type;
+                obj.deviceNo = res.data.content[i].deviceNo;
+                if (res.data.content[i].extra.length != 0) {
+                  for (var j = 0; j < res.data.content[i].extra.length; j++) {
+                    obj[res.data.content[i].extra[j].field.id] =
+                      res.data.content[i].extra[j].value;
+                  }
                 }
+                if (res.data.content[i].crux == true) {
+                  obj.crux = "true";
+                } else if (res.data.content[i].crux == false) {
+                  obj.crux = "false";
+                }
+                obj.clazz = res.data.content[i].clazz;
+                that.tableData.push(obj);
               }
-              if (res.data.content[i].crux == true) {
-                obj.crux = "true";
-              } else if (res.data.content[i].crux == false) {
-                obj.crux = "false";
-              }
-              obj.clazz = res.data.content[i].clazz;
-              that.tableData.push(obj);
-            }
-            that.$message({
-              message: "查询成功",
-              type: "success",
-            });
+              that.$message({
+                message: "查询成功",
+                type: "success",
+              });
 
-            // 搜索条件存入全局变量
-            globaldata.deviceselectInfo = that.selectInfo;
-            globaldata.devicedynamicTags = that.dynamicTags;
+              // 搜索条件存入全局变量
+              globaldata.deviceselectInfo = that.selectInfo;
+              globaldata.devicedynamicTags = that.dynamicTags;
+            }
           })
           .catch((res) => {
             that.$message({
@@ -822,6 +910,7 @@ export default {
         that
           .request("device/info-field", {}, "GET")
           .then((res) => {
+            console.log(res.data);
             for (let i = 0; i < res.data.length; i++) {
               let obj = {};
               obj.label = res.data[i].name;
@@ -834,6 +923,24 @@ export default {
                 value: res.data[i].id,
                 label: res.data[i].name,
               });
+              switch (res.data[i].type) {
+                case "String":
+                  that.ExtraInfo_String.push(res.data[i].id);
+                  break;
+                case "Integer":
+                  that.ExtraInfo_Int.push(res.data[i].id);
+                  break;
+                case "Bool":
+                  that.ExtraInfo_Bool.push(res.data[i].id);
+                  break;
+                case "Date":
+                  that.ExtraInfo_Date.push(res.data[i].id);
+                  globaldata.extrainfo_Date = [];
+                  globaldata.extrainfo_Date.push(res.data[i].id);
+                  break;
+                default:
+                  break;
+              }
             }
           })
           .catch((res) => {
