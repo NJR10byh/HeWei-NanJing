@@ -517,6 +517,7 @@ export default {
 
       //序号
       index: 1,
+      push_obj: {},
     };
   },
   methods: {
@@ -1133,70 +1134,94 @@ export default {
         searchtask = "device/" + data[a].id + "/bind";
       }
       that.request(searchtask, {}, "GET").then((res) => {
-        console.log(res.data);
         if (res.data.length != 0) {
-          for (let i = 0; i < res.data.length; i++) {
-            let obj = {};
-            obj.devicename = devicename;
-            obj.deviceNo = deviceNo;
-            obj.deviceID = deviceID;
-            obj.taskid = res.data[i].id;
-            obj.taskname = res.data[i].name;
-            obj.taskno = res.data[i].no;
-            let URL = "ops/schedule/status/" + res.data[i].id;
-            that.request(URL, {}, "GET").then((res) => {
-              if (res.data.nextDate == null) {
-                obj.nextDate = "暂无";
-              } else {
-                obj.nextDate = res.data.nextDate;
-              }
-              if (res.data.nextDateDay == null) {
-                obj.deadline = "暂无";
-              } else {
-                obj.deadline = res.data.nextDateDay;
-              }
-            });
-
-            // 获取人员信息
-            if (res.data[i].ops.length == 0) {
-              obj.opuser = "暂未分配";
-            } else {
-              for (let k = 0; k < res.data[i].ops.length; k++) {
-                let searchops = "user/" + res.data[i].ops[k].id;
-                that
-                  .request(searchops, {}, "GET")
-                  .then((res) => {
-                    console.log(res.data);
-                    setTimeout(() => {
-                      obj.opuser = "";
-                      obj.opuser = res.data.name;
-                      obj.id = that.index++;
-                      that.tableData.push(obj);
-                    }, 300);
-                  })
-                  .catch(() => {
-                    obj.opuser = "获取失败";
-                  });
-              }
-            }
-          }
+          // 获取此设备下的任务
+          that.getDeviceTask(
+            0,
+            res.data.length,
+            res.data,
+            devicename,
+            deviceNo,
+            deviceID,
+            {}
+          );
           if (++a < length) {
-            that.getData(a, length, data, role);
+            setTimeout(() => {
+              that.getData(a, length, data, role);
+            }, 500);
           }
         } else {
           let obj = {};
           obj.devicename = devicename;
           obj.deviceNo = deviceNo;
           obj.deviceID = deviceID;
-          setTimeout(() => {
-            obj.id = that.index++;
-            that.tableData.push(obj);
-          }, 400);
+          obj.id = that.index++;
+          that.tableData.push(obj);
           if (++a < length) {
             that.getData(a, length, data, role);
           }
         }
       });
+    },
+    // 递归获取此设备下任务数据
+    getDeviceTask(d, length, data, devicename, deviceNo, deviceID, push_obj) {
+      let that = this;
+      push_obj.devicename = devicename;
+      push_obj.deviceNo = deviceNo;
+      push_obj.deviceID = deviceID;
+      push_obj.taskid = data[d].id;
+      push_obj.taskname = data[d].name;
+      push_obj.taskno = data[d].no;
+      //获取人员信息
+      that.getUserData(0, data[d].ops.length, data[d].ops, push_obj, {});
+      setTimeout(() => {
+        if (++d < length) {
+          that.getDeviceTask(
+            d,
+            length,
+            data,
+            devicename,
+            deviceNo,
+            deviceID,
+            {}
+          );
+        }
+      }, 300);
+    },
+    // 递归获取人员数据
+    getUserData(t, length, opsdata, obj, obj_push) {
+      obj_push.opuser = "";
+      let that = this;
+      let searchops = "user/" + opsdata[t].id;
+      that.request(searchops, {}, "GET").then((res) => {
+        obj_push.devicename = obj.devicename;
+        obj_push.deviceNo = obj.deviceNo;
+        obj_push.deviceID = obj.deviceID;
+        obj_push.taskid = obj.taskid;
+        obj_push.taskname = obj.taskname;
+        obj_push.taskno = obj.taskno;
+        obj_push.opuser = res.data.name;
+        obj_push.id = that.index++;
+        that.tableData.push(obj_push);
+      });
+      let URL = "ops/schedule/status/" + obj.taskid;
+      that.request(URL, {}, "GET").then((res) => {
+        if (res.data.nextDate == null) {
+          obj_push.nextDate = "暂无";
+        } else {
+          obj_push.nextDate = res.data.nextDate;
+        }
+        if (res.data.nextDateDay == null) {
+          obj_push.deadline = "暂无";
+        } else {
+          obj_push.deadline = res.data.nextDateDay;
+        }
+      });
+      if (++t < length) {
+        setTimeout(() => {
+          that.getUserData(t, length, opsdata, obj, {});
+        }, 200);
+      }
     },
     // 获取全部全部信息
     getAllDevice() {
@@ -1215,7 +1240,6 @@ export default {
           that.tableData = [];
           that.total = res.data.totalElements;
           that.currentPage = 1;
-          console.log(res.data);
           if (res.data.length == 0) {
             this.$message({
               message: "暂无保养任务",

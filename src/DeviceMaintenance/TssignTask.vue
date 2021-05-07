@@ -240,9 +240,9 @@ export default {
                       type: "success",
                     });
                   })
-                  .catch((res) => {
+                  .catch(() => {
                     that.$message({
-                      message: res.response.data.message,
+                      message: "设备和标准已绑定！",
                       type: "error",
                     });
                   });

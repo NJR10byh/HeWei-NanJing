@@ -38,6 +38,7 @@
                 <el-select
                   clearable
                   filterable
+                  multiple
                   placeholder="请选择保养人员"
                   v-model="TaskInfo.ops"
                 >
@@ -76,20 +77,6 @@ export default {
       this.$route.query.devicename + "（" + this.$route.query.deviceNo + "）";
     that.TaskInfo.task = this.$route.query.taskid * 1;
     that.TaskInfo.nextDate = this.$route.query.nextDate;
-    let url = "ops/schedule/detail/" + this.$route.query.taskid;
-    that
-      .request(url, {}, "GET")
-      .then((res) => {
-        console.log(res.data);
-        that.TaskInfo.task = res.data.name + "(" + res.data.no + ")";
-        that.TaskInfo.ops = res.data.ops[0].id;
-      })
-      .catch((res) => {
-        this.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
-      });
     let URL = "ops/schedule/status/" + this.$route.query.taskid;
     that
       .request(URL, {}, "GET")
@@ -109,7 +96,7 @@ export default {
         .request("user/query?role==OPERATOR", {}, "GET")
         .then((res) => {
           for (var i = 0; i < res.data.content.length; i++) {
-            // console.log(res.data.content[i]);
+            console.log(res.data.content[i]);
             let obj = {};
             obj.value = res.data.content[i].id;
             obj.label =
@@ -146,13 +133,29 @@ export default {
       //     });
       //   });
     }, 300);
+    let url = "ops/schedule/detail/" + this.$route.query.taskid;
+    that
+      .request(url, {}, "GET")
+      .then((res) => {
+        console.log(res.data);
+        that.TaskInfo.task = res.data.name + "(" + res.data.no + ")";
+        for (let i = 0; i < res.data.ops.length; i++) {
+          that.TaskInfo.ops.push(res.data.ops[i].id);
+        }
+      })
+      .catch((res) => {
+        this.$message({
+          message: res.response.data.message,
+          type: "error",
+        });
+      });
   },
   data() {
     return {
       TaskInfo: {
         deviceinfo: "",
         nextDate: "",
-        ops: "",
+        ops: [],
         task: "",
       },
       collapseinfo: [],
@@ -198,7 +201,7 @@ export default {
             task.push({
               id: that.TaskInfo.task,
             });
-            let url = "ops/schedule/detail/" + that.TaskInfo.task;
+            let url = "ops/schedule/detail/" + this.$route.query.taskid;
             that
               .request(url, {}, "GET")
               .then((res) => {
@@ -225,9 +228,9 @@ export default {
                         type: "success",
                       });
                     })
-                    .catch((res) => {
+                    .catch(() => {
                       that.$message({
-                        message: res.response.data.message,
+                        message: "请先解绑！",
                         type: "error",
                       });
                     });
