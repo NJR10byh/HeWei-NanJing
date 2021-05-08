@@ -240,12 +240,11 @@ export default {
       }
     },
     // 编辑员工信息
-    handleEdit(index, row) {
-      console.log(this.tableData[index], row);
-      // this.$router.push({
-      //   path: "/edituser",
-      //   query: this.tableData[index],
-      // });
+    handleEdit(index) {
+      this.$router.push({
+        path: "/edituser",
+        query: this.tableData[index],
+      });
     },
     // 删除单个行
     handleDelete(index) {

@@ -15,7 +15,7 @@
         :data="LogData"
         stripe
         border
-        style="width:100%;"
+        style="width: 100%"
         class="extraTable"
       >
         <el-table-column
@@ -51,7 +51,7 @@
 <script>
 export default {
   components: {},
-  created: function() {
+  created: function () {
     let that = this;
     // 获取全部任务
     that.refresh();
