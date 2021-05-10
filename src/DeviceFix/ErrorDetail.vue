@@ -665,7 +665,7 @@ export default {
       }
     },
     // 提交诊断
-    submitbtn() {
+    async submitbtn() {
       let that = this;
       console.log(that.exceptionType, that.reason, that.solution);
       if (
@@ -683,7 +683,7 @@ export default {
       } else {
         let obj = {};
         let url = "issue/" + that.errorid;
-        that
+        await that
           .request(url, {}, "GET")
           .then((res) => {
             obj.assignee = res.data.assignee;
@@ -704,26 +704,24 @@ export default {
               type: "error",
             });
           });
-        setTimeout(() => {
-          console.log(obj);
-          that
-            .request(url, obj, "PUT")
-            .then(() => {
-              that.$message({
-                message: "提交成功",
-                type: "success",
-              });
-              setTimeout(() => {
-                location.reload(); // 成功后更新UI
-              }, 300);
-            })
-            .catch((res) => {
-              this.$message({
-                message: res.response.data.message,
-                type: "error",
-              });
+        console.log(obj);
+        that
+          .request(url, obj, "PUT")
+          .then(() => {
+            that.$message({
+              message: "提交成功",
+              type: "success",
             });
-        }, 200);
+            setTimeout(() => {
+              location.reload(); // 成功后更新UI
+            }, 300);
+          })
+          .catch((res) => {
+            this.$message({
+              message: res.response.data.message,
+              type: "error",
+            });
+          });
       }
     },
   },

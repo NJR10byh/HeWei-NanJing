@@ -1,6 +1,6 @@
 <template>
   <el-container class="Home">
-    <el-header style="height:80px">
+    <el-header style="height: 80px">
       <div class="logo-wrap">
         <div class="logo">
           <a href="http://cs.njupt.edu.cn/" target="_blank">
@@ -23,7 +23,7 @@
           :username="username"
           :useremail="useremail"
           :avatar="avatarurl"
-          style="margin-left:20px;"
+          style="margin-left: 20px"
         ></user>
       </div>
     </el-header>
@@ -182,7 +182,7 @@
 import User from "../components/Userinfo";
 
 export default {
-  created: function() {
+  created: function () {
     this.request("user/me", {}, "GET")
       .then((res) => {
         console.log(res.data);
@@ -213,7 +213,7 @@ export default {
       });
   },
   // 让页面只刷新一次
-  mounted: function() {
+  mounted: function () {
     if (location.href.indexOf("#reloaded") == -1) {
       location.href = location.href + "#reloaded";
       location.reload();
@@ -330,6 +330,17 @@ export default {
             },
           ],
         },
+        {
+          id: 6,
+          authName: "使用说明",
+          children: [
+            {
+              id: 60,
+              authName: "开始使用",
+              path: "beginUse",
+            },
+          ],
+        },
       ],
       // CREATOR权限
       menuList2: [
@@ -342,11 +353,11 @@ export default {
               authName: "用户列表",
               path: "userList",
             },
-            // {
-            //   id: 12,
-            //   authName: "修改信息",
-            //   path: "edituser",
-            // },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
+            },
           ],
         },
         {
@@ -397,6 +408,17 @@ export default {
             },
           ],
         },
+        {
+          id: 6,
+          authName: "使用说明",
+          children: [
+            {
+              id: 60,
+              authName: "开始使用",
+              path: "beginUse",
+            },
+          ],
+        },
       ],
       // OPERATOR权限
       menuList3: [
@@ -408,6 +430,11 @@ export default {
               id: 11,
               authName: "用户列表",
               path: "userList",
+            },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
             },
           ],
         },
@@ -443,6 +470,17 @@ export default {
             },
           ],
         },
+        {
+          id: 6,
+          authName: "使用说明",
+          children: [
+            {
+              id: 60,
+              authName: "开始使用",
+              path: "beginUse",
+            },
+          ],
+        },
       ],
       // SUPERVISOR权限
       menuList4: [
@@ -455,11 +493,11 @@ export default {
               authName: "用户列表",
               path: "userList",
             },
-            // {
-            //   id: 12,
-            //   authName: "修改信息",
-            //   path: "edituser",
-            // },
+            {
+              id: 12,
+              authName: "修改信息",
+              path: "edituser",
+            },
           ],
         },
         {
@@ -531,6 +569,17 @@ export default {
             },
           ],
         },
+        {
+          id: 6,
+          authName: "使用说明",
+          children: [
+            {
+              id: 60,
+              authName: "开始使用",
+              path: "beginUse",
+            },
+          ],
+        },
       ],
       // 导航图标
       iconsObj: {
@@ -539,6 +588,7 @@ export default {
         3: "iconfont icon-baoyang",
         4: "iconfont icon-weixiu",
         5: "iconfont icon-shujufenxi",
+        6: "iconfont icon-shuoming",
       },
     };
   },
@@ -565,7 +615,7 @@ export default {
       })
         .then(() => {
           window.localStorage.removeItem("token");
-          setTimeout(function() {
+          setTimeout(function () {
             that.$router.push({ path: "/" });
           }, 1000);
         })

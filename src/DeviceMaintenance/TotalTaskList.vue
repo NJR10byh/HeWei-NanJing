@@ -75,21 +75,9 @@
     >
       <!-- <el-table-column type="selection"></el-table-column> -->
       <el-table-column prop="id" label="序号" width="60"></el-table-column>
-      <el-table-column
-        prop="devicename"
-        label="设备名称"
-        width="240"
-      ></el-table-column>
-      <el-table-column
-        prop="deviceNo"
-        label="设备编号"
-        :width="tablewidth"
-      ></el-table-column>
-      <el-table-column
-        prop="taskname"
-        label="标准名称"
-        width="200"
-      ></el-table-column>
+      <el-table-column prop="devicename" label="设备名称"></el-table-column>
+      <el-table-column prop="deviceNo" label="设备编号"></el-table-column>
+      <el-table-column prop="taskname" label="标准名称"></el-table-column>
       <el-table-column
         prop="taskno"
         label="标准编号"
@@ -98,18 +86,10 @@
       <el-table-column
         prop="nextDate"
         label="下次保养时间"
-        :width="tablewidth"
+        width="120"
       ></el-table-column>
-      <el-table-column
-        prop="opuser"
-        label="人员"
-        :width="tablewidth"
-      ></el-table-column>
-      <el-table-column
-        prop="deadline"
-        label="剩余天数"
-        :width="tablewidth"
-      ></el-table-column>
+      <el-table-column prop="opuser" label="人员"></el-table-column>
+      <el-table-column prop="deadline" label="剩余天数"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
@@ -370,7 +350,7 @@ export default {
       userRole: "",
       userid: -1,
       tableData: [],
-      tablewidth: "150",
+      // tablewidth: "150",
       // checkedDetail: [],
       /* 搜索 */
       ifsearch: false,

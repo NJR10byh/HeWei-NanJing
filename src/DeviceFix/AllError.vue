@@ -70,38 +70,24 @@
       <el-table-column
         prop="errordevicename"
         label="故障设备名称"
-        width="200"
       ></el-table-column>
       <el-table-column
         prop="errordeviceNo"
         label="故障设备编号"
-        width="200"
       ></el-table-column>
-      <el-table-column
-        prop="reportername"
-        label="报修人员"
-        :width="tablewidth"
-      ></el-table-column>
+      <el-table-column prop="reportername" label="报修人员"></el-table-column>
       <el-table-column
         prop="reportertime"
         label="报修时间"
-        width="180"
+        width="200"
       ></el-table-column>
-      <el-table-column
-        prop="assigneename"
-        label="维修人员"
-        width="180"
-      ></el-table-column>
-      <el-table-column
-        prop="assigneestatus"
-        label="维修状态"
-        :width="tablewidth"
-      ></el-table-column>
+      <el-table-column prop="assigneename" label="维修人员"></el-table-column>
+      <el-table-column prop="assigneestatus" label="维修状态"></el-table-column>
       <el-table-column
         prop="setting"
         label="操作"
         v-if="userRole != 'OPERATOR'"
-        width="180"
+        width="150"
       >
         <template slot-scope="scope">
           <el-button @click="errordetail(scope.$index)">查看详情</el-button>

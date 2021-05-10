@@ -29,6 +29,9 @@ import DailyRecord from "@/Analysis/DailyRecord"; // 使用日志
 import DailyRecordDetail from "@/Analysis/DailyRecordDetail"; // 使用日志详情
 import FixAnalysis from "@/Analysis/FixAnalysis"; // 维修分析
 import TaskAnalysis from "@/Analysis/TaskAnalysis"; // 保养分析
+/* 使用说明 */
+import BeginUse from "@/BeginUse/BeginUse"; // 使用说明
+
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
 const Home = () => import("../components/Home.vue");
@@ -170,6 +173,11 @@ var routes = [
         path: "/taskAnalysis",
         component: TaskAnalysis,
       },
+      /* 使用说明 */
+      {
+        path: "/beginUse",
+        component: BeginUse,
+      }
     ],
   },
 ];
