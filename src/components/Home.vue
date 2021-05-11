@@ -304,7 +304,7 @@ export default {
             },
             {
               id: 42,
-              authName: "我申请的",
+              authName: "我发布的",
               path: "mySubmit",
             },
           ],
