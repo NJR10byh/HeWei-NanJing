@@ -212,6 +212,7 @@ export default {
             message: "请先登录",
             type: "error",
           });
+          this.$router.push({ path: "/" });
         } else {
           this.$message({
             message: res.response.data.message,
