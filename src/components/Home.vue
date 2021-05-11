@@ -206,10 +206,18 @@ export default {
             : "http://1.15.236.205/api/pic/" + res.data.avatar;
       })
       .catch((res) => {
-        this.$message({
-          message: res.response.data.message,
-          type: "error",
-        });
+        console.log(res.response.status);
+        if (res.response.status == 500) {
+          this.$message({
+            message: "请先登录",
+            type: "error",
+          });
+        } else {
+          this.$message({
+            message: res.response.data.message,
+            type: "error",
+          });
+        }
       });
   },
   // 让页面只刷新一次

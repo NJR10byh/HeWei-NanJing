@@ -24,7 +24,8 @@
 <script>
 import qs from "qs";
 export default {
-  created: function() {
+  created: function () {
+    console.log(localStorage.getItem("token"));
     if (localStorage.getItem("token") != null) {
       this.request("user/me", {}, "GET")
         .then((res) => {
@@ -53,6 +54,7 @@ export default {
           }
         })
         .catch((res) => {
+          console.log(res);
           this.$message({
             message: res.response.data.message,
             type: "error",
