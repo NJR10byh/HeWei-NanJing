@@ -119,7 +119,7 @@ export default {
     let that = this;
     that.userRole = this.globaldata.userRole;
     if (this.userRole == "ADMIN") {
-      that.options2.shift();
+      that.options2[0].disabled = true;
     }
     that.getuser();
   },

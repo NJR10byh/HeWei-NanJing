@@ -195,9 +195,9 @@ export default {
           } else {
             let ops = [];
             let task = [];
-            ops.push({
-              id: that.TaskInfo.ops,
-            });
+            for (let i = 0; i < that.TaskInfo.ops.length; i++) {
+              ops.push({ id: that.TaskInfo.ops[i] });
+            }
             task.push({
               id: that.TaskInfo.task,
             });
@@ -206,6 +206,7 @@ export default {
               .request(url, {}, "GET")
               .then((res) => {
                 console.log(res.data);
+                console.log(ops);
                 let obj = {};
                 obj.content = res.data.content;
                 obj.id = res.data.id;

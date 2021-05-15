@@ -31,6 +31,7 @@ import FixAnalysis from "@/Analysis/FixAnalysis"; // 维修分析
 import TaskAnalysis from "@/Analysis/TaskAnalysis"; // 保养分析
 /* 使用说明 */
 import BeginUse from "@/BeginUse/BeginUse"; // 使用说明
+import AboutSystem from "@/BeginUse/AboutSystem"; // 关于系统
 
 
 const LoginSystem = () => import("../components/LoginSystem.vue");
@@ -177,6 +178,11 @@ var routes = [
       {
         path: "/beginUse",
         component: BeginUse,
+      },
+      /* 关于系统 */
+      {
+        path: "/aboutSystem",
+        component: AboutSystem,
       }
     ],
   },

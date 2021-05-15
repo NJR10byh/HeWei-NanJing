@@ -4,14 +4,14 @@
       <div class="logo-wrap">
         <div class="logo">
           <a href="http://cs.njupt.edu.cn/" target="_blank">
-            <img src="../assets/logo.png" alt />
+            <img src="../assets/HeWeiLogo.png" alt />
           </a>
         </div>
         <div class="toggle-button" @click="toggleCollapse">
           <i class="iconfont icon-caidan1"></i>
         </div>
       </div>
-      <div class="title" @click="aaa">合为企业设备管理系统</div>
+      <div class="title" @click="aaa">合而有为设备管理系统</div>
       <div class="user_info">
         <div class="loginout">
           <el-button icon="el-icon-switch-button" @click="loginOut"
@@ -345,8 +345,13 @@ export default {
           children: [
             {
               id: 60,
-              authName: "开始使用",
+              authName: "查看帮助",
               path: "beginUse",
+            },
+            {
+              id: 61,
+              authName: "关于系统",
+              path: "aboutSystem",
             },
           ],
         },
@@ -417,17 +422,17 @@ export default {
             },
           ],
         },
-        {
-          id: 6,
-          authName: "使用说明",
-          children: [
-            {
-              id: 60,
-              authName: "开始使用",
-              path: "beginUse",
-            },
-          ],
-        },
+        // {
+        //   id: 6,
+        //   authName: "使用说明",
+        //   children: [
+        //     {
+        //       id: 60,
+        //       authName: "开始使用",
+        //       path: "beginUse",
+        //     },
+        //   ],
+        // },
       ],
       // OPERATOR权限
       menuList3: [
@@ -479,17 +484,17 @@ export default {
             },
           ],
         },
-        {
-          id: 6,
-          authName: "使用说明",
-          children: [
-            {
-              id: 60,
-              authName: "开始使用",
-              path: "beginUse",
-            },
-          ],
-        },
+        // {
+        //   id: 6,
+        //   authName: "使用说明",
+        //   children: [
+        //     {
+        //       id: 60,
+        //       authName: "开始使用",
+        //       path: "beginUse",
+        //     },
+        //   ],
+        // },
       ],
       // SUPERVISOR权限
       menuList4: [
@@ -578,17 +583,17 @@ export default {
             },
           ],
         },
-        {
-          id: 6,
-          authName: "使用说明",
-          children: [
-            {
-              id: 60,
-              authName: "开始使用",
-              path: "beginUse",
-            },
-          ],
-        },
+        // {
+        //   id: 6,
+        //   authName: "使用说明",
+        //   children: [
+        //     {
+        //       id: 60,
+        //       authName: "开始使用",
+        //       path: "beginUse",
+        //     },
+        //   ],
+        // },
       ],
       // 导航图标
       iconsObj: {

@@ -1114,6 +1114,7 @@ export default {
         searchtask = "device/" + data[a].id + "/bind";
       }
       that.request(searchtask, {}, "GET").then((res) => {
+        console.log(res.data);
         if (res.data.length != 0) {
           // 获取此设备下的任务
           that.getDeviceTask(
@@ -1174,27 +1175,54 @@ export default {
       let that = this;
       let searchops = "user/" + opsdata[t].id;
       that.request(searchops, {}, "GET").then((res) => {
-        obj_push.devicename = obj.devicename;
-        obj_push.deviceNo = obj.deviceNo;
-        obj_push.deviceID = obj.deviceID;
-        obj_push.taskid = obj.taskid;
-        obj_push.taskname = obj.taskname;
-        obj_push.taskno = obj.taskno;
-        obj_push.opuser = res.data.name;
-        obj_push.id = that.index++;
-        that.tableData.push(obj_push);
-      });
-      let URL = "ops/schedule/status/" + obj.taskid;
-      that.request(URL, {}, "GET").then((res) => {
-        if (res.data.nextDate == null) {
-          obj_push.nextDate = "暂无";
+        if (that.userRole == "OPERATOR") {
+          if (res.data.id == that.userid) {
+            obj_push.devicename = obj.devicename;
+            obj_push.deviceNo = obj.deviceNo;
+            obj_push.deviceID = obj.deviceID;
+            obj_push.taskid = obj.taskid;
+            obj_push.taskname = obj.taskname;
+            obj_push.taskno = obj.taskno;
+            obj_push.opuser = res.data.name;
+            obj_push.id = that.index++;
+            let URL = "ops/schedule/status/" + obj.taskid;
+            that.request(URL, {}, "GET").then((res) => {
+              if (res.data.nextDate == null) {
+                obj_push.nextDate = "暂无";
+              } else {
+                obj_push.nextDate = res.data.nextDate;
+              }
+              if (res.data.nextDateDay == null) {
+                obj_push.deadline = "暂无";
+              } else {
+                obj_push.deadline = res.data.nextDateDay;
+              }
+              that.tableData.push(obj_push);
+            });
+          }
         } else {
-          obj_push.nextDate = res.data.nextDate;
-        }
-        if (res.data.nextDateDay == null) {
-          obj_push.deadline = "暂无";
-        } else {
-          obj_push.deadline = res.data.nextDateDay;
+          obj_push.devicename = obj.devicename;
+          obj_push.deviceNo = obj.deviceNo;
+          obj_push.deviceID = obj.deviceID;
+          obj_push.taskid = obj.taskid;
+          obj_push.taskname = obj.taskname;
+          obj_push.taskno = obj.taskno;
+          obj_push.opuser = res.data.name;
+          obj_push.id = that.index++;
+          let URL = "ops/schedule/status/" + obj.taskid;
+          that.request(URL, {}, "GET").then((res) => {
+            if (res.data.nextDate == null) {
+              obj_push.nextDate = "暂无";
+            } else {
+              obj_push.nextDate = res.data.nextDate;
+            }
+            if (res.data.nextDateDay == null) {
+              obj_push.deadline = "暂无";
+            } else {
+              obj_push.deadline = res.data.nextDateDay;
+            }
+            that.tableData.push(obj_push);
+          });
         }
       });
       if (++t < length) {
@@ -1217,6 +1245,7 @@ export default {
       that
         .request(url, {}, "GET")
         .then((res) => {
+          console.log(res.data);
           that.tableData = [];
           that.total = res.data.totalElements;
           that.currentPage = 1;
@@ -1263,11 +1292,15 @@ export default {
     handleDelete(row) {
       let that = this;
       console.log(row);
-      this.$confirm("解绑会删除相关的保养记录，是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
+      this.$confirm(
+        "解绑会解除该标准和设备之间的绑定，和该标准相关的人员都会被清空，并且会删除该标准在此设备的保养记录，是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
         .then(() => {
           let url = "ops/schedule/" + row.taskid;
           that
