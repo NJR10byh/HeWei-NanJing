@@ -1,4 +1,4 @@
-# njupt-project1130
+# 南京合为企业设备管理系统
 
 ## Project setup
 ```
