@@ -66,7 +66,7 @@
                   class="el-icon-circle-plus-outline addicon"
                   @click="addcontent = true"
                 ></i>
-                <div style="margin-top:0px;">
+                <div style="margin-top: 0px">
                   <el-collapse
                     @change="handleChange"
                     v-for="(item, index) in TaskInfo.content"
@@ -105,11 +105,11 @@
           ref="myQuillEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;margin-top: 5px;"
+          style="height: 180px; margin-top: 5px"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>
-      <div slot="footer" style="margin-top:40px;">
+      <div slot="footer" style="margin-top: 40px">
         <el-button @click="addcontent = false">取 消</el-button>
         <el-button type="primary" @click="submitcontent">确 定</el-button>
       </div>
@@ -126,11 +126,11 @@
           ref="myQuillEditor"
           v-model="TaskInfo.detail"
           :options="editorOption"
-          style="height:180px;margin-top: 5px;"
+          style="height: 180px; margin-top: 5px"
           @change="onEditorChange($event)"
         ></quill-editor>
       </div>
-      <div slot="footer" style="margin-top:40px;">
+      <div slot="footer" style="margin-top: 40px">
         <el-button @click="fixcontent = false">取 消</el-button>
         <el-button type="primary" @click="submitfix">确 定</el-button>
       </div>
@@ -181,7 +181,7 @@ export default {
   components: {
     quillEditor,
   },
-  created: function() {
+  created: function () {
     let that = this;
     if (this.$route.query.taskID != undefined) {
       console.log(this.$route.query);
@@ -189,6 +189,7 @@ export default {
       that
         .request(url, {}, "GET")
         .then((res) => {
+          console.log(res.data);
           that.TaskInfo.scheduleType = res.data.scheduleType;
           that.TaskInfo.name = res.data.name;
           that.TaskInfo.no = res.data.no;
@@ -255,7 +256,7 @@ export default {
           toolbar: {
             container: toolbarOptions, // 工具栏
             handlers: {
-              image: function(value) {
+              image: function (value) {
                 if (value) {
                   document.querySelector(".avatar-uploader input").click();
                 } else {
@@ -313,17 +314,17 @@ export default {
     },
     // 获取图片转base64
     getBase64(file) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         const reader = new FileReader();
         let imgResult = "";
         reader.readAsDataURL(file);
-        reader.onload = function() {
+        reader.onload = function () {
           imgResult = reader.result;
         };
-        reader.onerror = function(error) {
+        reader.onerror = function (error) {
           reject(error);
         };
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           resolve(imgResult);
         };
       });

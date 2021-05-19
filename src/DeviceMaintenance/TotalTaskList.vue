@@ -253,6 +253,7 @@
       </el-date-picker>
 
       <!-- 时间范围 -->
+      <span v-if="selectvalue == 'timeChoose'">开始时间：</span>
       <el-date-picker
         v-model="start"
         type="date"
@@ -260,7 +261,9 @@
         value-format="yyyy-MM-dd"
         v-if="selectvalue == 'timeChoose'"
       >
-      </el-date-picker>
+      </el-date-picker
+      ><br />
+      <span v-if="selectvalue == 'timeChoose'">结束时间：</span>
       <el-date-picker
         v-model="end"
         type="date"
@@ -389,7 +392,7 @@ export default {
           options: [
             {
               value: "timeChoose",
-              label: "时间范围",
+              label: "时间范围（下次保养时间）",
             },
           ],
         },
@@ -592,7 +595,6 @@ export default {
     },
     submitselect() {
       let that = this;
-      this.dialogSearchVisible = false;
       if (this.selectvalue == "scheduleType") {
         this.selectInfo.push({
           ziduan: this.selectvalue,
@@ -612,93 +614,90 @@ export default {
         console.log(this.devicevalue);
         that.searchDevice();
       } else if (this.selectvalue == "timeChoose") {
-        that.tableData = [];
-        that.ifsearch = true;
-        // 清空搜索条件，等待下次搜索
-        that.selectInfo = [];
-        that.selectvalue = "";
-        that.selectmodel = "";
-        that.dynamicTags = [];
-        that.globaldata.deviceselectInfo = [];
-        that.globaldata.devicedynamicTags = [];
-        let url = "ops/query?startDate=B" + this.start + "," + this.end;
-        that
-          .request(url, {}, "GET")
-          .then((res) => {
-            console.log(res.data);
-            that.total = res.data.totalElements;
-            for (let i = 0; i < res.data.content.length; i++) {
-              let obj = {};
-              obj.opuser = "";
-              obj.devicename = "";
-              obj.deviceNo = "";
-              obj.id =
-                res.data.content[i].device.length == 0
-                  ? "暂无"
-                  : res.data.content[i].device[0].id;
-              obj.taskname =
-                res.data.content[i].name == null
-                  ? "未分配"
-                  : res.data.content[i].name;
-              obj.taskno =
-                res.data.content[i].no == null
-                  ? "未分配"
-                  : res.data.content[i].no;
-              let URL = "ops/schedule/status/" + res.data.content[i].id;
-              that
-                .request(URL, {}, "GET")
-                .then((res) => {
-                  if (res.data.nextDate == null) {
-                    obj.nextDate = "暂无";
-                  } else {
-                    obj.nextDate = res.data.nextDate;
-                  }
-                  if (res.data.nextDateDay == null) {
-                    obj.deadline = "暂无";
-                  } else {
-                    obj.deadline = res.data.nextDateDay;
-                  }
-                })
-                .catch((res) => {
-                  this.$message({
-                    message: res.response.data.message,
-                    type: "error",
+        console.log(this.start);
+        if (
+          this.start == "" ||
+          this.start == null ||
+          this.end == "" ||
+          this.end == null
+        ) {
+          this.$message({
+            message: "请将起止日期填写完整",
+            type: "warning",
+          });
+        } else {
+          that.tableData = [];
+          that.ifsearch = true;
+          // 清空搜索条件，等待下次搜索
+          that.selectInfo = [];
+          that.selectvalue = "";
+          that.selectmodel = "";
+          that.dynamicTags = [];
+          that.globaldata.deviceselectInfo = [];
+          that.globaldata.devicedynamicTags = [];
+          this.dynamicTags.push(this.start + " 至 " + this.end);
+          let url = "ops/query?nextDate=B" + this.start + "," + this.end;
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              that.total = res.data.totalElements;
+              for (let i = 0; i < res.data.content.length; i++) {
+                let obj = {};
+                obj.opuser = "";
+                obj.devicename = "";
+                obj.deviceNo = "";
+                obj.id =
+                  res.data.content[i].device.length == 0
+                    ? "暂无"
+                    : res.data.content[i].device[0].id;
+                obj.taskname =
+                  res.data.content[i].name == null
+                    ? "未分配"
+                    : res.data.content[i].name;
+                obj.taskno =
+                  res.data.content[i].no == null
+                    ? "未分配"
+                    : res.data.content[i].no;
+                obj.taskid = res.data.content[i].id;
+                let URL = "ops/schedule/status/" + res.data.content[i].id;
+                that
+                  .request(URL, {}, "GET")
+                  .then((res) => {
+                    if (res.data.nextDate == null) {
+                      obj.nextDate = "暂无";
+                    } else {
+                      obj.nextDate = res.data.nextDate;
+                    }
+                    if (res.data.nextDateDay == null) {
+                      obj.deadline = "暂无";
+                    } else {
+                      obj.deadline = res.data.nextDateDay;
+                    }
+                  })
+                  .catch((res) => {
+                    this.$message({
+                      message: res.response.data.message,
+                      type: "error",
+                    });
                   });
-                });
-              // 获取设备信息
-              setTimeout(() => {
-                if (res.data.content[i].device.length == 0) {
-                  obj.devicename = "暂未分配";
-                  obj.deviceNo = "暂未分配";
-                } else {
-                  for (let j = 0; j < res.data.content[i].device.length; j++) {
-                    let url = "device/" + res.data.content[i].device[j].id;
-                    that
-                      .request(url, {}, "GET")
-                      .then((res) => {
-                        obj.devicename = res.data.name;
-                        obj.deviceNo = res.data.deviceNo;
-                      })
-                      .catch((res) => {
-                        this.$message({
-                          message: res.response.data.message,
-                          type: "error",
-                        });
-                      });
-                  }
-                }
-
-                // 获取人员信息
+                // 获取设备信息
                 setTimeout(() => {
-                  if (res.data.content[i].ops.length == 0) {
-                    obj.opuser = "暂未分配";
+                  if (res.data.content[i].device.length == 0) {
+                    obj.devicename = "暂未分配";
+                    obj.deviceNo = "暂未分配";
                   } else {
-                    for (let k = 0; k < res.data.content[i].ops.length; k++) {
-                      let searchops = "user/" + res.data.content[i].ops[k].id;
+                    for (
+                      let j = 0;
+                      j < res.data.content[i].device.length;
+                      j++
+                    ) {
+                      let url = "device/" + res.data.content[i].device[j].id;
                       that
-                        .request(searchops, {}, "GET")
+                        .request(url, {}, "GET")
                         .then((res) => {
-                          obj.opuser = res.data.name;
+                          obj.devicename = res.data.name;
+                          obj.deviceNo = res.data.deviceNo;
                         })
                         .catch((res) => {
                           this.$message({
@@ -708,25 +707,47 @@ export default {
                         });
                     }
                   }
+
+                  // 获取人员信息
                   setTimeout(() => {
-                    that.tableData.push(obj);
-                  }, 600);
+                    if (res.data.content[i].ops.length == 0) {
+                      obj.opuser = "暂未分配";
+                    } else {
+                      for (let k = 0; k < res.data.content[i].ops.length; k++) {
+                        let searchops = "user/" + res.data.content[i].ops[k].id;
+                        that
+                          .request(searchops, {}, "GET")
+                          .then((res) => {
+                            obj.opuser = res.data.name;
+                          })
+                          .catch((res) => {
+                            this.$message({
+                              message: res.response.data.message,
+                              type: "error",
+                            });
+                          });
+                      }
+                    }
+                    setTimeout(() => {
+                      that.tableData.push(obj);
+                    }, 600);
+                  }, 300);
                 }, 300);
-              }, 300);
-            }
-            setTimeout(() => {
-              that.$message({
-                message: "刷新成功",
-                type: "success",
+              }
+              setTimeout(() => {
+                that.$message({
+                  message: "刷新成功",
+                  type: "success",
+                });
+              }, 600);
+            })
+            .catch((res) => {
+              this.$message({
+                message: res.response.data.message,
+                type: "error",
               });
-            }, 600);
-          })
-          .catch((res) => {
-            this.$message({
-              message: res.response.data.message,
-              type: "error",
             });
-          });
+        }
       } else {
         this.selectInfo.push({
           ziduan: this.selectvalue,
@@ -734,6 +755,7 @@ export default {
         });
         this.dynamicTags.push(this.selectvalue + " / " + this.selectmodel);
       }
+      this.dialogSearchVisible = false;
     },
     // 标签移除
     handleClose(tag) {

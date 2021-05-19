@@ -91,21 +91,9 @@
       >
         <el-table-column type="selection" width="44"></el-table-column>
         <el-table-column prop="index" label="序号" width="60"></el-table-column>
-        <el-table-column
-          prop="name"
-          label="设备名称"
-          width="150"
-        ></el-table-column>
-        <el-table-column
-          prop="brand"
-          label="设备品牌"
-          width="120"
-        ></el-table-column>
-        <el-table-column
-          prop="type"
-          label="设备型号"
-          width="150"
-        ></el-table-column>
+        <el-table-column prop="name" label="设备名称"></el-table-column>
+        <el-table-column prop="brand" label="设备品牌"></el-table-column>
+        <el-table-column prop="type" label="设备型号"></el-table-column>
         <el-table-column
           prop="deviceNo"
           label="设备编号"
@@ -132,7 +120,7 @@
         <el-table-column
           prop="setting"
           label="操作"
-          width="180"
+          width="200"
           v-if="['ROOT', 'ADMIN', 'CREATOR'].includes(userRole)"
         >
           <template slot-scope="scope">
