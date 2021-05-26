@@ -672,7 +672,11 @@ export default {
                     if (res.data.nextDateDay == null) {
                       obj.deadline = "暂无";
                     } else {
-                      obj.deadline = res.data.nextDateDay;
+                      if (res.data.nextDateDay * 1 < 0) {
+                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
                     }
                   })
                   .catch((res) => {
@@ -871,7 +875,11 @@ export default {
                     if (res.data.nextDateDay == null) {
                       obj.deadline = "暂无";
                     } else {
-                      obj.deadline = res.data.nextDateDay;
+                      if (res.data.nextDateDay * 1 < 0) {
+                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
                     }
                   })
                   .catch((res) => {
@@ -1028,7 +1036,11 @@ export default {
                     if (res.data.nextDateDay == null) {
                       obj.deadline = "暂无";
                     } else {
-                      obj.deadline = res.data.nextDateDay;
+                      if (res.data.nextDateDay * 1 < 0) {
+                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                      } else {
+                        obj.deadline = res.data.nextDateDay;
+                      }
                     }
                   })
                   .catch((res) => {
@@ -1217,7 +1229,11 @@ export default {
               if (res.data.nextDateDay == null) {
                 obj_push.deadline = "暂无";
               } else {
-                obj_push.deadline = res.data.nextDateDay;
+                if (res.data.nextDateDay < 0) {
+                  obj_push.deadline = "逾期" + res.data.nextDateDay + "天";
+                } else {
+                  obj_push.deadline = res.data.nextDateDay;
+                }
               }
               that.tableData.push(obj_push);
             });
@@ -1233,6 +1249,7 @@ export default {
           obj_push.id = that.index++;
           let URL = "ops/schedule/status/" + obj.taskid;
           that.request(URL, {}, "GET").then((res) => {
+            console.log(res.data);
             if (res.data.nextDate == null) {
               obj_push.nextDate = "暂无";
             } else {
@@ -1241,7 +1258,11 @@ export default {
             if (res.data.nextDateDay == null) {
               obj_push.deadline = "暂无";
             } else {
-              obj_push.deadline = res.data.nextDateDay;
+              if (res.data.nextDateDay < 0) {
+                obj_push.deadline = "逾期" + res.data.nextDateDay + "天";
+              } else {
+                obj_push.deadline = res.data.nextDateDay;
+              }
             }
             that.tableData.push(obj_push);
           });
