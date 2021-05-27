@@ -673,7 +673,8 @@ export default {
                       obj.deadline = "暂无";
                     } else {
                       if (res.data.nextDateDay * 1 < 0) {
-                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                        obj.deadline =
+                          "逾期 " + res.data.nextDateDay * -1 + " 天";
                       } else {
                         obj.deadline = res.data.nextDateDay;
                       }
@@ -876,7 +877,8 @@ export default {
                       obj.deadline = "暂无";
                     } else {
                       if (res.data.nextDateDay * 1 < 0) {
-                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                        obj.deadline =
+                          "逾期 " + res.data.nextDateDay * -1 + " 天";
                       } else {
                         obj.deadline = res.data.nextDateDay;
                       }
@@ -1037,7 +1039,8 @@ export default {
                       obj.deadline = "暂无";
                     } else {
                       if (res.data.nextDateDay * 1 < 0) {
-                        obj.deadline = "逾期" + res.data.nextDateDay + "天";
+                        obj.deadline =
+                          "逾期 " + res.data.nextDateDay * -1 + " 天";
                       } else {
                         obj.deadline = res.data.nextDateDay;
                       }
@@ -1230,7 +1233,8 @@ export default {
                 obj_push.deadline = "暂无";
               } else {
                 if (res.data.nextDateDay < 0) {
-                  obj_push.deadline = "逾期" + res.data.nextDateDay + "天";
+                  obj_push.deadline =
+                    "逾期 " + res.data.nextDateDay * -1 + " 天";
                 } else {
                   obj_push.deadline = res.data.nextDateDay;
                 }
@@ -1259,7 +1263,7 @@ export default {
               obj_push.deadline = "暂无";
             } else {
               if (res.data.nextDateDay < 0) {
-                obj_push.deadline = "逾期" + res.data.nextDateDay + "天";
+                obj_push.deadline = "逾期 " + res.data.nextDateDay * -1 + " 天";
               } else {
                 obj_push.deadline = res.data.nextDateDay;
               }
