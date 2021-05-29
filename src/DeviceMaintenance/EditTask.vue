@@ -16,14 +16,8 @@
                 </el-form-item>
               </div>
               <div class="part_left_0">
-                <el-form-item label="下次保养时间" class="task">
-                  <el-date-picker
-                    v-model="TaskInfo.nextDate"
-                    type="date"
-                    placeholder="选择日期"
-                    value-format="yyyy-MM-dd"
-                  >
-                  </el-date-picker>
+                <el-form-item label="下次保养时间" class="task name">
+                  <span> {{ TaskInfo.nextDate }}</span>
                 </el-form-item>
               </div>
             </div>
@@ -185,65 +179,56 @@ export default {
             type: "warning",
           });
         } else {
-          if (
-            new Date(that.TaskInfo.nextDate).getTime() < new Date().getTime()
-          ) {
-            that.$message({
-              message: "下次开始日期应大于今天",
-              type: "warning",
-            });
-          } else {
-            let ops = [];
-            let task = [];
-            for (let i = 0; i < that.TaskInfo.ops.length; i++) {
-              ops.push({ id: that.TaskInfo.ops[i] });
-            }
-            task.push({
-              id: that.TaskInfo.task,
-            });
-            let url = "ops/schedule/detail/" + this.$route.query.taskid;
-            that
-              .request(url, {}, "GET")
-              .then((res) => {
-                console.log(res.data);
-                console.log(ops);
-                let obj = {};
-                obj.content = res.data.content;
-                obj.id = res.data.id;
-                obj.name = res.data.name;
-                obj.remark = res.data.remark;
-                obj.no = res.data.no;
-                obj.startDate = that.TaskInfo.nextDate;
-                obj.scheduleType = res.data.scheduleType;
-                obj.tools = res.data.tools;
-                obj.device = [{ id: that.$route.query.deviceID }];
-                obj.ops = ops;
-                console.log(obj);
-                setTimeout(function () {
-                  that
-                    .request(url, obj, "PUT")
-                    .then((res) => {
-                      console.log(res);
-                      that.$message({
-                        message: "修改成功",
-                        type: "success",
-                      });
-                    })
-                    .catch(() => {
-                      that.$message({
-                        message: "请先解绑！",
-                        type: "error",
-                      });
-                    });
-                }, 500);
-              })
-              .catch((res) => {
-                that.$message({
-                  message: res.response.data.message,
-                  type: "error",
-                });
-              });
+          let ops = [];
+          let task = [];
+          for (let i = 0; i < that.TaskInfo.ops.length; i++) {
+            ops.push({ id: that.TaskInfo.ops[i] });
           }
+          task.push({
+            id: that.TaskInfo.task,
+          });
+          let url = "ops/schedule/detail/" + this.$route.query.taskid;
+          that
+            .request(url, {}, "GET")
+            .then((res) => {
+              console.log(res.data);
+              console.log(ops);
+              let obj = {};
+              obj.content = res.data.content;
+              obj.id = res.data.id;
+              obj.name = res.data.name;
+              obj.remark = res.data.remark;
+              obj.no = res.data.no;
+              obj.startDate = res.data.startDate;
+              obj.scheduleType = res.data.scheduleType;
+              obj.tools = res.data.tools;
+              obj.device = [{ id: that.$route.query.deviceID }];
+              obj.ops = ops;
+              console.log(obj);
+              setTimeout(function () {
+                that
+                  .request(url, obj, "PUT")
+                  .then((res) => {
+                    console.log(res);
+                    that.$message({
+                      message: "修改成功",
+                      type: "success",
+                    });
+                  })
+                  .catch(() => {
+                    that.$message({
+                      message: "请先解绑！",
+                      type: "error",
+                    });
+                  });
+              }, 500);
+            })
+            .catch((res) => {
+              that.$message({
+                message: res.response.data.message,
+                type: "error",
+              });
+            });
         }
       }
     },

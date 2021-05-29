@@ -432,7 +432,7 @@ export default {
         that.iftaskall = true;
         that.task = [];
         let res = await that.request(
-          "ops/schedule?page=0&size=100000000",
+          "ops/query?page=0&size=100000000",
           {},
           "GET"
         );
