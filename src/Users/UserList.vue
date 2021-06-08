@@ -67,7 +67,6 @@
             v-if="scope.row.enable && scope.row.userrole != 'ROOT'"
             >删除</el-button
           >
-          <!-- <span v-if="!scope.row.enable">已删除</span> -->
         </template>
       </el-table-column>
     </el-table>
@@ -257,11 +256,15 @@ export default {
     // 删除单个行
     handleDelete(index) {
       let that = this;
-      this.$confirm("删除后无法更改, 是否确定?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
+      this.$confirm(
+        "此操作不可逆，删除用户后，与其绑定的所有任务都将失效, 是否确定?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
         .then(() => {
           let url = "user/" + that.tableData[index].id;
           console.log(url);
@@ -297,11 +300,15 @@ export default {
         });
       } else {
         that
-          .$confirm("此用户将被永久删除, \n是否确定?", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          })
+          .$confirm(
+            "此操作不可逆，删除这些用户后，与他们绑定的所有任务都将失效, \n是否确定?",
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            }
+          )
           .then(() => {
             that.checkedDetail.forEach((element) => {
               that.tableData.forEach((e, i) => {
