@@ -64,10 +64,10 @@
           >
           <el-button
             @click="handleDelete(scope.$index, scope.row)"
-            v-if="scope.row.enable"
+            v-if="scope.row.enable && scope.row.userrole != 'ROOT'"
             >删除</el-button
           >
-          <span v-if="!scope.row.enable">已删除</span>
+          <!-- <span v-if="!scope.row.enable">已删除</span> -->
         </template>
       </el-table-column>
     </el-table>
@@ -133,42 +133,46 @@ export default {
             console.log(res.data.content);
             that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
-              if (res.data.content[i].role == "ROOT") {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
-              } else if (res.data.content[i].role == "ADMIN") {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
+              if (res.data.content[i].enable == true) {
+                if (res.data.content[i].role == "ROOT") {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                } else if (res.data.content[i].role == "ADMIN") {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                }
               }
             }
             for (let i = 0; i < res.data.content.length; i++) {
-              if (
-                res.data.content[i].role != "ROOT" &&
-                res.data.content[i].role != "ADMIN"
-              ) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
+              if (res.data.content[i].enable == true) {
+                if (
+                  res.data.content[i].role != "ROOT" &&
+                  res.data.content[i].role != "ADMIN"
+                ) {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                }
               }
             }
             that.$message({
@@ -188,42 +192,46 @@ export default {
             console.log(res);
             that.total = res.data.totalElements;
             for (let i = 0; i < res.data.content.length; i++) {
-              if (res.data.content[i].role == "ROOT") {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
-              } else if (res.data.content[i].role == "ADMIN") {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
+              if (res.data.content[i].enable == true) {
+                if (res.data.content[i].role == "ROOT") {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                } else if (res.data.content[i].role == "ADMIN") {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                }
               }
             }
             for (let i = 0; i < res.data.content.length; i++) {
-              if (
-                res.data.content[i].role != "ROOT" &&
-                res.data.content[i].role != "ADMIN"
-              ) {
-                let obj = {};
-                obj.id = res.data.content[i].id;
-                obj.index = index++;
-                obj.username = res.data.content[i].username;
-                obj.userrole = res.data.content[i].role;
-                obj.name = res.data.content[i].name;
-                obj.email = res.data.content[i].email;
-                obj.enable = res.data.content[i].enable;
-                that.tableData.push(obj);
+              if (res.data.content[i].enable == true) {
+                if (
+                  res.data.content[i].role != "ROOT" &&
+                  res.data.content[i].role != "ADMIN"
+                ) {
+                  let obj = {};
+                  obj.id = res.data.content[i].id;
+                  obj.index = index++;
+                  obj.username = res.data.content[i].username;
+                  obj.userrole = res.data.content[i].role;
+                  obj.name = res.data.content[i].name;
+                  obj.email = res.data.content[i].email;
+                  obj.enable = res.data.content[i].enable;
+                  that.tableData.push(obj);
+                }
               }
             }
             that.$message({
