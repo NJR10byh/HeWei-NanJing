@@ -12,7 +12,7 @@
     </div>
     <div class="selectPart">
       <div>
-        第一步：
+        第一步:
         <el-select v-model="devicevalue" placeholder="请选择设备" filterable>
           <el-option
             v-for="item in deviceoptions"
@@ -24,7 +24,7 @@
         </el-select>
       </div>
       <div>
-        第二步：
+        第二步:
         <el-select v-model="taskvalue" placeholder="请选择标准" filterable>
           <el-option
             v-for="item in taskoptions"
@@ -36,12 +36,11 @@
         </el-select>
       </div>
       <div>
-        第三步：
+        第三步:
         <el-select
           v-model="opsvalue"
           placeholder="请选择保养人员"
           filterable
-          multiple
           size="large"
         >
           <el-option
@@ -54,7 +53,7 @@
         </el-select>
       </div>
       <div>
-        第四步：
+        第四步:
         <el-date-picker
           v-model="datevalue"
           type="date"
@@ -165,9 +164,6 @@ export default {
       // 选择人员
       opsvalue: "",
       opsoptions: [],
-
-      selectedTaskid: [],
-      selectedDeviceid: [],
     };
   },
   methods: {
@@ -189,8 +185,6 @@ export default {
         let ops = [];
         let url = "ops/schedule/detail/" + that.taskvalue;
         let url_task = "ops/schedule/bind/" + that.taskvalue;
-        console.log(url, url_task);
-        console.log(that.datevalue);
         if (new Date(that.datevalue).getTime() < new Date().getTime()) {
           that.$message({
             message: "下次开始日期应大于今天",
@@ -206,11 +200,9 @@ export default {
                 id: that.devicevalue.split("/")[0] * 1,
                 deviceNo: that.devicevalue.split("/")[1],
               });
-              for (let i = 0; i < that.opsvalue.length; i++) {
-                ops.push({
-                  id: that.opsvalue[i],
-                });
-              }
+              ops.push({
+                id: that.opsvalue,
+              });
               obj.acceptedStandard = res.data.acceptedStandard;
               obj.content = [
                 {
